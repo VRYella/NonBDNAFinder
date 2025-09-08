@@ -10,7 +10,6 @@ from utils import (
     parse_fasta, gc_content, reverse_complement, wrap
 )
 from motifs import get_basic_stats
-from motifs.base_motif import select_best_nonoverlapping_motifs
 # Import the new unified orchestrator
 from all_motifs_refactored import all_motifs_refactored
 from motifs import visualization as viz
