@@ -22,6 +22,7 @@ from motifs.base import Candidate, normalize_scores
 from motifs.registry import get_all_hyperscan_patterns, get_hyperscan_safe_patterns
 import hs_registry_manager
 from motif_detectors import get_all_detectors, get_detector
+from overlap_resolution import EnhancedOverlapResolver, OverlapConfig, OverlapStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -154,14 +155,18 @@ def chunk_sequence(sequence: str, chunk_size: int = 50000, overlap: int = 5000) 
 
 def merge_overlapping_candidates(candidates: List[Candidate], overlap_size: int = 5000) -> List[Candidate]:
     """
-    Remove duplicate candidates from overlapping chunks
+    Remove duplicate candidates from overlapping chunks and resolve overlaps.
+    
+    This function now performs two operations:
+    1. Remove exact duplicates from chunked processing
+    2. Apply enhanced overlap resolution within same subclass
     
     Args:
         candidates: List of candidates from chunked processing
-        overlap_size: Size of overlap between chunks
+        overlap_size: Size of overlap between chunks (for duplicate detection)
         
     Returns:
-        Deduplicated candidates
+        Deduplicated and overlap-resolved candidates
     """
     if not candidates:
         return candidates
@@ -169,7 +174,7 @@ def merge_overlapping_candidates(candidates: List[Candidate], overlap_size: int 
     # Sort by position
     sorted_candidates = sorted(candidates, key=lambda c: (c.sequence_name, c.start))
     
-    # Remove duplicates
+    # Step 1: Remove exact duplicates from chunked processing
     unique_candidates = []
     seen_positions = set()
     
@@ -179,8 +184,21 @@ def merge_overlapping_candidates(candidates: List[Candidate], overlap_size: int 
             unique_candidates.append(candidate)
             seen_positions.add(position_key)
     
-    logger.debug(f"Merged {len(candidates)} -> {len(unique_candidates)} candidates")
-    return unique_candidates
+    logger.debug(f"Removed duplicates: {len(candidates)} -> {len(unique_candidates)} candidates")
+    
+    # Step 2: Apply enhanced overlap resolution
+    overlap_config = OverlapConfig(
+        strategy=OverlapStrategy.HIGHEST_SCORE,
+        min_overlap_percent=0.1,
+        same_class_only=True,  # Resolve overlaps within same subclass
+        preserve_hybrid=True
+    )
+    
+    resolver = EnhancedOverlapResolver(overlap_config)
+    resolved_candidates = resolver.resolve_overlaps(unique_candidates)
+    
+    logger.debug(f"Overlap resolution: {len(unique_candidates)} -> {len(resolved_candidates)} candidates")
+    return resolved_candidates
 
 
 def detect_hybrid_and_cluster_motifs(candidates: List[Candidate]) -> List[Candidate]:

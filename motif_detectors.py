@@ -29,9 +29,31 @@ logger = logging.getLogger(__name__)
 
 
 class MotifBase(ABC):
-    """Base class for all motif detectors"""
+    """
+    Base class for all motif detectors.
+    
+    This abstract base class provides the common interface and functionality
+    for all Non-B DNA motif detectors. Each specific detector inherits from
+    this class and implements the detect() and score() methods.
+    
+    Attributes:
+        class_name (str): Name of the motif class (e.g., 'g_quadruplex')
+        class_id (int): Numeric identifier for the motif class
+        patterns (list): List of regex patterns for this motif type
+    
+    Methods:
+        detect(): Abstract method to detect motif candidates in a sequence
+        score(): Abstract method to score detected candidates
+        make_candidate(): Helper method to create Candidate objects
+    """
     
     def __init__(self, class_name: str):
+        """
+        Initialize the motif detector.
+        
+        Args:
+            class_name (str): Name of the motif class to detect
+        """
         self.class_name = class_name
         self.class_id = get_class_id(class_name)
         self.patterns = get_patterns_for_motif(class_name)
@@ -39,7 +61,26 @@ class MotifBase(ABC):
     def make_candidate(self, seq: str, seq_name: str, contig: str, offset: int,
                       start: int, end: int, pattern_name: str, subclass: str,
                       motif_id: int) -> Candidate:
-        """Create a candidate from match information"""
+        """
+        Create a candidate from match information.
+        
+        This helper method constructs a Candidate object from detection results,
+        ensuring all required fields are properly set and derived fields are calculated.
+        
+        Args:
+            seq (str): Full DNA sequence being analyzed
+            seq_name (str): Name/identifier of the sequence
+            contig (str): Chromosome or contig identifier
+            offset (int): Offset for chunked sequences
+            start (int): Start position of the motif (0-based)
+            end (int): End position of the motif (0-based, inclusive)
+            pattern_name (str): Name of the pattern that matched
+            subclass (str): Subclass of the motif (e.g., 'canonical_G4')
+            motif_id (int): Unique identifier for this motif instance
+            
+        Returns:
+            Candidate: A fully initialized Candidate object
+        """
         matched_seq = seq[start:end+1].encode('utf-8')
         
         return Candidate(
@@ -58,12 +99,38 @@ class MotifBase(ABC):
     
     @abstractmethod
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
-        """Detect motif candidates in sequence"""
+        """
+        Detect motif candidates in a DNA sequence.
+        
+        This abstract method must be implemented by each specific detector to
+        identify potential motif sites using appropriate algorithms and patterns.
+        
+        Args:
+            seq (str): DNA sequence to analyze (uppercase ATCG)
+            seq_name (str): Identifier for the sequence
+            contig (str): Chromosome or contig name
+            offset (int): Position offset for chunked sequences
+            
+        Returns:
+            List[Candidate]: List of detected motif candidates
+        """
         pass
     
     @abstractmethod
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
-        """Score detected candidates"""
+        """
+        Score motif candidates using class-specific algorithms.
+        
+        This abstract method must be implemented by each detector to assign
+        quality scores to detected candidates based on biological relevance
+        and structural characteristics.
+        
+        Args:
+            candidates (List[Candidate]): List of candidates to score
+            
+        Returns:
+            List[Candidate]: Same candidates with scores assigned
+        """
         pass
 
 
