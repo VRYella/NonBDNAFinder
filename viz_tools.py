@@ -223,7 +223,206 @@ def plot_density_track(df: pd.DataFrame, sequence_name: str, seq_len: int,
     return fig
 
 
-def plot_overlap_network(df: pd.DataFrame, title: str = "Motif Overlap Network") -> go.Figure:
+def plot_overlap_analysis(df: pd.DataFrame, title: str = "Overlap Analysis") -> go.Figure:
+    """
+    Create comprehensive overlap analysis visualization.
+    
+    This function generates multiple visualizations to analyze overlapping motifs:
+    1. Overlap frequency by class
+    2. Resolution strategy effectiveness
+    3. Score distribution of overlapping vs non-overlapping motifs
+    
+    Args:
+        df (pd.DataFrame): Results DataFrame with overlap information
+        title (str): Title for the plot
+        
+    Returns:
+        go.Figure: Plotly figure with overlap analysis
+    """
+    check_dependencies()
+    
+    if df.empty:
+        fig = go.Figure()
+        fig.add_annotation(text="No data available for overlap analysis",
+                          xref="paper", yref="paper", x=0.5, y=0.5,
+                          showarrow=False, font=dict(size=16))
+        fig.update_layout(title=title)
+        return fig
+    
+    # Create subplots
+    fig = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=[
+            "Overlap Frequency by Class",
+            "Score Distribution: Overlapping vs Non-overlapping",
+            "Overlap Classes Distribution", 
+            "Motif Length vs Overlap Status"
+        ],
+        specs=[[{"type": "bar"}, {"type": "box"}],
+               [{"type": "pie"}, {"type": "scatter"}]]
+    )
+    
+    # Prepare overlap data
+    df_copy = df.copy()
+    df_copy['Has_Overlap'] = df_copy.get('Overlap_Classes', '').astype(str).str.len() > 0
+    df_copy['Overlap_Count'] = df_copy.get('Overlap_Classes', '').astype(str).str.count(',') + 1
+    df_copy.loc[df_copy['Overlap_Classes'].astype(str) == '', 'Overlap_Count'] = 0
+    
+    # 1. Overlap frequency by class
+    overlap_by_class = df_copy.groupby('Class')['Has_Overlap'].agg(['sum', 'count']).reset_index()
+    overlap_by_class['Overlap_Rate'] = overlap_by_class['sum'] / overlap_by_class['count'] * 100
+    
+    fig.add_trace(
+        go.Bar(
+            x=overlap_by_class['Class'],
+            y=overlap_by_class['Overlap_Rate'],
+            name="Overlap Rate (%)",
+            marker=dict(color='lightcoral')
+        ),
+        row=1, col=1
+    )
+    
+    # 2. Score distribution
+    overlapping_scores = df_copy[df_copy['Has_Overlap']]['Normalized_Score'].dropna()
+    non_overlapping_scores = df_copy[~df_copy['Has_Overlap']]['Normalized_Score'].dropna()
+    
+    if len(overlapping_scores) > 0:
+        fig.add_trace(
+            go.Box(y=overlapping_scores, name="Overlapping", marker=dict(color='red')),
+            row=1, col=2
+        )
+    
+    if len(non_overlapping_scores) > 0:
+        fig.add_trace(
+            go.Box(y=non_overlapping_scores, name="Non-overlapping", marker=dict(color='blue')),
+            row=1, col=2
+        )
+    
+    # 3. Overlap classes distribution
+    overlap_classes_flat = []
+    for overlap_str in df_copy['Overlap_Classes'].dropna():
+        if overlap_str and str(overlap_str) != 'nan':
+            classes = str(overlap_str).split(',')
+            overlap_classes_flat.extend([cls.strip() for cls in classes if cls.strip()])
+    
+    if overlap_classes_flat:
+        overlap_counts = pd.Series(overlap_classes_flat).value_counts()
+        fig.add_trace(
+            go.Pie(
+                labels=overlap_counts.index,
+                values=overlap_counts.values,
+                name="Overlap Classes"
+            ),
+            row=2, col=1
+        )
+    
+    # 4. Length vs overlap
+    fig.add_trace(
+        go.Scatter(
+            x=df_copy['Length'],
+            y=df_copy['Normalized_Score'],
+            mode='markers',
+            marker=dict(
+                color=df_copy['Has_Overlap'].map({True: 'red', False: 'blue'}),
+                size=8,
+                opacity=0.6
+            ),
+            name="Motifs",
+            text=df_copy['Class'],
+            hovertemplate="<b>%{text}</b><br>Length: %{x}<br>Score: %{y}<br>Overlapping: %{marker.color}<extra></extra>"
+        ),
+        row=2, col=2
+    )
+    
+    # Update layout
+    fig.update_layout(
+        title=title,
+        height=800,
+        showlegend=True
+    )
+    
+    # Update axis labels
+    fig.update_xaxes(title_text="Motif Class", row=1, col=1)
+    fig.update_yaxes(title_text="Overlap Rate (%)", row=1, col=1)
+    fig.update_yaxes(title_text="Normalized Score", row=1, col=2)
+    fig.update_xaxes(title_text="Motif Length", row=2, col=2)
+    fig.update_yaxes(title_text="Normalized Score", row=2, col=2)
+    
+    return fig
+
+
+def plot_resolution_effectiveness(before_df: pd.DataFrame, after_df: pd.DataFrame, 
+                                title: str = "Overlap Resolution Effectiveness") -> go.Figure:
+    """
+    Compare motif distributions before and after overlap resolution.
+    
+    Args:
+        before_df (pd.DataFrame): Results before overlap resolution
+        after_df (pd.DataFrame): Results after overlap resolution
+        title (str): Title for the plot
+        
+    Returns:
+        go.Figure: Plotly figure showing resolution effectiveness
+    """
+    check_dependencies()
+    
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=["Before Resolution", "After Resolution"],
+        specs=[[{"type": "bar"}, {"type": "bar"}]]
+    )
+    
+    # Count by class before and after
+    before_counts = before_df['Class'].value_counts() if not before_df.empty else pd.Series()
+    after_counts = after_df['Class'].value_counts() if not after_df.empty else pd.Series()
+    
+    # Before resolution
+    if not before_counts.empty:
+        fig.add_trace(
+            go.Bar(
+                x=before_counts.index,
+                y=before_counts.values,
+                name="Before",
+                marker=dict(color='lightblue')
+            ),
+            row=1, col=1
+        )
+    
+    # After resolution
+    if not after_counts.empty:
+        fig.add_trace(
+            go.Bar(
+                x=after_counts.index,
+                y=after_counts.values,
+                name="After",
+                marker=dict(color='darkblue')
+            ),
+            row=1, col=2
+        )
+    
+    # Add reduction percentages
+    reduction_stats = []
+    all_classes = set(before_counts.index) | set(after_counts.index)
+    
+    for cls in all_classes:
+        before_count = before_counts.get(cls, 0)
+        after_count = after_counts.get(cls, 0)
+        reduction = (before_count - after_count) / before_count * 100 if before_count > 0 else 0
+        reduction_stats.append(f"{cls}: {reduction:.1f}% reduction")
+    
+    # Update layout
+    fig.update_layout(
+        title=f"{title}<br><sub>{'<br>'.join(reduction_stats[:5])}</sub>",
+        height=500,
+        showlegend=False
+    )
+    
+    fig.update_xaxes(title_text="Motif Class", row=1, col=1)
+    fig.update_xaxes(title_text="Motif Class", row=1, col=2)
+    fig.update_yaxes(title_text="Count", row=1, col=1)
+    fig.update_yaxes(title_text="Count", row=1, col=2)
+    
+    return fig
     """
     Create network plot showing overlapping motifs
     
