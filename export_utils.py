@@ -316,3 +316,332 @@ def save_browser_files(session_data: Dict[str, Any], output_dir: str = ".") -> D
         file_paths[track_id] = filepath
     
     return file_paths
+
+
+def export_detailed_motif_table(motifs: List[Dict[str, Any]], 
+                               coverage_metrics: Dict[str, float] = None,
+                               format_type: str = "excel") -> bytes:
+    """
+    Export comprehensive detailed motif table with all analysis metrics
+    
+    Args:
+        motifs: List of motif dictionaries
+        coverage_metrics: Optional coverage and density metrics
+        format_type: Export format ("excel", "csv", "tsv")
+    
+    Returns:
+        File content as bytes for download
+    """
+    import pandas as pd
+    from io import BytesIO, StringIO
+    
+    if not motifs:
+        if format_type == "excel":
+            return BytesIO().getvalue()
+        else:
+            return StringIO().getvalue().encode()
+    
+    # Convert motifs to DataFrame
+    df = pd.DataFrame(motifs)
+    
+    # Ensure all required columns exist
+    required_columns = [
+        'Sequence Name', 'Class', 'Subclass', 'Start', 'End', 'Length',
+        'Normalized_Score', 'Actual_Score', 'GC Content', 'Sequence',
+        'Motif_ID', 'Scoring_Method'
+    ]
+    
+    for col in required_columns:
+        if col not in df.columns:
+            df[col] = 'N/A'
+    
+    # Add derived columns for detailed analysis
+    df['Center_Position'] = (df['Start'] + df['End']) / 2
+    df['Score_Rank'] = df['Normalized_Score'].rank(ascending=False, method='min')
+    df['Length_Category'] = pd.cut(df['Length'], bins=[0, 20, 50, 100, 500, float('inf')], 
+                                  labels=['Very Short', 'Short', 'Medium', 'Long', 'Very Long'])
+    
+    # Score categories
+    score_quantiles = df['Normalized_Score'].quantile([0.25, 0.5, 0.75])
+    df['Score_Category'] = pd.cut(df['Normalized_Score'], 
+                                 bins=[0, score_quantiles[0.25], score_quantiles[0.5], 
+                                       score_quantiles[0.75], 1.0],
+                                 labels=['Low', 'Medium', 'High', 'Very High'],
+                                 include_lowest=True)
+    
+    if format_type == "excel":
+        output = BytesIO()
+        
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            # Main detailed motifs table
+            df.to_excel(writer, sheet_name='Detailed_Motif_Table', index=False)
+            
+            # Summary statistics
+            summary_stats = {
+                'Total_Motifs': len(df),
+                'Unique_Classes': df['Class'].nunique(),
+                'Unique_Subclasses': df['Subclass'].nunique(),
+                'Mean_Length': df['Length'].mean(),
+                'Median_Length': df['Length'].median(),
+                'Mean_Score': df['Normalized_Score'].mean(),
+                'Median_Score': df['Normalized_Score'].median(),
+                'Max_Score': df['Normalized_Score'].max(),
+                'Min_Score': df['Normalized_Score'].min(),
+                'Score_StdDev': df['Normalized_Score'].std(),
+                'Total_Sequence_Coverage': df['Length'].sum()
+            }
+            
+            # Add coverage metrics if provided
+            if coverage_metrics:
+                summary_stats.update(coverage_metrics)
+            
+            summary_df = pd.DataFrame.from_dict(summary_stats, orient='index', columns=['Value'])
+            summary_df.to_excel(writer, sheet_name='Summary_Statistics')
+            
+            # Class-specific sheets
+            for class_name in df['Class'].unique():
+                if pd.isna(class_name):
+                    continue
+                class_df = df[df['Class'] == class_name]
+                sheet_name = str(class_name).replace('_', ' ').title()[:31]
+                class_df.to_excel(writer, sheet_name=sheet_name, index=False)
+            
+            # Subclass distribution
+            subclass_counts = df['Subclass'].value_counts().reset_index()
+            subclass_counts.columns = ['Subclass', 'Count']
+            subclass_counts['Percentage'] = (subclass_counts['Count'] / len(df)) * 100
+            subclass_counts.to_excel(writer, sheet_name='Subclass_Distribution', index=False)
+            
+            # Position-based analysis (binned)
+            if 'Start' in df.columns and 'End' in df.columns:
+                max_pos = df['End'].max()
+                bin_size = max(1000, max_pos // 100)  # Create ~100 bins
+                df['Position_Bin'] = pd.cut(df['Center_Position'], bins=range(0, int(max_pos) + bin_size, bin_size))
+                
+                position_analysis = df.groupby('Position_Bin').agg({
+                    'Class': 'count',
+                    'Length': ['mean', 'sum'],
+                    'Normalized_Score': 'mean'
+                }).round(3)
+                
+                position_analysis.columns = ['Motif_Count', 'Mean_Length', 'Total_Length', 'Mean_Score']
+                position_analysis = position_analysis.reset_index()
+                position_analysis.to_excel(writer, sheet_name='Position_Analysis', index=False)
+        
+        output.seek(0)
+        return output.getvalue()
+    
+    elif format_type == "csv":
+        output = StringIO()
+        df.to_csv(output, index=False)
+        return output.getvalue().encode()
+    
+    elif format_type == "tsv":
+        output = StringIO()
+        df.to_csv(output, sep='\t', index=False)
+        return output.getvalue().encode()
+    
+    else:
+        raise ValueError(f"Unsupported format: {format_type}")
+
+
+def create_comprehensive_analysis_report(motifs: List[Dict[str, Any]], 
+                                        sequence_length: int = None,
+                                        sequence_name: str = "sequence") -> bytes:
+    """
+    Create a comprehensive analysis report with multiple data exports
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total sequence length
+        sequence_name: Name of the sequence
+    
+    Returns:
+        ZIP file content as bytes containing multiple analysis files
+    """
+    import zipfile
+    from io import BytesIO
+    
+    zip_buffer = BytesIO()
+    
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        # 1. Detailed motif table (Excel)
+        detailed_table = export_detailed_motif_table(motifs, format_type="excel")
+        zip_file.writestr(f"{sequence_name}_detailed_motif_table.xlsx", detailed_table)
+        
+        # 2. BED format for genome browsers
+        bed_content = export_to_bed(motifs, sequence_name)
+        zip_file.writestr(f"{sequence_name}_motifs.bed", bed_content)
+        
+        # 3. GFF3 format for detailed annotations
+        gff3_content = export_to_gff3(motifs, sequence_name)
+        zip_file.writestr(f"{sequence_name}_motifs.gff3", gff3_content)
+        
+        # 4. Class-specific BED files
+        class_tracks = export_class_specific_tracks(motifs, sequence_name)
+        for class_name, bed_data in class_tracks.items():
+            safe_class_name = class_name.replace('_', '-').replace(' ', '-')
+            zip_file.writestr(f"{sequence_name}_{safe_class_name}_motifs.bed", bed_data)
+        
+        # 5. Coverage and density analysis
+        if sequence_length:
+            from viz_tools import calculate_coverage_density_metrics
+            coverage_metrics = calculate_coverage_density_metrics(
+                pd.DataFrame(motifs), sequence_length
+            )
+            
+            # Save coverage metrics as JSON
+            import json
+            coverage_json = json.dumps(coverage_metrics, indent=2)
+            zip_file.writestr(f"{sequence_name}_coverage_metrics.json", coverage_json)
+            
+            # Create density bedgraph
+            density_bg = create_density_bedgraph(motifs, sequence_length, sequence_name)
+            zip_file.writestr(f"{sequence_name}_density.bedgraph", density_bg)
+        
+        # 6. Summary report (text)
+        summary_report = create_text_summary_report(motifs, sequence_length, sequence_name)
+        zip_file.writestr(f"{sequence_name}_summary_report.txt", summary_report)
+    
+    zip_buffer.seek(0)
+    return zip_buffer.getvalue()
+
+
+def create_text_summary_report(motifs: List[Dict[str, Any]], 
+                              sequence_length: int = None,
+                              sequence_name: str = "sequence") -> str:
+    """
+    Create a human-readable text summary report
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total sequence length
+        sequence_name: Name of the sequence
+    
+    Returns:
+        Formatted text report as string
+    """
+    if not motifs:
+        return f"NBDFinder Analysis Report for {sequence_name}\n\nNo motifs detected."
+    
+    df = pd.DataFrame(motifs)
+    
+    report_lines = [
+        f"NBDFinder Analysis Report",
+        f"=" * 50,
+        f"Sequence: {sequence_name}",
+        f"Analysis Date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"",
+        f"SUMMARY STATISTICS",
+        f"-" * 20,
+        f"Total motifs detected: {len(df)}",
+        f"Unique motif classes: {df['Class'].nunique()}",
+        f"Unique subclasses: {df['Subclass'].nunique()}",
+    ]
+    
+    if sequence_length:
+        coverage_metrics = calculate_coverage_density_metrics(df, sequence_length)
+        report_lines.extend([
+            f"Sequence length: {sequence_length:,} bp",
+            f"Total bases covered: {coverage_metrics.get('bases_covered', 0):,} bp",
+            f"Coverage percentage: {coverage_metrics.get('coverage_percentage', 0):.2f}%",
+            f"Motif density: {coverage_metrics.get('motif_density_per_kb', 0):.2f} motifs/kb",
+        ])
+    
+    report_lines.extend([
+        f"Mean motif length: {df['Length'].mean():.1f} bp",
+        f"Median motif length: {df['Length'].median():.1f} bp",
+        f"Mean normalized score: {df['Normalized_Score'].mean():.3f}",
+        f"",
+        f"CLASS DISTRIBUTION",
+        f"-" * 20,
+    ])
+    
+    # Class distribution
+    class_counts = df['Class'].value_counts()
+    for class_name, count in class_counts.items():
+        percentage = (count / len(df)) * 100
+        report_lines.append(f"{class_name}: {count} motifs ({percentage:.1f}%)")
+    
+    report_lines.extend([
+        f"",
+        f"SUBCLASS DISTRIBUTION",
+        f"-" * 20,
+    ])
+    
+    # Subclass distribution
+    subclass_counts = df['Subclass'].value_counts()
+    for subclass, count in subclass_counts.head(10).items():  # Top 10
+        percentage = (count / len(df)) * 100
+        report_lines.append(f"{subclass}: {count} motifs ({percentage:.1f}%)")
+    
+    if len(subclass_counts) > 10:
+        report_lines.append(f"... and {len(subclass_counts) - 10} more subclasses")
+    
+    report_lines.extend([
+        f"",
+        f"SCORE STATISTICS",
+        f"-" * 20,
+        f"Highest score: {df['Normalized_Score'].max():.3f}",
+        f"Lowest score: {df['Normalized_Score'].min():.3f}",
+        f"Score standard deviation: {df['Normalized_Score'].std():.3f}",
+        f"",
+        f"TOP 10 HIGHEST SCORING MOTIFS",
+        f"-" * 20,
+    ])
+    
+    # Top scoring motifs
+    top_motifs = df.nlargest(10, 'Normalized_Score')
+    for _, motif in top_motifs.iterrows():
+        report_lines.append(
+            f"{motif['Class']} ({motif['Subclass']}) at {motif['Start']}-{motif['End']}: "
+            f"Score {motif['Normalized_Score']:.3f}"
+        )
+    
+    return "\n".join(report_lines)
+
+
+# Helper function to calculate coverage density metrics (if not imported from viz_tools)
+def calculate_coverage_density_metrics(df: pd.DataFrame, sequence_length: int = None) -> Dict[str, float]:
+    """
+    Calculate comprehensive coverage and density metrics
+    (Fallback implementation if viz_tools import fails)
+    """
+    if df.empty:
+        return {}
+    
+    metrics = {
+        'total_motifs': len(df),
+        'unique_classes': df['Class'].nunique(),
+        'unique_subclasses': df['Subclass'].nunique(),
+        'mean_motif_length': df['Length'].mean(),
+        'median_motif_length': df['Length'].median(),
+        'total_motif_bases': df['Length'].sum(),
+    }
+    
+    if 'Normalized_Score' in df.columns:
+        metrics.update({
+            'mean_score': df['Normalized_Score'].mean(),
+            'median_score': df['Normalized_Score'].median(),
+            'max_score': df['Normalized_Score'].max(),
+            'min_score': df['Normalized_Score'].min(),
+        })
+    
+    if sequence_length:
+        metrics['sequence_length'] = sequence_length
+        
+        # Calculate coverage
+        covered_positions = set()
+        for _, motif in df.iterrows():
+            start, end = int(motif['Start']), int(motif['End'])
+            covered_positions.update(range(start, end + 1))
+        
+        bases_covered = len(covered_positions)
+        metrics.update({
+            'bases_covered': bases_covered,
+            'coverage_fraction': bases_covered / sequence_length,
+            'coverage_percentage': (bases_covered / sequence_length) * 100,
+            'motif_density_per_kb': (len(df) / sequence_length) * 1000,
+        })
+    
+    return metrics

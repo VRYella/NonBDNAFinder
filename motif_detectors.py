@@ -833,7 +833,7 @@ class ClusterDetector(MotifBase):
         return []
     
     def detect_from_candidates(self, candidates: List[Candidate], window_size: int = 1000) -> List[Candidate]:
-        """Detect clusters from existing candidates"""
+        """Detect clusters from existing candidates and report longest regions"""
         cluster_candidates = []
         
         if not candidates:
@@ -842,7 +842,8 @@ class ClusterDetector(MotifBase):
         # Sort candidates by position
         sorted_candidates = sorted(candidates, key=lambda c: c.start)
         
-        # Sliding window to find dense regions
+        # Find all potential clusters with sliding window
+        potential_clusters = []
         for i in range(len(sorted_candidates)):
             window_candidates = []
             for j in range(i, len(sorted_candidates)):
@@ -851,42 +852,109 @@ class ClusterDetector(MotifBase):
                 else:
                     break
             
-            # If window has multiple motifs, create cluster
+            # If window has multiple motifs, consider it a cluster
             if len(window_candidates) >= 3:  # Minimum cluster size
                 start_pos = min(c.start for c in window_candidates)
                 end_pos = max(c.end for c in window_candidates)
                 
-                cluster = Candidate(
-                    sequence_name=window_candidates[0].sequence_name,
-                    contig=window_candidates[0].contig,
-                    class_id=get_class_id('cluster'),
-                    class_name='cluster',
-                    subclass='Motif_hotspot',
-                    motif_id=i,
-                    start=start_pos,
-                    end=end_pos,
-                    length=end_pos - start_pos + 1,
-                    matched_seq=f"cluster_{len(window_candidates)}_motifs".encode(),
-                    pattern_name=f"cluster_{window_size}bp"
-                )
-                cluster_candidates.append(cluster)
+                potential_clusters.append({
+                    'start': start_pos,
+                    'end': end_pos,
+                    'length': end_pos - start_pos + 1,
+                    'motifs': window_candidates,
+                    'density': len(window_candidates) / (end_pos - start_pos + 1)
+                })
+        
+        # Merge overlapping clusters and keep longest regions
+        merged_clusters = self._merge_overlapping_clusters(potential_clusters)
+        
+        # Create cluster candidates, prioritizing longest regions
+        for i, cluster_info in enumerate(merged_clusters):
+            cluster = Candidate(
+                sequence_name=cluster_info['motifs'][0].sequence_name,
+                contig=cluster_info['motifs'][0].contig,
+                class_id=get_class_id('cluster'),
+                class_name='cluster',
+                subclass='Motif_hotspot',
+                motif_id=i,
+                start=cluster_info['start'],
+                end=cluster_info['end'],
+                length=cluster_info['length'],
+                matched_seq=f"cluster_{len(cluster_info['motifs'])}_motifs_longest_{cluster_info['length']}bp".encode(),
+                pattern_name=f"cluster_{window_size}bp"
+            )
+            cluster_candidates.append(cluster)
         
         return cluster_candidates
     
+    def _merge_overlapping_clusters(self, clusters):
+        """Merge overlapping clusters and prioritize longest regions"""
+        if not clusters:
+            return []
+        
+        # Sort by start position
+        sorted_clusters = sorted(clusters, key=lambda x: x['start'])
+        merged = []
+        
+        current_cluster = sorted_clusters[0].copy()
+        
+        for next_cluster in sorted_clusters[1:]:
+            # Check if clusters overlap
+            if next_cluster['start'] <= current_cluster['end']:
+                # Merge clusters, extending to cover the maximum range
+                current_cluster['end'] = max(current_cluster['end'], next_cluster['end'])
+                current_cluster['length'] = current_cluster['end'] - current_cluster['start'] + 1
+                current_cluster['motifs'].extend(next_cluster['motifs'])
+                # Remove duplicates while preserving order
+                seen = set()
+                unique_motifs = []
+                for motif in current_cluster['motifs']:
+                    motif_key = (motif.start, motif.end, motif.class_name)
+                    if motif_key not in seen:
+                        seen.add(motif_key)
+                        unique_motifs.append(motif)
+                current_cluster['motifs'] = unique_motifs
+                current_cluster['density'] = len(current_cluster['motifs']) / current_cluster['length']
+            else:
+                # No overlap, add current cluster to results
+                merged.append(current_cluster)
+                current_cluster = next_cluster.copy()
+        
+        # Add the last cluster
+        merged.append(current_cluster)
+        
+        # Sort by length (longest first) to prioritize longest regions
+        merged.sort(key=lambda x: x['length'], reverse=True)
+        
+        return merged
+    
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
-        """Score cluster candidates"""
+        """Score cluster candidates with emphasis on longest regions and density"""
         for candidate in candidates:
-            # Extract motif count from matched_seq
+            # Extract motif count and length from matched_seq
             seq_str = candidate.matched_seq.decode('utf-8')
             if 'cluster_' in seq_str and '_motifs' in seq_str:
                 try:
-                    motif_count = int(seq_str.split('_')[1])
-                    candidate.raw_score = motif_count / 10.0  # Normalize
-                except:
+                    # Parse: cluster_{count}_motifs_longest_{length}bp
+                    parts = seq_str.split('_')
+                    motif_count = int(parts[1])
+                    
+                    # Calculate density score (motifs per kb)
+                    density_score = (motif_count / candidate.length) * 1000 if candidate.length > 0 else 0
+                    
+                    # Length bonus for longest regions (normalized by max reasonable cluster size)
+                    length_score = min(candidate.length / 5000.0, 1.0)  # Cap at 5kb
+                    
+                    # Combined score: density + length bonus
+                    candidate.raw_score = (density_score * 0.7) + (length_score * 0.3)
+                    
+                except (ValueError, IndexError):
+                    # Fallback to length-based scoring
                     candidate.raw_score = candidate.length / 1000.0
             else:
                 candidate.raw_score = candidate.length / 1000.0
-            candidate.scoring_method = "Cluster_density"
+            
+            candidate.scoring_method = "Cluster_longest_density"
         return candidates
 
 
