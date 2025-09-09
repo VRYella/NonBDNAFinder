@@ -23,8 +23,8 @@ OFFICIAL_CLASSIFICATION = {
     1: {
         "class_name": "Curved DNA",
         "subclasses": [
-            "Global curvature",
-            "Local Curvature"
+            "Curved DNA [Global Array]",
+            "Curved DNA [Local Tract]"
         ]
     },
     2: {
@@ -102,8 +102,8 @@ OFFICIAL_CLASSIFICATION = {
 # Motif ID mapping for each subclass
 MOTIF_IDS = {
     # Class 1: Curved DNA
-    "Global curvature": "1.1",
-    "Local Curvature": "1.2",
+    "Curved DNA [Global Array]": "1.1",
+    "Curved DNA [Local Tract]": "1.2",
     
     # Class 2: Slipped DNA
     "Slipped DNA [Direct Repeat]": "2.1",
@@ -135,7 +135,7 @@ MOTIF_IDS = {
     
     # Class 8: Z-DNA
     "Z-DNA": "8.1",
-    "eGZ (Extruded-G) DNA": "8.2",
+    "eGZ (Extruded-G) DNA": "8.3",
     
     # Class 9 & 10 will be dynamic
 }
@@ -143,8 +143,8 @@ MOTIF_IDS = {
 # Current implementation mapping (for compatibility)
 CURRENT_TO_OFFICIAL = {
     # Curved DNA mappings
-    "Global_Array": "Global curvature",
-    "Local_Tract": "Local Curvature",
+    "Global_Array": "Curved DNA [Global Array]",
+    "Local_Tract": "Curved DNA [Local Tract]",
     
     # Slipped DNA mappings
     "Direct_Repeat": "Slipped DNA [Direct Repeat]",
