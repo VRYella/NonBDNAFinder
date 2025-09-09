@@ -428,8 +428,7 @@ with tab_pages["Upload & Analyze"]:
                 st.code(EXAMPLE_MULTI_FASTA, language="fasta")
                 
     elif input_method == "🌐 NCBI Fetch":
-        db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True, 
-                      help="Only nucleotide and gene databases are applicable for DNA motif analysis")
+        db = "nucleotide"  # Default to nucleotide database
         query_type = st.radio("Query Type", ["Accession", "Gene Name", "Custom Query"], horizontal=True)
         motif_examples = {
             "G-quadruplex": "NR_003287.2 (human telomerase RNA)",
