@@ -662,35 +662,63 @@ class IMotifDetector(MotifBase):
 
 
 class ZDNADetector(MotifBase):
-    """Z-DNA detector using Z-DNA seeker algorithm"""
+    """Z-DNA detector using Z-DNA seeker algorithm with Hyperscan acceleration option"""
     
-    def __init__(self):
+    def __init__(self, use_hyperscan=True):
         super().__init__('z_dna')
-    
+        self.use_hyperscan = use_hyperscan and HYPERSCAN_AVAILABLE
+        
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
         """Detect Z-DNA forming sequences"""
         candidates = []
         
-        # Z-DNA patterns: alternating purines/pyrimidines
-        patterns = [
-            (r'([CG]{2}){6,}', 'Z_DNA_basic'),
-            (r'G[CG]{8,}G', 'Extended_GZ'),
-        ]
-        
-        for pattern, subclass in patterns:
-            for match in re.finditer(pattern, seq, re.IGNORECASE):
-                candidate = self.make_candidate(
-                    seq, seq_name, contig, offset,
-                    match.start(), match.end() - 1, pattern,
-                    subclass, 1
-                )
-                candidates.append(candidate)
+        if self.use_hyperscan:
+            # Use the new Hyperscan-accelerated detection
+            try:
+                from zdna_hs import ZDNACalculatorSeq, Params
+                params = Params(threshold=5.0)
+                calculator = ZDNACalculatorSeq(seq, params)
+                subarrays = calculator.subarrays_above_threshold()
+                
+                for start, end, score, substring in subarrays:
+                    candidate = self.make_candidate(
+                        seq, seq_name, contig, offset,
+                        start, end - 1, "hyperscan_zdna",
+                        "Z_DNA_hyperscan", 1
+                    )
+                    candidate.raw_score = score
+                    candidate.scoring_method = "Z_seeker_hyperscan"
+                    candidates.append(candidate)
+                    
+            except ImportError:
+                # Fall back to regex if zdna_hs module not available
+                self.use_hyperscan = False
+                
+        if not self.use_hyperscan:
+            # Original regex-based patterns
+            patterns = [
+                (r'([CG]{2}){6,}', 'Z_DNA_basic'),
+                (r'G[CG]{8,}G', 'Extended_GZ'),
+            ]
+            
+            for pattern, subclass in patterns:
+                for match in re.finditer(pattern, seq, re.IGNORECASE):
+                    candidate = self.make_candidate(
+                        seq, seq_name, contig, offset,
+                        match.start(), match.end() - 1, pattern,
+                        subclass, 1
+                    )
+                    candidates.append(candidate)
         
         return candidates
     
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
         """Score Z-DNA candidates"""
         for candidate in candidates:
+            # Skip scoring if already scored by Hyperscan method
+            if candidate.raw_score is not None:
+                continue
+                
             seq_str = candidate.matched_seq.decode('utf-8')
             candidate.raw_score = z_dna_score(seq_str)
             candidate.scoring_method = "Z_seeker_adapted"
