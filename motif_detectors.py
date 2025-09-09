@@ -195,8 +195,10 @@ class G4Detector(MotifBase):
         lookup = []
         for subclass, patterns in self.patterns.items():
             for pattern_info in patterns:
-                pattern, motif_id = pattern_info[0], pattern_info[1]
-                lookup.append((pattern, subclass, motif_id))
+                pattern = pattern_info[0]
+                orig_id = pattern_info[1]
+                subclass_name = pattern_info[3] if len(pattern_info) > 3 else subclass
+                lookup.append((pattern, subclass_name, orig_id))
         return lookup
     
     def _fallback_detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
@@ -204,13 +206,15 @@ class G4Detector(MotifBase):
         candidates = []
         for subclass, patterns in self.patterns.items():
             for pattern_info in patterns:
-                pattern, motif_id = pattern_info[0], pattern_info[1]
+                pattern = pattern_info[0]
+                orig_id = pattern_info[1]
+                subclass_name = pattern_info[3] if len(pattern_info) > 3 else subclass
                 try:
                     for match in re.finditer(pattern, seq, re.IGNORECASE):
                         candidate = self.make_candidate(
                             seq, seq_name, contig, offset,
                             match.start(), match.end() - 1, pattern,
-                            subclass, motif_id
+                            subclass_name, orig_id
                         )
                         candidates.append(candidate)
                 except Exception as e:
