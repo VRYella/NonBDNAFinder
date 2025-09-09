@@ -108,6 +108,7 @@ Changelog = "https://github.com/VRYella/NBDFinder/blob/main/CHANGELOG.md"
 [project.scripts]
 nbdfinder = "nbdfinder.cli.main:main"
 slice-fasta = "nbdfinder.cli.slice_fasta:main"
+zdna-hs = "zdna_hs:main"
 
 [project.entry-points."nbdfinder.detectors"]
 curved = "nbdfinder.detectors.class01_curved:detect_curved_dna"
