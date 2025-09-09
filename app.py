@@ -751,6 +751,52 @@ with tab_pages["Results"]:
             
             with st.spinner("Creating comprehensive information-based visualization suite..."):
                 try:
+                    # Import new visualization functions
+                    from viz_tools import (
+                        plot_class_subclass_distribution, plot_enhanced_motif_map,
+                        plot_coverage_density_heatmap, plot_manhattan_motif_scores,
+                        calculate_coverage_density_metrics
+                    )
+                    
+                    # Calculate comprehensive metrics first
+                    coverage_metrics = calculate_coverage_density_metrics(df, sequence_length)
+                    
+                    # Create new enhanced visualizations
+                    st.markdown('<h4>🧬 Enhanced Class & Subclass Analysis</h4>', unsafe_allow_html=True)
+                    
+                    # 1. Class and Subclass Distribution (side-by-side pie and donut)
+                    class_subclass_fig = plot_class_subclass_distribution(df)
+                    st.plotly_chart(class_subclass_fig, use_container_width=True)
+                    
+                    # 2. Enhanced Motif Map (22 subclasses on Y-axis)
+                    st.markdown('<h4>🗺️ Enhanced Motif Map (22 Subclasses)</h4>', unsafe_allow_html=True)
+                    motif_map_fig = plot_enhanced_motif_map(df, sequence_length)
+                    st.plotly_chart(motif_map_fig, use_container_width=True)
+                    
+                    # 3. Coverage & Density Analysis
+                    st.markdown('<h4>📊 Coverage & Density Analysis</h4>', unsafe_allow_html=True)
+                    
+                    # Display coverage metrics
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("Coverage %", f"{coverage_metrics.get('coverage_percentage', 0):.2f}%")
+                    with col2:
+                        st.metric("Density (per kb)", f"{coverage_metrics.get('motif_density_per_kb', 0):.2f}")
+                    with col3:
+                        st.metric("Total Motifs", coverage_metrics.get('total_motifs', 0))
+                    with col4:
+                        st.metric("Unique Classes", coverage_metrics.get('unique_classes', 0))
+                    
+                    if sequence_length and sequence_length > 0:
+                        coverage_heatmap_fig = plot_coverage_density_heatmap(df, sequence_length)
+                        st.plotly_chart(coverage_heatmap_fig, use_container_width=True)
+                    
+                    # 4. Manhattan Plot for Motif Scores
+                    st.markdown('<h4>🏔️ Manhattan Plot - Motif Score Distribution</h4>', unsafe_allow_html=True)
+                    manhattan_fig = plot_manhattan_motif_scores(df)
+                    st.plotly_chart(manhattan_fig, use_container_width=True)
+                    
+                    # Continue with original comprehensive visualizations
                     # Generate comprehensive visualizations automatically
                     static_plots, interactive_plots, detailed_stats = create_comprehensive_information_based_visualizations(
                         df, sequence_length, sequence_name)
@@ -941,6 +987,87 @@ with tab_pages["Download"]:
                 'sequence_name': st.session_state.names[i],
                 'motifs': motifs
             })
+        
+        # NEW: Enhanced Export Section
+        st.markdown("### 🚀 Enhanced Export Options")
+        st.caption("Comprehensive export formats with detailed analysis")
+        
+        col_enhanced1, col_enhanced2, col_enhanced3 = st.columns(3)
+        
+        with col_enhanced1:
+            # Detailed Motif Table Export
+            try:
+                from export_utils import export_detailed_motif_table
+                from viz_tools import calculate_coverage_density_metrics
+                
+                # Calculate metrics for export
+                df_for_metrics = pd.DataFrame([motif for motifs in st.session_state.results for motif in motifs])
+                coverage_metrics = calculate_coverage_density_metrics(df_for_metrics)
+                
+                detailed_excel = export_detailed_motif_table(
+                    [motif for motifs in st.session_state.results for motif in motifs],
+                    coverage_metrics=coverage_metrics,
+                    format_type="excel"
+                )
+                
+                st.download_button(
+                    "📋 Detailed Analysis (Excel)",
+                    data=detailed_excel,
+                    file_name="nbdfinder_detailed_analysis.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                    help="Comprehensive Excel with multiple sheets including summary statistics, class analysis, and coverage metrics"
+                )
+            except Exception as e:
+                st.error(f"Detailed export error: {e}")
+        
+        with col_enhanced2:
+            # Comprehensive Analysis Report (ZIP)
+            try:
+                from export_utils import create_comprehensive_analysis_report
+                
+                # Get sequence length for first sequence (or estimate)
+                if st.session_state.results:
+                    seq_length = max([motif.get('End', 0) for motif in st.session_state.results[0]], default=1000)
+                    seq_name = st.session_state.names[0] if st.session_state.names else "sequence"
+                    
+                    comprehensive_zip = create_comprehensive_analysis_report(
+                        [motif for motifs in st.session_state.results for motif in motifs],
+                        sequence_length=seq_length,
+                        sequence_name=seq_name
+                    )
+                    
+                    st.download_button(
+                        "📦 Comprehensive Report (ZIP)",
+                        data=comprehensive_zip,
+                        file_name="nbdfinder_comprehensive_report.zip",
+                        mime="application/zip",
+                        use_container_width=True,
+                        help="ZIP package with Excel, BED, GFF3, coverage metrics, and summary report"
+                    )
+            except Exception as e:
+                st.error(f"Comprehensive report error: {e}")
+        
+        with col_enhanced3:
+            # TSV Export for detailed analysis
+            try:
+                from export_utils import export_detailed_motif_table
+                
+                detailed_tsv = export_detailed_motif_table(
+                    [motif for motifs in st.session_state.results for motif in motifs],
+                    format_type="tsv"
+                )
+                
+                st.download_button(
+                    "📝 Detailed Analysis (TSV)",
+                    data=detailed_tsv,
+                    file_name="nbdfinder_detailed_analysis.tsv",
+                    mime="text/tab-separated-values",
+                    use_container_width=True,
+                    help="Tab-separated format with enhanced analysis columns"
+                )
+            except Exception as e:
+                st.error(f"TSV export error: {e}")
         
         # NEW: Genome Browser Export Section
         st.markdown("### 🧬 Genome Browser Formats")
