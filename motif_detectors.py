@@ -11,6 +11,13 @@ import logging
 from abc import ABC, abstractmethod
 from collections import defaultdict
 
+# Add imports near top
+try:
+    import hyperscan
+    HYPERSCAN_AVAILABLE = True
+except Exception:
+    HYPERSCAN_AVAILABLE = False
+
 try:
     from intervaltree import IntervalTree
     INTERVALTREE_AVAILABLE = True
@@ -26,6 +33,163 @@ from motifs.registry import get_patterns_for_motif, get_class_id
 import hs_registry_manager
 
 logger = logging.getLogger(__name__)
+
+# Parameters for R-loop detection
+params = {
+    'min_perc_g_riz': 0.6,  # Minimum G percentage for R-loop candidates
+    'regex_models': {}  # Will be populated with compiled regex models
+}
+
+# Utility functions for R-loop detection
+def percent_g(sequence):
+    """Calculate percentage of G nucleotides in sequence"""
+    if not sequence:
+        return 0.0
+    g_count = sequence.upper().count('G')
+    return g_count / len(sequence)
+
+
+def build_hs_db(models_dict):
+    """
+    models_dict: mapping model_name -> regex string (like your `models` variable).
+    Returns: tuple (db, id_to_model)
+    """
+    if not HYPERSCAN_AVAILABLE:
+        return (None, {})
+
+    expressions = []
+    ids = []
+    flags = []
+    id_to_model = {}
+
+    # assign integer ids 1..N for Hyperscan patterns
+    for idx, (model_name, pattern) in enumerate(models_dict.items(), start=1):
+        # Hyperscan expects bytes pattern. Use pattern as-is.
+        expressions.append(pattern.encode('utf-8'))
+        ids.append(idx)
+        # HS_FLAG_UTF8 is fine; we don't need HS_FLAG_CASELESS for DNA upper case.
+        flags.append(hyperscan.HS_FLAG_UTF8)
+        id_to_model[idx] = model_name
+
+    db = hyperscan.Database()
+    try:
+        db.compile(expressions=expressions, ids=ids, flags=flags)
+    except Exception as e:
+        # compile error: fallback
+        print("Hyperscan compile error:", e)
+        return (None, {})
+
+    return (db, id_to_model)
+
+
+def riz_search(seq, model_name):
+    """
+    Fallback regex-based search for R-loop sequences.
+    Returns: list of dicts with match information
+    """
+    matches = []
+    
+    # Define the patterns for RLFS models
+    patterns = {
+        'm1': r'G{3,}[ATGC]{1,10}?G{3,}(?:[ATGC]{1,10}?G{3,}){1,}',
+        'm2': r'G{4,}(?:[ATGC]{1,10}?G{4,}){1,}'
+    }
+    
+    if model_name not in patterns:
+        return matches
+    
+    pattern = patterns[model_name]
+    for match in re.finditer(pattern, seq, re.IGNORECASE):
+        start = match.start()
+        end = match.end()
+        riz_seq = seq[start:end]
+        perc_g = percent_g(riz_seq)
+        
+        if perc_g >= params['min_perc_g_riz']:
+            matches.append({
+                "start": start,
+                "end": end,
+                "length": end - start,
+                "G": riz_seq.count("G"),
+                "G3s": riz_seq.count("GGG"),
+                "G4s": riz_seq.count("GGGG"),
+                "perc_g": perc_g,
+                "model": model_name,
+                "seq": riz_seq
+            })
+    
+    return matches
+
+
+def riz_search_hs(seq, model_name, hs_db, hs_id_map):
+    """
+    seq: DNA string (utf-8)
+    model_name: 'm1' or 'm2' (string)
+    hs_db: compiled Hyperscan Database (or None)
+    hs_id_map: mapping int id -> model_name
+    Returns: list of dicts same format as original riz_search
+    """
+    # fallback to regex if Hyperscan not available or db not built
+    if not HYPERSCAN_AVAILABLE or hs_db is None:
+        return riz_search(seq, model_name)  # call original re-based routine
+
+    matches = []
+
+    # local handler collects matches: Hyperscan will call this for every match
+    def on_match(id, from_, to, flags, context):
+        # id is integer pattern id, map to model_name
+        matched_model = hs_id_map.get(id)
+        # we only care matches for the requested model_name
+        if matched_model != model_name:
+            return 0  # continue
+        # from_ and to are offsets (Python ints)
+        start = int(from_)
+        end = int(to)
+        # extract substring (string slicing is fine; seq is str)
+        riz_seq = seq[start:end]
+        perc_g = percent_g(riz_seq)
+        if perc_g >= params['min_perc_g_riz']:
+            matches.append({
+                "start": start,
+                "end": end,
+                "length": end - start,
+                "G": riz_seq.count("G"),
+                "G3s": riz_seq.count("GGG"),
+                "G4s": riz_seq.count("GGGG"),
+                "perc_g": perc_g,
+                "model": model_name,
+                "seq": riz_seq
+            })
+        return 0  # continue scanning
+
+    # hyperscan requires bytes
+    seq_bytes = seq.encode('ascii')  # DNA strings are ascii-safe
+    try:
+        hs_db.scan(seq_bytes, match_event_handler=on_match)
+    except Exception as e:
+        # an error at scan time — fallback to regex
+        # (print once; avoid noisy logs in large runs)
+        print("Hyperscan scan error, falling back to regex:", e)
+        return riz_search(seq, model_name)
+
+    # matches list might be unsorted depending on match callbacks; sort by start
+    matches.sort(key=lambda x: x['start'])
+    return matches
+
+
+# Initialize regex models for R-loop detection
+# Usage: after you create params['regex_models'], call:
+# hs_db, hs_id_map = build_hs_db({k: v.pattern for k,v in params['regex_models'].items()})
+# store hs_db and hs_id_map globally or pass into functions
+
+# Initialize R-loop models  
+params['regex_models'] = {
+    'm1': type('Pattern', (), {'pattern': r'G{3,}[ATGC]{1,10}?G{3,}(?:[ATGC]{1,10}?G{3,}){1,}'})(),
+    'm2': type('Pattern', (), {'pattern': r'G{4,}(?:[ATGC]{1,10}?G{4,}){1,}'})()
+}
+
+# Build Hyperscan database for R-loop detection
+hs_db, hs_id_map = build_hs_db({k: v.pattern for k, v in params['regex_models'].items()})
 
 
 class MotifBase(ABC):
@@ -366,39 +530,63 @@ class CruciformDetector(MotifBase):
 
 
 class RLoopDetector(MotifBase):
-    """R-loop detector using RLFS models"""
+    """R-loop detector using RLFS models with Hyperscan optimization"""
     
     def __init__(self):
         super().__init__('r_loop')
     
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
-        """Detect R-loop forming sequences"""
+        """Detect R-loop forming sequences using hyperscan-optimized search"""
         candidates = []
         
-        # RLFS pattern: G-rich sequences with potential for R-loop formation
-        patterns = [
-            (r'G{3,}[ATGC]{1,10}G{3,}', 'RLFS_basic'),
-            (r'G{4,}(?:[ATGC]{1,10}G{4,}){1,}', 'RLFS_extended'),
-        ]
-        
-        for pattern, subclass in patterns:
-            for match in re.finditer(pattern, seq, re.IGNORECASE):
+        # Use hyperscan-optimized search for both m1 and m2 models
+        for model_name in ['m1', 'm2']:
+            matches = riz_search_hs(seq, model_name, hs_db, hs_id_map)
+            
+            for match in matches:
+                # Map model names to subclasses
+                subclass = 'RLFS_m1' if model_name == 'm1' else 'RLFS_m2'
+                
                 candidate = self.make_candidate(
                     seq, seq_name, contig, offset,
-                    match.start(), match.end() - 1, pattern,
+                    match['start'], match['end'] - 1, 
+                    params['regex_models'][model_name].pattern,
                     subclass, 1
                 )
+                
+                # Store additional R-loop specific data
+                candidate.g_count = match['G']
+                candidate.g3_count = match['G3s'] 
+                candidate.g4_count = match['G4s']
+                candidate.perc_g = match['perc_g']
+                
                 candidates.append(candidate)
         
         return candidates
     
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
-        """Score R-loop candidates using QmRLFS-inspired scoring"""
+        """Score R-loop candidates using QmRLFS-inspired scoring with G-content"""
         for candidate in candidates:
             seq_str = candidate.matched_seq.decode('utf-8')
-            g_content = seq_str.upper().count('G') / len(seq_str)
-            candidate.raw_score = g_content  # G-richness as proxy
-            candidate.scoring_method = "QmRLFS_simplified"
+            
+            # Use the pre-calculated G percentage if available, otherwise calculate
+            if hasattr(candidate, 'perc_g') and candidate.perc_g is not None:
+                g_content = candidate.perc_g
+            else:
+                g_content = percent_g(seq_str)
+            
+            # Enhanced scoring that considers G-richness and pattern complexity
+            base_score = g_content
+            
+            # Bonus for higher G-tract density
+            if hasattr(candidate, 'g4_count') and candidate.g4_count > 0:
+                base_score += candidate.g4_count * 0.1
+            elif hasattr(candidate, 'g3_count') and candidate.g3_count > 0:
+                base_score += candidate.g3_count * 0.05
+            
+            candidate.raw_score = min(base_score, 1.0)  # Cap at 1.0
+            candidate.scoring_method = "QmRLFS_hyperscan_enhanced"
+            
         return candidates
 
 
