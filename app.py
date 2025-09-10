@@ -430,16 +430,6 @@ with tab_pages["Upload & Analyze"]:
     elif input_method == "🌐 NCBI Fetch":
         db = "nucleotide"  # Default to nucleotide database
         query_type = st.radio("Query Type", ["Accession", "Gene Name", "Custom Query"], horizontal=True)
-        motif_examples = {
-            "G-quadruplex": "NR_003287.2 (human telomerase RNA)",
-            "Z-DNA": "NM_001126112.2 (human ADAR1 gene)",
-            "R-loop": "NR_024540.1 (human SNRPN gene)",
-            "eGZ-motif": "CGG repeat region",
-            "AC-motif": "A-rich/C-rich consensus region"
-        }
-        with st.expander("Motif Example Queries"):
-            for motif, example in motif_examples.items():
-                st.write(f"**{motif}**: `{example}`")
         query = st.text_input("Enter query (accession, gene, etc.):")
         rettype = st.radio("Return Format", ["fasta", "gb"], horizontal=True)
         retmax = st.number_input("Max Records", min_value=1, max_value=20, value=3)
