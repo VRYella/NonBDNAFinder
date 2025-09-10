@@ -29,9 +29,28 @@ def convert_candidate_to_motif_dict(candidate, sequence_name: str) -> Dict[str, 
     Returns:
         Dictionary in the format expected by the app.py visualization system
     """
+    # Map internal class names to official 11 Non-B DNA class names
+    class_mapping = {
+        'curved_dna': 'Curved DNA',
+        'slipped_dna': 'Slipped DNA', 
+        'cruciform': 'Cruciform DNA',
+        'r_loop': 'R-loop',
+        'triplex': 'Triplex',
+        'g_quadruplex': 'G-Quadruplex Family',
+        'i_motif': 'i-motif family',
+        'z_dna': 'Z-DNA',
+        'a_philic': 'A-philic DNA',
+        'hybrid': 'Hybrid',
+        'cluster': 'Non-B DNA cluster regions'
+    }
+    
+    # Get the original class name from candidate
+    original_class = candidate.get('Class', '')
+    mapped_class = class_mapping.get(original_class, original_class)
+    
     return {
         'Sequence Name': sequence_name,
-        'Class': candidate.get('Class', ''),
+        'Class': mapped_class,
         'Subclass': candidate.get('Subclass', ''),
         'Start': candidate.get('Start', 0),
         'End': candidate.get('End', 0),
@@ -87,10 +106,10 @@ def all_motifs_refactored(
             # Run the hyperscan pipeline
             output_prefix = f"/tmp/nbdfinder_{sequence_name}"
             
-            # Use all detector classes for comprehensive analysis
+            # Use all detector classes for comprehensive analysis (11 classes)
             detector_classes = [
                 'g_quadruplex', 'curved_dna', 'slipped_dna', 'cruciform',
-                'r_loop', 'triplex', 'i_motif', 'z_dna'
+                'r_loop', 'triplex', 'i_motif', 'z_dna', 'a_philic', 'hybrid', 'cluster'
             ]
             
             output_files = run_pipeline(

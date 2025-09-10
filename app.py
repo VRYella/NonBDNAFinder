@@ -160,58 +160,47 @@ st.markdown("""
 
 
 # ---------- CONSTANTS ----------
-# Use classification config if available, otherwise fallback to defaults
-if CONFIG_AVAILABLE:
-    MOTIF_ORDER = list(MOTIF_LENGTH_LIMITS.keys())
-    # Expand special cases
-    expanded_order = []
-    for motif in MOTIF_ORDER:
-        if motif == "Slipped_DNA_DR":
-            expanded_order.extend(["Slipped DNA (Direct Repeat)", "Slipped DNA (STR)"])
-        elif motif == "Slipped_DNA_STR":
-            continue  # Already added above
-        elif motif == "eGZ":
-            expanded_order.append("eGZ (Extruded-G)")
-        elif motif == "G4":
-            expanded_order.extend(["G4", "Relaxed G4", "Bulged G4", "Bipartite G4", "Multimeric G4"])
-        elif motif == "G-Triplex":
-            expanded_order.append("G-Triplex")
-        elif motif == "AC-motif":
-            expanded_order.append("AC-Motif")
-        else:
-            # Map to display names
-            display_name = motif.replace("_", " ").replace("-", "-")
-            if motif == "Curved_DNA":
-                display_name = "Curved DNA"
-            elif motif == "Z-DNA":
-                display_name = "Z-DNA"
-            elif motif == "R-Loop":
-                display_name = "R-Loop"
-            elif motif == "Triplex":
-                display_name = "Triplex DNA"
-            elif motif == "Sticky_DNA":
-                display_name = "Sticky DNA"
-            elif motif == "i-Motif":
-                display_name = "i-Motif"
-            expanded_order.append(display_name)
-    
-    MOTIF_ORDER = expanded_order + ["Hybrid", "Non-B DNA Clusters"]
-else:
-    # Fallback to original order
-    MOTIF_ORDER = [
-        "Sticky DNA","Curved DNA","Z-DNA","eGZ (Extruded-G)","Slipped DNA","R-Loop",
-        "Cruciform","Triplex DNA","G-Triplex","G4","Relaxed G4","Bulged G4","Bipartite G4",
-        "Multimeric G4","i-Motif","AC-Motif","Hybrid","Non-B DNA Clusters"
-    ]
+# Official 11 Non-B DNA Classes according to the classification standard
+MOTIF_ORDER = [
+    "Curved DNA",           # Class 1
+    "Slipped DNA",          # Class 2  
+    "Cruciform DNA",        # Class 3
+    "R-loop",               # Class 4
+    "Triplex",              # Class 5
+    "G-Quadruplex Family",  # Class 6
+    "i-motif family",       # Class 7
+    "Z-DNA",                # Class 8
+    "A-philic DNA",         # Class 9
+    "Hybrid",               # Class 10
+    "Non-B DNA cluster regions"    # Class 11
+]
 
 MOTIF_COLORS = {
-    "Curved DNA": "#FF9AA2","Z-DNA": "#FFB7B2","eGZ (Extruded-G)": "#6A4C93",
-    "Slipped DNA": "#FFDAC1","Slipped DNA (Direct Repeat)": "#FFDAC1","Slipped DNA (STR)": "#FFE4B3",
-    "R-Loop": "#FFD3B6","Cruciform": "#E2F0CB",
-    "Triplex DNA": "#B5EAD7","Sticky DNA": "#DCB8CB","G-Triplex": "#C7CEEA",
-    "G4": "#A2D7D8","Relaxed G4": "#A2D7B8","Bulged G4": "#A2A7D8",
-    "Bipartite G4": "#A2D788","Multimeric G4": "#A2A7B8","i-Motif": "#B0C4DE",
-    "Hybrid": "#C1A192","Non-B DNA Clusters": "#A2C8CC","AC-Motif": "#F5B041"
+    # Official 11 Non-B DNA Classes with distinct colors
+    "Curved DNA": "#FF9AA2",           # Class 1 - Light red
+    "Slipped DNA": "#FFDAC1",          # Class 2 - Light orange  
+    "Cruciform DNA": "#E2F0CB",        # Class 3 - Light green
+    "R-loop": "#FFD3B6",               # Class 4 - Light peach
+    "Triplex": "#B5EAD7",              # Class 5 - Light mint
+    "G-Quadruplex Family": "#A2D7D8",  # Class 6 - Light cyan
+    "i-motif family": "#B0C4DE",       # Class 7 - Light steel blue
+    "Z-DNA": "#FFB7B2",                # Class 8 - Light coral
+    "A-philic DNA": "#DDA0DD",         # Class 9 - Plum
+    "Hybrid": "#C1A192",               # Class 10 - Light brown
+    "Non-B DNA cluster regions": "#A2C8CC",   # Class 11 - Light blue gray
+    
+    # Legacy subclass colors for backward compatibility
+    "eGZ (Extruded-G)": "#6A4C93",
+    "Slipped DNA (Direct Repeat)": "#FFDAC1", 
+    "Slipped DNA (STR)": "#FFE4B3",
+    "Sticky DNA": "#DCB8CB",
+    "G-Triplex": "#C7CEEA",
+    "G4": "#A2D7D8",
+    "Relaxed G4": "#A2D7B8", 
+    "Bulged G4": "#A2A7D8",
+    "Bipartite G4": "#A2D788",
+    "Multimeric G4": "#A2A7B8",
+    "AC-Motif": "#F5B041"
 }
 PAGES = {
     "Home": "Overview",
@@ -268,19 +257,26 @@ with tab_pages["Home"]:
         st.markdown("""
         <div style='font-family:Montserrat, Arial; font-size:1.14rem; color:#222; line-height:1.7; padding:18px; background:#f8f9fa; border-radius:14px; box-shadow:0 2px 8px #eee;'>
         <b>Non-canonical DNA structures</b> play key roles in genome stability, regulation, and evolution.<br>
-        This application detects and analyzes <b>18 distinct Non-B DNA motifs</b> in any DNA sequence or multi-FASTA file.<br>
+        This application detects and analyzes <b>11 distinct Non-B DNA classes</b> in any DNA sequence or multi-FASTA file.<br>
         <b>Enhanced Features:</b><br>
         <span style='color:#1565c0;'>
             🔬 <b>Normalized Scoring:</b> Length-constraint based normalization for fair comparison (0-1 scale)<br>
             🎯 <b>Smart Classification:</b> Evidence-based motif length limits and scoring<br>
             📈 <b>Advanced Visualization:</b> Interactive plots and comprehensive analysis tools
         </span><br>
-        <b>Motif Classes:</b><br>
+        <b>Official 11 Non-B DNA Classes:</b><br>
         <span style='color:#1565c0;'>
-            <b>G-quadruplex-related</b> (G4, Relaxed G4, Bulged G4, Bipartite G4, Multimeric G4, G-Triplex, i-Motif, Hybrid),<br>
-            <b>helix/curvature</b> (Z-DNA, eGZ (Extruded-G), Curved DNA, A-philic DNA, AC-Motif),<br>
-            <b>repeat/junction</b> (Slipped DNA, Cruciform, Sticky DNA, Triplex DNA),<br>
-            <b>hybrid/cluster</b> (R-Loop, Non-B DNA Clusters).
+            <b>Class 1:</b> Curved DNA<br>
+            <b>Class 2:</b> Slipped DNA<br>
+            <b>Class 3:</b> Cruciform DNA<br>
+            <b>Class 4:</b> R-loop<br>
+            <b>Class 5:</b> Triplex<br>
+            <b>Class 6:</b> G-Quadruplex Family<br>
+            <b>Class 7:</b> i-motif family<br>
+            <b>Class 8:</b> Z-DNA<br>
+            <b>Class 9:</b> A-philic DNA<br>
+            <b>Class 10:</b> Hybrid<br>
+            <b>Class 11:</b> Non-B DNA cluster regions
         </span>
         <br>
         <b>Upload single or multi-FASTA files...</b>
@@ -472,7 +468,7 @@ with tab_pages["Upload & Analyze"]:
             st.markdown("### 🚀 Run Analysis")
             config_summary = f"""
             **Configuration Summary:**
-            - Motifs: {len(MOTIF_ORDER)} classes selected (comprehensive analysis)
+            - Motifs: {len(MOTIF_ORDER)} classes selected (comprehensive analysis of all 11 official Non-B DNA classes)
             - Scoring: Normalized scores (0-1 scale) for fair comparison
             - Threshold: 0.0 (include all detected motifs)
             - Overlaps: Allowed (complete motif landscape)
@@ -563,7 +559,7 @@ with tab_pages["Upload & Analyze"]:
                     summary = []
                     for i, motifs in enumerate(motif_results):
                         stats = get_basic_stats(st.session_state.seqs[i], motifs)
-                        motif_types = Counter([m['Class'] if m['Class'] != "Z-DNA" or m.get("Subclass") != "eGZ (Extruded-G)" else "eGZ (Extruded-G)" for m in motifs])
+                        motif_types = Counter([m['Class'] for m in motifs])
                         
                         summary.append({
                             "Sequence Name": st.session_state.names[i],
@@ -882,8 +878,7 @@ with tab_pages["Download"]:
                     export_row['Sequence Name'] = st.session_state.names[i]
                 
                 # Handle class mapping for compatibility
-                if export_row['Class'] == "Z-DNA" and export_row.get("Subclass", "") == "eGZ (Extruded-G)":
-                    export_row['Class'] = "eGZ (Extruded-G)"
+                # No special handling needed for eGZ since it's a Z-DNA subclass
                 
                 # Filter sequence data if not requested
                 if not include_sequences:
@@ -1209,19 +1204,16 @@ with tab_pages["Documentation"]:
     <ul>
         <li><b>Curved DNA</b>: Identifies phased poly(A) or poly(T) tracts using regex and spacing rules, reflecting intrinsic curvature. Scoring is based on tract length/grouping.</li>
         <li><b>A-philic DNA</b>: Detects A-tract containing regions with specific tetranucleotide/trinucleotide propensity patterns. Uses tetranucleotide and trinucleotide log2-odds scoring with window merging for maximal non-overlapping regions.</li>
-        <li><b>Z-DNA</b>: Detects alternating purine-pyrimidine patterns, GC-rich segments. Uses windowed scoring; regex finds dinucleotide repeats.</li>
-        <li><b>eGZ-motif (Extruded-G Z-DNA)</b>: Searches for long (CGG)<sub>n</sub> runs via regex. Scored by repeat count.</li>
+        <li><b>Z-DNA</b>: Detects alternating purine-pyrimidine patterns, GC-rich segments, and eGZ motifs. Uses windowed scoring; regex finds dinucleotide repeats.</li>
         <li><b>Slipped DNA</b>: Recognizes direct/tandem repeats by repeat-unit matching and regex. Scoring by length and unit copies.</li>
-        <li><b>R-Loop</b>: Finds G-rich regions for stable RNA-DNA hybrids; RLFS model and regex. Thermodynamic scoring for hybrid stability.</li>
-        <li><b>Cruciform</b>: Finds palindromic inverted repeats with spacers, regex and reverse complement. Scoring by arm length and A/T content.</li>
-        <li><b>Triplex DNA / Mirror Repeat</b>: Detects purine/pyrimidine mirror repeats/triplex motifs. Regex identifies units; scoring by composition/purity.</li>
-        <li><b>Sticky DNA</b>: Searches extended GAA/TTC repeats. Scoring by repeat count.</li>
-        <li><b>G-Triplex</b>: Finds three consecutive guanine runs by regex and loop length. Scoring by G-run sum and loop penalty.</li>
-        <li><b>G4 (G-Quadruplex) and Variants</b>: Detects canonical/variant G4 motifs by G-run/loop regex. G4Hunter scoring for content/structure.</li>
-        <li><b>i-Motif</b>: C-rich sequences for i-motif under acid. Regex for C runs/loops; scoring by run count and content.</li>
+        <li><b>R-loop</b>: Finds G-rich regions for stable RNA-DNA hybrids; RLFS model and regex. Thermodynamic scoring for hybrid stability.</li>
+        <li><b>Cruciform DNA</b>: Finds palindromic inverted repeats with spacers, regex and reverse complement. Scoring by arm length and A/T content.</li>
+        <li><b>Triplex</b>: Detects purine/pyrimidine mirror repeats/triplex motifs, including sticky DNA patterns. Regex identifies units; scoring by composition/purity.</li>
+        <li><b>G-Quadruplex Family</b>: Detects canonical/variant G4 motifs by G-run/loop regex. G4Hunter scoring for content/structure.</li>
+        <li><b>i-motif family</b>: C-rich sequences for i-motif under acid. Regex for C runs/loops; scoring by run count and content.</li>
         <li><b>AC-Motif</b>: Alternating A-rich/C-rich consensus regions by regex. Scoring by pattern presence.</li>
         <li><b>Hybrid Motif</b>: Regions where motif classes overlap; found by interval intersection, scored on diversity/size.</li>
-        <li><b>Non-B DNA Clusters</b>: Hotspots with multiple motifs in a window; sliding algorithm, scored by motif count/diversity.</li>
+        <li><b>Non-B DNA cluster regions</b>: Hotspots with multiple motifs in a window; sliding algorithm, scored by motif count/diversity.</li>
     </ul>
     <b>References:</b>
     <ul>
