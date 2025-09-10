@@ -377,7 +377,7 @@ def run_pipeline(fasta_path: str, output_prefix: str = "results",
     
     if detector_classes is None:
         detector_classes = ['g_quadruplex', 'curved_dna', 'slipped_dna', 'cruciform',
-                           'r_loop', 'triplex', 'i_motif', 'z_dna']
+                           'r_loop', 'triplex', 'i_motif', 'z_dna', 'a_philic', 'hybrid', 'cluster']
     
     # Load sequences
     sequences = load_fasta_sequences(fasta_path)

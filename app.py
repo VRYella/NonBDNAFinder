@@ -278,7 +278,7 @@ with tab_pages["Home"]:
         <b>Motif Classes:</b><br>
         <span style='color:#1565c0;'>
             <b>G-quadruplex-related</b> (G4, Relaxed G4, Bulged G4, Bipartite G4, Multimeric G4, G-Triplex, i-Motif, Hybrid),<br>
-            <b>helix/curvature</b> (Z-DNA, eGZ (Extruded-G), Curved DNA, AC-Motif),<br>
+            <b>helix/curvature</b> (Z-DNA, eGZ (Extruded-G), Curved DNA, A-philic DNA, AC-Motif),<br>
             <b>repeat/junction</b> (Slipped DNA, Cruciform, Sticky DNA, Triplex DNA),<br>
             <b>hybrid/cluster</b> (R-Loop, Non-B DNA Clusters).
         </span>
@@ -1208,6 +1208,7 @@ with tab_pages["Documentation"]:
     <b>Motif Classes Detected:</b><br><br>
     <ul>
         <li><b>Curved DNA</b>: Identifies phased poly(A) or poly(T) tracts using regex and spacing rules, reflecting intrinsic curvature. Scoring is based on tract length/grouping.</li>
+        <li><b>A-philic DNA</b>: Detects A-tract containing regions with specific tetranucleotide/trinucleotide propensity patterns. Uses tetranucleotide and trinucleotide log2-odds scoring with window merging for maximal non-overlapping regions.</li>
         <li><b>Z-DNA</b>: Detects alternating purine-pyrimidine patterns, GC-rich segments. Uses windowed scoring; regex finds dinucleotide repeats.</li>
         <li><b>eGZ-motif (Extruded-G Z-DNA)</b>: Searches for long (CGG)<sub>n</sub> runs via regex. Scored by repeat count.</li>
         <li><b>Slipped DNA</b>: Recognizes direct/tandem repeats by repeat-unit matching and regex. Scoring by length and unit copies.</li>
