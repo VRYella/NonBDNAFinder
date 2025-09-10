@@ -851,22 +851,7 @@ with tab_pages["Results"]:
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
-    st.header("Export Data")
-    if not st.session_state.results:
-        st.info("No results available to download.")
-    else:
-        st.markdown("### 📊 Export Options")
-        
-        # Export configuration
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            include_sequences = st.checkbox("Include Full Sequences", value=True,
-                                           help="Include full motif sequences in export")
-        
-        with col2:
-            export_format = st.selectbox("Export Format", ["CSV", "Excel", "Both"])
-            score_type = st.radio("Score Type", ["Normalized", "Actual", "Both"])
+  
         
         # Prepare data for export
         df_all = []
