@@ -739,7 +739,8 @@ class APhilicDetector(MotifBase):
     def __init__(self):
         super().__init__('a_philic')
         
-        # Minimal example propensity tables (as provided in the problem statement)
+        # Expanded A-philic propensity tables including A/T-rich patterns
+        # Original GC-rich patterns (high scores)
         self.TETRA_LOG2 = {
             "CGGG": 4.299518003806282,
             "GGGT": 3.7138539604018357,
@@ -749,6 +750,21 @@ class APhilicDetector(MotifBase):
             "GGCC": 2.7147251949405313,
             "GGGG": 15.585823066983375,
             "CCCC": 15.585823066983375,
+            # Additional A/T-rich A-philic patterns (moderate positive scores)
+            "AAAA": 2.5,
+            "TTTT": 2.5,
+            "AAAT": 1.5,
+            "ATTT": 1.5,
+            "TTTA": 1.5,
+            "TAAA": 1.5,
+            "AATT": 1.2,
+            "TTAA": 1.2,
+            "AAAG": 1.0,
+            "CTTT": 1.0,
+            "GAAT": 0.8,
+            "ATTC": 0.8,
+            "TAAT": 0.5,
+            "ATTA": 0.5,
         }
         
         self.TRI_LOG2 = {
@@ -758,6 +774,15 @@ class APhilicDetector(MotifBase):
             "GGC": 1.7179328575835688,
             "GTA": 1.7179328575835688,
             "CCG": 1.678471322863967,
+            # Additional A/T-rich trinucleotides
+            "AAA": 2.0,
+            "TTT": 2.0,
+            "AAT": 1.0,
+            "ATT": 1.0,
+            "TAA": 1.0,
+            "TTA": 1.0,
+            "ATA": 0.5,
+            "TAT": 0.5,
         }
         
         # Build positive tetranucleotide set and compile Hyperscan database
@@ -791,7 +816,7 @@ class APhilicDetector(MotifBase):
         self.ids_map = {i: k for i, k in enumerate(self.pos_tetras)}
     
     def _scan_sequence_for_4mers(self, seq):
-        """Scan sequence for positive tetranucleotides using regex fallback"""
+        """Scan sequence for positive tetranucleotides using overlapping scan"""
         import numpy as np
         
         L = len(seq)
@@ -800,10 +825,12 @@ class APhilicDetector(MotifBase):
         
         pos4 = np.zeros(L - 3, dtype=bool)
         
-        # Use regex fallback only to avoid Hyperscan stability issues
-        for tetra in self.pos_tetras:
-            for match in re.finditer(tetra, seq, re.IGNORECASE):
-                pos4[match.start()] = True
+        # Use direct scanning to find all overlapping matches
+        # This is more accurate than regex which misses overlapping patterns
+        for i in range(L - 3):
+            tetra = seq[i:i+4]
+            if tetra in self.pos_tetras:
+                pos4[i] = True
         
         return pos4
     
@@ -835,8 +862,8 @@ class APhilicDetector(MotifBase):
             tetr_positions = pos4[i:i+7]  # positions for tetrasteps inside the 10-mer
             if tetr_positions.shape[0] < 7:
                 continue
-            # Require at least 4 out of 7 tetra positions to be positive (more practical)
-            if np.sum(tetr_positions) < 4:
+            # Require at least 2 out of 7 tetra positions to be positive (more lenient)
+            if np.sum(tetr_positions) < 2:
                 continue
             
             window_seq = seq[i:i+window_len]
@@ -948,7 +975,7 @@ class APhilicDetector(MotifBase):
             return []
         
         candidates = self._candidate_windows_for_sequence(
-            seq, window_len=10, require_nucleation=True, min_consec_tri_pos=3
+            seq, window_len=10, require_nucleation=True, min_consec_tri_pos=2
         )
         
         if not candidates:
