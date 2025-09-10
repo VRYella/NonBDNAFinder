@@ -1022,32 +1022,7 @@ with tab_pages["Documentation"]:
     <br>
     """, unsafe_allow_html=True)
     
-    # NEW: REST API Documentation
-    st.markdown("""
-    <div style='background:#fff4e6; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial;'>
-    <b>🚀 REST API Access (New Feature)</b><br><br>
-    
-    NBDFinder now provides a RESTful API for programmatic access and integration with other tools:
-    
-    <ul>
-        <li><b>Start API Server</b>: <code>python api.py</code> (runs on http://localhost:8000)</li>
-        <li><b>Health Check</b>: <code>GET /api/v1/health</code></li>
-        <li><b>Analyze Sequence</b>: <code>POST /api/v1/analyze</code></li>
-        <li><b>Get Statistics</b>: <code>GET /api/v1/stats</code></li>
-        <li><b>Motif Information</b>: <code>GET /api/v1/motif-info</code></li>
-    </ul>
-    
-    <b>Example Usage:</b><br>
-    <code>
-    curl -X POST "http://localhost:8000/api/v1/analyze" \\<br>
-    &nbsp;&nbsp;-H "Content-Type: application/json" \\<br>
-    &nbsp;&nbsp;-d '{"sequence": "GGGTTAGGGTTAGGGTTAGGG", "sequence_name": "test"}'
-    </code><br><br>
-    
-    <b>Features:</b> JSON responses, comprehensive motif data, caching, CORS support, and automatic API documentation at <code>/docs</code>
-    </div>
-    <br>
-    """, unsafe_allow_html=True)
+
     
     st.markdown("""
     <div style='background:#f4faff; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial;'>
