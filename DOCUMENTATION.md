@@ -157,7 +157,21 @@ graph TD
 | Z_DNA_basic | Basic Z-DNA motifs | `([CG]{2}){6,}` | Z-propensity scoring |
 | Extended_GZ | Extended GZ motifs | `G[CG]{8,}G` | Stability analysis |
 
-### Class 9: Hybrid Motifs
+### Class 9: A-philic DNA
+**Definition**: DNA regions with high A-tract content and specific tetranucleotide/trinucleotide propensity patterns.
+
+**Biological Significance**:
+- Intrinsically curved DNA regions
+- Nucleosome positioning signals
+- Transcriptional regulatory elements
+
+**Detection Method**: Tetranucleotide and trinucleotide log2-odds scoring with window merging
+
+| Subclass | Definition | Pattern Characteristics | Scoring Method |
+|----------|------------|------------------------|----------------|
+| A-philic DNA | High A-tract propensity regions | Positive tetra/tri propensity | Tetra/tri log2-odds |
+
+### Class 10: Hybrid Motifs
 **Definition**: Overlapping or composite structures involving multiple motif types.
 
 **Biological Significance**:
@@ -172,7 +186,7 @@ graph TD
 | Overlapping_motifs | Multiple overlapping structures | Spatial overlap | Composite scoring |
 | Composite_structures | Integrated motif complexes | Functional integration | Cooperative scoring |
 
-### Class 10: Cluster Motifs
+### Class 11: Cluster Motifs
 **Definition**: Regions with high density of multiple motif types.
 
 **Biological Significance**:

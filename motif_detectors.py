@@ -765,11 +765,12 @@ class APhilicDetector(MotifBase):
         self.hs_db = None
         self.ids_map = {}
         
-        if HYPERSCAN_AVAILABLE and self.pos_tetras:
-            try:
-                self._compile_hyperscan_db()
-            except Exception as e:
-                logger.warning(f"Failed to compile Hyperscan DB for A-philic: {e}")
+        # Disable Hyperscan for A-philic detector for now due to stability issues
+        # if HYPERSCAN_AVAILABLE and self.pos_tetras:
+        #     try:
+        #         self._compile_hyperscan_db()
+        #     except Exception as e:
+        #         logger.warning(f"Failed to compile Hyperscan DB for A-philic: {e}")
     
     def _compile_hyperscan_db(self):
         """Compile Hyperscan database for positive tetranucleotides"""
@@ -790,7 +791,7 @@ class APhilicDetector(MotifBase):
         self.ids_map = {i: k for i, k in enumerate(self.pos_tetras)}
     
     def _scan_sequence_for_4mers(self, seq):
-        """Scan sequence for positive tetranucleotides using Hyperscan"""
+        """Scan sequence for positive tetranucleotides using regex fallback"""
         import numpy as np
         
         L = len(seq)
@@ -799,30 +800,10 @@ class APhilicDetector(MotifBase):
         
         pos4 = np.zeros(L - 3, dtype=bool)
         
-        if not self.hs_db:
-            # Fallback to regex
-            for tetra in self.pos_tetras:
-                for match in re.finditer(tetra, seq, re.IGNORECASE):
-                    pos4[match.start()] = True
-            return pos4
-        
-        matches = []
-        def on_match(id_, from_, to_, flags, context):
-            matches.append((id_, from_))
-        
-        try:
-            self.hs_db.scan(seq.encode(), match_event_handler=on_match)
-        except Exception:
-            # Fallback to regex on error
-            for tetra in self.pos_tetras:
-                for match in re.finditer(tetra, seq, re.IGNORECASE):
-                    pos4[match.start()] = True
-            return pos4
-        
-        for _id, start in matches:
-            kmer = self.ids_map[_id]
-            if seq[start:start+4].upper() == kmer.upper():
-                pos4[start] = True
+        # Use regex fallback only to avoid Hyperscan stability issues
+        for tetra in self.pos_tetras:
+            for match in re.finditer(tetra, seq, re.IGNORECASE):
+                pos4[match.start()] = True
         
         return pos4
     
@@ -835,6 +816,8 @@ class APhilicDetector(MotifBase):
     
     def _candidate_windows_for_sequence(self, seq, window_len=10, require_nucleation=True, min_consec_tri_pos=3):
         """Return list of candidate windows for a single sequence"""
+        import numpy as np
+        
         seq = seq.upper()
         L = len(seq)
         if L < window_len:
@@ -852,7 +835,8 @@ class APhilicDetector(MotifBase):
             tetr_positions = pos4[i:i+7]  # positions for tetrasteps inside the 10-mer
             if tetr_positions.shape[0] < 7:
                 continue
-            if not tetr_positions.all():
+            # Require at least 4 out of 7 tetra positions to be positive (more practical)
+            if np.sum(tetr_positions) < 4:
                 continue
             
             window_seq = seq[i:i+window_len]
