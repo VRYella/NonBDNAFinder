@@ -18,7 +18,7 @@ NBDFinder has been completely refactored with a high-performance Hyperscan-power
 ### ⚡ Key Features
 - **Intel Hyperscan acceleration** for multi-pattern scanning
 - **5 core scripts** + supporting modules for clean architecture
-- **10 motif classes** with >20 subclasses detected
+- **11 motif classes** with >20 subclasses detected
 - **Parallel processing** with automatic chunking for large sequences
 - **Multiple output formats**: CSV, Excel, Parquet, GFF3
 - **Interactive Streamlit UI** with real-time visualizations
@@ -33,8 +33,9 @@ NBDFinder has been completely refactored with a high-performance Hyperscan-power
 6. **Triplex DNA** (homopurine/homopyrimidine tracts)
 7. **i-Motif** (C-rich quadruplex structures)
 8. **Z-DNA** (alternating purine-pyrimidine)
-9. **Hybrid motifs** (overlapping structures)
-10. **Clusters** (motif hotspots)
+9. **A-philic DNA** (A-tract containing regions with tetranucleotide propensity)
+10. **Hybrid motifs** (overlapping structures)
+11. **Clusters** (motif hotspots)
 
 ## 🏗️ Architecture
 

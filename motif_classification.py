@@ -90,10 +90,16 @@ OFFICIAL_CLASSIFICATION = {
         ]
     },
     9: {
+        "class_name": "A-philic DNA",
+        "subclasses": [
+            "A-philic DNA"
+        ]
+    },
+    10: {
         "class_name": "Hybrid",
         "subclasses": []  # Dynamic based on overlaps between any two classes
     },
-    10: {
+    11: {
         "class_name": "Non-B DNA cluster regions",
         "subclasses": []  # Dynamic based on occurring motifs: any three classes occurring 3+ times in 100 nt
     }
@@ -137,7 +143,10 @@ MOTIF_IDS = {
     "Z-DNA": "8.1",
     "eGZ (Extruded-G) DNA": "8.3",
     
-    # Class 9 & 10 will be dynamic
+    # Class 9: A-philic DNA
+    "A-philic DNA": "9.1",
+    
+    # Class 10 & 11 will be dynamic
 }
 
 # Current implementation mapping (for compatibility)
@@ -181,6 +190,10 @@ CURRENT_TO_OFFICIAL = {
     # Z-DNA mappings
     "Z-DNA": "Z-DNA",
     "eGZ": "eGZ (Extruded-G) DNA",
+    
+    # A-philic DNA mappings
+    "A-philic DNA": "A-philic DNA",
+    "A_philic": "A-philic DNA",
 }
 
 def get_motif_id(subclass_name):

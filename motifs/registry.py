@@ -137,8 +137,9 @@ MOTIF_CLASS_IDS = {
     'g_quadruplex': 6,
     'i_motif': 7,
     'z_dna': 8,
-    'hybrid': 9,
-    'cluster': 10
+    'a_philic': 9,
+    'hybrid': 10,
+    'cluster': 11
 }
 
 CLASS_NAMES = {v: k for k, v in MOTIF_CLASS_IDS.items()}

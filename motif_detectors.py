@@ -725,6 +725,296 @@ class ZDNADetector(MotifBase):
         return candidates
 
 
+class APhilicDetector(MotifBase):
+    """
+    A-philic DNA detector using tetranucleotide and trinucleotide scoring.
+    
+    Finds longest non-overlapping A-philic regions (min length default 10)
+    using:
+     - Hyperscan to detect positive tetranucleotides
+     - Tri/tetra log2-odds scoring
+     - Merge candidate 10-mer windows into maximal contiguous, non-overlapping regions
+    """
+    
+    def __init__(self):
+        super().__init__('a_philic')
+        
+        # Minimal example propensity tables (as provided in the problem statement)
+        self.TETRA_LOG2 = {
+            "CGGG": 4.299518003806282,
+            "GGGT": 3.7138539604018357,
+            "ACCC": 3.7138539604018357,
+            "CCCG": 3.299710565034141,
+            "CCGG": 3.129873297952302,
+            "GGCC": 2.7147251949405313,
+            "GGGG": 15.585823066983375,
+            "CCCC": 15.585823066983375,
+        }
+        
+        self.TRI_LOG2 = {
+            "GGG": 5.380562932087187,
+            "CCC": 4.38078121038795,
+            "CGG": 1.9337215258034797,
+            "GGC": 1.7179328575835688,
+            "GTA": 1.7179328575835688,
+            "CCG": 1.678471322863967,
+        }
+        
+        # Build positive tetranucleotide set and compile Hyperscan database
+        self.pos_tetras = [k for k, v in self.TETRA_LOG2.items() if v > 0.0]
+        self.hs_db = None
+        self.ids_map = {}
+        
+        if HYPERSCAN_AVAILABLE and self.pos_tetras:
+            try:
+                self._compile_hyperscan_db()
+            except Exception as e:
+                logger.warning(f"Failed to compile Hyperscan DB for A-philic: {e}")
+    
+    def _compile_hyperscan_db(self):
+        """Compile Hyperscan database for positive tetranucleotides"""
+        expressions = []
+        ids = []
+        flags = []
+        
+        for i, k in enumerate(self.pos_tetras):
+            expressions.append(k.encode())
+            ids.append(i)
+            flags.append(hyperscan.HS_FLAG_CASELESS)
+        
+        db = hyperscan.Database()
+        db.compile(expressions=expressions, ids=ids, flags=flags)
+        self.hs_db = db
+        
+        # Create ids_map after successful compilation
+        self.ids_map = {i: k for i, k in enumerate(self.pos_tetras)}
+    
+    def _scan_sequence_for_4mers(self, seq):
+        """Scan sequence for positive tetranucleotides using Hyperscan"""
+        import numpy as np
+        
+        L = len(seq)
+        if L < 4:
+            return np.zeros(0, dtype=bool)
+        
+        pos4 = np.zeros(L - 3, dtype=bool)
+        
+        if not self.hs_db:
+            # Fallback to regex
+            for tetra in self.pos_tetras:
+                for match in re.finditer(tetra, seq, re.IGNORECASE):
+                    pos4[match.start()] = True
+            return pos4
+        
+        matches = []
+        def on_match(id_, from_, to_, flags, context):
+            matches.append((id_, from_))
+        
+        try:
+            self.hs_db.scan(seq.encode(), match_event_handler=on_match)
+        except Exception:
+            # Fallback to regex on error
+            for tetra in self.pos_tetras:
+                for match in re.finditer(tetra, seq, re.IGNORECASE):
+                    pos4[match.start()] = True
+            return pos4
+        
+        for _id, start in matches:
+            kmer = self.ids_map[_id]
+            if seq[start:start+4].upper() == kmer.upper():
+                pos4[start] = True
+        
+        return pos4
+    
+    def _get_trimers_scores(self, window_seq):
+        """Get trinucleotide scores for a window sequence"""
+        tri_scores = []
+        for i in range(len(window_seq) - 2):
+            tri_scores.append(self.TRI_LOG2.get(window_seq[i:i+3].upper(), 0.0))
+        return tri_scores
+    
+    def _candidate_windows_for_sequence(self, seq, window_len=10, require_nucleation=True, min_consec_tri_pos=3):
+        """Return list of candidate windows for a single sequence"""
+        seq = seq.upper()
+        L = len(seq)
+        if L < window_len:
+            return []
+        
+        pos4 = self._scan_sequence_for_4mers(seq)  # length L-3
+        
+        candidates = []
+        last_start = L - window_len
+        
+        for i in range(0, last_start + 1):
+            if i + 7 > len(pos4):
+                continue
+            
+            tetr_positions = pos4[i:i+7]  # positions for tetrasteps inside the 10-mer
+            if tetr_positions.shape[0] < 7:
+                continue
+            if not tetr_positions.all():
+                continue
+            
+            window_seq = seq[i:i+window_len]
+            
+            # tri scores
+            tri_scores = self._get_trimers_scores(window_seq)
+            
+            # nucleation detection: longest consecutive positive tri run
+            consec = 0
+            max_consec = 0
+            for s in tri_scores:
+                if s > 0.0:
+                    consec += 1
+                else:
+                    if consec > max_consec:
+                        max_consec = consec
+                    consec = 0
+            if consec > max_consec:
+                max_consec = consec
+            
+            nucleation = (max_consec >= min_consec_tri_pos)
+            
+            if require_nucleation and not nucleation:
+                continue
+            
+            tetra_vals = [self.TETRA_LOG2.get(seq[j:j+4], 0.0) for j in range(i, i+7)]
+            tri_vals = tri_scores
+            
+            candidates.append({
+                "start": i,
+                "end": i + window_len - 1,
+                "window_seq": window_seq,
+                "tetra_sum": sum(tetra_vals),
+                "tetra_mean": sum(tetra_vals)/7.0,
+                "tri_sum": sum(tri_vals),
+                "tri_mean": (sum(tri_vals)/len(tri_vals)) if tri_vals else 0.0,
+                "tri_max_consec_pos": max_consec
+            })
+        
+        return candidates
+    
+    def _merge_candidate_windows_to_regions(self, candidates, seq_len):
+        """Merge candidate 10-mer windows into maximal contiguous base-cover regions"""
+        import numpy as np
+        
+        if not candidates:
+            return []
+        
+        # Build coverage boolean array of bases
+        covered = np.zeros(seq_len, dtype=bool)
+        for c in candidates:
+            covered[c["start"]:c["end"]+1] = True
+        
+        # Extract contiguous stretches of True
+        regions = []
+        i = 0
+        N = seq_len
+        while i < N:
+            if not covered[i]:
+                i += 1
+                continue
+            j = i
+            while j+1 < N and covered[j+1]:
+                j += 1
+            regions.append({"start": i, "end": j, "length": j - i + 1})
+            i = j + 1
+        
+        return regions
+    
+    def _annotate_regions_with_window_stats(self, regions, candidates):
+        """For each region, find candidate windows that overlap it and compute aggregated stats"""
+        annotated = []
+        for r in regions:
+            overlapping = []
+            for idx, c in enumerate(candidates):
+                # overlap if c.start <= r.end and c.end >= r.start
+                if not (c["end"] < r["start"] or c["start"] > r["end"]):
+                    overlapping.append(c)
+            
+            if not overlapping:
+                continue
+            
+            tetra_sum = sum(c["tetra_sum"] for c in overlapping)
+            tri_sum = sum(c["tri_sum"] for c in overlapping)
+            n_windows = len(overlapping)
+            
+            annotated.append({
+                "start": r["start"], 
+                "end": r["end"], 
+                "length": r["length"],
+                "n_windows": n_windows,
+                "tetra_sum_windows": tetra_sum,
+                "tri_sum_windows": tri_sum,
+                "tetra_mean_window": tetra_sum / n_windows,
+                "tri_mean_window": tri_sum / n_windows
+            })
+        
+        return annotated
+    
+    def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
+        """Detect A-philic regions in the sequence"""
+        if not seq or len(seq) < 10:
+            return []
+        
+        seq = seq.upper()
+        
+        # Skip sequences with non-ATGC characters
+        if any(ch not in "ATGC" for ch in seq):
+            return []
+        
+        candidates = self._candidate_windows_for_sequence(
+            seq, window_len=10, require_nucleation=True, min_consec_tri_pos=3
+        )
+        
+        if not candidates:
+            return []
+        
+        regions = self._merge_candidate_windows_to_regions(candidates, len(seq))
+        annotated = self._annotate_regions_with_window_stats(regions, candidates)
+        
+        # Filter by minimum region length (10 bp)
+        final_candidates = []
+        for i, a in enumerate(annotated):
+            if a["length"] >= 10:
+                candidate = self.make_candidate(
+                    seq=seq,
+                    seq_name=seq_name,
+                    contig=contig,
+                    offset=offset,
+                    start=a["start"],
+                    end=a["end"],
+                    pattern_name="A_philic_region",
+                    subclass="A-philic DNA",
+                    motif_id=i
+                )
+                # Store additional scoring information
+                candidate.raw_score = a["tetra_mean_window"] + a["tri_mean_window"]
+                candidate.metadata = {
+                    "n_windows": a["n_windows"],
+                    "tetra_sum": a["tetra_sum_windows"],
+                    "tri_sum": a["tri_sum_windows"]
+                }
+                final_candidates.append(candidate)
+        
+        return final_candidates
+    
+    def score(self, candidates: List[Candidate]) -> List[Candidate]:
+        """Score A-philic candidates based on tetra/tri propensity scores"""
+        for candidate in candidates:
+            # Use the pre-calculated raw score from detect method
+            if hasattr(candidate, 'raw_score'):
+                # Normalize score (basic normalization by length)
+                candidate.raw_score = max(0.1, candidate.raw_score)
+            else:
+                # Fallback scoring based on length
+                candidate.raw_score = candidate.length / 1000.0
+            
+            candidate.scoring_method = "A_philic_tetra_tri_propensity"
+        
+        return candidates
+
+
 class HybridDetector(MotifBase):
     """Hybrid detector for overlapping motif structures"""
     
@@ -968,6 +1258,7 @@ DETECTOR_CLASSES = {
     'triplex': TriplexDetector,
     'i_motif': IMotifDetector,
     'z_dna': ZDNADetector,
+    'a_philic': APhilicDetector,
     'hybrid': HybridDetector,
     'cluster': ClusterDetector,
 }
