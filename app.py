@@ -851,135 +851,138 @@ with tab_pages["Results"]:
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
-  
+    # Set default export configuration (include all as default)
+    include_sequences = True  # Include full sequences by default
+    export_format = "Both"    # Provide both CSV and Excel options
+    score_type = "Both"       # Include both normalized and actual scores
         
-        # Prepare data for export
-        df_all = []
-        for i, motifs in enumerate(st.session_state.results):
-            for m in motifs:
-                export_row = m.copy()
-                # Only add Sequence Name if it's not already present
-                if 'Sequence Name' not in export_row:
-                    export_row['Sequence Name'] = st.session_state.names[i]
-                
-                # Handle class mapping for compatibility
-                # No special handling needed for eGZ since it's a Z-DNA subclass
-                
-                # Filter sequence data if not requested
-                if not include_sequences:
-                    export_row.pop('Sequence', None)
-                
-                # Handle score type selection
-                if score_type == "Normalized":
-                    export_row.pop('Actual_Score', None)
-                    export_row.pop('Score', None)
-                elif score_type == "Actual":
-                    export_row.pop('Normalized_Score', None)
-                
-                df_all.append(export_row)
-        
-        df_all = pd.DataFrame(df_all)
-        
-        # Remove any duplicate columns that might have been created
-        df_all = df_all.loc[:, ~df_all.columns.duplicated()]
-        
-        # Replace underscores with spaces in column names for better readability
-        df_all.columns = [col.replace('_', ' ') for col in df_all.columns]
-        
-        # Remove any duplicate columns that might have been created after underscore replacement
-        df_all = df_all.loc[:, ~df_all.columns.duplicated()]
-        
-        # Display preview
-        st.markdown("### 👀 Export Preview")
-        st.dataframe(df_all.head(10), use_container_width=True)
-        st.caption(f"Showing first 10 of {len(df_all)} total records")
-        
-        # Export buttons
-        st.markdown("### 💾 Download Files")
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            if export_format in ["CSV", "Both"]:
-                csv_data = df_all.to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    "📄 Download CSV", 
-                    data=csv_data, 
-                    file_name=f"nbdfinder_results_{score_type.lower()}.csv", 
-                    mime="text/csv",
-                    use_container_width=True
-                )
-        
-        with col2:
-            if export_format in ["Excel", "Both"]:
-                excel_data = io.BytesIO()
-                with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:
-                    df_all.to_excel(writer, index=False, sheet_name="Motifs")
-                
-                excel_data.seek(0)
-                st.download_button(
-                    "📊 Download Excel", 
-                    data=excel_data, 
-                    file_name=f"nbdfinder_results_{score_type.lower()}.xlsx", 
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
-        
-        with col3:
-            # Enhanced export options with new formats
-            if CONFIG_AVAILABLE:
-                config_summary = {
-                    'Analysis Parameters': {
-                        'Score Type': score_type,
-                        'Normalized Scoring': True,  # Always use normalized scoring
-                        'Score Threshold': 0.0,  # Include all detected motifs
-                        'Overlaps Removed': False,  # Allow overlaps for complete analysis
-                        'Hotspots Detected': True  # Always detect hotspots
-                    },
-                    'Motif Length Limits': MOTIF_LENGTH_LIMITS,
-                    'Scoring Methods': SCORING_METHODS
-                }
-                
-                import json
-                config_json = json.dumps(config_summary, indent=2)
-                st.download_button(
-                    "⚙️ Download Config", 
-                    data=config_json, 
-                    file_name="analysis_configuration.json", 
-                    mime="application/json",
-                    use_container_width=True
-                )
-        
-        # Prepare data for genome browser exports
-        all_seq_data = []
-        for i, motifs in enumerate(st.session_state.results):
-            all_seq_data.append({
-                'sequence_name': st.session_state.names[i],
-                'motifs': motifs
-            })
-        
-        
-        # Cache statistics display
-        st.markdown("### 📊 Performance & Caching")
-        try:
-            from enhanced_cache import get_cache_stats
-            cache_stats = get_cache_stats()
+    # Prepare data for export
+    df_all = []
+    for i, motifs in enumerate(st.session_state.results):
+        for m in motifs:
+            export_row = m.copy()
+            # Only add Sequence Name if it's not already present
+            if 'Sequence Name' not in export_row:
+                export_row['Sequence Name'] = st.session_state.names[i]
             
-            col7, col8, col9, col10 = st.columns(4)
-            with col7:
-                st.metric("Cache Hit Rate", f"{cache_stats['totals']['hit_rate_percent']:.1f}%")
-            with col8:
-                st.metric("Memory Used", f"{cache_stats['totals']['memory_used_mb']:.1f} MB")
-            with col9:
-                st.metric("Total Requests", cache_stats['totals']['total_requests'])
-            with col10:
-                if st.button("🗑️ Clear Cache", use_container_width=True):
-                    from enhanced_cache import clear_all_caches
-                    clear_all_caches()
-                    st.success("All caches cleared!")
-                    st.experimental_rerun()
-                    
-        except ImportError:
-            st.info("Enhanced caching not available")
+            # Handle class mapping for compatibility
+            # No special handling needed for eGZ since it's a Z-DNA subclass
+            
+            # Filter sequence data if not requested
+            if not include_sequences:
+                export_row.pop('Sequence', None)
+            
+            # Handle score type selection
+            if score_type == "Normalized":
+                export_row.pop('Actual_Score', None)
+                export_row.pop('Score', None)
+            elif score_type == "Actual":
+                export_row.pop('Normalized_Score', None)
+            
+            df_all.append(export_row)
+    
+    df_all = pd.DataFrame(df_all)
+    
+    # Remove any duplicate columns that might have been created
+    df_all = df_all.loc[:, ~df_all.columns.duplicated()]
+    
+    # Replace underscores with spaces in column names for better readability
+    df_all.columns = [col.replace('_', ' ') for col in df_all.columns]
+    
+    # Remove any duplicate columns that might have been created after underscore replacement
+    df_all = df_all.loc[:, ~df_all.columns.duplicated()]
+    
+    # Display preview
+    st.markdown("### 👀 Export Preview")
+    st.dataframe(df_all.head(10), use_container_width=True)
+    st.caption(f"Showing first 10 of {len(df_all)} total records")
+    
+    # Export buttons
+    st.markdown("### 💾 Download Files")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if export_format in ["CSV", "Both"]:
+            csv_data = df_all.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                "📄 Download CSV", 
+                data=csv_data, 
+                file_name=f"nbdfinder_results_{score_type.lower()}.csv", 
+                mime="text/csv",
+                use_container_width=True
+            )
+    
+    with col2:
+        if export_format in ["Excel", "Both"]:
+            excel_data = io.BytesIO()
+            with pd.ExcelWriter(excel_data, engine='xlsxwriter') as writer:
+                df_all.to_excel(writer, index=False, sheet_name="Motifs")
+            
+            excel_data.seek(0)
+            st.download_button(
+                "📊 Download Excel", 
+                data=excel_data, 
+                file_name=f"nbdfinder_results_{score_type.lower()}.xlsx", 
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+    
+    with col3:
+        # Enhanced export options with new formats
+        if CONFIG_AVAILABLE:
+            config_summary = {
+                'Analysis Parameters': {
+                    'Score Type': score_type,
+                    'Normalized Scoring': True,  # Always use normalized scoring
+                    'Score Threshold': 0.0,  # Include all detected motifs
+                    'Overlaps Removed': False,  # Allow overlaps for complete analysis
+                    'Hotspots Detected': True  # Always detect hotspots
+                },
+                'Motif Length Limits': MOTIF_LENGTH_LIMITS,
+                'Scoring Methods': SCORING_METHODS
+            }
+            
+            import json
+            config_json = json.dumps(config_summary, indent=2)
+            st.download_button(
+                "⚙️ Download Config", 
+                data=config_json, 
+                file_name="analysis_configuration.json", 
+                mime="application/json",
+                use_container_width=True
+            )
+    
+    # Prepare data for genome browser exports
+    all_seq_data = []
+    for i, motifs in enumerate(st.session_state.results):
+        all_seq_data.append({
+            'sequence_name': st.session_state.names[i],
+            'motifs': motifs
+        })
+    
+    
+    # Cache statistics display
+    st.markdown("### 📊 Performance & Caching")
+    try:
+        from enhanced_cache import get_cache_stats
+        cache_stats = get_cache_stats()
+        
+        col7, col8, col9, col10 = st.columns(4)
+        with col7:
+            st.metric("Cache Hit Rate", f"{cache_stats['totals']['hit_rate_percent']:.1f}%")
+        with col8:
+            st.metric("Memory Used", f"{cache_stats['totals']['memory_used_mb']:.1f} MB")
+        with col9:
+            st.metric("Total Requests", cache_stats['totals']['total_requests'])
+        with col10:
+            if st.button("🗑️ Clear Cache", use_container_width=True):
+                from enhanced_cache import clear_all_caches
+                clear_all_caches()
+                st.success("All caches cleared!")
+                st.experimental_rerun()
+                
+    except ImportError:
+        st.info("Enhanced caching not available")
 
 # ---------- DOCUMENTATION ----------
 with tab_pages["Documentation"]:
