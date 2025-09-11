@@ -964,7 +964,9 @@ class APhilicDetector(MotifBase):
         return annotated
     
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
-        """Detect A-philic regions in the sequence"""
+        """Enhanced A-philic detection using Kadane's algorithm for optimal subarray detection"""
+        import numpy as np
+        
         if not seq or len(seq) < 10:
             return []
         
@@ -974,41 +976,165 @@ class APhilicDetector(MotifBase):
         if any(ch not in "ATGC" for ch in seq):
             return []
         
-        candidates = self._candidate_windows_for_sequence(
-            seq, window_len=10, require_nucleation=True, min_consec_tri_pos=2
-        )
+        # Create scoring array using k-mer propensities
+        scoring_array = self._create_scoring_array_from_propensities(seq)
         
-        if not candidates:
+        if scoring_array.size == 0:
             return []
         
-        regions = self._merge_candidate_windows_to_regions(candidates, len(seq))
-        annotated = self._annotate_regions_with_window_stats(regions, candidates)
+        # Apply Kadane's algorithm to find optimal A-philic regions
+        regions = self._kadane_aphilic_regions(scoring_array, seq)
         
-        # Filter by minimum region length (10 bp)
+        # Filter and create candidates
         final_candidates = []
-        for i, a in enumerate(annotated):
-            if a["length"] >= 10:
-                candidate = self.make_candidate(
-                    seq=seq,
-                    seq_name=seq_name,
-                    contig=contig,
-                    offset=offset,
-                    start=a["start"],
-                    end=a["end"],
-                    pattern_name="A_philic_region",
-                    subclass="A-philic DNA",
-                    motif_id=i
-                )
-                # Store additional scoring information
-                candidate.raw_score = a["tetra_mean_window"] + a["tri_mean_window"]
-                candidate.metadata = {
-                    "n_windows": a["n_windows"],
-                    "tetra_sum": a["tetra_sum_windows"],
-                    "tri_sum": a["tri_sum_windows"]
-                }
-                final_candidates.append(candidate)
+        for i, region in enumerate(regions):
+            start, end, score, region_seq, details = region
+            
+            # Apply nucleation filter
+            if not self._passes_nucleation_filter(region_seq, details):
+                continue
+            
+            # Minimum length filter
+            if end - start + 1 < 10:
+                continue
+            
+            candidate = self.make_candidate(
+                seq=seq,
+                seq_name=seq_name,
+                contig=contig,
+                offset=offset,
+                start=start,
+                end=end,
+                pattern_name="A_philic_kadane_region",
+                subclass="A-philic DNA",
+                motif_id=i
+            )
+            
+            # Store enhanced scoring information
+            candidate.raw_score = details.get('combined_score', score)
+            candidate.metadata = {
+                "tetra_sum": details.get('tetra_sum', 0.0),
+                "tri_sum": details.get('tri_sum', 0.0),
+                "tet_pos_count": details.get('tet_pos_count', 0),
+                "tri_pos_count": details.get('tri_pos_count', 0),
+                "scoring_method": "kadane_aphilic_enhanced"
+            }
+            final_candidates.append(candidate)
         
         return final_candidates
+    
+    def _create_scoring_array_from_propensities(self, seq: str):
+        """Create scoring array from tri/tetra propensities for Kadane's algorithm"""
+        import numpy as np
+        
+        n = len(seq)
+        if n < 4:
+            return np.zeros(max(0, n-1), dtype=float)
+        
+        # Create transition-based scoring array compatible with Kadane's algorithm
+        scoring_array = np.zeros(n - 1, dtype=float)
+        
+        # Score tetranucleotides
+        for i in range(n - 3):
+            tetra = seq[i:i+4]
+            tetra_score = self.TETRA_LOG2.get(tetra, 0.0)
+            if tetra_score > 0:
+                # Distribute score across the transitions covered by this tetramer
+                for pos in range(i, min(i + 3, len(scoring_array))):
+                    scoring_array[pos] += tetra_score
+        
+        # Score trinucleotides
+        for i in range(n - 2):
+            tri = seq[i:i+3]
+            tri_score = self.TRI_LOG2.get(tri, 0.0)
+            if tri_score > 0:
+                # Distribute score across the transitions covered by this trimer
+                for pos in range(i, min(i + 2, len(scoring_array))):
+                    scoring_array[pos] += tri_score * 0.5  # Weight tri scores slightly less
+        
+        return scoring_array
+    
+    def _kadane_aphilic_regions(self, scoring_array, seq: str, 
+                               threshold: float = 5.0, drop_threshold: float = 10.0):
+        """Apply Kadane's algorithm to find optimal A-philic regions"""
+        if scoring_array.size == 0:
+            return []
+        
+        regions = []
+        max_ending_here = scoring_array[0]
+        start_idx = end_idx = 0
+        current_max = 0
+        candidate_region = None
+        
+        for i in range(1, scoring_array.size):
+            num = scoring_array[i]
+            if num >= max_ending_here + num:
+                start_idx = i
+                end_idx = i + 1
+                max_ending_here = num
+            else:
+                max_ending_here += num
+                end_idx = i + 1
+            
+            if max_ending_here >= threshold and current_max < max_ending_here:
+                # Convert transition indices to nucleotide indices
+                start_nt = start_idx
+                end_nt = end_idx  # end_idx is the next position after the last transition
+                
+                # Get region details for nucleation filtering
+                details = self._get_region_details(seq, start_nt, end_nt)
+                
+                if end_nt - start_nt >= 10:  # Minimum region length
+                    region_seq = seq[start_nt:end_nt + 1]
+                    candidate_region = (start_nt, end_nt, max_ending_here, region_seq, details)
+                    current_max = max_ending_here
+            
+            if (candidate_region and 
+                (max_ending_here < 0 or current_max - max_ending_here >= drop_threshold)):
+                regions.append(candidate_region)
+                candidate_region = None
+                max_ending_here = current_max = 0
+        
+        if candidate_region:
+            regions.append(candidate_region)
+        
+        return regions
+    
+    def _get_region_details(self, seq: str, start: int, end: int) -> dict:
+        """Get detailed scoring information for a region"""
+        region_seq = seq[start:end + 1]
+        
+        # Count positive k-mers and calculate sums
+        tet_pos_count = 0
+        tetra_sum = 0.0
+        for i in range(len(region_seq) - 3):
+            tetra = region_seq[i:i+4]
+            score = self.TETRA_LOG2.get(tetra, 0.0)
+            if score > 0:
+                tet_pos_count += 1
+                tetra_sum += score
+        
+        tri_pos_count = 0
+        tri_sum = 0.0
+        for i in range(len(region_seq) - 2):
+            tri = region_seq[i:i+3]
+            score = self.TRI_LOG2.get(tri, 0.0)
+            if score > 0:
+                tri_pos_count += 1
+                tri_sum += score
+        
+        return {
+            'tet_pos_count': tet_pos_count,
+            'tri_pos_count': tri_pos_count,
+            'tetra_sum': tetra_sum,
+            'tri_sum': tri_sum,
+            'combined_score': tetra_sum + tri_sum * 0.5,
+            'length': end - start + 1
+        }
+    
+    def _passes_nucleation_filter(self, region_seq: str, details: dict, min_tri_nucleation: int = 1) -> bool:
+        """Apply nucleation filter similar to enhanced approach"""
+        return details.get('tri_pos_count', 0) >= min_tri_nucleation
     
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
         """Score A-philic candidates based on tetra/tri propensity scores"""
