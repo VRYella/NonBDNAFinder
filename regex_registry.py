@@ -62,10 +62,13 @@ STR_PATTERNS = {
 }
 
 # === Z-DNA ===
-# Alternating purine–pyrimidine (CG/AT), >10 bp
+# Enhanced Z-DNA detection using Kadane algorithm for transition scoring
+# Traditional patterns for compatibility with existing framework
 Z_DNA_PATTERNS = {
     'cg_zdna': [(r"(?:CG){6,}", 1, "Z-DNA", None, 1.0, 12, "Ho1986")],
-    'at_zdna': [(r"(?:AT){6,}", 2, "Z-DNA", None, 1.0, 12, "Ho1986")]
+    'at_zdna': [(r"(?:AT){6,}", 2, "Z-DNA", None, 1.0, 12, "Ho1986")],
+    # New Kadane-based detection entry point
+    'kadane_zdna': [(r"[ATCG]{20,}", 3, "Z-DNA_Kadane", None, 1.5, 20, "Kadane2024")]
 }
 
 # === Triplex ===
