@@ -684,13 +684,27 @@ class ZDNADetector(MotifBase):
                 subarrays = calculator.subarrays_above_threshold()
                 
                 for start, end, score, substring in subarrays:
+                    # Determine if this is eGZ motif based on CGG content
+                    cgg_matches = len(re.findall(r'CGG', substring, re.IGNORECASE))
+                    total_length = len(substring)
+                    
+                    # If CGG repeats make up significant portion, classify as eGZ
+                    if cgg_matches >= 4 or (cgg_matches >= 2 and cgg_matches * 3 / total_length > 0.4):
+                        subclass = "eGZ"
+                        pattern_type = "egz_motif"
+                        scoring_method = "eGZ_Kadane_algorithm"
+                    else:
+                        subclass = "Z_DNA_Kadane"
+                        pattern_type = "kadane_zdna"
+                        scoring_method = "Z_DNA_Kadane_algorithm"
+                    
                     candidate = self.make_candidate(
                         seq, seq_name, contig, offset,
-                        start, end - 1, "kadane_zdna",
-                        "Z_DNA_Kadane", 1
+                        start, end - 1, pattern_type,
+                        subclass, 1
                     )
                     candidate.raw_score = score
-                    candidate.scoring_method = "Z_DNA_Kadane_algorithm"
+                    candidate.scoring_method = scoring_method
                     candidates.append(candidate)
                     
             except ImportError:
@@ -702,6 +716,7 @@ class ZDNADetector(MotifBase):
             patterns = [
                 (r'([CG]{2}){6,}', 'Z_DNA_basic'),
                 (r'G[CG]{8,}G', 'Extended_GZ'),
+                (r'(?:CGG){4,}', 'eGZ'),
             ]
             
             for pattern, subclass in patterns:

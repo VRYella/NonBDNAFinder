@@ -67,6 +67,8 @@ STR_PATTERNS = {
 Z_DNA_PATTERNS = {
     'cg_zdna': [(r"(?:CG){6,}", 1, "Z-DNA", None, 1.0, 12, "Ho1986")],
     'at_zdna': [(r"(?:AT){6,}", 2, "Z-DNA", None, 1.0, 12, "Ho1986")],
+    # eGZ (Extruded-G) DNA formed by CGG trinucleotide repeats
+    'egz_motif': [(r"(?:CGG){4,}", 4, "eGZ", None, 1.2, 12, "InHouse")],
     # New Kadane-based detection entry point
     'kadane_zdna': [(r"[ATCG]{20,}", 3, "Z-DNA_Kadane", None, 1.5, 20, "Kadane2024")]
 }
