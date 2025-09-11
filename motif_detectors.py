@@ -8,8 +8,10 @@ and scoring algorithms per the TECHNICAL_SPECIFICATIONS.md.
 from typing import List, Tuple, Dict, Optional
 import re
 import logging
+import math
 from abc import ABC, abstractmethod
 from collections import defaultdict
+import numpy as np
 
 # Add imports near top
 try:
@@ -728,302 +730,413 @@ class ZDNADetector(MotifBase):
 
 class APhilicDetector(MotifBase):
     """
-    A-philic DNA detector using tetranucleotide and trinucleotide scoring.
+    Enhanced A-philic DNA detector using sophisticated tetranucleotide and trinucleotide scoring.
     
-    Finds longest non-overlapping A-philic regions (min length default 10)
-    using:
-     - Hyperscan to detect positive tetranucleotides
-     - Tri/tetra log2-odds scoring
-     - Merge candidate 10-mer windows into maximal contiguous, non-overlapping regions
+    Implements the advanced algorithm from call_Aphilic.py with:
+    - Comprehensive tetra/tri propensity tables (embedded)
+    - Nucleation detection (10-nt windows with all positive tetra steps + tri-window cutoff)
+    - Extension with Kadane-variant to find best containing subarray
+    - Hyperscan integration for performance optimization
     """
     
     def __init__(self):
         super().__init__('a_philic')
         
-        # Expanded A-philic propensity tables including A/T-rich patterns
-        # Original GC-rich patterns (high scores)
+        # Comprehensive propensity tables from call_Aphilic.py
+        # Tetra table: Step -> Log2_Odds_laplace
         self.TETRA_LOG2 = {
-            "CGGG": 4.299518003806282,
-            "GGGT": 3.7138539604018357,
-            "ACCC": 3.7138539604018357,
-            "CCCG": 3.299710565034141,
-            "CCGG": 3.129873297952302,
-            "GGCC": 2.7147251949405313,
-            "GGGG": 15.585823066983375,
-            "CCCC": 15.585823066983375,
-            # Additional A/T-rich A-philic patterns (moderate positive scores)
-            "AAAA": 2.5,
-            "TTTT": 2.5,
-            "AAAT": 1.5,
-            "ATTT": 1.5,
-            "TTTA": 1.5,
-            "TAAA": 1.5,
-            "AATT": 1.2,
-            "TTAA": 1.2,
-            "AAAG": 1.0,
-            "CTTT": 1.0,
-            "GAAT": 0.8,
-            "ATTC": 0.8,
-            "TAAT": 0.5,
-            "ATTA": 0.5,
+            "CCCC":4.389556283101704,"GGGG":4.389556283101704,"TGGG":4.167163861765255,"GGGC":3.9041294559314617,
+            "CCCG":3.9041294559314617,"GCCC":3.9041294559314617,"CCCT":3.582201361044099,"GTGC":3.582201361044099,
+            "AGGG":3.582201361044099,"TCCC":3.167163861765255,"CCCA":3.167163861044099,"CCTA":2.582201361044099,
+            "TAGG":2.582201361044099,"CTCC":2.582201361044099,"CGGG":2.3191669552103056,"GAGG":2.1671638617652556,
+            "GGGT":2.1671638617652556,"GCAC":1.9972388603229432,"CCAC":1.9041294559314614,"CCGG":1.8817616429030073,
+            "GGCC":1.7077322431279585,"CCTC":1.5822013610440995,"TCCT":1.5822013610440995,"GACC":1.5822013610440993,
+            "CTGT":1.5822013610440993,"CTCA":1.5822013610440993,"CCGC":1.5822013610440993,"TGCC":1.5822013610440993,
+            "TAAG":1.5822013610440993,"TACC":1.3191669552103056,"TCGG":1.1671638617652556,"CTAG":1.0967745338738575,
+            "GTGG":1.0967745338738575,"GTCC":0.9972388603229432,"CACG":0.9972388603229432,"GGTC":0.9972388603229432,
+            "GGTA":0.9041294559314615,"GTAC":0.8452357668778931,"TACG":0.8452357668778931,"GGGA":0.8452357668778931,
+            "ACGC":0.7748464389864953,"GCGG":0.7748464389864953,"CGGC":0.7342044544891495,"CGGT":0.7077322431279583,
+            "ACGT":0.7077322431279583,"CGTA":0.5822013610440996,"TCTC":0.5822013610440996,"CCGA":0.5822013610440996,
+            "GCCG":0.5822013610440994,"ACCG":0.5822013610440994,"TCCA":0.5822013610440991,"CAGT":0.5822013610440991,
+            "TCCG":0.5822013610440991,"CACA":0.5822013610440991,"TCAG":0.5822013610440991,"CACT":0.5822013610440991,
+            "TCAA":0.5822013610440991,"GGTG":0.5822013610440991,"GTAA":0.5822013610440991,"GGAG":0.5822013610440991,
+            "TTGA":0.5822013610440991,"GGCT":0.5822013610440991,"GCAG":0.5822013610440991,"TTAC":0.5822013610440991,
+            "TGTT":0.5822013610440991,"ACAG":0.5822013610440991,"TGTG":0.5822013610440991,"ACCC":0.5822013610440991,
+            "ATCC":0.5822013610440991,"CTTA":0.5822013610440991,"ACTC":0.5822013610440991,"AGCC":0.5822013610440991,
+            "AGTC":0.5822013610440991,"AGTG":0.5822013610440991,"ATAC":0.5822013610440991,"CGTG":0.41227635960178693,
+            "TGCG":0.3598089397076514,"GCGC":0.3598089397076514,"GTAT":0.26027326615673674,"GTCT":0.26027326615673674,
+            "GTGT":0.26027326615673674,"GCCT":0.26027326615673674,"TACA":0.26027326615673674,"GGCA":0.26027326615673674,
+            "AGGC":0.26027326615673674,"CACC":0.26027326615673674,"ACAC":0.26027326615673674,"TCTG":0.26027326615673674,
+            "TGAC":0.26027326615673674,"CGCA":0.1671638617652555,"GCGT":0.09677453387385747,"CATG":0.09677453387385747,
+            "CAGA":-0.00276114,"ACTG":-0.00276114,"ATCA":-0.00276114,"TGCA":-0.00276114,"TGTA":-0.00276114,"CTAC":-0.00276114,
+            "TGGC":-0.00276114,"GGTT":-0.00276114,"TTTA":-0.00276114,"AGTA":-0.00276114,"TAAA":-0.00276114,"GTTG":-0.00276114,
+            "AGGA":-0.00276114,"CTGC":-0.00276114,"TGTC":-0.00276114,"TCAC":-0.00276114,"GATC":-0.00276114,"AACC":-0.00276114,
+            "ATGG":-0.00276114,"ACCT":-0.00276114,"AGGT":-0.00276114,"TACT":-0.00276114,"TTAG":-0.00276114,"TGAA":-0.00276114,
+            "AAGT":-0.00276114,"TAGT":-0.00276114,"AACT":-0.00276114,"TATT":-0.00276114,"GGAC":-0.00276114,"CAAC":-0.00276114,
+            "ATGC":-0.154764233,"CCAT":-0.225153561,"CGCC":-0.225153561,"GTTC":-0.417798639,"AAGC":-0.417798639,
+            "CTGA":-0.417798639,"AATC":-0.417798639,"AATA":-0.417798639,"CGAC":-0.417798639,"AAGG":-0.417798639,
+            "CCTT":-0.417798639,"ACGA":-0.417798639,"TTCA":-0.417798639,"GCTC":-0.417798639,"AACA":-0.417798639,
+            "GGCG":-0.417798639,"TCAT":-0.417798639,"GGAT":-0.417798639,"ATGT":-0.417798639,"ACCA":-0.417798639,
+            "ATGA":-0.417798639,"CTTT":-0.417798639,"AGCA":-0.417798639,"CTAT":-0.417798639,"GTCG":-0.417798639,
+            "GACA":-0.417798639,"TGAG":-0.417798639,"AGAC":-0.417798639,"TGGT":-0.417798639,"ACTT":-0.417798639,
+            "ATAA":-0.417798639,"GAGC":-0.417798639,"AGTT":-0.417798639,"TAAC":-0.417798639,"TGAT":-0.417798639,
+            "TGCT":-0.417798639,"GCAT":-0.533275856,"CCGT":-0.58772364,"TTGG":-0.739726734,"TTAT":-0.739726734,
+            "TCGC":-0.739726734,"TAGA":-0.739726734,"CTTG":-0.739726734,"TTGT":-0.739726734,"GCTT":-0.739726734,
+            "AGCG":-0.739726734,"AAAG":-0.739726734,"ACAT":-0.739726734,"CAGC":-0.739726734,"GAAC":-0.739726734,
+            "CATC":-0.739726734,"CATT":-0.739726734,"GAGT":-0.739726734,"CGGA":-0.739726734,"ATCT":-0.739726734,
+            "CCTG":-0.739726734,"ACTA":-0.739726734,"AGAT":-1.00276114,"AATG":-1.00276114,"CTAA":-1.00276114,
+            "CGAG":-1.00276114,"CCAG":-1.00276114,"CTCT":-1.00276114,"CATA":-1.00276114,"CAAG":-1.00276114,
+            "CTCG":-1.00276114,"TCGT":-1.00276114,"TTGC":-1.00276114,"AGAG":-1.00276114,"GATT":-1.00276114,
+            "GATG":-1.00276114,"ATAG":-1.00276114,"GACT":-1.00276114,"GTGA":-1.00276114,"GTTA":-1.00276114,
+            "TTCT":-1.00276114,"CGCG":-1.080763652,"ATCG":-1.118238357,"TATA":-1.118238357,"TTTG":-1.225153561,
+            "TTCC":-1.225153561,"ACGG":-1.225153561,"AGCT":-1.225153561,"GCCA":-1.225153561,"ACAA":-1.225153561,
+            "TCTT":-1.225153561,"CAGG":-1.225153561,"TCTA":-1.225153561,"AAGA":-1.225153561,"CGAT":-1.225153561,
+            "GTAG":-1.225153561,"TATG":-1.225153561,"GTCA":-1.225153561,"CGCT":-1.225153561,"AGAA":-1.225153561,
+            "CTGG":-1.225153561,"TTTC":-1.417798639,"ATTA":-1.417798639,"CCAA":-1.417798639,"TATC":-1.417798639,
+            "GAAG":-1.417798639,"GACG":-1.417798639,"GAGA":-1.417798639,"GCTG":-1.417798639,"TGGA":-1.417798639,
+            "TTAA":-1.58772364,"GTTT":-1.58772364,"CTTC":-1.58772364,"GATA":-1.58772364,"GCTA":-1.58772364,
+            "TTCG":-1.739726734,"GAAA":-1.739726734,"TCGA":-1.739726734,"CAAT":-1.739726734,"TAGC":-1.739726734,
+            "AAAC":-1.739726734,"TAAT":-1.877230258,"CGTC":-1.877230258,"ATTT":-2.00276114,"CGAA":-2.00276114,
+            "ATTG":-2.00276114,"AACG":-2.00276114,"GCAA":-2.00276114,"AAAT":-2.118238357,"CAAA":-2.118238357,
+            "GCGA":-2.118238357,"ATTC":-2.225153561,"GAAT":-2.324689235,"CGTT":-2.324689235,"GGAA":-2.324689235,
+            "AAAA":-2.417798639,"ATAT":-2.417798639,"TTTT":-2.50526148,"AATT":-3.50526148
         }
-        
+
+        # Tri table: Step -> Log2_Odds_laplace  
         self.TRI_LOG2 = {
-            "GGG": 5.380562932087187,
-            "CCC": 4.38078121038795,
-            "CGG": 1.9337215258034797,
-            "GGC": 1.7179328575835688,
-            "GTA": 1.7179328575835688,
-            "CCG": 1.678471322863967,
-            # Additional A/T-rich trinucleotides
-            "AAA": 2.0,
-            "TTT": 2.0,
-            "AAT": 1.0,
-            "ATT": 1.0,
-            "TAA": 1.0,
-            "TTA": 1.0,
-            "ATA": 0.5,
-            "TAT": 0.5,
+            "CCC":4.781079142726248,"GGG":3.9737242206686436,"CAC":1.6656019253063112,"GCC":1.557077468528142,
+            "GGC":1.557077468528142,"CCG":1.4526082019721132,"GTG":1.2505644260274673,"ACC":1.2326425180302052,
+            "CCT":1.1737488289766367,"GGT":1.1546400060289317,"CGG":1.0806394245851554,"AGG":1.080639424585155,
+            "TAC":0.9811037510342406,"TCC":0.8582470032487074,"GTA":0.7810791427262473,"CTC":0.5952125974149134,
+            "TGC":0.5660662517553969,"CCA":0.303031845921603,"GTC":0.2732845025275512,"TGG":0.1875546285016671,
+            "CTA":0.1420399692492986,"TAG":0.08063942458515531,"ACG":0.04111106039851759,"GCA":0.030013351515187126,
+            "GAC":0.010250096693757146,"GCG":-0.023697235,"CGT":-0.074638801,"CGC":-0.141752997,"CAT":-0.551628791,
+            "TCT":-0.563216765,"ATG":-0.597432481,"TGT":-0.619800294,"GAG":-0.65632617,"CAG":-0.726715497,
+            "TGA":-0.726715497,"GGA":-0.873556886,"ATC":-0.919360575,"ACA":-1.006823417,"CTG":-1.089285577,
+            "GAT":-1.24128867,"AGT":-1.24128867,"ACT":-1.378792194,"TCA":-1.504323076,"TCG":-1.54385144,
+            "CGA":-1.619800294,"TAT":-1.726715497,"ATA":-1.777341571,"TTA":-2.006823417,"AAG":-2.006823417,
+            "TAA":-2.089285577,"CTT":-2.167288089,"AGC":-2.24128867,"AGA":-2.311677998,"AAC":-2.378792194,
+            "GTT":-2.378792194,"TTG":-2.504323076,"GCT":-2.504323076,"CAA":-2.777341571,"TTC":-2.919360575,
+            "GAA":-3.128813941,"TTT":-3.204762794,"AAA":-3.311677998,"ATT":-3.411213672,"AAT":-3.473949427
         }
         
-        # Build positive tetranucleotide set and compile Hyperscan database
-        self.pos_tetras = [k for k, v in self.TETRA_LOG2.items() if v > 0.0]
+        # Initialize hyperscan support
         self.hs_db = None
-        self.ids_map = {}
-        
-        # Disable Hyperscan for A-philic detector for now due to stability issues
-        # if HYPERSCAN_AVAILABLE and self.pos_tetras:
-        #     try:
-        #         self._compile_hyperscan_db()
-        #     except Exception as e:
-        #         logger.warning(f"Failed to compile Hyperscan DB for A-philic: {e}")
+        self.id_to_tetra = {}
+        self._compile_hyperscan_db()
     
     def _compile_hyperscan_db(self):
-        """Compile Hyperscan database for positive tetranucleotides"""
-        expressions = []
-        ids = []
-        flags = []
+        """Compile Hyperscan database for positive tetranucleotides (performance optimization)"""
+        if not HYPERSCAN_AVAILABLE:
+            logger.info("Hyperscan not available, using fallback scanning")
+            return
+            
+        try:
+            # Get positive tetranucleotides for hyperscan patterns
+            positive_tetras = [tetra for tetra, score in self.TETRA_LOG2.items() if score > 0.0]
+            
+            if not positive_tetras:
+                return
+                
+            expressions = []
+            ids = []
+            flags = []
+            
+            for i, tetra in enumerate(positive_tetras):
+                expressions.append(tetra.encode('utf-8'))
+                ids.append(i)
+                flags.append(hyperscan.HS_FLAG_UTF8)
+                self.id_to_tetra[i] = tetra
+            
+            db = hyperscan.Database()
+            db.compile(expressions=expressions, ids=ids, flags=flags)
+            self.hs_db = db
+            logger.info(f"Compiled Hyperscan DB for {len(positive_tetras)} A-philic tetranucleotides")
+            
+        except Exception as e:
+            logger.warning(f"Failed to compile Hyperscan DB for A-philic detector: {e}")
+            self.hs_db = None
+
+    def _build_step_scores(self, seq: str, w4: float = 0.7, w3: float = 0.3):
+        """
+        Build tetra, tri, and combined step score arrays as in call_Aphilic.py
         
-        for i, k in enumerate(self.pos_tetras):
-            expressions.append(k.encode())
-            ids.append(i)
-            flags.append(hyperscan.HS_FLAG_CASELESS)
-        
-        db = hyperscan.Database()
-        db.compile(expressions=expressions, ids=ids, flags=flags)
-        self.hs_db = db
-        
-        # Create ids_map after successful compilation
-        self.ids_map = {i: k for i, k in enumerate(self.pos_tetras)}
-    
-    def _scan_sequence_for_4mers(self, seq):
-        """Scan sequence for positive tetranucleotides using overlapping scan"""
+        Returns:
+            tetra_scores: array of tetra scores (length seq_len - 3)
+            tri_scores: array of tri scores (length seq_len - 2) 
+            step_scores: combined scores (length seq_len - 3)
+        """
         import numpy as np
         
         L = len(seq)
         if L < 4:
-            return np.zeros(0, dtype=bool)
+            return np.array([]), np.array([]), np.array([])
+            
+        tetra_scores = np.zeros(L - 3, dtype=float)
+        tri_scores = np.zeros(L - 2, dtype=float)
         
-        pos4 = np.zeros(L - 3, dtype=bool)
-        
-        # Use direct scanning to find all overlapping matches
-        # This is more accurate than regex which misses overlapping patterns
+        # Calculate tetra scores
         for i in range(L - 3):
-            tetra = seq[i:i+4]
-            if tetra in self.pos_tetras:
-                pos4[i] = True
-        
-        return pos4
-    
-    def _get_trimers_scores(self, window_seq):
-        """Get trinucleotide scores for a window sequence"""
-        tri_scores = []
-        for i in range(len(window_seq) - 2):
-            tri_scores.append(self.TRI_LOG2.get(window_seq[i:i+3].upper(), 0.0))
-        return tri_scores
-    
-    def _candidate_windows_for_sequence(self, seq, window_len=10, require_nucleation=True, min_consec_tri_pos=3):
-        """Return list of candidate windows for a single sequence"""
+            tetra_scores[i] = self.TETRA_LOG2.get(seq[i:i+4], 0.0)
+            
+        # Calculate tri scores  
+        for i in range(L - 2):
+            tri_scores[i] = self.TRI_LOG2.get(seq[i:i+3], 0.0)
+            
+        # Combined step scores (align tri at same start as tetra)
+        step_scores = np.zeros(L - 3, dtype=float)
+        for i in range(L - 3):
+            tri_val = tri_scores[i] if i < len(tri_scores) else 0.0
+            tet_val = tetra_scores[i]
+            step_scores[i] = w4 * tet_val + w3 * tri_val
+            
+        return tetra_scores, tri_scores, step_scores
+
+    def _find_10mer_positive_tetra_starts(self, tetra_scores):
+        """
+        Find 10-nt windows where all 7 tetra scores are > 0 (nucleation detection)
+        """
         import numpy as np
         
-        seq = seq.upper()
-        L = len(seq)
-        if L < window_len:
-            return []
+        starts = []
+        min_needed = 7  # 10 nt -> 7 tetra steps
+        n_tetra = len(tetra_scores)
         
-        pos4 = self._scan_sequence_for_4mers(seq)  # length L-3
-        
-        candidates = []
-        last_start = L - window_len
-        
-        for i in range(0, last_start + 1):
-            if i + 7 > len(pos4):
-                continue
-            
-            tetr_positions = pos4[i:i+7]  # positions for tetrasteps inside the 10-mer
-            if tetr_positions.shape[0] < 7:
-                continue
-            # Require at least 2 out of 7 tetra positions to be positive (more lenient)
-            if np.sum(tetr_positions) < 2:
-                continue
-            
-            window_seq = seq[i:i+window_len]
-            
-            # tri scores
-            tri_scores = self._get_trimers_scores(window_seq)
-            
-            # nucleation detection: longest consecutive positive tri run
-            consec = 0
-            max_consec = 0
-            for s in tri_scores:
-                if s > 0.0:
-                    consec += 1
-                else:
-                    if consec > max_consec:
-                        max_consec = consec
-                    consec = 0
-            if consec > max_consec:
-                max_consec = consec
-            
-            nucleation = (max_consec >= min_consec_tri_pos)
-            
-            if require_nucleation and not nucleation:
-                continue
-            
-            tetra_vals = [self.TETRA_LOG2.get(seq[j:j+4], 0.0) for j in range(i, i+7)]
-            tri_vals = tri_scores
-            
-            candidates.append({
-                "start": i,
-                "end": i + window_len - 1,
-                "window_seq": window_seq,
-                "tetra_sum": sum(tetra_vals),
-                "tetra_mean": sum(tetra_vals)/7.0,
-                "tri_sum": sum(tri_vals),
-                "tri_mean": (sum(tri_vals)/len(tri_vals)) if tri_vals else 0.0,
-                "tri_max_consec_pos": max_consec
-            })
-        
-        return candidates
-    
-    def _merge_candidate_windows_to_regions(self, candidates, seq_len):
-        """Merge candidate 10-mer windows into maximal contiguous base-cover regions"""
+        for j in range(0, n_tetra - min_needed + 1):
+            window = tetra_scores[j:j + min_needed]
+            if np.all(window > 0.0):
+                starts.append(j)
+                
+        return starts
+
+    def _compute_nuc_threshold_auto(self, tri_scores, factor: float = 1.0):
+        """
+        Auto nucleation threshold: mean + factor * std * sqrt(window_len)
+        """
+        import math
         import numpy as np
         
-        if not candidates:
-            return []
-        
-        # Build coverage boolean array of bases
-        covered = np.zeros(seq_len, dtype=bool)
-        for c in candidates:
-            covered[c["start"]:c["end"]+1] = True
-        
-        # Extract contiguous stretches of True
-        regions = []
-        i = 0
-        N = seq_len
-        while i < N:
-            if not covered[i]:
-                i += 1
-                continue
-            j = i
-            while j+1 < N and covered[j+1]:
-                j += 1
-            regions.append({"start": i, "end": j, "length": j - i + 1})
-            i = j + 1
-        
-        return regions
-    
-    def _annotate_regions_with_window_stats(self, regions, candidates):
-        """For each region, find candidate windows that overlap it and compute aggregated stats"""
-        annotated = []
-        for r in regions:
-            overlapping = []
-            for idx, c in enumerate(candidates):
-                # overlap if c.start <= r.end and c.end >= r.start
-                if not (c["end"] < r["start"] or c["start"] > r["end"]):
-                    overlapping.append(c)
+        if len(tri_scores) == 0:
+            return 0.0
             
-            if not overlapping:
-                continue
-            
-            tetra_sum = sum(c["tetra_sum"] for c in overlapping)
-            tri_sum = sum(c["tri_sum"] for c in overlapping)
-            n_windows = len(overlapping)
-            
-            annotated.append({
-                "start": r["start"], 
-                "end": r["end"], 
-                "length": r["length"],
-                "n_windows": n_windows,
-                "tetra_sum_windows": tetra_sum,
-                "tri_sum_windows": tri_sum,
-                "tetra_mean_window": tetra_sum / n_windows,
-                "tri_mean_window": tri_sum / n_windows
-            })
+        # Use population statistics from TRI table
+        all_tri_values = list(self.TRI_LOG2.values())
+        mean = float(np.mean(all_tri_values))
+        std = float(np.std(all_tri_values))
         
-        return annotated
-    
+        # Use 3 tri-steps nucleation window
+        return mean * 3.0 + factor * std * math.sqrt(3.0)
+
+    def _tri_window_sum_ok(self, tri_scores, nt_start: int, window_tri_len: int, nuc_threshold: float):
+        """
+        Check if any consecutive tri-window of specified length has sum >= nuc_threshold
+        """
+        tri_start = nt_start
+        max_tri_index = len(tri_scores) - 1
+        tri_indices_in_10nt = list(range(tri_start, min(tri_start + 8, max_tri_index + 1)))
+        
+        if len(tri_indices_in_10nt) < window_tri_len:
+            return False
+            
+        for a in range(len(tri_indices_in_10nt) - window_tri_len + 1):
+            s = sum(tri_scores[tri_indices_in_10nt[a]: tri_indices_in_10nt[a] + window_tri_len])
+            if s >= nuc_threshold:
+                return True
+                
+        return False
+
+    def _best_subarray_containing_interval(self, step_scores, a: int, b: int):
+        """
+        Find best subarray containing the interval [a,b] using prefix min/max optimization
+        """
+        import numpy as np
+        
+        n = len(step_scores)
+        if n == 0:
+            return (0, 0, 0.0)
+            
+        prefix = np.empty(n + 1, dtype=float)
+        prefix[0] = 0.0
+        
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + float(step_scores[i])
+            
+        # Find minimal prefix up to each index
+        min_pref_idx = np.zeros(n + 1, dtype=int)
+        min_val = prefix[0]
+        min_idx = 0
+        
+        for i in range(n + 1):
+            if prefix[i] < min_val:
+                min_val = prefix[i]
+                min_idx = i
+            min_pref_idx[i] = min_idx
+            
+        # Find maximal prefix from each index
+        max_pref_idx = np.zeros(n + 1, dtype=int)
+        max_val = prefix[-1]
+        max_idx = n
+        
+        for i in range(n, -1, -1):
+            if prefix[i] > max_val:
+                max_val = prefix[i]
+                max_idx = i
+            max_pref_idx[i] = max_idx
+            
+        # Find best L and R
+        L_idx = min_pref_idx[a]
+        Rp1_idx = max_pref_idx[b + 1] if (b + 1) <= n else n
+        
+        best_sum = prefix[Rp1_idx] - prefix[L_idx]
+        bestL = L_idx
+        bestR = Rp1_idx - 1
+        
+        return (int(bestL), int(bestR), float(best_sum))
+
+    def _select_non_overlapping_regions(self, regions):
+        """
+        Greedy selection of non-overlapping regions by score (descending)
+        """
+        chosen = []
+        regions_sorted = sorted(regions, key=lambda r: r['score'], reverse=True)
+        occupied = []
+        
+        for r in regions_sorted:
+            bad = False
+            for (a, b) in occupied:
+                if not (r['end_nt'] < a or r['start_nt'] > b):
+                    bad = True
+                    break
+            if not bad:
+                chosen.append(r)
+                occupied.append((r['start_nt'], r['end_nt']))
+                
+        return sorted(chosen, key=lambda x: x['start_nt'])
+
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
-        """Detect A-philic regions in the sequence"""
+        """
+        Enhanced A-philic detection using the sophisticated algorithm from call_Aphilic.py
+        """
         if not seq or len(seq) < 10:
             return []
+            
+        # Clean sequence
+        seq = seq.upper().replace(" ", "").replace("\n", "")
         
-        seq = seq.upper()
-        
-        # Skip sequences with non-ATGC characters
-        if any(ch not in "ATGC" for ch in seq):
+        # Check for non-ATGC characters
+        accept_bases = set("ATGC")
+        if any(ch not in accept_bases for ch in seq):
+            # For simplicity, skip sequences with ambiguous bases
             return []
+            
+        # Build step scores using the sophisticated algorithm
+        tetra_scores, tri_scores, step_scores = self._build_step_scores(seq)
         
-        candidates = self._candidate_windows_for_sequence(
-            seq, window_len=10, require_nucleation=True, min_consec_tri_pos=2
-        )
-        
-        if not candidates:
+        if len(step_scores) == 0:
             return []
+            
+        # Find 10-mer starts with all positive tetra steps (nucleation)
+        ten_starts = self._find_10mer_positive_tetra_starts(tetra_scores)
         
-        regions = self._merge_candidate_windows_to_regions(candidates, len(seq))
-        annotated = self._annotate_regions_with_window_stats(regions, candidates)
+        # Auto nucleation threshold
+        nuc_threshold = self._compute_nuc_threshold_auto(tri_scores, factor=1.0)
         
-        # Filter by minimum region length (10 bp)
+        # Validate seeds with tri-window criteria
+        valid_seeds = []
+        nuc_tri_win = 3
+        
+        for j in ten_starts:
+            if self._tri_window_sum_ok(tri_scores, j, nuc_tri_win, nuc_threshold):
+                # Seed tetra step interval = j .. j+6
+                valid_seeds.append((j, j + 6))
+                
+        if not valid_seeds:
+            return []
+            
+        # Extend each seed to find best containing subarray
+        all_regions = []
+        
+        for (a, b) in valid_seeds:
+            L_step, R_step, best_sum = self._best_subarray_containing_interval(step_scores, a, b)
+            
+            # Convert step indices to nucleotide coordinates
+            start_nt = L_step
+            end_nt = R_step + 3  # step covers 4 nucleotides
+            n_nt = end_nt - start_nt + 1
+            n_steps = R_step - L_step + 1
+            mean_step = best_sum / max(1, n_steps)
+            
+            # Apply acceptance criteria
+            if n_nt >= 10 and mean_step > 0.0:
+                # Count positive tetra and tri
+                pos_tetra_count = int(np.sum(tetra_scores[L_step:R_step + 1] > 0.0))
+                tri_L = L_step
+                tri_R = min(len(tri_scores) - 1, R_step + 1)
+                pos_tri_count = int(np.sum(tri_scores[tri_L:tri_R + 1] > 0.0))
+                
+                region_seq = seq[L_step:end_nt + 1]
+                
+                all_regions.append({
+                    "start_nt": start_nt + offset,
+                    "end_nt": end_nt + offset,
+                    "sequence": region_seq,
+                    "score": float(best_sum),
+                    "mean_step_score": float(mean_step),
+                    "n_nt": int(n_nt),
+                    "n_steps": int(n_steps),
+                    "pos_tetra": pos_tetra_count,
+                    "pos_tri": pos_tri_count,
+                    "seed_tetra_a": a + offset,
+                    "seed_tetra_b": b + offset
+                })
+                
+        # Select non-overlapping regions
+        selected_regions = self._select_non_overlapping_regions(all_regions)
+        
+        # Convert to Candidate objects
         final_candidates = []
-        for i, a in enumerate(annotated):
-            if a["length"] >= 10:
-                candidate = self.make_candidate(
-                    seq=seq,
-                    seq_name=seq_name,
-                    contig=contig,
-                    offset=offset,
-                    start=a["start"],
-                    end=a["end"],
-                    pattern_name="A_philic_region",
-                    subclass="A-philic DNA",
-                    motif_id=i
-                )
-                # Store additional scoring information
-                candidate.raw_score = a["tetra_mean_window"] + a["tri_mean_window"]
-                candidate.metadata = {
-                    "n_windows": a["n_windows"],
-                    "tetra_sum": a["tetra_sum_windows"],
-                    "tri_sum": a["tri_sum_windows"]
-                }
-                final_candidates.append(candidate)
-        
+        for i, region in enumerate(selected_regions):
+            candidate = self.make_candidate(
+                seq=seq,
+                seq_name=seq_name,
+                contig=contig,
+                offset=0,  # offset already applied to coordinates
+                start=region["start_nt"] - offset,  # adjust back for make_candidate
+                end=region["end_nt"] - offset,
+                pattern_name="A_philic_enhanced", 
+                subclass="A-philic DNA",
+                motif_id=i
+            )
+            
+            # Store enhanced scoring information
+            candidate.raw_score = region["score"]
+            candidate.metadata = {
+                "mean_step_score": region["mean_step_score"],
+                "n_nt": region["n_nt"],
+                "n_steps": region["n_steps"],
+                "pos_tetra": region["pos_tetra"],
+                "pos_tri": region["pos_tri"],
+                "algorithm": "enhanced_nucleation_extension"
+            }
+            
+            final_candidates.append(candidate)
+            
         return final_candidates
     
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
-        """Score A-philic candidates based on tetra/tri propensity scores"""
+        """Enhanced scoring using the sophisticated algorithm metrics"""
         for candidate in candidates:
-            # Use the pre-calculated raw score from detect method
-            if hasattr(candidate, 'raw_score'):
-                # Normalize score (basic normalization by length)
-                candidate.raw_score = max(0.1, candidate.raw_score)
+            # Use the pre-calculated score from the enhanced detection
+            if hasattr(candidate, 'raw_score') and candidate.raw_score is not None:
+                # Normalize by length for fair comparison
+                normalized_score = candidate.raw_score / max(1, candidate.length)
+                candidate.raw_score = max(0.01, normalized_score)
             else:
-                # Fallback scoring based on length
-                candidate.raw_score = candidate.length / 1000.0
+                # Fallback scoring
+                candidate.raw_score = candidate.length / 100.0
+                
+            candidate.scoring_method = "A_philic_enhanced_nucleation_extension"
             
-            candidate.scoring_method = "A_philic_tetra_tri_propensity"
-        
         return candidates
 
 
