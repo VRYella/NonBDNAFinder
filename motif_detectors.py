@@ -662,20 +662,21 @@ class IMotifDetector(MotifBase):
 
 
 class ZDNADetector(MotifBase):
-    """Z-DNA detector using Z-DNA seeker algorithm with Hyperscan acceleration option"""
+    """Z-DNA detector using Kadane algorithm for maximum subarray detection"""
     
-    def __init__(self, use_hyperscan=True):
+    def __init__(self, use_kadane=True):
         super().__init__('z_dna')
-        self.use_hyperscan = use_hyperscan and HYPERSCAN_AVAILABLE
+        self.use_kadane = use_kadane
         
     def detect(self, seq: str, seq_name: str, contig: str, offset: int) -> List[Candidate]:
         """Detect Z-DNA forming sequences"""
         candidates = []
         
-        if self.use_hyperscan:
-            # Use the new Hyperscan-accelerated detection
+        if self.use_kadane:
+            # Use the new Kadane algorithm-based detection
             try:
-                from zdna_hs import ZDNACalculatorSeq, Params
+                from zdna_calculator import ZDNACalculatorSeq
+                from constants import Params
                 params = Params(threshold=5.0)
                 calculator = ZDNACalculatorSeq(seq, params)
                 subarrays = calculator.subarrays_above_threshold()
@@ -683,18 +684,18 @@ class ZDNADetector(MotifBase):
                 for start, end, score, substring in subarrays:
                     candidate = self.make_candidate(
                         seq, seq_name, contig, offset,
-                        start, end - 1, "hyperscan_zdna",
-                        "Z_DNA_hyperscan", 1
+                        start, end - 1, "kadane_zdna",
+                        "Z_DNA_Kadane", 1
                     )
                     candidate.raw_score = score
-                    candidate.scoring_method = "Z_seeker_hyperscan"
+                    candidate.scoring_method = "Z_DNA_Kadane_algorithm"
                     candidates.append(candidate)
                     
             except ImportError:
-                # Fall back to regex if zdna_hs module not available
-                self.use_hyperscan = False
+                # Fall back to regex if zdna_calculator module not available
+                self.use_kadane = False
                 
-        if not self.use_hyperscan:
+        if not self.use_kadane:
             # Original regex-based patterns
             patterns = [
                 (r'([CG]{2}){6,}', 'Z_DNA_basic'),
@@ -715,7 +716,7 @@ class ZDNADetector(MotifBase):
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
         """Score Z-DNA candidates"""
         for candidate in candidates:
-            # Skip scoring if already scored by Hyperscan method
+            # Skip scoring if already scored by Kadane method
             if candidate.raw_score is not None:
                 continue
                 
