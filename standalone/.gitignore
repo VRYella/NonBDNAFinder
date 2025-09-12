@@ -1,0 +1,29 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Test files
+test_*.fasta
+test_*.csv
+test_*.xlsx
+test_*.gff3
+test_*.zip
+test_*_summary.txt
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Output files (unless specifically saved)
+*_results.*
+nbdfinder_results.*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
