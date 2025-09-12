@@ -182,7 +182,10 @@ class ZDNACalculatorSeq(Seq):
         # Initialize Kadane algorithm variables
         max_ending_here = 0
         current_start = 0
-        candidate_array = None
+        candidate_start = 0
+        candidate_score = 0
+        max_score_seen = 0
+        in_valid_subarray = False
         
         for i in range(n):
             # Extend current subarray or start new one
@@ -192,28 +195,41 @@ class ZDNACalculatorSeq(Seq):
             else:
                 max_ending_here += self.scoring_array[i]
             
-            # Check if current subarray meets threshold
-            if max_ending_here >= self.params.threshold:
+            # Check if we enter a valid subarray
+            if not in_valid_subarray and max_ending_here >= self.params.threshold:
+                in_valid_subarray = True
+                candidate_start = current_start
+                candidate_score = max_ending_here
+                max_score_seen = max_ending_here
+            elif in_valid_subarray:
+                # Update the maximum score seen in this subarray
+                if max_ending_here > max_score_seen:
+                    max_score_seen = max_ending_here
+                    candidate_score = max_ending_here
+            
+            # Check if we should end current subarray
+            if in_valid_subarray and (max_ending_here < 0 or 
+                                     (max_score_seen - max_ending_here >= self.params.drop_threshold)):
                 # Map from scoring array indices to sequence indices
                 # scoring_array[i] represents transition from base i to base i+1
-                # So subarray from current_start to i represents bases current_start to i+1
-                start_base = current_start
-                end_base = i + 1
+                # So subarray from candidate_start to i represents bases candidate_start to i+1
+                start_base = candidate_start
+                end_base = i
                 substring = str(self[start_base:end_base + 1])
-                candidate_array = (start_base, end_base, max_ending_here, substring)
-            
-            # Check if we should end current subarray due to drop threshold
-            if (candidate_array and 
-                (max_ending_here < 0 or 
-                 (candidate_array[2] - max_ending_here >= self.params.drop_threshold))):
-                subarrays.append(candidate_array)
-                candidate_array = None
+                subarrays.append((start_base, end_base, candidate_score, substring))
+                
+                # Reset for next subarray
+                in_valid_subarray = False
                 max_ending_here = 0
                 current_start = i + 1
+                max_score_seen = 0
 
-        # Add final candidate if it exists
-        if candidate_array:
-            subarrays.append(candidate_array)
+        # Add final candidate if it exists and is valid
+        if in_valid_subarray:
+            start_base = candidate_start
+            end_base = n  # Last transition index maps to last base
+            substring = str(self[start_base:end_base + 1])
+            subarrays.append((start_base, end_base, candidate_score, substring))
 
         return subarrays
 

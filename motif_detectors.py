@@ -1180,23 +1180,51 @@ class HybridDetector(MotifBase):
         
         # Find overlapping candidates
         overlaps = defaultdict(list)
+        overlap_details = defaultdict(list)
+        
         for candidate in candidates:
             overlapping = intervals[candidate.start:candidate.end+1]
             if len(overlapping) > 1:  # Has overlaps
-                overlap_classes = [interval.data.class_name for interval in overlapping if interval.data != candidate]
+                overlap_classes = []
+                overlap_info = []
+                for interval in overlapping:
+                    other_candidate = interval.data
+                    if other_candidate != candidate:
+                        overlap_classes.append(other_candidate.class_name)
+                        # Calculate overlap percentage
+                        overlap_start = max(candidate.start, other_candidate.start)
+                        overlap_end = min(candidate.end, other_candidate.end)
+                        overlap_length = overlap_end - overlap_start + 1
+                        overlap_percent = overlap_length / candidate.length * 100
+                        overlap_info.append({
+                            'class_name': other_candidate.class_name,
+                            'subclass': other_candidate.subclass,
+                            'overlap_percent': overlap_percent,
+                            'overlap_length': overlap_length
+                        })
+                
                 if overlap_classes:
                     overlaps[candidate.motif_id] = overlap_classes
+                    overlap_details[candidate.motif_id] = overlap_info
         
         # Create hybrid candidates for significant overlaps
         for candidate in candidates:
             if candidate.motif_id in overlaps:
                 overlap_classes = overlaps[candidate.motif_id]
+                overlap_info = overlap_details[candidate.motif_id]
+                
+                # Create descriptive subclass name
+                sorted_classes = sorted(set(overlap_classes))
+                primary_class = candidate.class_name.replace('_', '-')
+                overlap_class_str = '+'.join(sorted_classes).replace('_', '-')
+                subclass = f"{primary_class}_x_{overlap_class_str}"
+                
                 hybrid = Candidate(
                     sequence_name=candidate.sequence_name,
                     contig=candidate.contig,
                     class_id=get_class_id('hybrid'),
                     class_name='hybrid',
-                    subclass='Overlapping_motifs',
+                    subclass=subclass,
                     motif_id=candidate.motif_id,
                     start=candidate.start,
                     end=candidate.end,
@@ -1205,6 +1233,8 @@ class HybridDetector(MotifBase):
                     pattern_name=f"hybrid_{candidate.class_name}",
                     overlap_classes=overlap_classes
                 )
+                # Add overlap details as additional attribute
+                hybrid.overlap_details = overlap_info
                 hybrid_candidates.append(hybrid)
         
         return hybrid_candidates
@@ -1215,17 +1245,36 @@ class HybridDetector(MotifBase):
         
         for i, candidate1 in enumerate(candidates):
             overlaps = []
+            overlap_info = []
+            
             for j, candidate2 in enumerate(candidates):
                 if i != j and self._overlaps(candidate1, candidate2):
                     overlaps.append(candidate2.class_name)
+                    # Calculate overlap details
+                    overlap_start = max(candidate1.start, candidate2.start)
+                    overlap_end = min(candidate1.end, candidate2.end)
+                    overlap_length = overlap_end - overlap_start + 1
+                    overlap_percent = overlap_length / candidate1.length * 100
+                    overlap_info.append({
+                        'class_name': candidate2.class_name,
+                        'subclass': candidate2.subclass,
+                        'overlap_percent': overlap_percent,
+                        'overlap_length': overlap_length
+                    })
             
             if overlaps:
+                # Create descriptive subclass name
+                sorted_classes = sorted(set(overlaps))
+                primary_class = candidate1.class_name.replace('_', '-')
+                overlap_class_str = '+'.join(sorted_classes).replace('_', '-')
+                subclass = f"{primary_class}_x_{overlap_class_str}"
+                
                 hybrid = Candidate(
                     sequence_name=candidate1.sequence_name,
                     contig=candidate1.contig,
                     class_id=get_class_id('hybrid'),
                     class_name='hybrid',
-                    subclass='Overlapping_motifs',
+                    subclass=subclass,
                     motif_id=candidate1.motif_id,
                     start=candidate1.start,
                     end=candidate1.end,
@@ -1234,6 +1283,8 @@ class HybridDetector(MotifBase):
                     pattern_name=f"hybrid_{candidate1.class_name}",
                     overlap_classes=overlaps
                 )
+                # Add overlap details as additional attribute
+                hybrid.overlap_details = overlap_info
                 hybrid_candidates.append(hybrid)
         
         return hybrid_candidates
@@ -1245,10 +1296,30 @@ class HybridDetector(MotifBase):
     def score(self, candidates: List[Candidate]) -> List[Candidate]:
         """Score hybrid candidates"""
         for candidate in candidates:
-            # Score based on number of overlapping classes
+            # Score based on number and significance of overlapping classes
             overlap_count = len(candidate.overlap_classes) if candidate.overlap_classes else 0
-            candidate.raw_score = overlap_count / 10.0  # Normalize
-            candidate.scoring_method = "Overlap_density"
+            
+            # Enhanced scoring considering overlap details
+            base_score = overlap_count * 0.1  # Base score for overlap count
+            
+            # Add bonus scoring based on overlap significance
+            if hasattr(candidate, 'overlap_details') and candidate.overlap_details:
+                overlap_bonus = 0
+                for overlap in candidate.overlap_details:
+                    # Higher bonus for larger overlaps
+                    overlap_percentage = overlap.get('overlap_percent', 0)
+                    if overlap_percentage > 75:
+                        overlap_bonus += 0.3
+                    elif overlap_percentage > 50:
+                        overlap_bonus += 0.2
+                    elif overlap_percentage > 25:
+                        overlap_bonus += 0.1
+                
+                base_score += overlap_bonus
+            
+            candidate.raw_score = min(base_score, 1.0)  # Cap at 1.0
+            candidate.scoring_method = "Hybrid_overlap_analysis"
+            
         return candidates
 
 
