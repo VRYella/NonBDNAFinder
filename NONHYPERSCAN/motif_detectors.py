@@ -9,9 +9,14 @@ from typing import List, Tuple, Dict, Optional
 import re
 import logging
 import math
+import os
+import sys
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import numpy as np
+
+# Add parent directory to path to import from other modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Add imports near top
 try:
@@ -27,12 +32,12 @@ except ImportError:
     INTERVALTREE_AVAILABLE = False
     logging.warning("intervaltree not available - using simple overlap detection")
 
-from motifs.base import (
+from REGISTRIES.motifs.base import (
     Candidate, g4hunter_score, triplex_stability_score, 
     z_dna_score, curvature_score
 )
-from motifs.registry import get_patterns_for_motif, get_class_id
-import hs_registry_manager
+from REGISTRIES.motifs.registry import get_patterns_for_motif, get_class_id
+from HYPERSCAN import hs_registry_manager
 
 logger = logging.getLogger(__name__)
 

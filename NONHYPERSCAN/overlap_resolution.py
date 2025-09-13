@@ -16,9 +16,14 @@ Author: Dr. Venkata Rajesh Yella
 
 from typing import List, Dict, Set, Tuple, Optional, Union
 import logging
+import os
+import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
+
+# Add parent directory to path to import from other modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from intervaltree import IntervalTree, Interval
@@ -27,7 +32,7 @@ except ImportError:
     INTERVALTREE_AVAILABLE = False
     logging.warning("intervaltree not available - using simple overlap detection")
 
-from motifs.base import Candidate
+from REGISTRIES.motifs.base import Candidate
 
 logger = logging.getLogger(__name__)
 

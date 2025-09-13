@@ -18,11 +18,14 @@ from io import StringIO
 import pandas as pd
 from Bio import SeqIO
 
-from motifs.base import Candidate, normalize_scores
-from motifs.registry import get_all_hyperscan_patterns, get_hyperscan_safe_patterns
-import hs_registry_manager
-from motif_detectors import get_all_detectors, get_detector
-from overlap_resolution import EnhancedOverlapResolver, OverlapConfig, OverlapStrategy
+# Add parent directory to path to import from other modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from REGISTRIES.motifs.base import Candidate, normalize_scores
+from REGISTRIES.motifs.registry import get_all_hyperscan_patterns, get_hyperscan_safe_patterns
+from HYPERSCAN import hs_registry_manager
+from NONHYPERSCAN.motif_detectors import get_all_detectors, get_detector
+from NONHYPERSCAN.overlap_resolution import EnhancedOverlapResolver, OverlapConfig, OverlapStrategy
 
 logger = logging.getLogger(__name__)
 

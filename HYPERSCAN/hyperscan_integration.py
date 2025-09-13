@@ -9,11 +9,15 @@ of all_motifs_refactored while using the hyperscan-based pipeline.
 import logging
 import tempfile
 import os
+import sys
 from typing import List, Dict, Any, Optional
 import pandas as pd
 
-from orchestrator import run_pipeline
-from utils import parse_fasta
+# Add parent directory to path to import from other modules  
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from NONHYPERSCAN.orchestrator import run_pipeline
+from BASE_CODES.utils import parse_fasta
 
 logger = logging.getLogger(__name__)
 
