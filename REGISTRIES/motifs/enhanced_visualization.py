@@ -21,6 +21,29 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def sanitize_numeric_column(series: pd.Series, fill_value: float = 0.0) -> pd.Series:
+    """
+    Convert a pandas Series to numeric, handling mixed types.
+    
+    Args:
+        series: Input pandas Series that may contain mixed types
+        fill_value: Value to use for non-numeric entries
+        
+    Returns:
+        Cleaned pandas Series with only numeric values
+    """
+    if series.empty:
+        return series
+    
+    # Convert to numeric, coercing errors to NaN
+    numeric_series = pd.to_numeric(series, errors='coerce')
+    
+    # Fill NaN values with fill_value
+    numeric_series = numeric_series.fillna(fill_value)
+    
+    return numeric_series
+
+
 def create_comprehensive_information_based_visualizations(
     df: pd.DataFrame, 
     sequence_length: int, 
@@ -92,7 +115,7 @@ def create_comprehensive_information_based_visualizations(
             try:
                 fig, ax = plt.subplots(figsize=(8, 6))
                 if 'Length' in df.columns:
-                    lengths = df['Length'].dropna()
+                    lengths = sanitize_numeric_column(df['Length']).dropna()
                     if len(lengths) > 0:
                         ax.hist(lengths, bins=20, alpha=0.7, edgecolor='black')
                         ax.set_xlabel('Motif Length (bp)')
@@ -114,7 +137,7 @@ def create_comprehensive_information_based_visualizations(
             try:
                 fig, ax = plt.subplots(figsize=(10, 6))
                 if 'Normalized_Score' in df.columns:
-                    scores = df['Normalized_Score'].dropna()
+                    scores = sanitize_numeric_column(df['Normalized_Score']).dropna()
                     if len(scores) > 0:
                         ax.hist(scores, bins=20, alpha=0.7, edgecolor='black')
                         ax.set_xlabel('Normalized Score')
@@ -138,7 +161,7 @@ def create_comprehensive_information_based_visualizations(
                 if 'Class' in df.columns and 'Length' in df.columns:
                     classes = df['Class'].unique()
                     for cls in classes:
-                        cls_data = df[df['Class'] == cls]['Length'].dropna()
+                        cls_data = sanitize_numeric_column(df[df['Class'] == cls]['Length']).dropna()
                         if len(cls_data) > 0:
                             ax.scatter([cls] * len(cls_data), cls_data, alpha=0.6, label=cls)
                     ax.set_xlabel('Motif Class')
@@ -192,14 +215,14 @@ def create_comprehensive_information_based_visualizations(
                     detailed_stats['class_distribution'] = df['Class'].value_counts().to_dict()
                 
                 if 'Length' in df.columns:
-                    lengths = df['Length'].dropna()
+                    lengths = sanitize_numeric_column(df['Length']).dropna()
                     if len(lengths) > 0:
                         detailed_stats['avg_motif_length'] = lengths.mean()
                         detailed_stats['max_motif_length'] = lengths.max()
                         detailed_stats['min_motif_length'] = lengths.min()
                 
                 if 'Normalized_Score' in df.columns:
-                    scores = df['Normalized_Score'].dropna()
+                    scores = sanitize_numeric_column(df['Normalized_Score']).dropna()
                     if len(scores) > 0:
                         detailed_stats['avg_score'] = scores.mean()
                         detailed_stats['max_score'] = scores.max()
