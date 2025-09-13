@@ -6,14 +6,14 @@ import numpy as np
 from collections import Counter
 from Bio import Entrez, SeqIO
 
-from utils import (
+from BASE_CODES.utils import (
     parse_fasta, gc_content, reverse_complement, wrap
 )
-from motifs import get_basic_stats
+from REGISTRIES.motifs import get_basic_stats
 # Import the hyperscan-based integration
-from hyperscan_integration import all_motifs_refactored
-from motifs import visualization as viz
-from motifs.enhanced_visualization import create_comprehensive_information_based_visualizations
+from HYPERSCAN.hyperscan_integration import all_motifs_refactored
+from REGISTRIES.motifs import visualization as viz
+from REGISTRIES.motifs.enhanced_visualization import create_comprehensive_information_based_visualizations
 
 # Import new configuration modules
 try:
@@ -737,7 +737,7 @@ with tab_pages["Results"]:
             with st.spinner("Creating comprehensive information-based visualization suite..."):
                 try:
                     # Import new visualization functions
-                    from viz_tools import (
+                    from BASE_CODES.viz_tools import (
                         plot_class_subclass_distribution, plot_enhanced_motif_map,
                         plot_coverage_density_heatmap, plot_manhattan_motif_scores,
                         calculate_coverage_density_metrics
@@ -964,7 +964,7 @@ with tab_pages["Download"]:
     # Cache statistics display
     st.markdown("### 📊 Performance & Caching")
     try:
-        from enhanced_cache import get_cache_stats
+        from BASE_CODES.enhanced_cache import get_cache_stats
         cache_stats = get_cache_stats()
         
         col7, col8, col9, col10 = st.columns(4)
@@ -976,7 +976,7 @@ with tab_pages["Download"]:
             st.metric("Total Requests", cache_stats['totals']['total_requests'])
         with col10:
             if st.button("🗑️ Clear Cache", use_container_width=True):
-                from enhanced_cache import clear_all_caches
+                from BASE_CODES.enhanced_cache import clear_all_caches
                 clear_all_caches()
                 st.success("All caches cleared!")
                 st.experimental_rerun()
