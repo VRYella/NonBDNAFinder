@@ -7,7 +7,7 @@ from .registry import get_patterns_for_motif, get_all_hyperscan_patterns
 
 # Import get_basic_stats from utils to maintain compatibility
 try:
-    from utils import get_basic_stats
+    from BASE_CODES.utils import get_basic_stats
 except ImportError:
     # Fallback if utils not available
     get_basic_stats = None
