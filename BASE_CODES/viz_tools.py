@@ -36,6 +36,29 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def sanitize_numeric_column(series: pd.Series, fill_value: float = 0.0) -> pd.Series:
+    """
+    Convert a pandas Series to numeric, handling mixed types.
+    
+    Args:
+        series: Input pandas Series that may contain mixed types
+        fill_value: Value to use for non-numeric entries
+        
+    Returns:
+        Cleaned pandas Series with only numeric values
+    """
+    if series.empty:
+        return series
+    
+    # Convert to numeric, coercing errors to NaN
+    numeric_series = pd.to_numeric(series, errors='coerce')
+    
+    # Fill NaN values with fill_value
+    numeric_series = numeric_series.fillna(fill_value)
+    
+    return numeric_series
+
+
 def check_dependencies():
     """Check if required dependencies are available"""
     if not PLOTLY_AVAILABLE:
@@ -282,9 +305,9 @@ def plot_overlap_analysis(df: pd.DataFrame, title: str = "Overlap Analysis") -> 
         row=1, col=1
     )
     
-    # 2. Score distribution
-    overlapping_scores = df_copy[df_copy['Has_Overlap']]['Normalized_Score'].dropna()
-    non_overlapping_scores = df_copy[~df_copy['Has_Overlap']]['Normalized_Score'].dropna()
+    # 2. Score distribution - sanitize numeric data
+    overlapping_scores = sanitize_numeric_column(df_copy[df_copy['Has_Overlap']]['Normalized_Score']).dropna()
+    non_overlapping_scores = sanitize_numeric_column(df_copy[~df_copy['Has_Overlap']]['Normalized_Score']).dropna()
     
     if len(overlapping_scores) > 0:
         fig.add_trace(
@@ -316,11 +339,12 @@ def plot_overlap_analysis(df: pd.DataFrame, title: str = "Overlap Analysis") -> 
             row=2, col=1
         )
     
-    # 4. Length vs overlap
+    # 4. Length vs overlap - sanitize score data
+    df_copy['Normalized_Score_Clean'] = sanitize_numeric_column(df_copy['Normalized_Score'])
     fig.add_trace(
         go.Scatter(
             x=df_copy['Length'],
-            y=df_copy['Normalized_Score'],
+            y=df_copy['Normalized_Score_Clean'],
             mode='markers',
             marker=dict(
                 color=df_copy['Has_Overlap'].map({True: 'red', False: 'blue'}),
@@ -573,6 +597,13 @@ def plot_sequence_overview(df: pd.DataFrame, sequence_name: str, seq_len: int,
     
     # Add motifs as horizontal bars
     for i, (_, row) in enumerate(seq_df.iterrows()):
+        # Format score safely
+        score_value = row['Normalized_Score']
+        if isinstance(score_value, (int, float)) and not pd.isna(score_value):
+            score_text = f"{score_value:.3f}"
+        else:
+            score_text = str(score_value)
+        
         fig.add_trace(go.Scatter(
             x=[row['Start'], row['End']],
             y=[row['Class'], row['Class']],
@@ -581,7 +612,7 @@ def plot_sequence_overview(df: pd.DataFrame, sequence_name: str, seq_len: int,
             hovertemplate=f"<b>{row['Class']}</b><br>" +
                          f"Position: {row['Start']}-{row['End']}<br>" +
                          f"Length: {row['Length']} bp<br>" +
-                         f"Score: {row['Normalized_Score']:.3f}<extra></extra>",
+                         f"Score: {score_text}<extra></extra>",
             showlegend=False
         ))
     
@@ -714,14 +745,18 @@ def create_summary_statistics(df: pd.DataFrame) -> Dict[str, Any]:
     if df.empty:
         return {}
     
+    # Sanitize numeric columns and calculate statistics
+    lengths = sanitize_numeric_column(df['Length']).dropna()
+    scores = sanitize_numeric_column(df['Normalized_Score']).dropna()
+    
     stats = {
         'Total_Motifs': len(df),
         'Unique_Classes': df['Class'].nunique(),
         'Unique_Sequences': df['Sequence_Name'].nunique(),
-        'Average_Length': df['Length'].mean(),
-        'Median_Score': df['Normalized_Score'].median(),
-        'Max_Score': df['Normalized_Score'].max(),
-        'Min_Score': df['Normalized_Score'].min(),
+        'Average_Length': lengths.mean() if len(lengths) > 0 else 0,
+        'Median_Score': scores.median() if len(scores) > 0 else 0,
+        'Max_Score': scores.max() if len(scores) > 0 else 0,
+        'Min_Score': scores.min() if len(scores) > 0 else 0,
     }
     
     # Class-specific counts
@@ -838,17 +873,21 @@ def calculate_coverage_density_metrics(df: pd.DataFrame, sequence_length: int = 
         # Density metrics (motifs per kb)
         metrics['motif_density_per_kb'] = (total_motifs / sequence_length) * 1000
     
-    # Length statistics
-    metrics['mean_motif_length'] = df['Length'].mean()
-    metrics['median_motif_length'] = df['Length'].median()
-    metrics['total_motif_bases'] = df['Length'].sum()
+    # Length statistics - sanitize numeric data
+    lengths = sanitize_numeric_column(df['Length']).dropna()
+    if len(lengths) > 0:
+        metrics['mean_motif_length'] = lengths.mean()
+        metrics['median_motif_length'] = lengths.median()
+        metrics['total_motif_bases'] = lengths.sum()
     
-    # Score statistics
+    # Score statistics - sanitize numeric data
     if 'Normalized_Score' in df.columns:
-        metrics['mean_score'] = df['Normalized_Score'].mean()
-        metrics['median_score'] = df['Normalized_Score'].median()
-        metrics['max_score'] = df['Normalized_Score'].max()
-        metrics['min_score'] = df['Normalized_Score'].min()
+        scores = sanitize_numeric_column(df['Normalized_Score']).dropna()
+        if len(scores) > 0:
+            metrics['mean_score'] = scores.mean()
+            metrics['median_score'] = scores.median()
+            metrics['max_score'] = scores.max()
+            metrics['min_score'] = scores.min()
     
     # Class diversity
     metrics['unique_classes'] = df['Class'].nunique()
@@ -949,6 +988,13 @@ def plot_enhanced_motif_map(df: pd.DataFrame, sequence_length: int = None,
         y_pos = y_positions.get(subclass, len(y_labels))
         
         # Create horizontal bar
+        score_value = motif.get('Normalized_Score', 'N/A')
+        # Format score safely - only apply float formatting to numeric values
+        if isinstance(score_value, (int, float)) and not pd.isna(score_value):
+            score_text = f"{score_value:.3f}"
+        else:
+            score_text = str(score_value)
+        
         fig.add_trace(go.Scatter(
             x=[motif['Start'], motif['End']],
             y=[y_pos, y_pos],
@@ -963,7 +1009,7 @@ def plot_enhanced_motif_map(df: pd.DataFrame, sequence_length: int = None,
                 f"Class: {class_name}<br>"
                 f"Position: {motif['Start']}-{motif['End']}<br>"
                 f"Length: {motif['Length']}<br>"
-                f"Score: {motif.get('Normalized_Score', 'N/A'):.3f}<br>"
+                f"Score: {score_text}<br>"
                 "<extra></extra>"
             )
         ))
@@ -1128,9 +1174,10 @@ def plot_manhattan_motif_scores(df: pd.DataFrame, title: str = "Manhattan Plot -
         fig.update_layout(title=title)
         return fig
     
-    # Prepare data
+    # Prepare data - sanitize scores
     df_plot = df.copy()
     df_plot['Position'] = (df_plot['Start'] + df_plot['End']) / 2  # Center position
+    df_plot['Normalized_Score_Clean'] = sanitize_numeric_column(df_plot['Normalized_Score'])
     
     # Color mapping for classes
     unique_classes = df_plot['Class'].unique()
@@ -1144,7 +1191,7 @@ def plot_manhattan_motif_scores(df: pd.DataFrame, title: str = "Manhattan Plot -
         
         fig.add_trace(go.Scatter(
             x=class_data['Position'],
-            y=class_data['Normalized_Score'],
+            y=class_data['Normalized_Score_Clean'],
             mode='markers',
             marker=dict(
                 color=color_map[class_name],
@@ -1160,15 +1207,17 @@ def plot_manhattan_motif_scores(df: pd.DataFrame, title: str = "Manhattan Plot -
             )
         ))
     
-    # Add significance threshold line (if desired)
-    if 'Normalized_Score' in df.columns:
-        threshold = df['Normalized_Score'].quantile(0.95)  # Top 5% as significant
-        fig.add_hline(
-            y=threshold,
-            line_dash="dash",
-            line_color="red",
-            annotation_text=f"95th percentile (Score = {threshold:.3f})"
-        )
+    # Add significance threshold line (if desired) - use sanitized scores
+    if 'Normalized_Score_Clean' in df_plot.columns:
+        clean_scores = df_plot['Normalized_Score_Clean'].dropna()
+        if len(clean_scores) > 0:
+            threshold = clean_scores.quantile(0.95)  # Top 5% as significant
+            fig.add_hline(
+                y=threshold,
+                line_dash="dash",
+                line_color="red",
+                annotation_text=f"95th percentile (Score = {threshold:.3f})"
+            )
     
     fig.update_layout(
         title=title,
