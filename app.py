@@ -1465,7 +1465,7 @@ with tab_pages["Upload & Analyze"]:
                 "eGZ-motif": "CGG repeat region",
                 "AC-motif": "A-rich/C-rich consensus region"
             }
-            with st.expander("Motif Example Queries"):
+            with st.popover("Motif Example Queries"):
                 for motif, example in motif_examples.items():
                     st.write(f"**{motif}**: `{example}`")
             query = st.text_input("Enter query (accession, gene, etc.):")
