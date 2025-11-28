@@ -1483,7 +1483,106 @@ with tab_pages["Upload & Analyze"]:
         overlap_option = "Remove overlaps within subclasses"
         
         
-        # ========== RUN ANALYSIS BUTTON ========== 
+        # ========== COMBINED RUN ANALYSIS BUTTON + PROGRESS + STATS BLOCK ==========
+        st.markdown("""
+        <style>
+        .nbdscanner-analysis-block {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .nbdscanner-title {
+            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.02em;
+        }
+        .progress-container {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .progress-bar-outer {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            height: 20px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 0.8rem;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .stat-value {
+            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #FFD700;
+            margin: 0;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0.2rem 0 0 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .step-indicator {
+            background: rgba(255, 215, 0, 0.15);
+            border-left: 4px solid #FFD700;
+            border-radius: 0 8px 8px 0;
+            padding: 0.6rem 1rem;
+            margin: 0.8rem 0;
+        }
+        .step-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+        .completed-badge {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+        }
+        .completed-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         if st.button("🔬 Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
             # Simplified validation
             if not st.session_state.seqs:
@@ -1514,7 +1613,8 @@ with tab_pages["Upload & Analyze"]:
                 # Enhanced progress tracking with timer
                 import time
                 
-                # Create placeholder for timer and progress
+                # Create placeholder for combined progress block
+                combined_progress_placeholder = st.empty()
                 timer_placeholder = st.empty()
                 progress_placeholder = st.empty()
                 status_placeholder = st.empty()
@@ -1546,6 +1646,90 @@ with tab_pages["Upload & Analyze"]:
                 def estimate_time(total_bp):
                     return total_bp / ESTIMATED_BP_PER_SECOND
                 
+                # Helper function to render the combined progress block
+                def render_progress_block(progress_pct, current_step, elapsed_sec, motifs_found, speed_bps, is_complete=False):
+                    """Render the combined NBDScanner Run Button + Progress + Stats Block"""
+                    # Calculate progress bar blocks (using Unicode block characters)
+                    filled_blocks = int(progress_pct / 12.5)  # 8 total blocks
+                    empty_blocks = 8 - filled_blocks
+                    progress_visual = "█" * filled_blocks + "▒" * empty_blocks
+                    
+                    if is_complete:
+                        block_html = f"""
+                        <div class='nbdscanner-analysis-block'>
+                            <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
+                            <div class='progress-container'>
+                                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                                    <span style='color: #ffffff; font-weight: 700; font-size: 0.9rem;'>Progress:</span>
+                                    <span style='font-family: monospace; color: #4CAF50; font-size: 1.2rem; letter-spacing: 2px;'>{progress_visual}</span>
+                                    <span style='color: #4CAF50; font-weight: 800;'>100%</span>
+                                </div>
+                                <div class='progress-bar-outer'>
+                                    <div class='progress-bar-inner' style='width: 100%;'></div>
+                                </div>
+                            </div>
+                            <div class='completed-badge'>
+                                <span class='completed-text'>✓ Analysis Completed</span>
+                            </div>
+                            <div class='stats-grid'>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{elapsed_sec:.1f}s</p>
+                                    <p class='stat-label'>Total Time</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{motifs_found:,}</p>
+                                    <p class='stat-label'>Motifs Found</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{speed_bps:,.0f}</p>
+                                    <p class='stat-label'>bp/sec</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>9</p>
+                                    <p class='stat-label'>Detectors</p>
+                                </div>
+                            </div>
+                        </div>
+                        """
+                    else:
+                        block_html = f"""
+                        <div class='nbdscanner-analysis-block'>
+                            <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
+                            <div class='progress-container'>
+                                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                                    <span style='color: #ffffff; font-weight: 700; font-size: 0.9rem;'>Progress:</span>
+                                    <span style='font-family: monospace; color: #FFD700; font-size: 1.2rem; letter-spacing: 2px;'>{progress_visual}</span>
+                                    <span style='color: #FFD700; font-weight: 800;'>{progress_pct:.0f}%</span>
+                                </div>
+                                <div class='progress-bar-outer'>
+                                    <div class='progress-bar-inner' style='width: {progress_pct}%;'></div>
+                                </div>
+                            </div>
+                            <div class='step-indicator'>
+                                <span class='step-text'>🔄 Step: {current_step}</span>
+                            </div>
+                            <div class='stats-grid'>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{elapsed_sec:.1f}s</p>
+                                    <p class='stat-label'>Elapsed Time</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{motifs_found:,}</p>
+                                    <p class='stat-label'>Motifs Found</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>{speed_bps:,.0f}</p>
+                                    <p class='stat-label'>bp/sec</p>
+                                </div>
+                                <div class='stat-item'>
+                                    <p class='stat-value'>9</p>
+                                    <p class='stat-label'>Detectors</p>
+                                </div>
+                            </div>
+                        </div>
+                        """
+                    return block_html
+                
                 total_bp_all_sequences = sum(len(seq) for seq in st.session_state.seqs)
                 estimated_total_time = estimate_time(total_bp_all_sequences)
                 
@@ -1559,9 +1743,9 @@ with tab_pages["Upload & Analyze"]:
                     
                     total_bp_processed = 0
                     
-                    with progress_placeholder.container():
-                        pbar = st.progress(0)
-                        
+                    # Track total motifs found so far
+                    total_motifs_so_far = 0
+                    
                     for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
                         progress = (i + 1) / len(st.session_state.seqs)
                         
@@ -1579,78 +1763,49 @@ with tab_pages["Upload & Analyze"]:
                         # Calculate overall percentage
                         overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                         
-                        # Build enhanced timer HTML with detailed progress
-                        timer_html = f"""
-                        <div style='background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%); 
-                                    border-radius: 12px; padding: 1.5rem; color: white;
-                                    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3); margin-bottom: 1rem;'>
-                            <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⏱️ NonBScanner Analysis Progress</h3>
-                            
-                            <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1rem;'>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{elapsed:.1f}s</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Elapsed Time</p>
-                                </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{estimated_remaining:.1f}s</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Est. Remaining</p>
-                                </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{overall_percentage:.1f}%</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Overall Progress</p>
-                                </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{len(DETECTOR_PROCESSES)}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
-                                </div>
-                            </div>
-                            
-                            <div style='background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;'>
-                                <p style='margin: 0; font-size: 0.9rem; text-align: center;'>
-                                    <strong>Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} ({len(seq):,} bp)
-                                </p>
-                                <p style='margin: 0.3rem 0 0 0; font-size: 0.85rem; opacity: 0.9; text-align: center;'>
-                                    Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
-                                </p>
-                            </div>
-                        """
+                        # Calculate current speed
+                        current_speed = total_bp_processed / elapsed if elapsed > 0 else 0
                         
-                        # Add chunk progress if enabled
-                        if show_chunk_progress and use_parallel_scanner:
-                            # Calculate estimated chunks for this sequence
-                            est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
-                            timer_html += f"<p style='margin: 0.5rem 0; opacity: 0.8; font-size: 0.9rem; text-align: center;'>📦 Estimated chunks: {est_chunks}</p>"
+                        # Determine current step name
+                        current_step_name = f"Analyzing {name} ({i+1}/{len(st.session_state.seqs)})"
                         
-                        timer_html += "</div>"
-                        timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
+                        # Render the combined progress block
+                        progress_html = render_progress_block(
+                            progress_pct=overall_percentage,
+                            current_step=current_step_name,
+                            elapsed_sec=elapsed,
+                            motifs_found=total_motifs_so_far,
+                            speed_bps=current_speed,
+                            is_complete=False
+                        )
+                        combined_progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
                         
-                        # Show detailed progress panel with detector sequence
-                        # The status_icon shows all detectors as "running" during analysis since they run in parallel
+                        # Show detailed detector status panel
                         detailed_progress_html = f"""
                         <div style='background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
-                                    border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+                                    border-radius: 12px; padding: 1rem; margin: 0.8rem 0;
                                     border: 1px solid #bdbdbd;'>
-                            <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Analysis Pipeline - Sequence of Operations</h4>
-                            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.85rem;'>
+                            <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Detection Pipeline</h4>
+                            <p style='margin: 0; font-size: 0.85rem; color: #616161;'>
+                                <strong>Sequence:</strong> {name} ({len(seq):,} bp)<br/>
+                                <strong>Processed:</strong> {total_bp_processed:,} / {total_bp_all_sequences:,} bp
+                            </p>
+                            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.8rem; font-size: 0.8rem;'>
                         """
                         
                         for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                            # All detectors run in parallel during analysis, so show as "running"
+                            # All detectors run in parallel during analysis
                             status_icon = "🔄"
                             bg_color = "rgba(25, 118, 210, 0.1)"
                             detailed_progress_html += f"""
-                                <div style='background: {bg_color}; padding: 0.5rem; border-radius: 6px; 
+                                <div style='background: {bg_color}; padding: 0.4rem; border-radius: 6px; 
                                             border-left: 3px solid #1976d2;'>
-                                    <span style='font-weight: 600;'>{status_icon} {j+1}. {detector_name}</span>
-                                    <br/><span style='font-size: 0.75rem; color: #757575;'>{detector_desc}</span>
+                                    <span style='font-weight: 600;'>{status_icon} {detector_name}</span>
                                 </div>
                             """
                         
                         detailed_progress_html += """
                             </div>
-                            <p style='margin: 0.8rem 0 0 0; font-size: 0.8rem; color: #616161; text-align: center;'>
-                                All 9 detectors run in parallel for each sequence, followed by hybrid/cluster detection
-                            </p>
                         </div>
                         """
                         detailed_progress_placeholder.markdown(detailed_progress_html, unsafe_allow_html=True)
@@ -1698,12 +1853,24 @@ with tab_pages["Upload & Analyze"]:
                         all_results.append(results)
                         
                         total_bp_processed += len(seq)
+                        total_motifs_so_far += len(results)
                         
                         # Calculate processing speed
+                        elapsed = time.time() - start_time
                         speed = total_bp_processed / elapsed if elapsed > 0 else 0
                         
-                        with progress_placeholder.container():
-                            pbar.progress(progress, text=f"Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
+                        # Update the combined progress block after sequence completion
+                        progress_pct = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 100
+                        current_step_name = f"Completed {name}"
+                        progress_html = render_progress_block(
+                            progress_pct=progress_pct,
+                            current_step=current_step_name,
+                            elapsed_sec=elapsed,
+                            motifs_found=total_motifs_so_far,
+                            speed_bps=speed,
+                            is_complete=False
+                        )
+                        combined_progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
                         
                         status_placeholder.info(f"✓ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) - {len(results)} motifs found")
                     
@@ -1750,37 +1917,19 @@ with tab_pages["Upload & Analyze"]:
                     progress_placeholder.empty()
                     status_placeholder.empty()
                     detailed_progress_placeholder.empty()
+                    timer_placeholder.empty()
                     
-                    # Show final success message with enhanced performance metrics
-                    timer_placeholder.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); 
-                                border-radius: 12px; padding: 1.5rem; color: white;
-                                box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); margin-bottom: 1rem;'>
-                        <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>✅ Analysis Complete!</h3>
-                        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_time:.2f}s</h2>
-                                <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Total Time</p>
-                            </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_bp_processed:,}</h2>
-                                <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Base Pairs</p>
-                            </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{overall_speed:,.0f}</h2>
-                                <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>bp/second</p>
-                            </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{len(DETECTOR_PROCESSES)}</h2>
-                                <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Detectors Run</p>
-                            </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{sum(len(r) for r in all_results)}</h2>
-                                <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Motifs Found</p>
-                            </div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # Show final completed progress block
+                    total_motifs_found = sum(len(r) for r in all_results)
+                    completion_html = render_progress_block(
+                        progress_pct=100,
+                        current_step="All detectors completed",
+                        elapsed_sec=total_time,
+                        motifs_found=total_motifs_found,
+                        speed_bps=overall_speed,
+                        is_complete=True
+                    )
+                    combined_progress_placeholder.markdown(completion_html, unsafe_allow_html=True)
                     
                     st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
                     st.session_state.analysis_status = "Complete"
@@ -1790,6 +1939,7 @@ with tab_pages["Upload & Analyze"]:
                     progress_placeholder.empty()
                     status_placeholder.empty()
                     detailed_progress_placeholder.empty()
+                    combined_progress_placeholder.empty()
                     st.error(f"❌ Analysis failed: {str(e)}")
                     st.session_state.analysis_status = "Error"
 
