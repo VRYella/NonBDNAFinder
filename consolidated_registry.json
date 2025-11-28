@@ -1,0 +1,2276 @@
+{
+  "version": "2024.1",
+  "generated_at": "2025-11-15T07:13:39.759080Z",
+  "description": "Consolidated registry for all Non-B DNA motif patterns",
+  "registries": {
+    "APhilic": {
+      "class": "APhilic",
+      "generated_at": "2025-10-16T11:54:51.267105Z",
+      "n_patterns": 208,
+      "patterns": [
+        {
+          "id": 0,
+          "tenmer": "ACCCCCCCCA",
+          "score": 2.2284142857142855
+        },
+        {
+          "id": 1,
+          "tenmer": "ACCCCCCCCC",
+          "score": 2.294942857142857
+        },
+        {
+          "id": 2,
+          "tenmer": "ACCCCCCCCG",
+          "score": 2.053785714285714
+        },
+        {
+          "id": 3,
+          "tenmer": "ACCCCCCCCT",
+          "score": 2.4612714285714286
+        },
+        {
+          "id": 4,
+          "tenmer": "ACCCCCCCGG",
+          "score": 1.7285
+        },
+        {
+          "id": 5,
+          "tenmer": "ACCCCCCCTA",
+          "score": 2.3253999999999997
+        },
+        {
+          "id": 6,
+          "tenmer": "ACCCCCCGGG",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 7,
+          "tenmer": "ACCCCCGGGC",
+          "score": 1.4682
+        },
+        {
+          "id": 8,
+          "tenmer": "ACCCCCGGGG",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 9,
+          "tenmer": "ACCCCCGGGT",
+          "score": 1.2461857142857142
+        },
+        {
+          "id": 10,
+          "tenmer": "ACCCCGGGCC",
+          "score": 1.1250857142857142
+        },
+        {
+          "id": 11,
+          "tenmer": "ACCCCGGGGC",
+          "score": 1.4682
+        },
+        {
+          "id": 12,
+          "tenmer": "ACCCCGGGGG",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 13,
+          "tenmer": "ACCCCGGGGT",
+          "score": 1.2461857142857142
+        },
+        {
+          "id": 14,
+          "tenmer": "ACCCGGGCCC",
+          "score": 1.1059428571428571
+        },
+        {
+          "id": 15,
+          "tenmer": "ACCCGGGGCC",
+          "score": 1.1250857142857142
+        },
+        {
+          "id": 16,
+          "tenmer": "ACCCGGGGGC",
+          "score": 1.4682
+        },
+        {
+          "id": 17,
+          "tenmer": "ACCCGGGGGG",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 18,
+          "tenmer": "ACCCGGGGGT",
+          "score": 1.2461857142857142
+        },
+        {
+          "id": 19,
+          "tenmer": "AGGGCCCCCA",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 20,
+          "tenmer": "AGGGCCCCCC",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 21,
+          "tenmer": "AGGGCCCCCG",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 22,
+          "tenmer": "AGGGCCCCCT",
+          "score": 2.487357142857143
+        },
+        {
+          "id": 23,
+          "tenmer": "AGGGCCCCGG",
+          "score": 1.7545857142857142
+        },
+        {
+          "id": 24,
+          "tenmer": "AGGGCCCCTA",
+          "score": 2.3514857142857144
+        },
+        {
+          "id": 25,
+          "tenmer": "AGGGCCCGGG",
+          "score": 1.5134285714285713
+        },
+        {
+          "id": 26,
+          "tenmer": "AGGGGCCCCA",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 27,
+          "tenmer": "AGGGGCCCCC",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 28,
+          "tenmer": "AGGGGCCCCG",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 29,
+          "tenmer": "AGGGGCCCCT",
+          "score": 2.487357142857143
+        },
+        {
+          "id": 30,
+          "tenmer": "AGGGGCCCGG",
+          "score": 1.7545857142857142
+        },
+        {
+          "id": 31,
+          "tenmer": "AGGGGCCCTA",
+          "score": 2.3514857142857144
+        },
+        {
+          "id": 32,
+          "tenmer": "AGGGGGCCCA",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 33,
+          "tenmer": "AGGGGGCCCC",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 34,
+          "tenmer": "AGGGGGCCCG",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 35,
+          "tenmer": "AGGGGGCCCT",
+          "score": 2.487357142857143
+        },
+        {
+          "id": 36,
+          "tenmer": "AGGGGGGCCC",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 37,
+          "tenmer": "AGGGGGGGCC",
+          "score": 2.3401714285714283
+        },
+        {
+          "id": 38,
+          "tenmer": "AGGGGGGGGC",
+          "score": 2.683285714285714
+        },
+        {
+          "id": 39,
+          "tenmer": "AGGGGGGGGG",
+          "score": 2.702428571428571
+        },
+        {
+          "id": 40,
+          "tenmer": "AGGGGGGGGT",
+          "score": 2.4612714285714286
+        },
+        {
+          "id": 41,
+          "tenmer": "CCCCCCCCCA",
+          "score": 2.4695714285714283
+        },
+        {
+          "id": 42,
+          "tenmer": "CCCCCCCCCC",
+          "score": 2.5361
+        },
+        {
+          "id": 43,
+          "tenmer": "CCCCCCCCCG",
+          "score": 2.294942857142857
+        },
+        {
+          "id": 44,
+          "tenmer": "CCCCCCCCCT",
+          "score": 2.702428571428571
+        },
+        {
+          "id": 45,
+          "tenmer": "CCCCCCCCGG",
+          "score": 1.9696571428571428
+        },
+        {
+          "id": 46,
+          "tenmer": "CCCCCCCCTA",
+          "score": 2.5665571428571425
+        },
+        {
+          "id": 47,
+          "tenmer": "CCCCCCCGGG",
+          "score": 1.7285
+        },
+        {
+          "id": 48,
+          "tenmer": "CCCCCCGGGC",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 49,
+          "tenmer": "CCCCCCGGGG",
+          "score": 1.7285
+        },
+        {
+          "id": 50,
+          "tenmer": "CCCCCCGGGT",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 51,
+          "tenmer": "CCCCCGGGCC",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 52,
+          "tenmer": "CCCCCGGGGC",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 53,
+          "tenmer": "CCCCCGGGGG",
+          "score": 1.7285
+        },
+        {
+          "id": 54,
+          "tenmer": "CCCCCGGGGT",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 55,
+          "tenmer": "CCCCGGGCCC",
+          "score": 1.3471
+        },
+        {
+          "id": 56,
+          "tenmer": "CCCCGGGGCC",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 57,
+          "tenmer": "CCCCGGGGGC",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 58,
+          "tenmer": "CCCCGGGGGG",
+          "score": 1.7285
+        },
+        {
+          "id": 59,
+          "tenmer": "CCCCGGGGGT",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 60,
+          "tenmer": "CCCGGGCCCA",
+          "score": 1.2805714285714287
+        },
+        {
+          "id": 61,
+          "tenmer": "CCCGGGCCCC",
+          "score": 1.3471
+        },
+        {
+          "id": 62,
+          "tenmer": "CCCGGGCCCG",
+          "score": 1.1059428571428571
+        },
+        {
+          "id": 63,
+          "tenmer": "CCCGGGCCCT",
+          "score": 1.5134285714285713
+        },
+        {
+          "id": 64,
+          "tenmer": "CCCGGGGCCC",
+          "score": 1.3471
+        },
+        {
+          "id": 65,
+          "tenmer": "CCCGGGGGCC",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 66,
+          "tenmer": "CCCGGGGGGC",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 67,
+          "tenmer": "CCCGGGGGGG",
+          "score": 1.7285
+        },
+        {
+          "id": 68,
+          "tenmer": "CCCGGGGGGT",
+          "score": 1.4873428571428569
+        },
+        {
+          "id": 69,
+          "tenmer": "CCGGGCCCCA",
+          "score": 1.5217285714285713
+        },
+        {
+          "id": 70,
+          "tenmer": "CCGGGCCCCC",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 71,
+          "tenmer": "CCGGGCCCCG",
+          "score": 1.3471
+        },
+        {
+          "id": 72,
+          "tenmer": "CCGGGCCCCT",
+          "score": 1.7545857142857142
+        },
+        {
+          "id": 73,
+          "tenmer": "CCGGGCCCGG",
+          "score": 1.0218142857142856
+        },
+        {
+          "id": 74,
+          "tenmer": "CCGGGCCCTA",
+          "score": 1.6187142857142856
+        },
+        {
+          "id": 75,
+          "tenmer": "CCGGGGCCCA",
+          "score": 1.5217285714285713
+        },
+        {
+          "id": 76,
+          "tenmer": "CCGGGGCCCC",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 77,
+          "tenmer": "CCGGGGCCCG",
+          "score": 1.3471
+        },
+        {
+          "id": 78,
+          "tenmer": "CCGGGGCCCT",
+          "score": 1.7545857142857142
+        },
+        {
+          "id": 79,
+          "tenmer": "CCGGGGGCCC",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 80,
+          "tenmer": "CCGGGGGGCC",
+          "score": 1.6074
+        },
+        {
+          "id": 81,
+          "tenmer": "CCGGGGGGGC",
+          "score": 1.9505142857142856
+        },
+        {
+          "id": 82,
+          "tenmer": "CCGGGGGGGG",
+          "score": 1.9696571428571428
+        },
+        {
+          "id": 83,
+          "tenmer": "CCGGGGGGGT",
+          "score": 1.7285
+        },
+        {
+          "id": 84,
+          "tenmer": "CGGGCCCCCA",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 85,
+          "tenmer": "CGGGCCCCCC",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 86,
+          "tenmer": "CGGGCCCCCG",
+          "score": 1.6723857142857141
+        },
+        {
+          "id": 87,
+          "tenmer": "CGGGCCCCCT",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 88,
+          "tenmer": "CGGGCCCCGG",
+          "score": 1.3471
+        },
+        {
+          "id": 89,
+          "tenmer": "CGGGCCCCTA",
+          "score": 1.9440000000000002
+        },
+        {
+          "id": 90,
+          "tenmer": "CGGGCCCGGG",
+          "score": 1.1059428571428571
+        },
+        {
+          "id": 91,
+          "tenmer": "CGGGGCCCCA",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 92,
+          "tenmer": "CGGGGCCCCC",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 93,
+          "tenmer": "CGGGGCCCCG",
+          "score": 1.6723857142857141
+        },
+        {
+          "id": 94,
+          "tenmer": "CGGGGCCCCT",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 95,
+          "tenmer": "CGGGGCCCGG",
+          "score": 1.3471
+        },
+        {
+          "id": 96,
+          "tenmer": "CGGGGCCCTA",
+          "score": 1.9440000000000002
+        },
+        {
+          "id": 97,
+          "tenmer": "CGGGGGCCCA",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 98,
+          "tenmer": "CGGGGGCCCC",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 99,
+          "tenmer": "CGGGGGCCCG",
+          "score": 1.6723857142857141
+        },
+        {
+          "id": 100,
+          "tenmer": "CGGGGGCCCT",
+          "score": 2.0798714285714284
+        },
+        {
+          "id": 101,
+          "tenmer": "CGGGGGGCCC",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 102,
+          "tenmer": "CGGGGGGGCC",
+          "score": 1.9326857142857141
+        },
+        {
+          "id": 103,
+          "tenmer": "CGGGGGGGGC",
+          "score": 2.2758
+        },
+        {
+          "id": 104,
+          "tenmer": "CGGGGGGGGG",
+          "score": 2.294942857142857
+        },
+        {
+          "id": 105,
+          "tenmer": "CGGGGGGGGT",
+          "score": 2.053785714285714
+        },
+        {
+          "id": 106,
+          "tenmer": "GCCCCCCCCA",
+          "score": 2.450428571428571
+        },
+        {
+          "id": 107,
+          "tenmer": "GCCCCCCCCC",
+          "score": 2.5169571428571422
+        },
+        {
+          "id": 108,
+          "tenmer": "GCCCCCCCCG",
+          "score": 2.2758
+        },
+        {
+          "id": 109,
+          "tenmer": "GCCCCCCCCT",
+          "score": 2.683285714285714
+        },
+        {
+          "id": 110,
+          "tenmer": "GCCCCCCCGG",
+          "score": 1.9505142857142856
+        },
+        {
+          "id": 111,
+          "tenmer": "GCCCCCCCTA",
+          "score": 2.5474142857142854
+        },
+        {
+          "id": 112,
+          "tenmer": "GCCCCCCGGG",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 113,
+          "tenmer": "GCCCCCGGGC",
+          "score": 1.6902142857142857
+        },
+        {
+          "id": 114,
+          "tenmer": "GCCCCCGGGG",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 115,
+          "tenmer": "GCCCCCGGGT",
+          "score": 1.4682
+        },
+        {
+          "id": 116,
+          "tenmer": "GCCCCGGGCC",
+          "score": 1.3471
+        },
+        {
+          "id": 117,
+          "tenmer": "GCCCCGGGGC",
+          "score": 1.6902142857142857
+        },
+        {
+          "id": 118,
+          "tenmer": "GCCCCGGGGG",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 119,
+          "tenmer": "GCCCCGGGGT",
+          "score": 1.4682
+        },
+        {
+          "id": 120,
+          "tenmer": "GCCCGGGCCC",
+          "score": 1.3279571428571428
+        },
+        {
+          "id": 121,
+          "tenmer": "GCCCGGGGCC",
+          "score": 1.3471
+        },
+        {
+          "id": 122,
+          "tenmer": "GCCCGGGGGC",
+          "score": 1.6902142857142857
+        },
+        {
+          "id": 123,
+          "tenmer": "GCCCGGGGGG",
+          "score": 1.7093571428571426
+        },
+        {
+          "id": 124,
+          "tenmer": "GCCCGGGGGT",
+          "score": 1.4682
+        },
+        {
+          "id": 125,
+          "tenmer": "GGCCCCCCCA",
+          "score": 2.1073142857142857
+        },
+        {
+          "id": 126,
+          "tenmer": "GGCCCCCCCC",
+          "score": 2.173842857142857
+        },
+        {
+          "id": 127,
+          "tenmer": "GGCCCCCCCG",
+          "score": 1.9326857142857141
+        },
+        {
+          "id": 128,
+          "tenmer": "GGCCCCCCCT",
+          "score": 2.3401714285714283
+        },
+        {
+          "id": 129,
+          "tenmer": "GGCCCCCCGG",
+          "score": 1.6074
+        },
+        {
+          "id": 130,
+          "tenmer": "GGCCCCCCTA",
+          "score": 2.2043
+        },
+        {
+          "id": 131,
+          "tenmer": "GGCCCCCGGG",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 132,
+          "tenmer": "GGCCCCGGGC",
+          "score": 1.3471
+        },
+        {
+          "id": 133,
+          "tenmer": "GGCCCCGGGG",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 134,
+          "tenmer": "GGCCCCGGGT",
+          "score": 1.1250857142857142
+        },
+        {
+          "id": 135,
+          "tenmer": "GGCCCGGGCC",
+          "score": 1.0039857142857143
+        },
+        {
+          "id": 136,
+          "tenmer": "GGCCCGGGGC",
+          "score": 1.3471
+        },
+        {
+          "id": 137,
+          "tenmer": "GGCCCGGGGG",
+          "score": 1.366242857142857
+        },
+        {
+          "id": 138,
+          "tenmer": "GGCCCGGGGT",
+          "score": 1.1250857142857142
+        },
+        {
+          "id": 139,
+          "tenmer": "GGGCCCCCCA",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 140,
+          "tenmer": "GGGCCCCCCC",
+          "score": 2.1546999999999996
+        },
+        {
+          "id": 141,
+          "tenmer": "GGGCCCCCCG",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 142,
+          "tenmer": "GGGCCCCCCT",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 143,
+          "tenmer": "GGGCCCCCGG",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 144,
+          "tenmer": "GGGCCCCCTA",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 145,
+          "tenmer": "GGGCCCCGGG",
+          "score": 1.3471
+        },
+        {
+          "id": 146,
+          "tenmer": "GGGCCCGGGC",
+          "score": 1.3279571428571428
+        },
+        {
+          "id": 147,
+          "tenmer": "GGGCCCGGGG",
+          "score": 1.3471
+        },
+        {
+          "id": 148,
+          "tenmer": "GGGCCCGGGT",
+          "score": 1.1059428571428571
+        },
+        {
+          "id": 149,
+          "tenmer": "GGGGCCCCCA",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 150,
+          "tenmer": "GGGGCCCCCC",
+          "score": 2.1546999999999996
+        },
+        {
+          "id": 151,
+          "tenmer": "GGGGCCCCCG",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 152,
+          "tenmer": "GGGGCCCCCT",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 153,
+          "tenmer": "GGGGCCCCGG",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 154,
+          "tenmer": "GGGGCCCCTA",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 155,
+          "tenmer": "GGGGCCCGGG",
+          "score": 1.3471
+        },
+        {
+          "id": 156,
+          "tenmer": "GGGGGCCCCA",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 157,
+          "tenmer": "GGGGGCCCCC",
+          "score": 2.1546999999999996
+        },
+        {
+          "id": 158,
+          "tenmer": "GGGGGCCCCG",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 159,
+          "tenmer": "GGGGGCCCCT",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 160,
+          "tenmer": "GGGGGCCCGG",
+          "score": 1.5882571428571428
+        },
+        {
+          "id": 161,
+          "tenmer": "GGGGGCCCTA",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 162,
+          "tenmer": "GGGGGGCCCA",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 163,
+          "tenmer": "GGGGGGCCCC",
+          "score": 2.1546999999999996
+        },
+        {
+          "id": 164,
+          "tenmer": "GGGGGGCCCG",
+          "score": 1.9135428571428572
+        },
+        {
+          "id": 165,
+          "tenmer": "GGGGGGCCCT",
+          "score": 2.321028571428571
+        },
+        {
+          "id": 166,
+          "tenmer": "GGGGGGGCCC",
+          "score": 2.1546999999999996
+        },
+        {
+          "id": 167,
+          "tenmer": "GGGGGGGGCC",
+          "score": 2.173842857142857
+        },
+        {
+          "id": 168,
+          "tenmer": "GGGGGGGGGC",
+          "score": 2.5169571428571422
+        },
+        {
+          "id": 169,
+          "tenmer": "GGGGGGGGGG",
+          "score": 2.5361
+        },
+        {
+          "id": 170,
+          "tenmer": "GGGGGGGGGT",
+          "score": 2.294942857142857
+        },
+        {
+          "id": 171,
+          "tenmer": "TAGGGCCCCA",
+          "score": 2.1186285714285713
+        },
+        {
+          "id": 172,
+          "tenmer": "TAGGGCCCCC",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 173,
+          "tenmer": "TAGGGCCCCG",
+          "score": 1.9440000000000002
+        },
+        {
+          "id": 174,
+          "tenmer": "TAGGGCCCCT",
+          "score": 2.3514857142857144
+        },
+        {
+          "id": 175,
+          "tenmer": "TAGGGCCCGG",
+          "score": 1.6187142857142856
+        },
+        {
+          "id": 176,
+          "tenmer": "TAGGGCCCTA",
+          "score": 2.2156142857142855
+        },
+        {
+          "id": 177,
+          "tenmer": "TAGGGGCCCA",
+          "score": 2.1186285714285713
+        },
+        {
+          "id": 178,
+          "tenmer": "TAGGGGCCCC",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 179,
+          "tenmer": "TAGGGGCCCG",
+          "score": 1.9440000000000002
+        },
+        {
+          "id": 180,
+          "tenmer": "TAGGGGCCCT",
+          "score": 2.3514857142857144
+        },
+        {
+          "id": 181,
+          "tenmer": "TAGGGGGCCC",
+          "score": 2.185157142857143
+        },
+        {
+          "id": 182,
+          "tenmer": "TAGGGGGGCC",
+          "score": 2.2043
+        },
+        {
+          "id": 183,
+          "tenmer": "TAGGGGGGGC",
+          "score": 2.5474142857142854
+        },
+        {
+          "id": 184,
+          "tenmer": "TAGGGGGGGG",
+          "score": 2.5665571428571425
+        },
+        {
+          "id": 185,
+          "tenmer": "TAGGGGGGGT",
+          "score": 2.3253999999999997
+        },
+        {
+          "id": 186,
+          "tenmer": "TGGGCCCCCA",
+          "score": 2.021642857142857
+        },
+        {
+          "id": 187,
+          "tenmer": "TGGGCCCCCC",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 188,
+          "tenmer": "TGGGCCCCCG",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 189,
+          "tenmer": "TGGGCCCCCT",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 190,
+          "tenmer": "TGGGCCCCGG",
+          "score": 1.5217285714285713
+        },
+        {
+          "id": 191,
+          "tenmer": "TGGGCCCCTA",
+          "score": 2.1186285714285713
+        },
+        {
+          "id": 192,
+          "tenmer": "TGGGCCCGGG",
+          "score": 1.2805714285714287
+        },
+        {
+          "id": 193,
+          "tenmer": "TGGGGCCCCA",
+          "score": 2.021642857142857
+        },
+        {
+          "id": 194,
+          "tenmer": "TGGGGCCCCC",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 195,
+          "tenmer": "TGGGGCCCCG",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 196,
+          "tenmer": "TGGGGCCCCT",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 197,
+          "tenmer": "TGGGGCCCGG",
+          "score": 1.5217285714285713
+        },
+        {
+          "id": 198,
+          "tenmer": "TGGGGCCCTA",
+          "score": 2.1186285714285713
+        },
+        {
+          "id": 199,
+          "tenmer": "TGGGGGCCCA",
+          "score": 2.021642857142857
+        },
+        {
+          "id": 200,
+          "tenmer": "TGGGGGCCCC",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 201,
+          "tenmer": "TGGGGGCCCG",
+          "score": 1.8470142857142857
+        },
+        {
+          "id": 202,
+          "tenmer": "TGGGGGCCCT",
+          "score": 2.2544999999999997
+        },
+        {
+          "id": 203,
+          "tenmer": "TGGGGGGCCC",
+          "score": 2.0881714285714286
+        },
+        {
+          "id": 204,
+          "tenmer": "TGGGGGGGCC",
+          "score": 2.1073142857142857
+        },
+        {
+          "id": 205,
+          "tenmer": "TGGGGGGGGC",
+          "score": 2.450428571428571
+        },
+        {
+          "id": 206,
+          "tenmer": "TGGGGGGGGG",
+          "score": 2.4695714285714283
+        },
+        {
+          "id": 207,
+          "tenmer": "TGGGGGGGGT",
+          "score": 2.2284142857142855
+        }
+      ],
+      "meta": {
+        "source_module": "motif_detection.a_philic_detector",
+        "source_attribute": "TENMER_LOG2",
+        "source": "APhilicDetector.TENMER_LOG2",
+        "detector_class": "APhilicDetector",
+        "note": "Values are log2 odds ratios"
+      }
+    },
+    "Cruciform": {
+      "class": "Cruciform",
+      "generated_at": "2025-10-24T07:01:59.944123Z",
+      "n_patterns": 1,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "([ACGT]{6,100})([ACGT]{0,100})",
+          "subclass": "Inverted_Repeats",
+          "score": 0.95,
+          "description": "Palindromic inverted repeat (arm >= 6bp, loop <= 100bp)",
+          "min_arm": 6,
+          "max_arm": 100,
+          "max_loop": 100
+        }
+      ],
+      "meta": {
+        "source": "Cruciform detector - inverted repeats",
+        "detector_class": "CruciformDetector",
+        "pattern_type": "algorithmic",
+        "note": "Uses algorithmic search for palindromic inverted repeats"
+      }
+    },
+    "CurvedDNA": {
+      "class": "CurvedDNA",
+      "generated_at": "2025-10-24T07:01:59.942267Z",
+      "n_patterns": 44,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "A{7,}",
+          "subclass": "Local Curvature",
+          "score": 0.95
+        },
+        {
+          "id": 1,
+          "pattern": "T{7,}",
+          "subclass": "Local Curvature",
+          "score": 0.95
+        },
+        {
+          "id": 2,
+          "pattern": "(?:A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 3,
+          "pattern": "(?:A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 4,
+          "pattern": "(?:A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 5,
+          "pattern": "(?:A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 6,
+          "pattern": "(?:A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 7,
+          "pattern": "(?:A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 8,
+          "pattern": "(?:A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 9,
+          "pattern": "(?:A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 10,
+          "pattern": "(?:A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 11,
+          "pattern": "(?:A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 12,
+          "pattern": "(?:A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 13,
+          "pattern": "(?:A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 14,
+          "pattern": "(?:A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 15,
+          "pattern": "(?:A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 16,
+          "pattern": "(?:A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3}[ACGT]{6,8}A{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 17,
+          "pattern": "(?:A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4}[ACGT]{5,7}A{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 18,
+          "pattern": "(?:A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5}[ACGT]{4,6}A{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 19,
+          "pattern": "(?:A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6}[ACGT]{3,5}A{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 20,
+          "pattern": "(?:A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7}[ACGT]{2,4}A{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 21,
+          "pattern": "(?:A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8}[ACGT]{1,3}A{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 22,
+          "pattern": "(?:A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9}[ACGT]{0,2}A{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 23,
+          "pattern": "(?:T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 24,
+          "pattern": "(?:T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 25,
+          "pattern": "(?:T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 26,
+          "pattern": "(?:T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 27,
+          "pattern": "(?:T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 28,
+          "pattern": "(?:T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 29,
+          "pattern": "(?:T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 30,
+          "pattern": "(?:T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 31,
+          "pattern": "(?:T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 32,
+          "pattern": "(?:T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 33,
+          "pattern": "(?:T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 34,
+          "pattern": "(?:T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 35,
+          "pattern": "(?:T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 36,
+          "pattern": "(?:T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 37,
+          "pattern": "(?:T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3}[ACGT]{6,8}T{3})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 38,
+          "pattern": "(?:T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4}[ACGT]{5,7}T{4})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 39,
+          "pattern": "(?:T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5}[ACGT]{4,6}T{5})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 40,
+          "pattern": "(?:T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6}[ACGT]{3,5}T{6})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 41,
+          "pattern": "(?:T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7}[ACGT]{2,4}T{7})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 42,
+          "pattern": "(?:T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8}[ACGT]{1,3}T{8})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        },
+        {
+          "id": 43,
+          "pattern": "(?:T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9}[ACGT]{0,2}T{9})",
+          "subclass": "Global Curvature",
+          "score": 0.9
+        }
+      ],
+      "meta": {
+        "source": "Problem statement LOCAL_CURVED_PATTERNS and GLOBAL_CURVED_PATTERNS",
+        "detector_class": "CurvedDNADetector",
+        "pattern_type": "regex"
+      }
+    },
+    "G4": {
+      "class": "G4",
+      "generated_at": "2025-10-24T07:01:59.943090Z",
+      "n_patterns": 7,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}",
+          "subclass": "canonical_g4",
+          "score": 0.9
+        },
+        {
+          "id": 1,
+          "pattern": "G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}",
+          "subclass": "relaxed_g4",
+          "score": 0.9
+        },
+        {
+          "id": 2,
+          "pattern": "G{3,}[ACGT]{8,15}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}",
+          "subclass": "long_loop_g4",
+          "score": 0.9
+        },
+        {
+          "id": 3,
+          "pattern": "(?:G{2,3}[ACGT]{0,3}G{1,3})[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}",
+          "subclass": "bulged_g4",
+          "score": 0.9
+        },
+        {
+          "id": 4,
+          "pattern": "(?:G{3,}[ACGT]{1,7}){4,}G{3,}",
+          "subclass": "multimeric_g4",
+          "score": 0.9
+        },
+        {
+          "id": 5,
+          "pattern": "G{2,}[ACGT]{1,10}[AG]G{1,3}[ACGT]{1,10}G{2,}[ACGT]{1,10}G{2,}",
+          "subclass": "imperfect_g4",
+          "score": 0.9
+        },
+        {
+          "id": 6,
+          "pattern": "G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}",
+          "subclass": "g_triplex",
+          "score": 0.9
+        }
+      ],
+      "meta": {
+        "source": "Problem statement G4_HS_PATTERNS",
+        "detector_class": "GQuadruplexDetector",
+        "pattern_type": "regex"
+      }
+    },
+    "IMotif": {
+      "class": "IMotif",
+      "generated_at": "2025-10-24T07:01:59.943582Z",
+      "n_patterns": 7,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "C{3,}[ACGT]{1,7}C{3,}[ACGT]{1,7}C{3,}[ACGT]{1,7}C{3,}",
+          "subclass": "canonical_imotif",
+          "score": 0.95
+        },
+        {
+          "id": 1,
+          "pattern": "A{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        },
+        {
+          "id": 2,
+          "pattern": "C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}A{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        },
+        {
+          "id": 3,
+          "pattern": "A{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        },
+        {
+          "id": 4,
+          "pattern": "C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}A{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        },
+        {
+          "id": 5,
+          "pattern": "A{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        },
+        {
+          "id": 6,
+          "pattern": "C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}A{3}",
+          "subclass": "hur_ac_motif",
+          "score": 0.85
+        }
+      ],
+      "meta": {
+        "source": "Problem statement IMOTIF_PATTERNS and HUR_AC_PATTERNS",
+        "detector_class": "IMotifDetector",
+        "pattern_type": "regex"
+      }
+    },
+    "RLoop": {
+      "class": "RLoop",
+      "generated_at": "2025-10-24T07:01:59.944523Z",
+      "n_patterns": 5,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "[GC]{10,}[AT]{2,10}[GC]{10,}",
+          "subclass": "R-loop_formation_sites",
+          "score": 0.85
+        },
+        {
+          "id": 1,
+          "pattern": "G{5,}[ATGC]{10,100}C{5,}",
+          "subclass": "R-loop_formation_sites",
+          "score": 0.8
+        },
+        {
+          "id": 2,
+          "pattern": "[GC]{6,}[AT]{1,5}[GC]{6,}",
+          "subclass": "R-loop_formation_sites",
+          "score": 0.75
+        },
+        {
+          "id": 3,
+          "pattern": "G{3,}[ATCGU]{1,10}?G{3,}(?:[ATCGU]{1,10}?G{3,}){1,}?",
+          "subclass": "QmRLFS-m1",
+          "score": 0.9
+        },
+        {
+          "id": 4,
+          "pattern": "G{4,}(?:[ATCGU]{1,10}?G{4,}){1,}?",
+          "subclass": "QmRLFS-m2",
+          "score": 0.95
+        }
+      ],
+      "meta": {
+        "source": "RLoopDetector patterns (Aguilera 2012, Jenjaroenpun 2016)",
+        "detector_class": "RLoopDetector",
+        "pattern_type": "regex"
+      }
+    },
+    "SlippedDNA": {
+      "class": "SlippedDNA",
+      "generated_at": "2025-10-24T07:01:59.945435Z",
+      "n_patterns": 9,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "((?:[ATGC]{1}){3,})",
+          "subclass": "STR",
+          "score": 0.9,
+          "unit_size": 1,
+          "description": "1-mer Short Tandem Repeat"
+        },
+        {
+          "id": 1,
+          "pattern": "((?:[ATGC]{2}){3,})",
+          "subclass": "STR",
+          "score": 0.85,
+          "unit_size": 2,
+          "description": "2-mer Short Tandem Repeat"
+        },
+        {
+          "id": 2,
+          "pattern": "((?:[ATGC]{3}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 3,
+          "description": "3-mer Short Tandem Repeat"
+        },
+        {
+          "id": 3,
+          "pattern": "((?:[ATGC]{4}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 4,
+          "description": "4-mer Short Tandem Repeat"
+        },
+        {
+          "id": 4,
+          "pattern": "((?:[ATGC]{5}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 5,
+          "description": "5-mer Short Tandem Repeat"
+        },
+        {
+          "id": 5,
+          "pattern": "((?:[ATGC]{6}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 6,
+          "description": "6-mer Short Tandem Repeat"
+        },
+        {
+          "id": 6,
+          "pattern": "((?:[ATGC]{7}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 7,
+          "description": "7-mer Short Tandem Repeat"
+        },
+        {
+          "id": 7,
+          "pattern": "((?:[ATGC]{8}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 8,
+          "description": "8-mer Short Tandem Repeat"
+        },
+        {
+          "id": 8,
+          "pattern": "((?:[ATGC]{9}){3,})",
+          "subclass": "STR",
+          "score": 0.8,
+          "unit_size": 9,
+          "description": "9-mer Short Tandem Repeat"
+        }
+      ],
+      "meta": {
+        "source": "SlippedDNADetector STR patterns (Wells 2005)",
+        "detector_class": "SlippedDNADetector",
+        "pattern_type": "regex",
+        "note": "Direct repeats handled algorithmically, not via regex"
+      }
+    },
+    "Triplex": {
+      "class": "Triplex",
+      "generated_at": "2025-10-24T07:01:59.944994Z",
+      "n_patterns": 4,
+      "patterns": [
+        {
+          "id": 0,
+          "pattern": "((?:[GA]{1,}){10,})([ATGC]{1,100})((?:[GA]{1,}){10,})",
+          "subclass": "Triplex",
+          "score": 0.9
+        },
+        {
+          "id": 1,
+          "pattern": "((?:[CT]{1,}){10,})([ATGC]{1,100})((?:[CT]{1,}){10,})",
+          "subclass": "Triplex",
+          "score": 0.9
+        },
+        {
+          "id": 2,
+          "pattern": "(?:GAA){4,}",
+          "subclass": "Sticky_DNA",
+          "score": 0.95
+        },
+        {
+          "id": 3,
+          "pattern": "(?:TTC){4,}",
+          "subclass": "Sticky_DNA",
+          "score": 0.95
+        }
+      ],
+      "meta": {
+        "source": "TriplexDetector patterns (Frank-Kamenetskii 1995, Sakamoto 1999)",
+        "detector_class": "TriplexDetector",
+        "pattern_type": "regex"
+      }
+    },
+    "ZDNA": {
+      "class": "ZDNA",
+      "generated_at": "2025-10-16T11:54:51.268859Z",
+      "n_patterns": 126,
+      "patterns": [
+        {
+          "id": 0,
+          "tenmer": "AACGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 1,
+          "tenmer": "ACCGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 2,
+          "tenmer": "ACGCCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 3,
+          "tenmer": "ACGCGCCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 4,
+          "tenmer": "ACGCGCGCCG",
+          "score": 50.25
+        },
+        {
+          "id": 5,
+          "tenmer": "ACGCGCGCGA",
+          "score": 50.25
+        },
+        {
+          "id": 6,
+          "tenmer": "ACGCGCGCGC",
+          "score": 57.25
+        },
+        {
+          "id": 7,
+          "tenmer": "ACGCGCGCGG",
+          "score": 50.25
+        },
+        {
+          "id": 8,
+          "tenmer": "ACGCGCGCGT",
+          "score": 51.5
+        },
+        {
+          "id": 9,
+          "tenmer": "ACGCGCGGCG",
+          "score": 50.25
+        },
+        {
+          "id": 10,
+          "tenmer": "ACGCGGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 11,
+          "tenmer": "ACGGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 12,
+          "tenmer": "AGCGCGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 13,
+          "tenmer": "AGCGCGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 14,
+          "tenmer": "ATCGCGCGCG",
+          "score": 50.0
+        },
+        {
+          "id": 15,
+          "tenmer": "ATGCGCGCGC",
+          "score": 51.25
+        },
+        {
+          "id": 16,
+          "tenmer": "CACGCGCGCG",
+          "score": 51.5
+        },
+        {
+          "id": 17,
+          "tenmer": "CAGCGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 18,
+          "tenmer": "CCGCGCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 19,
+          "tenmer": "CCGCGCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 20,
+          "tenmer": "CGACGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 21,
+          "tenmer": "CGCACGCGCG",
+          "score": 51.5
+        },
+        {
+          "id": 22,
+          "tenmer": "CGCAGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 23,
+          "tenmer": "CGCCGCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 24,
+          "tenmer": "CGCCGCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 25,
+          "tenmer": "CGCGACGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 26,
+          "tenmer": "CGCGCACGCG",
+          "score": 51.5
+        },
+        {
+          "id": 27,
+          "tenmer": "CGCGCAGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 28,
+          "tenmer": "CGCGCCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 29,
+          "tenmer": "CGCGCCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 30,
+          "tenmer": "CGCGCGACGC",
+          "score": 50.25
+        },
+        {
+          "id": 31,
+          "tenmer": "CGCGCGCACG",
+          "score": 51.5
+        },
+        {
+          "id": 32,
+          "tenmer": "CGCGCGCAGC",
+          "score": 50.25
+        },
+        {
+          "id": 33,
+          "tenmer": "CGCGCGCCGC",
+          "score": 56.0
+        },
+        {
+          "id": 34,
+          "tenmer": "CGCGCGCCGT",
+          "score": 50.25
+        },
+        {
+          "id": 35,
+          "tenmer": "CGCGCGCGAC",
+          "score": 50.25
+        },
+        {
+          "id": 36,
+          "tenmer": "CGCGCGCGAT",
+          "score": 50.0
+        },
+        {
+          "id": 37,
+          "tenmer": "CGCGCGCGCA",
+          "score": 57.25
+        },
+        {
+          "id": 38,
+          "tenmer": "CGCGCGCGCC",
+          "score": 56.0
+        },
+        {
+          "id": 39,
+          "tenmer": "CGCGCGCGCG",
+          "score": 63.0
+        },
+        {
+          "id": 40,
+          "tenmer": "CGCGCGCGCT",
+          "score": 56.0
+        },
+        {
+          "id": 41,
+          "tenmer": "CGCGCGCGGC",
+          "score": 56.0
+        },
+        {
+          "id": 42,
+          "tenmer": "CGCGCGCGGT",
+          "score": 50.25
+        },
+        {
+          "id": 43,
+          "tenmer": "CGCGCGCGTA",
+          "score": 51.25
+        },
+        {
+          "id": 44,
+          "tenmer": "CGCGCGCGTC",
+          "score": 50.25
+        },
+        {
+          "id": 45,
+          "tenmer": "CGCGCGCGTG",
+          "score": 51.5
+        },
+        {
+          "id": 46,
+          "tenmer": "CGCGCGCGTT",
+          "score": 50.25
+        },
+        {
+          "id": 47,
+          "tenmer": "CGCGCGCTGC",
+          "score": 50.25
+        },
+        {
+          "id": 48,
+          "tenmer": "CGCGCGGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 49,
+          "tenmer": "CGCGCGGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 50,
+          "tenmer": "CGCGCGTCGC",
+          "score": 50.25
+        },
+        {
+          "id": 51,
+          "tenmer": "CGCGCGTGCG",
+          "score": 51.5
+        },
+        {
+          "id": 52,
+          "tenmer": "CGCGCTGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 53,
+          "tenmer": "CGCGGCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 54,
+          "tenmer": "CGCGGCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 55,
+          "tenmer": "CGCGTCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 56,
+          "tenmer": "CGCGTGCGCG",
+          "score": 51.5
+        },
+        {
+          "id": 57,
+          "tenmer": "CGCTGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 58,
+          "tenmer": "CGGCGCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 59,
+          "tenmer": "CGGCGCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 60,
+          "tenmer": "CGTCGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 61,
+          "tenmer": "CGTGCGCGCG",
+          "score": 51.5
+        },
+        {
+          "id": 62,
+          "tenmer": "CTGCGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 63,
+          "tenmer": "GACGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 64,
+          "tenmer": "GCACGCGCGC",
+          "score": 51.5
+        },
+        {
+          "id": 65,
+          "tenmer": "GCAGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 66,
+          "tenmer": "GCCGCGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 67,
+          "tenmer": "GCCGCGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 68,
+          "tenmer": "GCGACGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 69,
+          "tenmer": "GCGCACGCGC",
+          "score": 51.5
+        },
+        {
+          "id": 70,
+          "tenmer": "GCGCAGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 71,
+          "tenmer": "GCGCCGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 72,
+          "tenmer": "GCGCCGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 73,
+          "tenmer": "GCGCGACGCG",
+          "score": 50.25
+        },
+        {
+          "id": 74,
+          "tenmer": "GCGCGCACGC",
+          "score": 51.5
+        },
+        {
+          "id": 75,
+          "tenmer": "GCGCGCAGCG",
+          "score": 50.25
+        },
+        {
+          "id": 76,
+          "tenmer": "GCGCGCCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 77,
+          "tenmer": "GCGCGCCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 78,
+          "tenmer": "GCGCGCGACG",
+          "score": 50.25
+        },
+        {
+          "id": 79,
+          "tenmer": "GCGCGCGCAA",
+          "score": 50.25
+        },
+        {
+          "id": 80,
+          "tenmer": "GCGCGCGCAC",
+          "score": 51.5
+        },
+        {
+          "id": 81,
+          "tenmer": "GCGCGCGCAG",
+          "score": 50.25
+        },
+        {
+          "id": 82,
+          "tenmer": "GCGCGCGCAT",
+          "score": 51.25
+        },
+        {
+          "id": 83,
+          "tenmer": "GCGCGCGCCA",
+          "score": 50.25
+        },
+        {
+          "id": 84,
+          "tenmer": "GCGCGCGCCG",
+          "score": 56.0
+        },
+        {
+          "id": 85,
+          "tenmer": "GCGCGCGCGA",
+          "score": 56.0
+        },
+        {
+          "id": 86,
+          "tenmer": "GCGCGCGCGC",
+          "score": 63.0
+        },
+        {
+          "id": 87,
+          "tenmer": "GCGCGCGCGG",
+          "score": 56.0
+        },
+        {
+          "id": 88,
+          "tenmer": "GCGCGCGCGT",
+          "score": 57.25
+        },
+        {
+          "id": 89,
+          "tenmer": "GCGCGCGCTA",
+          "score": 50.0
+        },
+        {
+          "id": 90,
+          "tenmer": "GCGCGCGCTG",
+          "score": 50.25
+        },
+        {
+          "id": 91,
+          "tenmer": "GCGCGCGGCA",
+          "score": 50.25
+        },
+        {
+          "id": 92,
+          "tenmer": "GCGCGCGGCG",
+          "score": 56.0
+        },
+        {
+          "id": 93,
+          "tenmer": "GCGCGCGTCG",
+          "score": 50.25
+        },
+        {
+          "id": 94,
+          "tenmer": "GCGCGCGTGC",
+          "score": 51.5
+        },
+        {
+          "id": 95,
+          "tenmer": "GCGCGCTGCG",
+          "score": 50.25
+        },
+        {
+          "id": 96,
+          "tenmer": "GCGCGGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 97,
+          "tenmer": "GCGCGGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 98,
+          "tenmer": "GCGCGTCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 99,
+          "tenmer": "GCGCGTGCGC",
+          "score": 51.5
+        },
+        {
+          "id": 100,
+          "tenmer": "GCGCTGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 101,
+          "tenmer": "GCGGCGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 102,
+          "tenmer": "GCGGCGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 103,
+          "tenmer": "GCGTCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 104,
+          "tenmer": "GCGTGCGCGC",
+          "score": 51.5
+        },
+        {
+          "id": 105,
+          "tenmer": "GCTGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 106,
+          "tenmer": "GGCGCGCGCA",
+          "score": 50.25
+        },
+        {
+          "id": 107,
+          "tenmer": "GGCGCGCGCG",
+          "score": 56.0
+        },
+        {
+          "id": 108,
+          "tenmer": "GTCGCGCGCG",
+          "score": 50.25
+        },
+        {
+          "id": 109,
+          "tenmer": "GTGCGCGCGC",
+          "score": 51.5
+        },
+        {
+          "id": 110,
+          "tenmer": "TACGCGCGCG",
+          "score": 51.25
+        },
+        {
+          "id": 111,
+          "tenmer": "TAGCGCGCGC",
+          "score": 50.0
+        },
+        {
+          "id": 112,
+          "tenmer": "TCGCGCGCGC",
+          "score": 56.0
+        },
+        {
+          "id": 113,
+          "tenmer": "TCGCGCGCGT",
+          "score": 50.25
+        },
+        {
+          "id": 114,
+          "tenmer": "TGCCGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 115,
+          "tenmer": "TGCGCCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 116,
+          "tenmer": "TGCGCGCCGC",
+          "score": 50.25
+        },
+        {
+          "id": 117,
+          "tenmer": "TGCGCGCGCA",
+          "score": 51.5
+        },
+        {
+          "id": 118,
+          "tenmer": "TGCGCGCGCC",
+          "score": 50.25
+        },
+        {
+          "id": 119,
+          "tenmer": "TGCGCGCGCG",
+          "score": 57.25
+        },
+        {
+          "id": 120,
+          "tenmer": "TGCGCGCGCT",
+          "score": 50.25
+        },
+        {
+          "id": 121,
+          "tenmer": "TGCGCGCGGC",
+          "score": 50.25
+        },
+        {
+          "id": 122,
+          "tenmer": "TGCGCGGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 123,
+          "tenmer": "TGCGGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 124,
+          "tenmer": "TGGCGCGCGC",
+          "score": 50.25
+        },
+        {
+          "id": 125,
+          "tenmer": "TTGCGCGCGC",
+          "score": 50.25
+        }
+      ],
+      "meta": {
+        "source_module": "motif_detection.z_dna_detector",
+        "source_attribute": "TENMER_SCORE",
+        "source": "ZDNADetector.TENMER_SCORE",
+        "detector_class": "ZDNADetector"
+      }
+    }
+  },
+  "total_patterns": 411,
+  "total_classes": 9
+}
