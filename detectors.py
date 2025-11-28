@@ -1044,6 +1044,14 @@ class ZDNADetector(BaseMotifDetector):
             ]
         }
     
+    # Class-level compiled patterns for eGZ detection (avoid recompilation on each call)
+    _EGZ_PATTERNS = [
+        (re.compile(r'(?:GGC){3,}', re.ASCII), 'GGC', 3),
+        (re.compile(r'(?:GCC){3,}', re.ASCII), 'GCC', 3),
+        (re.compile(r'(?:CGG){3,}', re.ASCII), 'CGG', 3),
+        (re.compile(r'(?:CCG){3,}', re.ASCII), 'CCG', 3),
+    ]
+    
     def _find_egz_motifs(self, sequence: str) -> List[Dict[str, Any]]:
         """
         Find eGZ (Extruded-G Z-DNA) motifs in the sequence.
@@ -1059,15 +1067,7 @@ class ZDNADetector(BaseMotifDetector):
         egz_motifs = []
         used_positions = set()
         
-        # eGZ core unit patterns - each requires at least 3 repeats
-        egz_patterns = [
-            (re.compile(r'(?:GGC){3,}', re.IGNORECASE | re.ASCII), 'GGC'),
-            (re.compile(r'(?:GCC){3,}', re.IGNORECASE | re.ASCII), 'GCC'),
-            (re.compile(r'(?:CGG){3,}', re.IGNORECASE | re.ASCII), 'CGG'),
-            (re.compile(r'(?:CCG){3,}', re.IGNORECASE | re.ASCII), 'CCG'),
-        ]
-        
-        for pattern, unit_type in egz_patterns:
+        for pattern, unit_type, unit_length in self._EGZ_PATTERNS:
             for match in pattern.finditer(seq):
                 start_pos = match.start()
                 end_pos = match.end()
@@ -1086,8 +1086,8 @@ class ZDNADetector(BaseMotifDetector):
                 # Mark positions as used
                 used_positions.update(motif_positions)
                 
-                # Calculate number of repeat units
-                num_repeats = length // 3
+                # Calculate number of repeat units based on actual unit length
+                num_repeats = length // unit_length
                 
                 # Calculate GC content
                 gc_content = (motif_seq.count('G') + motif_seq.count('C')) / length * 100 if length > 0 else 0
