@@ -69,7 +69,7 @@ MIRROR_MAX_LOOP = 100
 
 STR_MIN_UNIT = 1
 STR_MAX_UNIT = 9
-STR_MIN_TOTAL = 10
+STR_MIN_TOTAL = 20  # Minimum total motif length ≥20bp
 
 # Seeds (k) used for k-mer indexing (trade-off: larger k -> fewer hits)
 K_DIRECT = 10   # equal to DIRECT_MIN_UNIT (good seed)

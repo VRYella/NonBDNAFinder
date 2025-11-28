@@ -1029,12 +1029,86 @@ class ZDNADetector(BaseMotifDetector):
         """
         Keep compatibility with framework: return a representative pattern entry.
         The actual matching uses the TENMER_SCORE table inside calculate_score/annotate_sequence.
+        Also includes eGZ (Extruded-G Z-DNA) patterns for GGC/GCC/CGG/CCG repeats.
         """
         return {
             "z_dna_10mers": [
                 (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
+            ],
+            "egz_dna": [
+                # eGZ (Extruded-G Z-DNA): Core units GGC/GCC/CGG/CCG, minimum 3 repeats, minimum 10bp total
+                (r'(?:GGC){3,}', 'EGZ_GGC', 'eGZ GGC repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) GGC repeat', 'Ho 1986'),
+                (r'(?:GCC){3,}', 'EGZ_GCC', 'eGZ GCC repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) GCC repeat', 'Ho 1986'),
+                (r'(?:CGG){3,}', 'EGZ_CGG', 'eGZ CGG repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) CGG repeat', 'Ho 1986'),
+                (r'(?:CCG){3,}', 'EGZ_CCG', 'eGZ CCG repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) CCG repeat', 'Ho 1986'),
             ]
         }
+    
+    # Class-level compiled patterns for eGZ detection (avoid recompilation on each call)
+    _EGZ_PATTERNS = [
+        (re.compile(r'(?:GGC){3,}', re.ASCII), 'GGC', 3),
+        (re.compile(r'(?:GCC){3,}', re.ASCII), 'GCC', 3),
+        (re.compile(r'(?:CGG){3,}', re.ASCII), 'CGG', 3),
+        (re.compile(r'(?:CCG){3,}', re.ASCII), 'CCG', 3),
+    ]
+    
+    def _find_egz_motifs(self, sequence: str) -> List[Dict[str, Any]]:
+        """
+        Find eGZ (Extruded-G Z-DNA) motifs in the sequence.
+        
+        eGZ criteria:
+        - Core units: GGC / GCC / CGG / CCG
+        - Minimum repeats: ≥ 3
+        - Minimum total motif length: ≥ 10 bp
+        
+        Returns list of eGZ motif dictionaries.
+        """
+        seq = sequence.upper()
+        egz_motifs = []
+        used_positions = set()
+        
+        for pattern, unit_type, unit_length in self._EGZ_PATTERNS:
+            for match in pattern.finditer(seq):
+                start_pos = match.start()
+                end_pos = match.end()
+                motif_seq = seq[start_pos:end_pos]
+                length = end_pos - start_pos
+                
+                # Verify minimum length ≥ 10 bp
+                if length < 10:
+                    continue
+                
+                # Check for overlap with already detected motifs
+                motif_positions = set(range(start_pos, end_pos))
+                if motif_positions & used_positions:
+                    continue
+                
+                # Mark positions as used
+                used_positions.update(motif_positions)
+                
+                # Calculate number of repeat units based on actual unit length
+                num_repeats = length // unit_length
+                
+                # Calculate GC content
+                gc_content = (motif_seq.count('G') + motif_seq.count('C')) / length * 100 if length > 0 else 0
+                
+                # Score based on repeat count and length
+                score = min(0.5 + (num_repeats * 0.05) + (length / 100), 0.99)
+                
+                egz_motifs.append({
+                    'start': start_pos,
+                    'end': end_pos,
+                    'length': length,
+                    'sequence': motif_seq,
+                    'score': round(score, 3),
+                    'unit_type': unit_type,
+                    'num_repeats': num_repeats,
+                    'gc_content': round(gc_content, 2)
+                })
+        
+        # Sort by start position
+        egz_motifs.sort(key=lambda x: x['start'])
+        return egz_motifs
 
     # -------------------------
     # Public API
@@ -1110,6 +1184,10 @@ class ZDNADetector(BaseMotifDetector):
         """
         Override base method to use sophisticated Z-DNA detection with component details.
         
+        Detects two types of Z-DNA related structures:
+        1. Classic Z-DNA: Using 10-mer scoring table (Ho et al. 1986)
+        2. eGZ (Extruded-G Z-DNA): GGC/GCC/CGG/CCG repeats (≥3 repeats, ≥10bp total)
+        
         IMPORTANT: This method ALWAYS outputs merged regions, not individual 10-mers.
         All overlapping/adjacent 10-mer matches are merged into contiguous regions
         via annotate_sequence(), ensuring no duplicate or split reporting.
@@ -1121,6 +1199,10 @@ class ZDNADetector(BaseMotifDetector):
         sequence = sequence.upper().strip()
         motifs = []
         
+        # Track used positions to avoid overlap between Z-DNA and eGZ
+        used_positions = set()
+        
+        # 1. Detect classic Z-DNA using 10-mer scoring table
         # Use the annotation method to find Z-DNA regions.
         # This GUARANTEES that overlapping/adjacent 10-mer matches are merged.
         annotations = self.annotate_sequence(sequence)
@@ -1131,6 +1213,9 @@ class ZDNADetector(BaseMotifDetector):
                 start_pos = region['start']
                 end_pos = region['end']
                 motif_seq = sequence[start_pos:end_pos]
+                
+                # Mark positions as used
+                used_positions.update(range(start_pos, end_pos))
                 
                 # Extract CG/AT dinucleotides (characteristic of Z-DNA)
                 cg_count = motif_seq.count('CG') + motif_seq.count('GC')
@@ -1165,6 +1250,43 @@ class ZDNADetector(BaseMotifDetector):
                     'Alternating_AT_Regions': alternating_at,
                     'GC_Content': round(gc_content, 2)
                 })
+        
+        # 2. Detect eGZ (Extruded-G Z-DNA) motifs
+        # eGZ criteria: Core units GGC/GCC/CGG/CCG, ≥3 repeats, ≥10bp total
+        egz_results = self._find_egz_motifs(sequence)
+        
+        for i, egz in enumerate(egz_results):
+            start_pos = egz['start']
+            end_pos = egz['end']
+            
+            # Skip if overlapping with already detected Z-DNA regions
+            egz_positions = set(range(start_pos, end_pos))
+            if egz_positions & used_positions:
+                continue
+            
+            used_positions.update(egz_positions)
+            
+            motifs.append({
+                'ID': f"{sequence_name}_EGZ_{start_pos+1}",
+                'Sequence_Name': sequence_name,
+                'Class': self.get_motif_class_name(),
+                'Subclass': 'eGZ',
+                'Start': start_pos + 1,  # 1-based coordinates
+                'End': end_pos,
+                'Length': egz['length'],
+                'Sequence': egz['sequence'],
+                'Score': egz['score'],
+                'Strand': '+',
+                'Method': 'eGZ_detection',
+                'Pattern_ID': f'EGZ_{egz["unit_type"]}_{i+1}',
+                # Component details
+                'Unit_Type': egz['unit_type'],
+                'Num_Repeats': egz['num_repeats'],
+                'GC_Content': egz['gc_content']
+            })
+        
+        # Sort by start position
+        motifs.sort(key=lambda x: x['Start'])
         
         return motifs
 
@@ -1984,8 +2106,8 @@ class SlippedDNADetector(BaseMotifDetector):
 
         # Use optimized repeat_scanner if available
         if _find_strs_optimized and _find_direct_repeats_optimized:
-            # STRs (unit 1–9 bp)
-            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=10)
+            # STRs (unit 1–9 bp, minimum total length ≥20bp)
+            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=20)
             for str_rec in str_results:
                 regions.append({
                     'class_name': 'STR',
@@ -2042,12 +2164,12 @@ class SlippedDNADetector(BaseMotifDetector):
             used = [False] * len(seq)
             pat_groups = self.get_patterns()
 
-            # STRs (unit 1–9 bp) - fallback regex
+            # STRs (unit 1–9 bp, minimum total length ≥20bp) - fallback regex
             for k in range(1, 10):
                 regex = rf"((?:[ATGC]{{{k}}}){{3,}})"
                 for m in re.finditer(regex, seq):
                     s, e = m.span()
-                    if (e - s) < 10 or any(used[s:e]):
+                    if (e - s) < 20 or any(used[s:e]):
                         continue
                     for i in range(s, e):
                         used[i] = True

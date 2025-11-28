@@ -1,7 +1,7 @@
 {
-  "version": "2024.1",
-  "generated_at": "2025-11-15T07:13:39.759080Z",
-  "description": "Consolidated registry for all Non-B DNA motif patterns",
+  "version": "2024.2",
+  "generated_at": "2025-11-28T11:33:51.800791Z",
+  "description": "Consolidated registry for all Non-B DNA motif patterns. Updated with eGZ patterns and STR/DR specifications.",
   "registries": {
     "APhilic": {
       "class": "APhilic",
@@ -1588,7 +1588,12 @@
         "source": "SlippedDNADetector STR patterns (Wells 2005)",
         "detector_class": "SlippedDNADetector",
         "pattern_type": "regex",
-        "note": "Direct repeats handled algorithmically, not via regex"
+        "note": "STR: unit 1-9bp, min total length >= 20bp. Direct Repeat: unit >= 10bp, require at least two copies",
+        "str_min_total": 20,
+        "str_min_unit": 1,
+        "str_max_unit": 9,
+        "direct_min_unit": 10,
+        "direct_min_copies": 2
       }
     },
     "Triplex": {
@@ -1630,7 +1635,7 @@
     "ZDNA": {
       "class": "ZDNA",
       "generated_at": "2025-10-16T11:54:51.268859Z",
-      "n_patterns": 126,
+      "n_patterns": 130,
       "patterns": [
         {
           "id": 0,
@@ -2261,6 +2266,38 @@
           "id": 125,
           "tenmer": "TTGCGCGCGC",
           "score": 50.25
+        },
+        {
+          "id": 126,
+          "pattern": "(?:GGC){3,}",
+          "subclass": "eGZ",
+          "score": 0.9,
+          "description": "eGZ (Extruded-G Z-DNA) GGC repeat (min 3 repeats, min 10bp)",
+          "reference": "Ho 1986"
+        },
+        {
+          "id": 127,
+          "pattern": "(?:GCC){3,}",
+          "subclass": "eGZ",
+          "score": 0.9,
+          "description": "eGZ (Extruded-G Z-DNA) GCC repeat (min 3 repeats, min 10bp)",
+          "reference": "Ho 1986"
+        },
+        {
+          "id": 128,
+          "pattern": "(?:CGG){3,}",
+          "subclass": "eGZ",
+          "score": 0.9,
+          "description": "eGZ (Extruded-G Z-DNA) CGG repeat (min 3 repeats, min 10bp)",
+          "reference": "Ho 1986"
+        },
+        {
+          "id": 129,
+          "pattern": "(?:CCG){3,}",
+          "subclass": "eGZ",
+          "score": 0.9,
+          "description": "eGZ (Extruded-G Z-DNA) CCG repeat (min 3 repeats, min 10bp)",
+          "reference": "Ho 1986"
         }
       ],
       "meta": {
@@ -2271,6 +2308,6 @@
       }
     }
   },
-  "total_patterns": 411,
+  "total_patterns": 415,
   "total_classes": 9
 }
