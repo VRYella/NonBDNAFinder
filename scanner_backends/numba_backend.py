@@ -67,34 +67,20 @@ _ENCODE_LUT[ord('t')] = 3
 
 def encode_sequence(sequence: str) -> np.ndarray:
     """
-    Vectorized encoding of DNA sequence using lookup table.
-    Much faster than character-by-character conversion.
+    Primary vectorized encoding of DNA sequence using lookup table.
+    
+    This is the recommended encoding function for most use cases.
+    Uses a pre-computed lookup table for O(n) encoding with minimal overhead.
     
     Args:
-        sequence: DNA sequence string
+        sequence: DNA sequence string (can be mixed case)
         
     Returns:
-        Numpy array of uint8 encoded nucleotides
+        Numpy array of uint8 encoded nucleotides (A=0, C=1, G=2, T=3, N=4)
     """
     # Convert string to bytes array and use lookup table
     bytes_arr = np.frombuffer(sequence.encode('ascii'), dtype=np.uint8)
     return _ENCODE_LUT[bytes_arr]
-
-
-def encode_sequence_fast(sequence: str) -> np.ndarray:
-    """
-    Ultra-fast encoding for very large sequences using numpy vectorization.
-    """
-    # Create byte array from string
-    byte_data = np.frombuffer(sequence.upper().encode('ascii'), dtype=np.uint8)
-    # Vectorized mapping
-    result = np.empty(len(byte_data), dtype=np.uint8)
-    result[byte_data == ord('A')] = 0
-    result[byte_data == ord('C')] = 1
-    result[byte_data == ord('G')] = 2
-    result[byte_data == ord('T')] = 3
-    result[~np.isin(byte_data, [ord('A'), ord('C'), ord('G'), ord('T')])] = 4
-    return result
 
 
 def decode_sequence(encoded: np.ndarray) -> str:
@@ -303,10 +289,10 @@ if NUMBA_AVAILABLE:
                                    min_a: int = 4,
                                    min_t: int = 4,
                                    min_g: int = 3,
-                                   min_c: int = 3) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                                   min_c: int = 3) -> Tuple[int, int, int, int]:
         """
         Find all nucleotide tracts in parallel using vectorized operations.
-        Returns arrays of (start_positions, end_positions) for each base type.
+        Returns counts of (a_tracts, t_tracts, g_tracts, c_tracts) found.
         This is 100x faster than sequential searching for large sequences.
         """
         n = len(encoded)

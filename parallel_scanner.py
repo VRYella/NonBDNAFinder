@@ -31,14 +31,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing as mp
 import numpy as np
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Try to import optimized backends
 try:
     from scanner_backends.numba_backend import (
         encode_sequence,
-        _find_strs_fast,
-        _find_z_dna_regions,
-        _g4_score_sequence,
         is_numba_available,
         NUMBA_AVAILABLE
     )
@@ -147,16 +147,16 @@ class HighPerformanceScanner:
                         motifs = future.result()
                         all_motifs.extend(motifs)
                     except Exception as e:
-                        # Silently skip failed detectors in production
-                        pass
+                        # Log detector failures for debugging purposes
+                        logger.debug(f"Detector {detector_name} failed: {e}")
         else:
             # Sequential processing (fallback)
             for i, (name, detector) in enumerate(detectors):
                 try:
                     motifs = detector.detect_motifs(sequence, sequence_name)
                     all_motifs.extend(motifs)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Detector {name} failed: {e}")
                 
                 completed += 1
                 if progress_callback:
