@@ -344,14 +344,25 @@ def estimate_memory_usage(sequence_length: int, num_workers: int = 1) -> dict:
     Returns:
         Dictionary with memory estimates in bytes
     """
+    # Memory estimation constants
+    # ~1 byte per base for sequence storage
+    BYTES_PER_BASE = 1
+    # Shared memory overhead: ~1KB per worker for metadata/handles
+    SHARED_MEMORY_OVERHEAD_PER_WORKER = 1024
+    # Average motif density: ~1 motif per 100bp (conservative)
+    AVG_MOTIF_DENSITY_BP = 100
+    # Average bytes per motif record (dict with ~10 fields)
+    BYTES_PER_MOTIF = 500
+    
     # Base memory for sequence storage
-    seq_memory = sequence_length  # 1 byte per base
+    seq_memory = sequence_length * BYTES_PER_BASE
     
     # Shared memory overhead per worker (minimal, just slice info)
-    shared_memory_overhead = num_workers * 1024
+    shared_memory_overhead = num_workers * SHARED_MEMORY_OVERHEAD_PER_WORKER
     
-    # Estimated motif storage (assume ~10 bytes per bp for worst case)
-    motif_memory_estimate = sequence_length // 100 * 500
+    # Estimated motif storage based on density
+    estimated_motif_count = sequence_length // AVG_MOTIF_DENSITY_BP
+    motif_memory_estimate = estimated_motif_count * BYTES_PER_MOTIF
     
     # Buffer for chunk processing
     chunk_buffer = DEFAULT_CHUNK_SIZE * num_workers

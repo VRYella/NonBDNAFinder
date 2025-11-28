@@ -296,8 +296,16 @@ class HyperscanPatternDatabase:
         
         Hyperscan doesn't support some regex features like backreferences.
         """
-        incompatible = ['\\1', '\\2', '\\3', '(?=', '(?!', '(?<=', '(?<!', '\\b', '\\B']
-        return not any(inc in pattern for inc in incompatible)
+        return not any(inc in pattern for inc in HYPERSCAN_INCOMPATIBLE_FEATURES)
+
+
+# Regex features not supported by Hyperscan
+HYPERSCAN_INCOMPATIBLE_FEATURES = [
+    '\\1', '\\2', '\\3',  # Backreferences
+    '(?=', '(?!',         # Lookahead
+    '(?<=', '(?<!',       # Lookbehind
+    '\\b', '\\B'          # Word boundaries
+]
 
 
 def compile_all_patterns() -> Dict[str, HyperscanScanner]:

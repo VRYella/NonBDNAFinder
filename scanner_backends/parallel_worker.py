@@ -112,8 +112,13 @@ class SharedMemoryWorker:
                 old_shm = shared_memory.SharedMemory(name=self.shm_name, create=False)
                 old_shm.close()
                 old_shm.unlink()
-            except Exception:
+            except (FileNotFoundError, PermissionError) as e:
+                # Ignore if already cleaned up or no permission
                 pass
+            except Exception as e:
+                # Log unexpected exceptions but continue
+                import logging
+                logging.getLogger(__name__).debug(f"Shared memory cleanup warning: {e}")
             
             self.shm = shared_memory.SharedMemory(
                 name=self.shm_name,
@@ -187,9 +192,10 @@ def _worker_scan_chunk(
         # Close shared memory reference (don't unlink - main process owns it)
         shm.close()
         
-        # Scan chunk
+        # Scan chunk - use provided function or import default
+        # Note: We import inside the function to avoid issues with multiprocessing
+        # and to allow custom scan functions to be provided
         if scan_function is None:
-            # Import here to avoid circular imports
             from nonbscanner import analyze_sequence
             scan_function = analyze_sequence
         

@@ -253,6 +253,12 @@ Examples:
                         chunk_size=self.args.chunksize,
                         progress_callback=self.progress_callback
                     )
+                except ImportError as e:
+                    self.log(f"Scanner backends not available, using sequential: {e}", 'warn')
+                    motifs = analyze_sequence(sequence, seq_name)
+                except (OSError, MemoryError) as e:
+                    self.log(f"Parallel scan resource error, falling back: {e}", 'warn')
+                    motifs = analyze_sequence(sequence, seq_name)
                 except Exception as e:
                     self.log(f"Parallel scan failed, falling back to sequential: {e}", 'warn')
                     motifs = analyze_sequence(sequence, seq_name)

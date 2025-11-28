@@ -232,8 +232,11 @@ class TestCLI(unittest.TestCase):
             f.write("GGGTTAGGGTTAGGGTTAGGGATGCATGC\n")
             tmp_fasta = f.name
         
-        # Create temporary output path
-        tmp_out = tempfile.mktemp()
+        # Create temporary output file securely
+        with tempfile.NamedTemporaryFile(mode='w', suffix='_out', delete=False) as f:
+            tmp_out = f.name
+            # Remove the file since CLI will create it with .ndjson extension
+            os.unlink(tmp_out)
         
         try:
             args = NBDScannerCLI.parse_args([
