@@ -396,10 +396,7 @@ def _merge_chunk_motifs(all_motifs: List[Dict[str, Any]], chunk_info: List[Tuple
     if not all_motifs:
         return []
     
-    # Sort motifs by start position, then by class/subclass
-    all_motifs.sort(key=lambda x: (x.get('Start', 0), x.get('Class', ''), x.get('Subclass', '')))
-    
-    # Group by class/subclass for overlap removal
+    # Group by class/subclass for overlap removal (avoiding redundant sorting)
     groups = defaultdict(list)
     for motif in all_motifs:
         key = f"{motif.get('Class', '')}-{motif.get('Subclass', '')}"
@@ -409,7 +406,7 @@ def _merge_chunk_motifs(all_motifs: List[Dict[str, Any]], chunk_info: List[Tuple
     
     for key, group_motifs in groups.items():
         # Sort by score (highest first), then by length (longest first)
-        group_motifs.sort(key=lambda x: (x.get('Score', 0), x.get('Length', 0)), reverse=True)
+        group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
         
         non_overlapping = []
         for motif in group_motifs:
@@ -468,7 +465,7 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
         scanner = NonBScanner()
         return scanner.analyze_sequence(sequence, sequence_name)
     
-    # Calculate chunks
+    # Calculate chunks with symmetric overlap
     chunks = []
     chunk_info = []
     pos = 0
@@ -478,8 +475,9 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
         chunk_start = pos
         chunk_end = min(pos + chunk_size, seq_len)
         
-        # Extract the chunk with overlap consideration
-        actual_start = max(0, chunk_start - chunk_overlap) if chunk_num > 0 else chunk_start
+        # Extract the chunk with symmetric overlap consideration
+        # All chunks (including first and last) get overlap at both ends where possible
+        actual_start = max(0, chunk_start - chunk_overlap)
         actual_end = min(seq_len, chunk_end + chunk_overlap)
         
         chunks.append({
@@ -528,7 +526,8 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
                 # Update the actual sequence from the original (for accurate boundary handling)
                 actual_start = motif['Start'] - 1  # Convert to 0-based
                 actual_end = motif['End']
-                if 0 <= actual_start < seq_len and 0 < actual_end <= seq_len:
+                # Validate bounds before extracting sequence
+                if actual_start >= 0 and actual_end > actual_start and actual_end <= seq_len:
                     motif['Sequence'] = sequence[actual_start:actual_end]
             
             all_motifs.extend(chunk_motifs)
