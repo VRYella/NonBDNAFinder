@@ -1523,8 +1523,8 @@ with tab_pages["Upload & Analyze"]:
             quality_check = st.checkbox("Quality Validation", value=True, 
                                       help="Validate detected motifs")
         
-        # Advanced options (collapsible)
-        with st.expander("🔧 Advanced Options"):
+        # Advanced options (popup-like panel using st.popover - cleaner alternative to st.expander)
+        with st.popover("🔧 Advanced Options"):
             show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
                                              help="Display detailed progress for each processing chunk (useful for large sequences)")
             use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
