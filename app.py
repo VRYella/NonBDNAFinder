@@ -353,31 +353,33 @@ st.markdown(f"""
     }}
     
     /* ============================================
-       TABS: Premium scientific design with animations
+       TABS: Premium scientific design with LARGER FONTS and animations
        ============================================ */
     .stTabs [data-baseweb="tab-list"] {{
         width: 98vw !important;
         justify-content: stretch !important;
-        border-bottom: 3px solid {current_theme['primary']};
+        border-bottom: 4px solid {current_theme['primary']};
         background: {'linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(90deg, #ffffff 0%, {current_theme['bg_card']} 50%, #f8fbff 100%)"} !important;
-        box-shadow: 0 6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12);
-        margin-bottom: 1.5em;
-        border-radius: 12px 12px 0 0;
+        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
+        margin-bottom: 2em;
+        border-radius: 16px 16px 0 0;
         animation: fade-in 0.5s ease-out;
+        min-height: 70px;
     }}
     .stTabs [data-baseweb="tab"] {{
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
         flex: 1 1 0%;
         min-width: 0 !important;
-        padding: 16px 12px !important;
+        padding: 20px 16px !important;
         text-align: center;
         color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
         background: transparent !important;
         border-right: 1px solid rgba({'255,255,255' if is_dark_mode else '0,0,0'},0.05) !important;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        text-transform: uppercase;
     }}
     .stTabs [data-baseweb="tab"]::after {{
         content: '';
@@ -385,7 +387,7 @@ st.markdown(f"""
         bottom: 0;
         left: 50%;
         width: 0%;
-        height: 4px;
+        height: 5px;
         background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         transform: translateX(-50%);
@@ -394,21 +396,23 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab"]:hover {{
         background: {'linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%)' if is_dark_mode else f"linear-gradient(180deg, rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.05) 0%, rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) 100%)"} !important;
         color: {current_theme['primary']} !important;
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        font-size: 1.4rem !important;
     }}
     .stTabs [data-baseweb="tab"]:hover::after {{
-        width: 60%;
+        width: 70%;
     }}
     .stTabs [aria-selected="true"] {{
         color: {current_theme['primary']} !important;
         background: {'linear-gradient(180deg, #334155 0%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(180deg, #ffffff 0%, {current_theme['bg_card']} 100%)"} !important;
-        box-shadow: 0 -4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15), inset 0 -3px 0 0 {current_theme['primary']};
-        font-weight: 700 !important;
-        transform: translateY(-2px);
+        box-shadow: 0 -6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.18), inset 0 -4px 0 0 {current_theme['primary']};
+        font-weight: 800 !important;
+        transform: translateY(-3px);
+        font-size: 1.45rem !important;
     }}
     .stTabs [aria-selected="true"]::after {{
         width: 100%;
-        height: 5px;
+        height: 6px;
     }}
     .stTabs [data-baseweb="tab"]:last-child {{
         border-right: none !important;
@@ -705,21 +709,83 @@ st.markdown(f"""
         background: {'linear-gradient(90deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #ffebee 0%, #fff5f5 100%)'} !important;
     }}
     
-    /* Progress bars: Elegant animated design */
-    .stProgress > div > div {{
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
-        animation: shimmer 2s infinite;
+    /* ============================================
+       ADVANCED ELEGANT PROGRESS BARS
+       Animated gradient with glow effects
+       ============================================ */
+    .stProgress {{
+        margin: 1.5rem 0 !important;
     }}
-    @keyframes shimmer {{
-        0% {{ background-position: -1000px 0; }}
-        100% {{ background-position: 1000px 0; }}
+    .stProgress > div > div {{
+        background: linear-gradient(90deg, 
+            {current_theme['primary']} 0%, 
+            {current_theme['secondary']} 25%, 
+            {current_theme['accent']} 50%,
+            {current_theme['secondary']} 75%,
+            {current_theme['primary']} 100%) !important;
+        background-size: 200% 100% !important;
+        border-radius: 16px !important;
+        box-shadow: 
+            0 4px 15px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4),
+            0 0 20px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+        animation: progress-shimmer 2.5s ease-in-out infinite, progress-glow 1.5s ease-in-out infinite;
+        min-height: 14px !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }}
+    .stProgress > div > div::after {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.4) 50%, 
+            transparent 100%
+        );
+        animation: progress-shine 2s ease-in-out infinite;
+    }}
+    @keyframes progress-shimmer {{
+        0% {{ background-position: 200% 0; }}
+        100% {{ background-position: -200% 0; }}
+    }}
+    @keyframes progress-glow {{
+        0%, 100% {{ 
+            box-shadow: 
+                0 4px 15px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4),
+                0 0 20px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.3);
+        }}
+        50% {{ 
+            box-shadow: 
+                0 6px 25px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.6),
+                0 0 35px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.5);
+        }}
+    }}
+    @keyframes progress-shine {{
+        0% {{ transform: translateX(-100%); }}
+        100% {{ transform: translateX(100%); }}
     }}
     .stProgress > div {{
-        border-radius: 12px !important;
-        background: {current_theme['bg_card']} !important;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-radius: 16px !important;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_light']} 0%, {current_theme['bg_card']} 100%)"} !important;
+        box-shadow: 
+            inset 0 3px 6px rgba(0, 0, 0, 0.1),
+            0 1px 2px rgba(255, 255, 255, 0.1) !important;
+        min-height: 16px !important;
+        overflow: hidden;
+        position: relative;
+    }}
+    
+    /* Progress bar text styling */
+    .stProgress + div p {{
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: {current_theme['secondary']} !important;
+        margin-top: 0.75rem !important;
+        animation: fade-in 0.3s ease-out;
     }}
     
     /* File uploader: Premium drag-and-drop design */
@@ -1560,78 +1626,147 @@ with tab_pages["Upload & Analyze"]:
             letter-spacing: 0.02em;
         }
         .progress-container {
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 12px;
-            padding: 1rem;
-            margin: 1rem 0;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .progress-bar-outer {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            height: 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 100%);
+            border-radius: 12px;
+            height: 28px;
             overflow: hidden;
-            margin: 0.5rem 0;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin: 0.75rem 0;
+            box-shadow: 
+                inset 0 4px 8px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(255, 255, 255, 0.05);
+            position: relative;
         }
         .progress-bar-inner {
             height: 100%;
-            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%);
-            border-radius: 8px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+            background: linear-gradient(90deg, 
+                #0d47a1 0%, 
+                #1976d2 20%,
+                #42a5f5 40%, 
+                #4CAF50 60%, 
+                #8BC34A 80%, 
+                #CDDC39 100%);
+            background-size: 200% 100%;
+            border-radius: 12px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 0 20px rgba(76, 175, 80, 0.6),
+                0 0 40px rgba(139, 195, 74, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            animation: progress-gradient-flow 3s linear infinite;
+            position: relative;
+        }
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.4) 50%,
+                transparent 100%
+            );
+            animation: progress-shine-sweep 2s ease-in-out infinite;
+        }
+        @keyframes progress-gradient-flow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        @keyframes progress-shine-sweep {
+            0% { transform: translateX(-150%); }
+            100% { transform: translateX(150%); }
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.25rem;
         }
         .stat-item {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            padding: 0.8rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border-radius: 14px;
+            padding: 1rem;
             text-align: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            border-color: rgba(255, 215, 0, 0.3);
         }
         .stat-value {
             font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #FFD700;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA000 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 0;
+            text-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
         }
         .stat-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.85);
-            margin: 0.2rem 0 0 0;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0.3rem 0 0 0;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
         }
         .step-indicator {
-            background: rgba(255, 215, 0, 0.15);
-            border-left: 4px solid #FFD700;
-            border-radius: 0 8px 8px 0;
-            padding: 0.6rem 1rem;
-            margin: 0.8rem 0;
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
+            border-left: 5px solid #FFD700;
+            border-radius: 0 12px 12px 0;
+            padding: 0.8rem 1.25rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-left-color: #FFD700; }
+            50% { border-left-color: #FFA000; }
         }
         .step-text {
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             color: #ffffff;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
         }
         .completed-badge {
-            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #4caf50 100%);
+            border-radius: 14px;
+            padding: 1rem 1.75rem;
             text-align: center;
-            margin-top: 1rem;
-            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+            margin-top: 1.25rem;
+            box-shadow: 
+                0 6px 24px rgba(76, 175, 80, 0.5),
+                0 0 40px rgba(76, 175, 80, 0.2);
+            animation: completed-glow 2s ease-in-out infinite;
+        }
+        @keyframes completed-glow {
+            0%, 100% { box-shadow: 0 6px 24px rgba(76, 175, 80, 0.5), 0 0 40px rgba(76, 175, 80, 0.2); }
+            50% { box-shadow: 0 8px 32px rgba(76, 175, 80, 0.7), 0 0 60px rgba(76, 175, 80, 0.4); }
         }
         .completed-text {
             font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 800;
             color: #ffffff;
         }
