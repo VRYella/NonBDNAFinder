@@ -66,6 +66,17 @@ try:
 except ImportError:
     HYPERSCAN_AVAILABLE = False
 
+# Try to import scanner backends for parallel processing
+try:
+    from scanner_backends import get_best_backend, NUMBA_AVAILABLE
+    from scanner_backends.parallel_worker import parallel_scan, suggest_num_workers
+    SCANNER_BACKENDS_AVAILABLE = True
+except ImportError:
+    SCANNER_BACKENDS_AVAILABLE = False
+    NUMBA_AVAILABLE = False
+    parallel_scan = None
+    suggest_num_workers = lambda x: 1
+
 # ---------- CACHING FUNCTIONS (Memory-Efficient) ----------
 @st.cache_resource(show_spinner=False)
 def cache_genome_as_numpy(sequence: str) -> np.ndarray:
@@ -113,6 +124,50 @@ def cache_hyperscan_database(_patterns: list = None):
     except Exception as e:
         st.warning(f"Hyperscan database compilation failed: {e}")
         return None
+
+
+def analyze_sequence_optimized(sequence: str, sequence_name: str = "sequence", 
+                               use_parallel: bool = False, progress_bar=None) -> list:
+    """
+    Analyze sequence with optional parallel processing for large sequences.
+    
+    For sequences >200KB, uses parallel scanning with shared memory if available.
+    Falls back to standard sequential scanning otherwise.
+    
+    Args:
+        sequence: DNA sequence string
+        sequence_name: Name for the sequence
+        use_parallel: Enable parallel processing (auto-enabled for large sequences)
+        progress_bar: Optional Streamlit progress bar to update
+        
+    Returns:
+        List of detected motifs
+    """
+    seq_len = len(sequence)
+    
+    # Auto-enable parallel for large sequences if available
+    if SCANNER_BACKENDS_AVAILABLE and seq_len > 200_000 and (use_parallel or seq_len > 500_000):
+        try:
+            # Use parallel scanning with progress callback
+            def update_progress(completed, total):
+                if progress_bar is not None:
+                    progress_bar.progress(completed / total, text=f"Scanning chunks: {completed}/{total}")
+            
+            num_workers = suggest_num_workers(seq_len)
+            motifs = parallel_scan(
+                sequence,
+                sequence_name=sequence_name,
+                num_workers=num_workers,
+                chunk_size=100_000,
+                progress_callback=update_progress if progress_bar else None
+            )
+            return motifs
+        except Exception as e:
+            # Fall back to standard scanning on error
+            st.warning(f"Parallel scanning failed, using standard mode: {e}")
+    
+    # Standard sequential scanning
+    return analyze_sequence(sequence, sequence_name)
 
 
 # ---------- PAGE CONFIG ----------
