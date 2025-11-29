@@ -1602,7 +1602,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Loaded {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     if len(seqs) > 3:
                         st.caption(f"...and {len(seqs)-3} more.")
@@ -1630,7 +1630,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Pasted {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     if len(seqs) > 3:
                         st.caption(f"...and {len(seqs)-3} more.")
@@ -1667,7 +1667,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Multi-FASTA example loaded with {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     st.code(EXAMPLE_MULTI_FASTA, language="fasta")
 
@@ -1700,7 +1700,7 @@ with tab_pages["Upload & Analyze"]:
                         st.success(f"Fetched {len(seqs)} sequences.")
                         for i, seq in enumerate(seqs[:3]):
                             stats = get_basic_stats(seq)
-                            st.markdown(f"<b>{names[i]}</b>: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                            st.markdown(f"<b>{html_module.escape(names[i])}</b>: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                             st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                 else:
                     st.warning("Enter a query before fetching.")
@@ -1716,7 +1716,7 @@ with tab_pages["Upload & Analyze"]:
             st.markdown("### 📊 Sequence Preview")
             for i, seq in enumerate(st.session_state.seqs[:2]):
                 stats = get_basic_stats(seq)
-                st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
+                st.markdown(f"**{html_module.escape(st.session_state.names[i])}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
                 st.code(wrap(seq[:400]), language="fasta")
             if len(st.session_state.seqs) > 2:
                 st.caption(f"...and {len(st.session_state.seqs)-2} more.")
@@ -2103,8 +2103,9 @@ with tab_pages["Upload & Analyze"]:
                         # Calculate current speed
                         current_speed = total_bp_processed / elapsed if elapsed > 0 else 0
                         
-                        # Determine current step name
-                        current_step_name = f"Analyzing {name} ({i+1}/{len(st.session_state.seqs)})"
+                        # Determine current step name (escape for HTML safety)
+                        safe_name = html_module.escape(name)
+                        current_step_name = f"Analyzing {safe_name} ({i+1}/{len(st.session_state.seqs)})"
                         
                         # Render the combined progress block
                         progress_html = render_progress_block(
@@ -2124,7 +2125,7 @@ with tab_pages["Upload & Analyze"]:
                                     border: 1px solid #bdbdbd;'>
                             <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Detection Pipeline</h4>
                             <p style='margin: 0; font-size: 0.85rem; color: #616161;'>
-                                <strong>Sequence:</strong> {name} ({len(seq):,} bp)<br/>
+                                <strong>Sequence:</strong> {safe_name} ({len(seq):,} bp)<br/>
                                 <strong>Processed:</strong> {total_bp_processed:,} / {total_bp_all_sequences:,} bp
                             </p>
                             <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.8rem; font-size: 0.8rem;'>
@@ -2234,7 +2235,7 @@ with tab_pages["Upload & Analyze"]:
                         
                         # Update the combined progress block after sequence completion
                         progress_pct = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 100
-                        current_step_name = f"Completed {name}"
+                        current_step_name = f"Completed {safe_name}"
                         progress_html = render_progress_block(
                             progress_pct=progress_pct,
                             current_step=current_step_name,

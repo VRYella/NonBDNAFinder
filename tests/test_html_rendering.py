@@ -171,6 +171,64 @@ class TestHtmlModuleImport(unittest.TestCase):
         self.assertIn("&amp;", html.escape(text_with_amp))
 
 
+class TestSequenceNameEscaping(unittest.TestCase):
+    """Tests for sequence name escaping in HTML contexts."""
+
+    def test_sequence_name_with_special_characters(self):
+        """Test that sequence names with special HTML characters are properly escaped."""
+        # Example of a sequence name that might come from FASTA headers or NCBI
+        test_names = [
+            "NC_000012.12:c102481839-102395874 Homo sapiens chromosome 12, GRCh38.p14 Primary Assembly (86,456 bp)",
+            "sequence_with > greater_than",
+            "sequence_with < less_than",
+            "sequence_with & ampersand",
+            "test <script>alert('xss')</script>",
+        ]
+        
+        for name in test_names:
+            escaped_name = html.escape(name)
+            # Verify that escaped versions contain proper HTML entity escapes
+            if '>' in name:
+                self.assertIn('&gt;', escaped_name)
+            if '<' in name:
+                self.assertIn('&lt;', escaped_name)
+            if '&' in name:
+                self.assertIn('&amp;', escaped_name)
+        
+        # Test specific escape sequences are present
+        self.assertIn('&gt;', html.escape("test > value"))
+        self.assertIn('&lt;', html.escape("test < value"))
+        self.assertIn('&amp;', html.escape("test & value"))
+
+    def test_detection_pipeline_html_safety(self):
+        """Test that the detection pipeline HTML is safe with escaped sequence names."""
+        # Simulate how app.py constructs the detailed_progress_html
+        name = "NC_000012.12 > test sequence"
+        safe_name = html.escape(name)
+        seq_len = 1000
+        total_bp_processed = 500
+        total_bp_all_sequences = 1000
+        
+        # Construct HTML similar to app.py line 2122-2131
+        detailed_progress_html = f"""
+        <div style='background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
+                    border-radius: 12px; padding: 1rem; margin: 0.8rem 0;
+                    border: 1px solid #bdbdbd;'>
+            <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Detection Pipeline</h4>
+            <p style='margin: 0; font-size: 0.85rem; color: #616161;'>
+                <strong>Sequence:</strong> {safe_name} ({seq_len:,} bp)<br/>
+                <strong>Processed:</strong> {total_bp_processed:,} / {total_bp_all_sequences:,} bp
+            </p>
+            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.8rem; font-size: 0.8rem;'>
+        """
+        
+        # Verify the > character is escaped in the output
+        self.assertIn('&gt;', detailed_progress_html)
+        # Verify no unescaped > character appears within the name portion
+        # (there are legitimate > in HTML tags, but the name should be escaped)
+        self.assertIn('NC_000012.12 &gt; test sequence', detailed_progress_html)
+
+
 class TestRenderHtmlIntegration(unittest.TestCase):
     """Integration tests for HTML rendering with actual module imports."""
 
