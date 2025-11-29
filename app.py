@@ -237,8 +237,6 @@ if 'table_density' not in st.session_state:
     st.session_state.table_density = 'relaxed'
 if 'color_theme' not in st.session_state:
     st.session_state.color_theme = 'scientific_blue'
-if 'tab_orientation' not in st.session_state:
-    st.session_state.tab_orientation = 'horizontal'
 
 def hex_to_rgb(hex_color: str) -> tuple:
     """Convert hex color to RGB tuple for CSS rgba() usage."""
@@ -305,66 +303,6 @@ rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
 # Generate SVG pattern based on theme
 dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
 
-# Check if vertical tabs are enabled
-is_vertical_tabs = st.session_state.tab_orientation == 'vertical'
-
-# ---------- SIDEBAR: Navigation Settings ----------
-with st.sidebar:
-    st.markdown("""
-    <div style='text-align: center; padding: 1rem 0; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 1rem;'>
-        <h2 style='margin: 0; color: #4ECDC4; font-size: 1.4rem;'>⚙️ Display Settings</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Tab Orientation Toggle
-    st.markdown("### 📐 Navigation Layout")
-    tab_orientation = st.radio(
-        "Tab Orientation",
-        options=["horizontal", "vertical"],
-        index=0 if st.session_state.tab_orientation == "horizontal" else 1,
-        key="tab_orientation_radio",
-        help="Switch between horizontal (top) and vertical (side) navigation tabs",
-        horizontal=True
-    )
-    
-    # Update session state if changed
-    if tab_orientation != st.session_state.tab_orientation:
-        st.session_state.tab_orientation = tab_orientation
-        st.rerun()
-    
-    st.markdown("---")
-    
-    # Color theme info
-    st.markdown("### 🎨 Tab Colors")
-    st.markdown("""
-    <div style='font-size: 0.9rem; line-height: 1.6;'>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #FF6B6B, #D94848); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Home</span>
-        </div>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #4ECDC4, #26A69A); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Upload & Analyze</span>
-        </div>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #45B7D1, #0288D1); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Results</span>
-        </div>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #96CEB4, #66BB6A); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Download</span>
-        </div>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #FFEAA7, #FFD54F); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Disease Analysis</span>
-        </div>
-        <div style='display: flex; align-items: center; margin: 4px 0;'>
-            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #DDA0DD, #BA68C8); border-radius: 4px; margin-right: 8px;'></span>
-            <span>Documentation</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
 st.markdown(f"""
     <style>
     /* Import Google Fonts for professional scientific typography */
@@ -417,53 +355,9 @@ st.markdown(f"""
     
     /* ============================================
        COLORFUL ATTRACTIVE NAV TABS
-       Beautiful gradient tabs with distinct colors per section
-       Supports both horizontal and vertical orientations
+       Beautiful gradient tabs with horizontal navigation
        ============================================ */
     
-    /* Current layout mode: {'VERTICAL' if is_vertical_tabs else 'HORIZONTAL'} */
-    
-    {f'''
-    /* VERTICAL TAB LAYOUT - uses flexbox for side navigation */
-    .stTabs {{
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-    }}
-    .stTabs [data-baseweb="tab-list"] {{
-        flex-direction: column !important;
-        width: 200px !important;
-        min-width: 200px !important;
-        max-width: 200px !important;
-        height: auto !important;
-        min-height: 500px !important;
-        border-bottom: none !important;
-        border-right: 4px solid {current_theme["primary"]} !important;
-        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3) !important;
-        margin-bottom: 0 !important;
-        margin-right: 1rem !important;
-        border-radius: 16px !important;
-        padding: 1rem 0.5rem !important;
-        gap: 8px !important;
-        position: sticky !important;
-        top: 3rem !important;
-    }}
-    .stTabs [data-baseweb="tab-panel"] {{
-        flex: 1 !important;
-        padding: 1rem 2rem !important;
-        min-width: 0 !important;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        width: 100% !important;
-        min-width: 100% !important;
-        border-radius: 12px !important;
-        margin: 4px 0 !important;
-        padding: 14px 16px !important;
-        text-align: left !important;
-        font-size: 0.95rem !important;
-    }}
-    ''' if is_vertical_tabs else f'''
     /* HORIZONTAL TAB LAYOUT - default top navigation */
     .stTabs [data-baseweb="tab-list"] {{
         width: 100% !important;
@@ -478,13 +372,12 @@ st.markdown(f"""
         padding: 8px !important;
         gap: 8px !important;
     }}
-    '''}
     
     /* Individual tab styling with colorful gradients */
     .stTabs [data-baseweb="tab"] {{
         font-size: 1.1rem !important;
         font-weight: 700 !important;
-        {'flex: none !important; width: auto !important;' if is_vertical_tabs else 'flex: 1 1 0% !important;'}
+        flex: 1 1 0% !important;
         min-width: 0 !important;
         padding: 16px 24px !important;
         text-align: center !important;
