@@ -161,10 +161,24 @@ class TestPerformanceSmoke(unittest.TestCase):
         # Progress callback should be called multiple times (for each chunk)
         self.assertGreater(len(progress_calls), 1, "Progress callback should be called for each chunk")
         
+        # Verify fix: First progress callback should show bp > 0
+        # Previously, the first callback showed 0 bp processed because it was called
+        # before the chunk was processed. After the fix, it should show the actual
+        # number of base pairs processed after the first chunk completes.
+        # Progress callback tuple: (current_chunk, total_chunks, bp_processed)
+        if progress_calls:
+            current_chunk, total_chunks, bp_processed = progress_calls[0]
+            self.assertGreater(bp_processed, 0, 
+                              "First progress callback should show bp_processed > 0 "
+                              "(fix for 'Processed: 0 / X bp' bug)")
+        
         # Calculate throughput
         throughput = len(seq) / elapsed
         print(f"\n15kb chunked scan: {elapsed:.2f}s, {throughput:,.0f} bp/s, {len(motifs)} motifs")
         print(f"  Progress callback calls: {len(progress_calls)}")
+        if progress_calls:
+            _, _, first_bp_processed = progress_calls[0]
+            print(f"  First callback bp_processed: {first_bp_processed:,}")
     
     def test_chunked_vs_non_chunked_consistency(self):
         """Test that chunked and non-chunked analysis produce similar motif counts."""
