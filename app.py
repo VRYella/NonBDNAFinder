@@ -362,8 +362,8 @@ st.markdown(f"""
         box-shadow: 0 6px 14px rgba(14,30,50,0.06) !important;
         padding: 10px !important;
         border-radius: 14px !important;
-        margin: 0 auto 1.25rem auto;
-        max-width: 1200px;
+        margin: 0 auto 1.25rem auto !important;
+        max-width: 1200px !important;
     }}
     
     /* Make each tab pill centered and remove heavy hover glow */
