@@ -238,7 +238,6 @@ if 'table_density' not in st.session_state:
 if 'color_theme' not in st.session_state:
     st.session_state.color_theme = 'scientific_blue'
 
-
 def hex_to_rgb(hex_color: str) -> tuple:
     """Convert hex color to RGB tuple for CSS rgba() usage."""
     hex_color = hex_color.lstrip('#')
@@ -303,8 +302,6 @@ rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
 
 # Generate SVG pattern based on theme
 dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
-
-
 
 st.markdown(f"""
     <style>
