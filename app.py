@@ -237,6 +237,18 @@ if 'table_density' not in st.session_state:
     st.session_state.table_density = 'relaxed'
 if 'color_theme' not in st.session_state:
     st.session_state.color_theme = 'scientific_blue'
+if 'tab_orientation' not in st.session_state:
+    st.session_state.tab_orientation = 'horizontal'
+
+# Colorful tab palette - vibrant colors for each navigation tab
+TAB_COLORS = {
+    'Home': {'bg': '#FF6B6B', 'hover': '#FF5252', 'text': '#FFFFFF', 'icon': '🏠'},
+    'Upload & Analyze': {'bg': '#4ECDC4', 'hover': '#26A69A', 'text': '#FFFFFF', 'icon': '📤'},
+    'Results': {'bg': '#45B7D1', 'hover': '#0288D1', 'text': '#FFFFFF', 'icon': '📊'},
+    'Download': {'bg': '#96CEB4', 'hover': '#66BB6A', 'text': '#FFFFFF', 'icon': '💾'},
+    'Disease Analysis': {'bg': '#FFEAA7', 'hover': '#FFD54F', 'text': '#333333', 'icon': '🧬'},
+    'Documentation': {'bg': '#DDA0DD', 'hover': '#BA68C8', 'text': '#FFFFFF', 'icon': '📚'}
+}
 
 def hex_to_rgb(hex_color: str) -> tuple:
     """Convert hex color to RGB tuple for CSS rgba() usage."""
@@ -303,6 +315,66 @@ rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
 # Generate SVG pattern based on theme
 dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
 
+# Check if vertical tabs are enabled
+is_vertical_tabs = st.session_state.tab_orientation == 'vertical'
+
+# ---------- SIDEBAR: Navigation Settings ----------
+with st.sidebar:
+    st.markdown("""
+    <div style='text-align: center; padding: 1rem 0; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 1rem;'>
+        <h2 style='margin: 0; color: #4ECDC4; font-size: 1.4rem;'>⚙️ Display Settings</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Tab Orientation Toggle
+    st.markdown("### 📐 Navigation Layout")
+    tab_orientation = st.radio(
+        "Tab Orientation",
+        options=["horizontal", "vertical"],
+        index=0 if st.session_state.tab_orientation == "horizontal" else 1,
+        key="tab_orientation_radio",
+        help="Switch between horizontal (top) and vertical (side) navigation tabs",
+        horizontal=True
+    )
+    
+    # Update session state if changed
+    if tab_orientation != st.session_state.tab_orientation:
+        st.session_state.tab_orientation = tab_orientation
+        st.rerun()
+    
+    st.markdown("---")
+    
+    # Color theme info
+    st.markdown("### 🎨 Tab Colors")
+    st.markdown("""
+    <div style='font-size: 0.9rem; line-height: 1.6;'>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #FF6B6B, #D94848); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Home</span>
+        </div>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #4ECDC4, #26A69A); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Upload & Analyze</span>
+        </div>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #45B7D1, #0288D1); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Results</span>
+        </div>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #96CEB4, #66BB6A); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Download</span>
+        </div>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #FFEAA7, #FFD54F); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Disease Analysis</span>
+        </div>
+        <div style='display: flex; align-items: center; margin: 4px 0;'>
+            <span style='display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #DDA0DD, #BA68C8); border-radius: 4px; margin-right: 8px;'></span>
+            <span>Documentation</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 st.markdown(f"""
     <style>
     /* Import Google Fonts for professional scientific typography */
@@ -354,69 +426,205 @@ st.markdown(f"""
     }}
     
     /* ============================================
-       TABS: Premium scientific design with LARGER FONTS and animations
+       COLORFUL ATTRACTIVE NAV TABS
+       Beautiful gradient tabs with distinct colors per section
+       Supports both horizontal and vertical orientations
        ============================================ */
+    
+    /* === {'VERTICAL' if is_vertical_tabs else 'HORIZONTAL'} TAB LAYOUT === */
+    
+    {f'''
+    /* VERTICAL TAB LAYOUT */
+    .stTabs {{
+        display: flex !important;
+        flex-direction: row !important;
+    }}
     .stTabs [data-baseweb="tab-list"] {{
-        width: 98vw !important;
-        justify-content: stretch !important;
-        border-bottom: 4px solid {current_theme['primary']};
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(90deg, #ffffff 0%, {current_theme['bg_card']} 50%, #f8fbff 100%)"} !important;
-        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
-        margin-bottom: 2em;
-        border-radius: 16px 16px 0 0;
-        animation: fade-in 0.5s ease-out;
-        min-height: 70px;
+        flex-direction: column !important;
+        width: 220px !important;
+        min-width: 220px !important;
+        max-width: 220px !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        border-bottom: none !important;
+        border-right: 4px solid {current_theme['primary']} !important;
+        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3) !important;
+        margin-bottom: 0 !important;
+        border-radius: 0 !important;
+        padding: 1rem 0 !important;
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        z-index: 999 !important;
+        gap: 8px !important;
+    }}
+    .stTabs [data-baseweb="tab-panel"] {{
+        margin-left: 235px !important;
+        padding: 2rem !important;
+        width: calc(100% - 235px) !important;
     }}
     .stTabs [data-baseweb="tab"] {{
-        font-size: 1.35rem !important;
-        font-weight: 700 !important;
-        flex: 1 1 0%;
-        min-width: 0 !important;
-        padding: 20px 16px !important;
-        text-align: center;
-        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
-        background: transparent !important;
-        border-right: 1px solid rgba({'255,255,255' if is_dark_mode else '0,0,0'},0.05) !important;
-        letter-spacing: 0.06em;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        text-transform: uppercase;
+        width: 100% !important;
+        min-width: 100% !important;
+        border-radius: 0 16px 16px 0 !important;
+        margin: 4px 0 !important;
+        padding: 18px 20px !important;
+        text-align: left !important;
+        border-right: none !important;
+        border-left: 5px solid transparent !important;
     }}
     .stTabs [data-baseweb="tab"]::after {{
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0%;
-        height: 5px;
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(-50%);
-        border-radius: 4px 4px 0 0;
+        content: none !important;
     }}
+    .stTabs [data-baseweb="tab"]::before {{
+        content: "" !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        height: 100% !important;
+        width: 5px !important;
+        background: transparent !important;
+        border-radius: 0 4px 4px 0 !important;
+        transition: all 0.3s ease !important;
+    }}
+    .stTabs [aria-selected="true"]::before {{
+        background: linear-gradient(180deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%) !important;
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.5) !important;
+    }}
+    ''' if is_vertical_tabs else f'''
+    /* HORIZONTAL TAB LAYOUT */
+    .stTabs [data-baseweb="tab-list"] {{
+        width: 100% !important;
+        justify-content: stretch !important;
+        border-bottom: none !important;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 4px 16px rgba({rgb["primary"][0]}, {rgb["primary"][1]}, {rgb["primary"][2]}, 0.2) !important;
+        margin-bottom: 2em !important;
+        border-radius: 20px !important;
+        animation: fade-in 0.5s ease-out !important;
+        min-height: 80px !important;
+        padding: 8px !important;
+        gap: 8px !important;
+    }}
+    '''}
+    
+    /* Individual tab styling with colorful gradients */
+    .stTabs [data-baseweb="tab"] {{
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        {'flex: none !important; width: auto !important;' if is_vertical_tabs else 'flex: 1 1 0% !important;'}
+        min-width: 0 !important;
+        padding: 16px 24px !important;
+        text-align: center !important;
+        color: #FFFFFF !important;
+        letter-spacing: 0.04em !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        position: relative !important;
+        text-transform: uppercase !important;
+        border-radius: 14px !important;
+        margin: 2px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%) !important;
+        border: 2px solid rgba(255,255,255,0.1) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        overflow: hidden !important;
+    }}
+    
+    /* Colorful tab backgrounds - nth-child selectors for each tab */
+    .stTabs [data-baseweb="tab"]:nth-child(1) {{
+        background: linear-gradient(145deg, #FF6B6B 0%, #EE5A5A 50%, #D94848 100%) !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(2) {{
+        background: linear-gradient(145deg, #4ECDC4 0%, #3DB9B0 50%, #26A69A 100%) !important;
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(3) {{
+        background: linear-gradient(145deg, #45B7D1 0%, #2CA5BF 50%, #0288D1 100%) !important;
+        box-shadow: 0 4px 15px rgba(69, 183, 209, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(4) {{
+        background: linear-gradient(145deg, #96CEB4 0%, #7FBF9F 50%, #66BB6A 100%) !important;
+        box-shadow: 0 4px 15px rgba(150, 206, 180, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(5) {{
+        background: linear-gradient(145deg, #FFEAA7 0%, #FFE082 50%, #FFD54F 100%) !important;
+        box-shadow: 0 4px 15px rgba(255, 234, 167, 0.4) !important;
+        color: #333333 !important;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(6) {{
+        background: linear-gradient(145deg, #DDA0DD 0%, #CE93D8 50%, #BA68C8 100%) !important;
+        box-shadow: 0 4px 15px rgba(221, 160, 221, 0.4) !important;
+    }}
+    
+    /* Tab hover effects - enhanced glow and scale */
     .stTabs [data-baseweb="tab"]:hover {{
-        background: {'linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%)' if is_dark_mode else f"linear-gradient(180deg, rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.05) 0%, rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) 100%)"} !important;
-        color: {current_theme['primary']} !important;
-        transform: translateY(-3px);
-        font-size: 1.4rem !important;
+        transform: translateY(-4px) scale(1.02) !important;
+        filter: brightness(1.15) !important;
+        z-index: 10 !important;
     }}
-    .stTabs [data-baseweb="tab"]:hover::after {{
-        width: 70%;
+    .stTabs [data-baseweb="tab"]:nth-child(1):hover {{
+        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6), 0 0 20px rgba(255, 107, 107, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(2):hover {{
+        box-shadow: 0 8px 30px rgba(78, 205, 196, 0.6), 0 0 20px rgba(78, 205, 196, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(3):hover {{
+        box-shadow: 0 8px 30px rgba(69, 183, 209, 0.6), 0 0 20px rgba(69, 183, 209, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(4):hover {{
+        box-shadow: 0 8px 30px rgba(150, 206, 180, 0.6), 0 0 20px rgba(150, 206, 180, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(5):hover {{
+        box-shadow: 0 8px 30px rgba(255, 234, 167, 0.6), 0 0 20px rgba(255, 234, 167, 0.4) !important;
+    }}
+    .stTabs [data-baseweb="tab"]:nth-child(6):hover {{
+        box-shadow: 0 8px 30px rgba(221, 160, 221, 0.6), 0 0 20px rgba(221, 160, 221, 0.4) !important;
+    }}
+    
+    /* Active/Selected tab styling */
+    .stTabs [aria-selected="true"] {{
+        transform: translateY(-4px) scale(1.05) !important;
+        filter: brightness(1.2) saturate(1.2) !important;
+        border: 3px solid rgba(255,255,255,0.5) !important;
+        font-weight: 800 !important;
+        z-index: 20 !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(1) {{
+        box-shadow: 0 10px 40px rgba(255, 107, 107, 0.7), 0 0 30px rgba(255, 107, 107, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(2) {{
+        box-shadow: 0 10px 40px rgba(78, 205, 196, 0.7), 0 0 30px rgba(78, 205, 196, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(3) {{
+        box-shadow: 0 10px 40px rgba(69, 183, 209, 0.7), 0 0 30px rgba(69, 183, 209, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(4) {{
+        box-shadow: 0 10px 40px rgba(150, 206, 180, 0.7), 0 0 30px rgba(150, 206, 180, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(5) {{
+        box-shadow: 0 10px 40px rgba(255, 234, 167, 0.7), 0 0 30px rgba(255, 234, 167, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    .stTabs [aria-selected="true"]:nth-child(6) {{
+        box-shadow: 0 10px 40px rgba(221, 160, 221, 0.7), 0 0 30px rgba(221, 160, 221, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    
+    /* Tab panel content area */
+    .stTabs [data-baseweb="tab-panel"] {{
+        padding-top: 2rem !important;
+        animation: fade-in 0.4s ease-out !important;
+    }}
+    
+    /* Pulse animation for active tab */
+    @keyframes tab-pulse {{
+        0%, 100% {{ filter: brightness(1.2) saturate(1.2); }}
+        50% {{ filter: brightness(1.3) saturate(1.3); }}
     }}
     .stTabs [aria-selected="true"] {{
-        color: {current_theme['primary']} !important;
-        background: {'linear-gradient(180deg, #334155 0%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(180deg, #ffffff 0%, {current_theme['bg_card']} 100%)"} !important;
-        box-shadow: 0 -6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.18), inset 0 -4px 0 0 {current_theme['primary']};
-        font-weight: 800 !important;
-        transform: translateY(-3px);
-        font-size: 1.45rem !important;
-    }}
-    .stTabs [aria-selected="true"]::after {{
-        width: 100%;
-        height: 6px;
-    }}
-    .stTabs [data-baseweb="tab"]:last-child {{
-        border-right: none !important;
+        animation: tab-pulse 2s ease-in-out infinite !important;
     }}
     
     /* ============================================
@@ -1163,11 +1371,16 @@ st.markdown(f"""
     
     /* ============================================
        RESPONSIVE DESIGN FOR TABLETS & LAPTOPS
+       Updated for colorful nav tabs
        ============================================ */
     @media screen and (max-width: 1200px) {{
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.95rem !important;
-            padding: 12px 8px !important;
+            font-size: 0.9rem !important;
+            padding: 12px 16px !important;
+        }}
+        .stTabs [data-baseweb="tab-list"] {{
+            border-radius: 16px !important;
+            gap: 6px !important;
         }}
         h1 {{ font-size: 2rem !important; }}
         h2 {{ font-size: 1.5rem !important; }}
@@ -1180,9 +1393,17 @@ st.markdown(f"""
     }}
     
     @media screen and (max-width: 768px) {{
+        .stTabs [data-baseweb="tab-list"] {{
+            flex-wrap: wrap !important;
+            border-radius: 12px !important;
+            gap: 4px !important;
+            padding: 6px !important;
+        }}
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.85rem !important;
-            padding: 10px 6px !important;
+            font-size: 0.75rem !important;
+            padding: 10px 12px !important;
+            flex: 1 1 45% !important;
+            min-width: 45% !important;
         }}
         h1 {{ font-size: 1.6rem !important; }}
         h2 {{ font-size: 1.3rem !important; }}
