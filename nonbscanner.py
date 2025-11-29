@@ -576,10 +576,6 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     
     # Process each chunk
     for i, chunk in enumerate(chunks):
-        # Report progress
-        if progress_callback:
-            progress_callback(i + 1, total_chunks, bp_processed)
-        
         # Analyze the chunk
         chunk_seq = chunk['seq']
         offset = chunk['start']
@@ -610,8 +606,12 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
             warnings.warn(f"Error processing chunk {i} of {sequence_name}: {e}")
             continue
         
-        # Update progress
+        # Update progress after processing chunk
         bp_processed += len(chunk_seq)
+        
+        # Report progress after chunk is processed (so bp_processed reflects actual work done)
+        if progress_callback:
+            progress_callback(i + 1, total_chunks, bp_processed)
     
     # Merge and deduplicate motifs from overlapping chunks
     merged_motifs = _merge_chunk_motifs(all_motifs, chunk_info)
