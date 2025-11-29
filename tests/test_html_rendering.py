@@ -187,13 +187,13 @@ class TestSequenceNameEscaping(unittest.TestCase):
         
         for name in test_names:
             escaped_name = html.escape(name)
-            # Verify no unescaped HTML special characters
+            # Verify that escaped versions contain proper HTML entity escapes
             if '>' in name:
-                self.assertNotIn('>', escaped_name.replace('&gt;', ''))
+                self.assertIn('&gt;', escaped_name)
             if '<' in name:
-                self.assertNotIn('<', escaped_name.replace('&lt;', ''))
-            if '&' in name and '&' not in html.escape(name).replace('&amp;', '').replace('&lt;', '').replace('&gt;', ''):
-                pass  # ampersand is properly escaped
+                self.assertIn('&lt;', escaped_name)
+            if '&' in name:
+                self.assertIn('&amp;', escaped_name)
         
         # Test specific escape sequences are present
         self.assertIn('&gt;', html.escape("test > value"))
