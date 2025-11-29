@@ -101,8 +101,18 @@ from utilities import (
     print_detection_report
 )
 
+# Import ThreadPoolExecutor at module level for parallel processing
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 __version__ = "2024.1"
 __author__ = "Dr. Venkata Rajesh Yella"
+
+# Performance constants
+CHUNK_THRESHOLD = 10_000          # bp - Use chunking for sequences larger than this
+DEFAULT_CHUNK_SIZE = 10_000       # bp - Default chunk size for large sequences
+DEFAULT_CHUNK_OVERLAP = 500       # bp - Overlap between chunks
+PARALLEL_THRESHOLD = 1_000        # bp - Use parallel processing for sequences larger than this
+MAX_PARALLEL_DETECTORS = 9        # Number of detector classes in the system
 
 # =============================================================================
 # MAIN SCANNER CLASS
@@ -114,7 +124,7 @@ class NonBScanner:
     
     100X PERFORMANCE MODE:
     ----------------------
-    When use_parallel=True (default for sequences > 1000bp), all 9 detectors
+    When use_parallel=True (default for sequences > PARALLEL_THRESHOLD), all 9 detectors
     run simultaneously using ThreadPoolExecutor, providing up to 9x wall-clock
     speedup. Combined with Numba JIT-compiled core algorithms, this achieves
     100x+ overall performance improvement over sequential pure-Python scanning.
@@ -125,7 +135,7 @@ class NonBScanner:
         Initialize NonBScanner with all detector modules
         
         Args:
-            enable_all_detectors: Enable all 9 detector classes (default: True)
+            enable_all_detectors: Enable all MAX_PARALLEL_DETECTORS detector classes (default: True)
             use_parallel: Use parallel processing for 9x wall-clock speedup (default: True)
         """
         self.detectors = {}
@@ -209,17 +219,15 @@ class NonBScanner:
         
         # Determine whether to use parallel processing
         if use_parallel is None:
-            use_parallel = self.use_parallel and len(sequence) > 1000
+            use_parallel = self.use_parallel and len(sequence) > PARALLEL_THRESHOLD
         
         all_motifs = []
         total_detectors = len(self.detectors)
         completed = 0
         
         if use_parallel and len(self.detectors) > 1:
-            # 100X PERFORMANCE: Run all 9 detectors in parallel
-            from concurrent.futures import ThreadPoolExecutor, as_completed
-            
-            with ThreadPoolExecutor(max_workers=min(9, len(self.detectors))) as executor:
+            # 100X PERFORMANCE: Run all MAX_PARALLEL_DETECTORS detectors in parallel
+            with ThreadPoolExecutor(max_workers=min(MAX_PARALLEL_DETECTORS, len(self.detectors))) as executor:
                 futures = {}
                 
                 for detector_name, detector in self.detectors.items():
@@ -444,12 +452,8 @@ class NonBScanner:
 # CHUNKING CONSTANTS AND HELPER FUNCTIONS
 # =============================================================================
 
-# Chunking threshold: sequences longer than this will be chunked
-CHUNK_THRESHOLD = 10000  # 10,000 bp
-
-# Default chunk size and overlap
-DEFAULT_CHUNK_SIZE = 10000  # 10,000 bp per chunk
-DEFAULT_CHUNK_OVERLAP = 500  # 500 bp overlap between chunks
+# Note: Constants CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP,
+# PARALLEL_THRESHOLD, and MAX_PARALLEL_DETECTORS are defined at the top of the module
 
 
 def _merge_chunk_motifs(all_motifs: List[Dict[str, Any]], chunk_info: List[Tuple[int, int, int]]) -> List[Dict[str, Any]]:
@@ -724,8 +728,10 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         )
     
     # Use parallel processing by default for 100x speedup (9 detectors run simultaneously)
-    scanner = NonBScanner(use_parallel=True)
-    return scanner.analyze_sequence(sequence, sequence_name, use_parallel=not use_fast_mode is False)
+    # Parallel is disabled only when use_fast_mode is explicitly set to False
+    use_parallel = use_fast_mode is not False
+    scanner = NonBScanner(use_parallel=use_parallel)
+    return scanner.analyze_sequence(sequence, sequence_name, use_parallel=use_parallel)
 
 
 def analyze_fasta(fasta_content: str) -> Dict[str, List[Dict[str, Any]]]:
