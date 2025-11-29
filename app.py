@@ -3259,11 +3259,19 @@ with tab_pages["Disease Analysis"]:
             col1, col2, col3 = st.columns(3)
             cols = [col1, col2, col3]
             
+            # Risk level thresholds for disease association assessment
+            DISEASE_RISK_HIGH_THRESHOLD = 5  # More than 5 motifs = High Risk
+            DISEASE_TEXT_TRUNCATE_LENGTH = 50  # Max characters for disease text display
+            
             for idx, (cls, info) in enumerate(disease_info.items()):
                 with cols[idx % 3]:
                     count = disease_counts.get(cls, 0)
-                    risk_level = "High" if count > 5 else "Moderate" if count > 0 else "Low"
+                    risk_level = "High" if count > DISEASE_RISK_HIGH_THRESHOLD else "Moderate" if count > 0 else "Low"
                     risk_color = "#f44336" if risk_level == "High" else "#ff9800" if risk_level == "Moderate" else "#4caf50"
+                    
+                    # Truncate disease text for display
+                    disease_text = info["diseases"][:DISEASE_TEXT_TRUNCATE_LENGTH]
+                    disease_ellipsis = '...' if len(info["diseases"]) > DISEASE_TEXT_TRUNCATE_LENGTH else ''
                     
                     st.markdown(f"""
                     <div style='background: {info["gradient"]}; border-radius: 16px; padding: 1.5rem;
@@ -3282,7 +3290,7 @@ with tab_pages["Disease Analysis"]:
                                   font-weight: 500;'>motifs</span></p>
                         <p style='color: rgba(255,255,255,0.85); font-size: 0.8rem; margin: 0.5rem 0 0 0;
                                   line-height: 1.4;'>
-                            <strong>Associated:</strong> {info["diseases"][:50]}{'...' if len(info["diseases"]) > 50 else ''}
+                            <strong>Associated:</strong> {disease_text}{disease_ellipsis}
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
