@@ -1723,21 +1723,67 @@ with tab_pages["Upload & Analyze"]:
 
     # ----- RIGHT COLUMN: Analysis Controls + Run Button + Summary Table -----
     with col_right:
-        st.markdown("### 🚀 Analysis & Run")
+        # Elegant Analysis Control Panel
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;
+                    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                    position: relative; overflow: hidden;'>
+            <div style='position: absolute; top: -30px; right: -30px; width: 120px; height: 120px;
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%;'></div>
+            <div style='position: relative; z-index: 1;'>
+                <h2 style='margin: 0 0 0.5rem 0; color: white; font-size: 1.6rem; font-weight: 800;
+                           display: flex; align-items: center; gap: 0.5rem;'>
+                    🚀 Analysis & Run
+                </h2>
+                <p style='color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 0;'>
+                    Configure and execute Non-B DNA motif detection
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Analysis controls simplified
-        st.markdown("### ⚙️ Analysis Options")
+        # Analysis Options Card
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+                    border: 1px solid rgba(0,0,0,0.08);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
+            <h4 style='margin: 0 0 1rem 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
+                <span style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                             font-size: 1.2rem;'>⚙️</span>
+                Analysis Configuration
+            </h4>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Enable all classes by default in consolidated system
-        st.info("🔬 **NBDScanner detects all 11 motif classes with 22+ subclasses automatically**")
+        # Detection info with elegant badge
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+                    border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+                    border-left: 4px solid #00bcd4;
+                    display: flex; align-items: center; gap: 0.75rem;'>
+            <span style='font-size: 1.5rem;'>🔬</span>
+            <div>
+                <p style='margin: 0; color: #006064; font-weight: 700; font-size: 0.95rem;'>
+                    Comprehensive Detection Enabled
+                </p>
+                <p style='margin: 0.2rem 0 0 0; color: #00838f; font-size: 0.85rem;'>
+                    11 motif classes • 22+ subclasses • Parallel processing
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Simple options
+        # Simple options with modern toggle-like appearance
         col1, col2 = st.columns(2)
         with col1:
-            detailed_output = st.checkbox("Detailed Analysis", value=True, 
+            detailed_output = st.checkbox("📊 Detailed Analysis", value=True, 
                                         help="Include comprehensive motif metadata")
         with col2:
-            quality_check = st.checkbox("Quality Validation", value=True, 
+            quality_check = st.checkbox("✓ Quality Validation", value=True, 
                                       help="Validate detected motifs")
         
         # Chunking and parallel programming are now enabled by default
@@ -1751,66 +1797,76 @@ with tab_pages["Upload & Analyze"]:
         overlap_option = "Remove overlaps within subclasses"
         
         
-        # ========== COMBINED RUN ANALYSIS BUTTON + PROGRESS + STATS BLOCK ==========
+        # ========== MODERN NBDSCANNER ANALYSIS STYLES ==========
         st.markdown("""
         <style>
         .nbdscanner-analysis-block {
-            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.35);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 15px 50px rgba(15, 52, 96, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .nbdscanner-analysis-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
+            background-size: 300% 100%;
+            animation: gradient-flow 4s ease infinite;
+        }
+        @keyframes gradient-flow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         .nbdscanner-title {
             font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
             letter-spacing: 0.02em;
         }
         .progress-container {
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
-            padding: 1.25rem;
-            margin: 1.25rem 0;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
         }
         .progress-bar-outer {
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 100%);
-            border-radius: 12px;
-            height: 28px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            height: 24px;
             overflow: hidden;
-            margin: 0.75rem 0;
-            box-shadow: 
-                inset 0 4px 8px rgba(0, 0, 0, 0.3),
-                0 2px 4px rgba(255, 255, 255, 0.05);
+            margin: 1rem 0;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
             position: relative;
         }
         .progress-bar-inner {
             height: 100%;
             background: linear-gradient(90deg, 
-                #0d47a1 0%, 
-                #1976d2 20%,
-                #42a5f5 40%, 
-                #4CAF50 60%, 
-                #8BC34A 80%, 
-                #CDDC39 100%);
-            background-size: 200% 100%;
-            border-radius: 12px;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 0 20px rgba(76, 175, 80, 0.6),
-                0 0 40px rgba(139, 195, 74, 0.3),
-                inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            animation: progress-gradient-flow 3s linear infinite;
+                #667eea 0%, #764ba2 25%, #f64f59 50%, #c471ed 75%, #12c2e9 100%);
+            background-size: 300% 100%;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            animation: shimmer-gradient 3s linear infinite;
             position: relative;
+        }
+        @keyframes shimmer-gradient {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         .progress-bar-inner::after {
             content: '';
@@ -1819,103 +1875,78 @@ with tab_pages["Upload & Analyze"]:
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.4) 50%,
-                transparent 100%
-            );
-            animation: progress-shine-sweep 2s ease-in-out infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine-sweep 2s ease-in-out infinite;
         }
-        @keyframes progress-gradient-flow {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 200% 0%; }
-        }
-        @keyframes progress-shine-sweep {
-            0% { transform: translateX(-150%); }
-            100% { transform: translateX(150%); }
+        @keyframes shine-sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            margin-top: 1.25rem;
+            margin-top: 1.5rem;
         }
         .stat-item {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-            border-radius: 14px;
-            padding: 1rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 16px;
+            padding: 1.2rem;
             text-align: center;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         .stat-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-3px);
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
         }
         .stat-value {
-            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            font-size: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA000 50%, #FFD700 100%);
+            background: linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
             margin: 0;
-            text-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
         }
         .stat-label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0.3rem 0 0 0;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0.4rem 0 0 0;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
         }
         .step-indicator {
-            background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.08) 100%);
-            border-left: 5px solid #FFD700;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, transparent 100%);
+            border-left: 4px solid;
+            border-image: linear-gradient(180deg, #667eea, #764ba2) 1;
             border-radius: 0 12px 12px 0;
-            padding: 0.8rem 1.25rem;
+            padding: 1rem 1.5rem;
             margin: 1rem 0;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
-            animation: pulse-border 2s ease-in-out infinite;
-        }
-        @keyframes pulse-border {
-            0%, 100% { border-left-color: #FFD700; }
-            50% { border-left-color: #FFA000; }
         }
         .step-text {
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            color: #ffffff;
+            color: rgba(255, 255, 255, 0.95);
             font-size: 1rem;
             letter-spacing: 0.02em;
         }
         .completed-badge {
-            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #4caf50 100%);
-            border-radius: 14px;
-            padding: 1rem 1.75rem;
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            border-radius: 16px;
+            padding: 1.2rem 2rem;
             text-align: center;
-            margin-top: 1.25rem;
-            box-shadow: 
-                0 6px 24px rgba(76, 175, 80, 0.5),
-                0 0 40px rgba(76, 175, 80, 0.2);
-            animation: completed-glow 2s ease-in-out infinite;
-        }
-        @keyframes completed-glow {
-            0%, 100% { box-shadow: 0 6px 24px rgba(76, 175, 80, 0.5), 0 0 40px rgba(76, 175, 80, 0.2); }
-            50% { box-shadow: 0 8px 32px rgba(76, 175, 80, 0.7), 0 0 60px rgba(76, 175, 80, 0.4); }
+            margin-top: 1.5rem;
+            box-shadow: 0 8px 30px rgba(0, 176, 155, 0.35);
         }
         .completed-text {
             font-family: 'Inter', sans-serif;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
         </style>
         """, unsafe_allow_html=True)
@@ -2319,8 +2350,18 @@ with tab_pages["Upload & Analyze"]:
 
         # Show quick summary table if available
         if st.session_state.get('summary_df') is not None:
-            st.markdown("#### Analysis Summary")
-            st.dataframe(st.session_state.summary_df)
+            st.markdown("""
+            <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                        border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem;
+                        border: 1px solid rgba(0,0,0,0.08);
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
+                <h4 style='margin: 0 0 1rem 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
+                    <span style='font-size: 1.2rem;'>📊</span>
+                    Analysis Summary
+                </h4>
+            </div>
+            """, unsafe_allow_html=True)
+            st.dataframe(st.session_state.summary_df, use_container_width=True)
     # End of Upload & Analyze tab
     st.markdown("---")
 # ---------- RESULTS ----------
@@ -2329,45 +2370,94 @@ with tab_pages["Results"]:
     if not st.session_state.results:
         st.info("No analysis results. Please run motif analysis first.")
     else:
-        # Performance metrics display if available
+        # Performance metrics display if available - modern glassmorphism design
         if st.session_state.get('performance_metrics'):
             metrics = st.session_state.performance_metrics
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); 
-                        border-radius: 12px; padding: 1.5rem; color: white; margin-bottom: 2rem;
-                        box-shadow: 0 4px 16px rgba(13, 71, 161, 0.25);'>
-                <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⚡ Performance Metrics</h3>
-                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_time']:.2f}s</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Processing Time</p>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                        border-radius: 20px; padding: 2rem; margin-bottom: 2rem;
+                        box-shadow: 0 15px 50px rgba(15, 52, 96, 0.35);
+                        position: relative; overflow: hidden;'>
+                <div style='position: absolute; top: 0; left: 0; right: 0; height: 3px;
+                            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
+                            background-size: 300% 100%;'></div>
+                <h3 style='margin: 0 0 1.5rem 0; text-align: center;
+                           background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+                           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                           font-size: 1.4rem; font-weight: 800;'>
+                    ⚡ NBDScanner Performance Metrics
+                </h3>
+                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #12c2e9 0%, #c471ed 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics['total_time']:.2f}s</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>Processing Time</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_bp']:,}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Base Pairs</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics['total_bp']:,}</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>Base Pairs</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['speed']:,.0f}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>bp/second</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #f64f59 0%, #c471ed 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics['speed']:,.0f}</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>bp/second</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics.get('detector_count', 9)}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics.get('detector_count', 9)}</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>Detectors</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['sequences']}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Sequences</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics['sequences']}</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>Sequences</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_motifs']}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Total Motifs</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
+                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            {metrics['total_motifs']}</p>
+                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
+                                  text-transform: uppercase; letter-spacing: 0.1em;'>Total Motifs</p>
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
         
-        # Enhanced summary display
-        st.markdown("### 📊 Analysis Summary")
+        # Enhanced summary display with modern styling
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+                    border: 1px solid rgba(0,0,0,0.08);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
+            <h3 style='margin: 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
+                <span style='font-size: 1.3rem;'>📊</span>
+                Analysis Summary
+            </h3>
+        </div>
+        """, unsafe_allow_html=True)
         st.dataframe(st.session_state.summary_df, use_container_width=True)
         
         # Sequence selection for detailed analysis using pills for better UX
@@ -2406,50 +2496,76 @@ with tab_pages["Results"]:
             coverage_pct = stats.get("Motif Coverage %", 0)
             non_b_density = (motif_count / sequence_length * 1000) if sequence_length > 0 else 0
             
-            # Enhanced summary card with modern research-quality styling
+            # Enhanced summary card with modern glassmorphism styling
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); 
-                        border-radius: 16px; padding: 2rem; margin: 1.5rem 0; color: white;
-                        box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);'>
-                <h3 style='margin: 0 0 1.5rem 0; color: white; text-align: center; font-size: 1.5rem; font-weight: 700;'>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                        border-radius: 24px; padding: 2.5rem; margin: 1.5rem 0;
+                        box-shadow: 0 20px 60px rgba(15, 52, 96, 0.4);
+                        position: relative; overflow: hidden;'>
+                <div style='position: absolute; top: 0; left: 0; right: 0; height: 4px;
+                            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
+                            background-size: 300% 100%;'></div>
+                <div style='position: absolute; top: -100px; right: -100px; width: 300px; height: 300px;
+                            background: radial-gradient(circle, rgba(102,126,234,0.15) 0%, transparent 70%);
+                            border-radius: 50%;'></div>
+                <h3 style='margin: 0 0 2rem 0; text-align: center; font-size: 1.6rem; font-weight: 800;
+                           background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+                           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                           position: relative; z-index: 1;'>
                     🧬 NBDScanner Analysis Results
                 </h3>
                 <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-                            gap: 1.5rem; margin-top: 1rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                            gap: 1.5rem; position: relative; z-index: 1;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+                                transition: all 0.3s ease;'>
+                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #12c2e9 0%, #c471ed 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
                             {stats.get("Coverage%", 0):.2f}%
-                        </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        </p>
+                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
+                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
                             Sequence Coverage
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+                                transition: all 0.3s ease;'>
+                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
                             {stats.get("Density", 0):.2f}
-                        </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
-                            Motif Density<br>(motifs/kb)
+                        </p>
+                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
+                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
+                            Motif Density<br><span style='font-size: 0.7rem;'>(motifs/kb)</span>
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+                                transition: all 0.3s ease;'>
+                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #f64f59 0%, #c471ed 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
                             {motif_count}
-                        </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        </p>
+                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
+                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
                             Total Motifs
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
+                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+                                transition: all 0.3s ease;'>
+                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
+                                  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
                             {sequence_length:,}
-                        </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
-                            Sequence Length (bp)
+                        </p>
+                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
+                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
+                            Sequence Length<br><span style='font-size: 0.7rem;'>(bp)</span>
                         </p>
                     </div>
                 </div>
@@ -3026,412 +3142,218 @@ with tab_pages["Download"]:
 
 # ---------- DISEASE ANALYSIS ----------
 with tab_pages["Disease Analysis"]:
-    st.header("🧬 Disease-Associated Non-B DNA Analysis")
+    st.header("🧬 Sequence Analysis - Disease Risk Assessment")
     
-    st.markdown("""
-    <div style='background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
-                border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
-                border-left: 5px solid #ff9800; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);'>
-        <h3 style='margin-top: 0; color: #e65100;'>🔬 Understanding Non-B DNA in Human Disease</h3>
-        <p style='color: #bf360c; font-size: 1.05rem; line-height: 1.8;'>
-            Non-B DNA structures play crucial roles in <b>genetic instability</b>, <b>gene regulation</b>, 
-            and <b>disease pathogenesis</b>. These alternative DNA conformations are associated with 
-            cancer, neurological disorders, and repeat expansion diseases.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Disease categories
-    disease_tabs = st.tabs(["📊 Overview", "🧠 Neurological Disorders", "🎗️ Cancer", "🔬 Repeat Expansion", "📚 References"])
-    
-    with disease_tabs[0]:  # Overview
-        st.subheader("Non-B DNA Structures and Disease Mechanisms")
+    # Show input data analysis if available
+    if st.session_state.results:
+        # Collect all motifs from input data
+        input_motifs = []
+        for i, motifs in enumerate(st.session_state.results):
+            for m in motifs:
+                m_copy = m.copy()
+                m_copy['Sequence_Name'] = st.session_state.names[i]
+                input_motifs.append(m_copy)
         
-        # Show input data analysis if available
-        if st.session_state.results:
-            st.markdown("### 📊 Your Sequence Analysis - Disease Risk Assessment")
+        if input_motifs:
+            # Count disease-relevant motifs
+            disease_classes = ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA', 'R-Loop']
+            disease_counts = {cls: 0 for cls in disease_classes}
+            for m in input_motifs:
+                cls = m.get('Class', 'Unknown')
+                if cls in disease_counts:
+                    disease_counts[cls] += 1
             
-            # Collect all motifs from input data
-            input_motifs = []
-            for i, motifs in enumerate(st.session_state.results):
-                for m in motifs:
-                    m_copy = m.copy()
-                    m_copy['Sequence_Name'] = st.session_state.names[i]
-                    input_motifs.append(m_copy)
+            total_disease_relevant = sum(disease_counts.values())
+            total_motifs = len(input_motifs)
             
-            if input_motifs:
-                # Count disease-relevant motifs
-                disease_classes = ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA', 'R-Loop']
-                disease_counts = {cls: 0 for cls in disease_classes}
-                for m in input_motifs:
-                    cls = m.get('Class', 'Unknown')
-                    if cls in disease_counts:
-                        disease_counts[cls] += 1
-                
-                total_disease_relevant = sum(disease_counts.values())
-                
-                st.markdown(f"""
-                <div style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-                            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                            border-left: 4px solid #4caf50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);'>
-                    <h4 style='margin-top: 0; color: #2e7d32;'>🧬 Your Sequence Contains {total_disease_relevant} Disease-Relevant Non-B DNA Motifs</h4>
-                    <p style='color: #1b5e20; margin-bottom: 0;'>
-                        These motifs are associated with genetic instability, repeat expansion disorders, and cancer.
+            # Modern header card with disease summary
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%); 
+                        border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;
+                        box-shadow: 0 12px 40px rgba(26, 35, 126, 0.35);
+                        position: relative; overflow: hidden;'>
+                <div style='position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; 
+                            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                            border-radius: 50%;'></div>
+                <div style='position: relative; z-index: 1;'>
+                    <h2 style='margin: 0 0 0.5rem 0; color: #ffffff; font-size: 1.8rem; font-weight: 800;
+                               text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
+                        🧬 Disease Risk Assessment Report
+                    </h2>
+                    <p style='color: rgba(255,255,255,0.85); font-size: 1.1rem; margin-bottom: 1.5rem;'>
+                        Comprehensive analysis of disease-associated Non-B DNA structures in your sequences
                     </p>
+                    <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;'>
+                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+                                    border-radius: 12px; padding: 1.2rem; text-align: center;
+                                    border: 1px solid rgba(255,255,255,0.2);'>
+                            <p style='color: #ffd54f; font-size: 2.2rem; font-weight: 800; margin: 0;
+                                      text-shadow: 0 0 20px rgba(255,213,79,0.5);'>{total_disease_relevant}</p>
+                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
+                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
+                                Disease-Relevant Motifs</p>
+                        </div>
+                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+                                    border-radius: 12px; padding: 1.2rem; text-align: center;
+                                    border: 1px solid rgba(255,255,255,0.2);'>
+                            <p style='color: #81d4fa; font-size: 2.2rem; font-weight: 800; margin: 0;'>{total_motifs}</p>
+                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
+                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
+                                Total Motifs Analyzed</p>
+                        </div>
+                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+                                    border-radius: 12px; padding: 1.2rem; text-align: center;
+                                    border: 1px solid rgba(255,255,255,0.2);'>
+                            <p style='color: #a5d6a7; font-size: 2.2rem; font-weight: 800; margin: 0;'>
+                                {len(st.session_state.seqs)}</p>
+                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
+                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
+                                Sequences Scanned</p>
+                        </div>
+                    </div>
                 </div>
-                """, unsafe_allow_html=True)
-                
-                # Display summary metrics
-                col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-                with col_m1:
-                    st.metric("G-Quadruplex", disease_counts.get('G-Quadruplex', 0), 
-                             help="Associated with Fragile X, ALS/FTD, Cancer")
-                with col_m2:
-                    st.metric("Slipped DNA", disease_counts.get('Slipped_DNA', 0),
-                             help="Associated with Huntington's, Myotonic Dystrophy")
-                with col_m3:
-                    st.metric("Cruciform", disease_counts.get('Cruciform', 0),
-                             help="Associated with chromosomal translocations")
-                with col_m4:
-                    st.metric("Triplex/Z-DNA", disease_counts.get('Triplex', 0) + disease_counts.get('Z-DNA', 0),
-                             help="Associated with Friedreich's Ataxia, autoimmune disorders")
-                
-                st.markdown("---")
-        else:
-            st.info("💡 **Tip**: Upload and analyze sequences in the 'Analysis' tab to see disease-relevant motifs from your data.")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Disease-relevant motif breakdown with elegant cards
             st.markdown("""
-            ### Key Disease Associations
+            <h3 style='color: #1a237e; margin: 2rem 0 1.5rem 0; font-weight: 700;'>
+                🔬 Disease-Associated Motif Breakdown
+            </h3>
+            """, unsafe_allow_html=True)
             
-            Non-B DNA structures are intimately linked to human diseases through several mechanisms:
+            # Create 3x2 grid for disease motif cards
+            disease_info = {
+                'G-Quadruplex': {
+                    'icon': '🧬', 'color': '#e91e63', 'gradient': 'linear-gradient(135deg, #e91e63 0%, #c2185b 100%)',
+                    'diseases': 'Fragile X Syndrome, ALS/FTD, Multiple Cancers',
+                    'mechanism': 'Transcription blockage, replication stalling'
+                },
+                'Slipped_DNA': {
+                    'icon': '🔄', 'color': '#9c27b0', 'gradient': 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
+                    'diseases': "Huntington's Disease, Myotonic Dystrophy",
+                    'mechanism': 'Repeat expansion, trinucleotide instability'
+                },
+                'Cruciform': {
+                    'icon': '✚', 'color': '#673ab7', 'gradient': 'linear-gradient(135deg, #673ab7 0%, #512da8 100%)',
+                    'diseases': 'Chromosomal Translocations, Lymphomas',
+                    'mechanism': 'Double-strand breaks, aberrant recombination'
+                },
+                'Triplex': {
+                    'icon': '🔺', 'color': '#3f51b5', 'gradient': 'linear-gradient(135deg, #3f51b5 0%, #303f9f 100%)',
+                    'diseases': "Friedreich's Ataxia, Werner Syndrome",
+                    'mechanism': 'Transcription inhibition, replication blocks'
+                },
+                'Z-DNA': {
+                    'icon': '⚡', 'color': '#2196f3', 'gradient': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
+                    'diseases': 'Autoimmune Disorders, Systemic Lupus',
+                    'mechanism': 'Immune activation, gene regulation'
+                },
+                'R-Loop': {
+                    'icon': '🔗', 'color': '#00bcd4', 'gradient': 'linear-gradient(135deg, #00bcd4 0%, #0097a7 100%)',
+                    'diseases': 'Neurodegeneration, Genome Instability',
+                    'mechanism': 'Replication-transcription conflicts'
+                }
+            }
             
-            1. **Genetic Instability** - Alternative structures impede DNA replication and trigger error-prone repair
-            2. **Repeat Expansions** - G-rich sequences form G-quadruplexes leading to repeat instability
-            3. **Transcriptional Regulation** - Z-DNA and G4s affect gene expression in disease contexts
-            4. **Epigenetic Changes** - Non-B structures influence chromatin architecture and DNA methylation
+            col1, col2, col3 = st.columns(3)
+            cols = [col1, col2, col3]
             
-            ### Therapeutic Implications
+            # Risk level thresholds for disease association assessment
+            DISEASE_RISK_HIGH_THRESHOLD = 5  # More than 5 motifs = High Risk
+            DISEASE_TEXT_TRUNCATE_LENGTH = 50  # Max characters for disease text display
             
-            These structures represent potential **therapeutic targets** for:
-            - **Cancer**: G4-stabilizing ligands can inhibit oncogene expression
-            - **Viral Infections**: Targeting viral G-quadruplexes for antiviral therapy
-            - **Neurodegeneration**: Modulating repeat expansion structures
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### Disease-Structure Correlation
-            
-            | Non-B DNA Type | Associated Diseases |
-            |----------------|---------------------|
-            | **G-Quadruplex** | Fragile X, ALS/FTD, Cancer |
-            | **Cruciform** | Chromosomal translocations |
-            | **Z-DNA** | Autoimmune disorders, Cancer |
-            | **Triplex** | Friedreich's Ataxia |
-            | **Slipped DNA** | Huntington's, Myotonic Dystrophy |
-            | **R-Loop** | Genome instability, Neurodegeneration |
-            
-            ### Key References
-            
-            - Zhao et al. (2010) *Cell. Mol. Life Sci.* - Genetic instability
-            - Sinden (1994) *DNA Structure and Function* - Foundational work
-            - Bacolla & Wells (2009) *Mol. Carcinog.* - Cancer associations
-            """)
-    
-    with disease_tabs[1]:  # Neurological Disorders
-        st.subheader("🧠 Neurological Disorders and Non-B DNA")
-        
-        st.markdown("""
-        <div style='background: #e8f5e9; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #4caf50;'>
-            <h4 style='color: #2e7d32; margin-top: 0;'>Repeat Expansion Neurological Diseases</h4>
-            <p style='color: #1b5e20;'>
-                Many neurological disorders are caused by <b>nucleotide repeat expansions</b> that form 
-                non-B DNA structures. These structures interfere with replication, transcription, and 
-                translation, leading to neurodegeneration.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Create a detailed disease table
-        neuro_diseases = pd.DataFrame({
-            'Disease': [
-                'Fragile X Syndrome (FXS)',
-                'Huntington\'s Disease (HD)',
-                'Myotonic Dystrophy Type 1 (DM1)',
-                'Friedreich\'s Ataxia (FRDA)',
-                'Spinocerebellar Ataxias (SCA)',
-                'ALS/FTD (C9orf72)',
-                'X-linked Dystonia Parkinsonism'
-            ],
-            'Gene': ['FMR1', 'HTT', 'DMPK', 'FXN', 'Various', 'C9orf72', 'TAF1'],
-            'Repeat': ['CGG', 'CAG', 'CTG', 'GAA', 'CAG/CTG', 'GGGGCC', 'SVA insertion'],
-            'Non-B Structure': [
-                'G-Quadruplex, Hairpin',
-                'Hairpin, Slipped DNA',
-                'Hairpin, Slipped DNA',
-                'Triplex (H-DNA)',
-                'Hairpin, Slipped DNA',
-                'G-Quadruplex, R-loop',
-                'G-Quadruplex'
-            ],
-            'Pathogenic Threshold': [
-                '>200 repeats',
-                '>36 repeats',
-                '>50 repeats',
-                '>66 repeats',
-                'Varies by SCA type',
-                '>30 repeats',
-                'SVA expansion'
-            ],
-            'Mechanism': [
-                'Gene silencing via methylation',
-                'Toxic polyglutamine protein',
-                'RNA toxicity, splicing defects',
-                'Transcription blockage',
-                'Protein aggregation',
-                'RNA foci, dipeptide repeats',
-                'Aberrant gene expression'
-            ]
-        })
-        
-        st.dataframe(neuro_diseases, use_container_width=True, height=300)
-        
-        st.markdown("""
-        ### Key Molecular Mechanisms
-        
-        1. **G-Quadruplex Formation in FXS**: CGG repeats in FMR1 form stable G4 structures, 
-           leading to gene silencing through DNA methylation and heterochromatin formation.
-           
-        2. **RNA Toxicity in ALS/FTD**: GGGGCC repeats in C9orf72 form G-quadruplexes in both 
-           DNA and RNA, creating toxic RNA foci that sequester RNA-binding proteins.
-           
-        3. **Triplex Formation in FRDA**: GAA repeats form intramolecular triplex (H-DNA) 
-           structures that block transcription elongation.
-        
-        ### Clinical Relevance
-        
-        - **Diagnostic Markers**: Repeat length testing is used for diagnosis
-        - **Therapeutic Targets**: G4-stabilizing/destabilizing agents under investigation
-        - **Gene Therapy**: Approaches targeting expanded repeats in development
-        """)
-    
-    with disease_tabs[2]:  # Cancer
-        st.subheader("🎗️ Cancer and Non-B DNA Structures")
-        
-        st.markdown("""
-        <div style='background: #fce4ec; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #e91e63;'>
-            <h4 style='color: #c2185b; margin-top: 0;'>Genomic Instability in Cancer</h4>
-            <p style='color: #880e4f;'>
-                Non-B DNA structures are enriched at <b>chromosomal breakpoints</b> and 
-                <b>mutation hotspots</b> in cancer genomes. They contribute to genomic instability 
-                through replication fork stalling, double-strand breaks, and error-prone repair.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            ### G-Quadruplexes in Oncogenes
-            
-            G4 structures are found in promoter regions of many oncogenes:
-            
-            | Gene | Cancer Type | G4 Function |
-            |------|-------------|-------------|
-            | **MYC** | Multiple cancers | Transcription repression |
-            | **KRAS** | Pancreatic, Colorectal | Expression regulation |
-            | **BCL2** | Lymphoma | Apoptosis regulation |
-            | **VEGF** | Solid tumors | Angiogenesis control |
-            | **hTERT** | Multiple cancers | Telomerase regulation |
-            
-            ### Therapeutic Targeting
-            
-            - **G4 Ligands**: Small molecules that stabilize G4s to downregulate oncogenes
-            - **PARP Inhibitors**: Target non-B DNA-associated DNA damage repair
-            - **Topoisomerase Inhibitors**: Exploit non-B DNA regions
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### Chromosomal Translocation Hotspots
-            
-            Non-B DNA structures mark translocation breakpoints:
-            
-            - **BCL2-IGH**: t(14;18) in follicular lymphoma
-            - **MYC-IGH**: t(8;14) in Burkitt lymphoma
-            - **BCR-ABL**: t(9;22) Philadelphia chromosome
-            
-            ### Mechanisms of Instability
-            
-            1. **Replication Fork Stalling**: Non-B structures block polymerase progression
-            2. **Double-Strand Breaks**: Structure-induced breaks lead to translocations
-            3. **Error-Prone Repair**: Unusual structures processed by error-prone pathways
-            4. **Chromatin Accessibility**: Z-DNA and G4s affect epigenetic regulation
-            
-            ### Biomarker Potential
-            
-            Non-B DNA density may serve as a biomarker for:
-            - Genomic instability assessment
-            - Cancer susceptibility regions
-            - Drug response prediction
-            """)
-    
-    with disease_tabs[3]:  # Repeat Expansion
-        st.subheader("🔬 Repeat Expansion Disorders")
-        
-        st.markdown("""
-        <div style='background: #e3f2fd; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #2196f3;'>
-            <h4 style='color: #1565c0; margin-top: 0;'>Molecular Basis of Repeat Expansion</h4>
-            <p style='color: #0d47a1;'>
-                Repeat expansion disorders result from unstable DNA repeats that grow larger across 
-                generations. The propensity to form non-B DNA structures (hairpins, G4s, triplexes) 
-                is central to repeat instability and disease progression.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        ### Types of Pathogenic Repeats
-        
-        | Repeat Type | Structure Formed | Example Diseases |
-        |-------------|------------------|------------------|
-        | **CAG/CTG** | Hairpins, Slipped DNA | Huntington's, DM1, SCAs |
-        | **CGG/CCG** | G-Quadruplex, Hairpins | Fragile X, FXTAS |
-        | **GAA/TTC** | Triplex (H-DNA) | Friedreich's Ataxia |
-        | **GGGGCC** | G-Quadruplex, R-loops | ALS/FTD |
-        | **ATTCT** | Unusual structures | SCA10 |
-        | **CCTG** | Hairpins | DM2 |
-        
-        ### Instability Mechanisms
-        
-        1. **Replication Slippage**: DNA polymerase slips on repetitive sequences
-        2. **Structure-Induced Breaks**: Non-B DNA triggers repair-associated expansion
-        3. **Transcription-Coupled Instability**: R-loops and G4s during transcription
-        4. **Mismatch Repair Involvement**: MSH2/MSH3 recognize and process repeat structures
-        
-        ### Therapeutic Approaches
-        
-        - **Antisense Oligonucleotides (ASOs)**: Target expanded repeat RNAs
-        - **Small Molecules**: Bind and stabilize/destabilize specific structures
-        - **CRISPR-Based Editing**: Excise expanded repeats
-        - **Gene Therapy**: Replace or silence affected genes
-        """)
-        
-        # Interactive element: Show detected motifs that may be disease-relevant
-        if st.session_state.results:
-            st.markdown("### 🔍 Disease-Relevant Motifs in Your Sequences")
-            
-            all_motifs = []
-            for i, motifs in enumerate(st.session_state.results):
-                for m in motifs:
-                    m['Sequence_Name'] = st.session_state.names[i]
-                    all_motifs.append(m)
-            
-            if all_motifs:
-                # Filter for disease-relevant motif types
-                disease_relevant = [m for m in all_motifs if m.get('Class') in 
-                                   ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA']]
-                
-                if disease_relevant:
-                    st.success(f"Found {len(disease_relevant)} potentially disease-relevant motifs in your sequences")
+            for idx, (cls, info) in enumerate(disease_info.items()):
+                with cols[idx % 3]:
+                    count = disease_counts.get(cls, 0)
+                    risk_level = "High" if count > DISEASE_RISK_HIGH_THRESHOLD else "Moderate" if count > 0 else "Low"
+                    risk_color = "#f44336" if risk_level == "High" else "#ff9800" if risk_level == "Moderate" else "#4caf50"
                     
-                    # Group by class
-                    class_counts = Counter([m.get('Class', 'Unknown') for m in disease_relevant])
+                    # Truncate disease text for display
+                    disease_text = info["diseases"][:DISEASE_TEXT_TRUNCATE_LENGTH]
+                    disease_ellipsis = '...' if len(info["diseases"]) > DISEASE_TEXT_TRUNCATE_LENGTH else ''
                     
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("G-Quadruplex", class_counts.get('G-Quadruplex', 0), 
-                                 help="Associated with Fragile X, ALS/FTD, Cancer")
-                    with col2:
-                        st.metric("Slipped DNA", class_counts.get('Slipped_DNA', 0),
-                                 help="Associated with Huntington's, Myotonic Dystrophy")
-                    with col3:
-                        st.metric("Cruciform", class_counts.get('Cruciform', 0),
-                                 help="Associated with chromosomal translocations")
-                    
-                    # Display table of disease-relevant motifs
-                    dr_df = pd.DataFrame(disease_relevant)
-                    display_cols = ['Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
-                    available_cols = [c for c in display_cols if c in dr_df.columns]
-                    st.dataframe(dr_df[available_cols].head(20), use_container_width=True)
-                else:
-                    st.info("No disease-relevant Non-B DNA motifs found in your sequences.")
+                    st.markdown(f"""
+                    <div style='background: {info["gradient"]}; border-radius: 16px; padding: 1.5rem;
+                                margin-bottom: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                                transition: transform 0.3s ease, box-shadow 0.3s ease;'>
+                        <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;'>
+                            <span style='font-size: 1.8rem;'>{info["icon"]}</span>
+                            <span style='background: {risk_color}; color: white; padding: 0.3rem 0.8rem;
+                                        border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+                                        text-transform: uppercase;'>{risk_level} Risk</span>
+                        </div>
+                        <h4 style='color: white; margin: 0 0 0.3rem 0; font-size: 1.1rem; font-weight: 700;'>
+                            {cls.replace("_", " ")}</h4>
+                        <p style='color: rgba(255,255,255,0.95); font-size: 2rem; font-weight: 800; margin: 0.5rem 0;
+                                  text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>{count} <span style='font-size: 1rem;
+                                  font-weight: 500;'>motifs</span></p>
+                        <p style='color: rgba(255,255,255,0.85); font-size: 0.8rem; margin: 0.5rem 0 0 0;
+                                  line-height: 1.4;'>
+                            <strong>Associated:</strong> {disease_text}{disease_ellipsis}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Detailed motifs table section
+            st.markdown("""
+            <h3 style='color: #1a237e; margin: 2rem 0 1rem 0; font-weight: 700;'>
+                📋 Detailed Disease-Relevant Motifs
+            </h3>
+            """, unsafe_allow_html=True)
+            
+            # Filter only disease-relevant motifs
+            disease_relevant_motifs = [m for m in input_motifs if m.get('Class') in disease_classes]
+            
+            if disease_relevant_motifs:
+                dr_df = pd.DataFrame(disease_relevant_motifs)
+                display_cols = ['Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
+                available_cols = [c for c in display_cols if c in dr_df.columns]
+                
+                # Add disease association column
+                dr_df['Disease_Association'] = dr_df['Class'].map({
+                    'G-Quadruplex': 'Fragile X, ALS/FTD, Cancer',
+                    'Slipped_DNA': "Huntington's, Myotonic Dystrophy",
+                    'Cruciform': 'Chromosomal translocations',
+                    'Triplex': "Friedreich's Ataxia",
+                    'Z-DNA': 'Autoimmune disorders',
+                    'R-Loop': 'Neurodegeneration'
+                })
+                
+                if 'Disease_Association' in dr_df.columns:
+                    available_cols.append('Disease_Association')
+                
+                st.dataframe(dr_df[available_cols], use_container_width=True, height=350)
+                st.caption(f"Showing {len(disease_relevant_motifs)} disease-relevant motifs from your analysis")
             else:
-                st.info("Run analysis first to see disease-relevant motifs in your sequences.")
+                st.info("No disease-relevant motifs found in the analyzed sequences.")
+                
         else:
-            st.info("Upload and analyze sequences to identify disease-relevant Non-B DNA motifs.")
-    
-    with disease_tabs[4]:  # References
-        st.subheader("📚 Key References and Literature")
-        
+            st.info("Analysis complete but no motifs were detected. Try analyzing a different sequence.")
+    else:
+        # Show placeholder when no results available
         st.markdown("""
-        ### Foundational Reviews
-        
-        1. **Zhao J, Bacolla A, Wang G, Vasquez KM** (2010). Non-B DNA structure-induced genetic 
-           instability and evolution. *Cellular and Molecular Life Sciences*, 67(1), 43-62.
-           [DOI: 10.1007/s00018-009-0131-2](https://doi.org/10.1007/s00018-009-0131-2)
-        
-        2. **Khristich AN, Mirkin SM** (2020). On the wrong DNA track: Molecular mechanisms of 
-           repeat-mediated genome instability. *Journal of Biological Chemistry*, 295(13), 4134-4170.
-           [DOI: 10.1074/jbc.REV119.007678](https://doi.org/10.1074/jbc.REV119.007678)
-        
-        3. **Spiegel J, Adhikari S, Balasubramanian S** (2020). The Structure and Function of 
-           DNA G-Quadruplexes. *Trends in Chemistry*, 2(2), 123-136.
-           [DOI: 10.1016/j.trechm.2019.07.002](https://doi.org/10.1016/j.trechm.2019.07.002)
-        
-        ### Neurological Disorders
-        
-        4. **Paulson H** (2018). Repeat expansion diseases. *Handbook of Clinical Neurology*, 
-           147, 105-123. [DOI: 10.1016/B978-0-444-63233-3.00009-9](https://doi.org/10.1016/B978-0-444-63233-3.00009-9)
-        
-        5. **Malik I, Kelley CP, Wang ET, Todd PK** (2021). Molecular mechanisms underlying 
-           nucleotide repeat expansion disorders. *Nature Reviews Molecular Cell Biology*, 22(9), 589-607.
-           [DOI: 10.1038/s41580-021-00382-6](https://doi.org/10.1038/s41580-021-00382-6)
-        
-        6. **Sznajder ŁJ, Swanson MS** (2019). Short Tandem Repeat Expansions and RNA-Mediated 
-           Pathogenesis in Myotonic Dystrophy. *International Journal of Molecular Sciences*, 20(13), 3365.
-           [DOI: 10.3390/ijms20133365](https://doi.org/10.3390/ijms20133365)
-        
-        ### Cancer and Genomic Instability
-        
-        7. **Bacolla A, Tainer JA, Vasquez KM, Cooper DN** (2016). Translocation and deletion 
-           breakpoints in cancer genomes are associated with potential non-B DNA-forming sequences. 
-           *Nucleic Acids Research*, 44(12), 5673-5688.
-           [DOI: 10.1093/nar/gkw261](https://doi.org/10.1093/nar/gkw261)
-        
-        8. **Hänsel-Hertsch R, Di Antonio M, Balasubramanian S** (2017). DNA G-quadruplexes in 
-           the human genome: detection, functions and therapeutic potential. *Nature Reviews 
-           Molecular Cell Biology*, 18(5), 279-284.
-           [DOI: 10.1038/nrm.2017.3](https://doi.org/10.1038/nrm.2017.3)
-        
-        ### Therapeutic Targeting
-        
-        9. **Neidle S** (2017). Quadruplex Nucleic Acids as Targets for Anticancer Therapeutics. 
-           *Nature Reviews Chemistry*, 1, 0041.
-           [DOI: 10.1038/s41570-017-0041](https://doi.org/10.1038/s41570-017-0041)
-        
-        10. **Ruggiero E, Richter SN** (2018). G-quadruplexes and G-quadruplex ligands: targets 
-            and tools in antiviral therapy. *Nucleic Acids Research*, 46(7), 3270-3283.
-            [DOI: 10.1093/nar/gky187](https://doi.org/10.1093/nar/gky187)
-        
-        ### Databases and Resources
-        
-        - **Non-B DB v2.0**: Database of predicted non-B DNA-forming motifs 
-          [https://nonb-abcc.ncifcrf.gov/](https://nonb-abcc.ncifcrf.gov/)
-        
-        - **G4-seq Database**: Experimental G-quadruplex sequencing data
-          [https://www.ebi.ac.uk/](https://www.ebi.ac.uk/)
-        
-        - **RepeatMasker**: Repeat annotation and detection
-          [https://www.repeatmasker.org/](https://www.repeatmasker.org/)
-        """)
+        <div style='background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%); 
+                    border-radius: 20px; padding: 3rem; text-align: center;
+                    border: 2px dashed #bdbdbd; margin: 2rem 0;'>
+            <div style='font-size: 4rem; margin-bottom: 1rem;'>🧬</div>
+            <h3 style='color: #424242; margin: 0 0 1rem 0;'>No Analysis Results Available</h3>
+            <p style='color: #757575; font-size: 1.1rem; max-width: 500px; margin: 0 auto 1.5rem auto;'>
+                Upload and analyze DNA sequences in the <strong>'Upload & Analyze'</strong> tab 
+                to see disease-relevant Non-B DNA motifs from your data.
+            </p>
+            <div style='display: inline-flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;'>
+                <span style='background: #e3f2fd; color: #1565c0; padding: 0.5rem 1rem; 
+                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>G-Quadruplex</span>
+                <span style='background: #fce4ec; color: #c2185b; padding: 0.5rem 1rem; 
+                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Cruciform</span>
+                <span style='background: #e8f5e9; color: #2e7d32; padding: 0.5rem 1rem; 
+                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Triplex</span>
+                <span style='background: #fff3e0; color: #ef6c00; padding: 0.5rem 1rem; 
+                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Z-DNA</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ---------- DOCUMENTATION ----------
