@@ -1590,15 +1590,11 @@ with tab_pages["Upload & Analyze"]:
             quality_check = st.checkbox("Quality Validation", value=True, 
                                       help="Validate detected motifs")
         
-        # Advanced options (popup-like panel using st.popover - cleaner alternative to st.expander)
-        with st.popover("🔧 Advanced Options"):
-            show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
-                                             help="Display detailed progress for each processing chunk (useful for large sequences)")
-            use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
-                                              help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
-            
-            if use_parallel_scanner:
-                st.info("ℹ️ Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
+        # Chunking and parallel programming are now enabled by default
+        # to improve performance for all users without requiring configuration.
+        # Large sequences (>10kb) automatically use chunking, and progress is always shown.
+        show_chunk_progress = True
+        use_parallel_scanner = True
         
         # Hardcoded default overlap handling: always remove overlaps within subclasses
         nonoverlap = True
