@@ -102,7 +102,7 @@ from utilities import (
 )
 
 # Import ThreadPoolExecutor at module level for parallel processing
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing as mp
 import time
 
@@ -490,20 +490,23 @@ def _merge_chunk_motifs(all_motifs: List[Dict[str, Any]], chunk_info: List[Tuple
         group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
         
         non_overlapping = []
-        occupied_positions = set()  # Fast O(1) overlap check
         
         for motif in group_motifs:
             start = motif['Start']
             end = motif['End']
             
-            # Check for overlap using position set (more efficient for many motifs)
-            motif_positions = set(range(start, end + 1))
-            if motif_positions & occupied_positions:
-                continue  # Skip overlapping motif
+            # Check for overlap using interval logic (efficient for large motifs)
+            overlaps = False
+            for existing in non_overlapping:
+                existing_start = existing['Start']
+                existing_end = existing['End']
+                # Intervals overlap if: start < existing_end AND end > existing_start
+                if start < existing_end and end > existing_start:
+                    overlaps = True
+                    break
             
-            # Add to non-overlapping list and mark positions as occupied
-            non_overlapping.append(motif)
-            occupied_positions.update(motif_positions)
+            if not overlaps:
+                non_overlapping.append(motif)
         
         merged_motifs.extend(non_overlapping)
     
@@ -576,7 +579,7 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     - Parallel chunk processing using ThreadPoolExecutor
     - Each chunk runs all 9 detectors in parallel (nested parallelism)
     - Optimized chunk size (50KB default) for better cache utilization
-    - Fast set-based deduplication for overlapping regions
+    - Interval-based deduplication for overlapping regions
     
     This function splits large sequences into smaller overlapping chunks, analyzes
     chunks in parallel, and then merges the results while handling boundary cases.
@@ -592,9 +595,9 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     Returns:
         List of motif dictionaries sorted by genomic position
         
-    Performance:
-        - Sequential: ~500 bp/s 
-        - Parallel chunks: ~50,000+ bp/s (100x improvement on multi-core systems)
+    Performance Targets (system-dependent):
+        - Sequential: ~500-1,000 bp/s 
+        - Parallel chunks: Significant speedup on multi-core systems (varies by CPU count)
         
     Note:
         Overlap is necessary to catch motifs that span chunk boundaries.
@@ -649,10 +652,17 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     completed_chunks = 0
     
     # Determine number of parallel workers for chunk processing
-    max_workers = MAX_PARALLEL_CHUNKS if MAX_PARALLEL_CHUNKS else min(mp.cpu_count(), total_chunks)
+    # Limit workers to avoid oversubscription since each chunk runs parallel detectors
+    cpu_count = mp.cpu_count()
+    if MAX_PARALLEL_CHUNKS:
+        max_workers = min(MAX_PARALLEL_CHUNKS, total_chunks)
+    else:
+        # Use conservative number of workers to avoid thread contention
+        # Each chunk runs up to 9 parallel detector threads internally
+        max_workers = min(max(1, cpu_count // 2), 4, total_chunks)
     
     if use_parallel_chunks and total_chunks > 1 and max_workers > 1:
-        # PARALLEL CHUNK PROCESSING (100x speedup)
+        # PARALLEL CHUNK PROCESSING
         # Use ThreadPoolExecutor for parallel chunk processing
         # (ThreadPool is preferred over ProcessPool to avoid pickling large sequences)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -746,20 +756,19 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
     """
     Analyze a single DNA sequence for all Non-B DNA motifs (high-performance API).
     
-    100X PERFORMANCE IMPROVEMENT:
-    This function achieves 100x performance improvement through:
+    PERFORMANCE OPTIMIZATION:
+    This function achieves significant performance improvement through:
     1. Parallel chunk processing (multiple chunks analyzed simultaneously)
     2. Parallel detector execution (all 9 detectors run simultaneously per chunk)
     3. Optimized chunk size (50KB default) for better cache utilization
-    4. Fast set-based deduplication for overlapping regions
+    4. Interval-based deduplication for overlapping regions
     
-    Performance targets:
-    - Small sequences (<10KB): <0.5 seconds
-    - Medium sequences (10-100KB): <2 seconds  
-    - Large sequences (100KB-1MB): <10 seconds
-    - Genome-scale (1MB+): Linear scaling with parallel chunks
+    Performance targets (system-dependent):
+    - Small sequences (<10KB): seconds
+    - Medium sequences (10-100KB): tens of seconds  
+    - Large sequences (100KB+): linear scaling with parallel chunks
     
-    Typical throughput: 50,000-500,000 bp/s (vs ~500 bp/s sequential)
+    Speedup varies by system CPU count and motif density.
     
     # Detection Coverage:
     # | Class          | Subclasses | Method              |
@@ -792,7 +801,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         sequence_name: Identifier for the sequence
         use_fast_mode: Enable parallel detector execution (default: True)
         use_chunking: Enable chunking for sequences > threshold (default: True)
-        use_parallel_chunks: Enable parallel chunk processing (default: True, 100x speedup)
+        use_parallel_chunks: Enable parallel chunk processing (default: True)
         chunk_size: Size of each chunk in bp (default: 50,000 for optimal throughput)
         chunk_overlap: Overlap between consecutive chunks in bp (default: 500)
         progress_callback: Optional callback(current_chunk, total_chunks, bp_processed, 
@@ -801,10 +810,8 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
     Returns:
         List of motif dictionaries sorted by genomic position
         
-    Performance Examples:
-        - 10kb sequence: ~0.2s (parallel chunks) vs ~20s (sequential)
-        - 100kb sequence: ~2s (parallel chunks) vs ~200s (sequential)
-        - 1MB sequence: ~20s (parallel chunks) vs ~2000s (sequential)
+    Note:
+        Actual performance varies by system CPU count and motif density in the sequence.
         
     Example:
         >>> import nonbscanner as nbs
@@ -830,7 +837,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
             use_parallel_chunks=use_parallel_chunks
         )
     
-    # Use parallel processing for 100x speedup (9 detectors run simultaneously)
+    # Use parallel detector execution (9 detectors run simultaneously)
     # Parallel is enabled by default (use_fast_mode=True), set to False to disable
     scanner = NonBScanner(use_parallel=use_fast_mode)
     return scanner.analyze_sequence(sequence, sequence_name)
