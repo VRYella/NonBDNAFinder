@@ -86,6 +86,30 @@ except ImportError:
 # unsafe_allow_html=True. For untrusted user input, do NOT use unsafe_allow_html 
 # to avoid XSS vulnerabilities.
 
+import re
+
+# Regex pattern for validating CSS color values
+_CSS_COLOR_PATTERN = re.compile(r'^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$')
+
+def _sanitize_css_color(color: str, default: str = '#607D8B') -> str:
+    """
+    Validate and sanitize a CSS color value to prevent CSS injection.
+    
+    Only accepts valid hex color codes (#RGB or #RRGGBB format).
+    Returns a safe default color if the input is invalid.
+    
+    Args:
+        color: Color value to validate
+        default: Safe default color to return if validation fails
+        
+    Returns:
+        Sanitized color value (hex format)
+    """
+    if isinstance(color, str) and _CSS_COLOR_PATTERN.match(color):
+        return color
+    return default
+
+
 def render_html(html_content: str) -> None:
     """
     Render trusted HTML content in Streamlit using st.markdown.
@@ -137,12 +161,14 @@ def render_motif_class_badges(motif_classes: list, colors: dict = None) -> str:
     for cls in motif_classes:
         # Escape the class name to prevent XSS from motif class names
         safe_cls = html_module.escape(str(cls))
-        color = colors.get(cls, '#607D8B')  # Default gray if color not found
+        # Sanitize the color value to prevent CSS injection
+        raw_color = colors.get(cls, '#607D8B')
+        safe_color = _sanitize_css_color(raw_color)
         badge_html = f'''<span style="
             display: inline-block;
             padding: 4px 12px;
             margin: 2px 4px;
-            background-color: {color};
+            background-color: {safe_color};
             color: white;
             border-radius: 16px;
             font-size: 0.9rem;

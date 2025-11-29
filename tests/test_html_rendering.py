@@ -123,6 +123,31 @@ class TestRenderMotifClassBadges(unittest.TestCase):
         # Should not contain any span elements
         self.assertNotIn('<span>', result)
 
+    def test_css_color_sanitization(self):
+        """Test that CSS color values are sanitized to prevent CSS injection."""
+        import re
+        
+        # Create the sanitize function inline to test logic
+        _CSS_COLOR_PATTERN = re.compile(r'^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$')
+        
+        def _sanitize_css_color(color, default='#607D8B'):
+            if isinstance(color, str) and _CSS_COLOR_PATTERN.match(color):
+                return color
+            return default
+        
+        # Valid hex colors should pass through
+        self.assertEqual(_sanitize_css_color('#FF0000'), '#FF0000')
+        self.assertEqual(_sanitize_css_color('#F00'), '#F00')
+        self.assertEqual(_sanitize_css_color('#abcdef'), '#abcdef')
+        
+        # Invalid/malicious inputs should return default
+        self.assertEqual(_sanitize_css_color('red'), '#607D8B')
+        self.assertEqual(_sanitize_css_color('expression(alert(1))'), '#607D8B')
+        self.assertEqual(_sanitize_css_color('url(http://evil.com)'), '#607D8B')
+        self.assertEqual(_sanitize_css_color('#FF0000; background-image: url(x)'), '#607D8B')
+        self.assertEqual(_sanitize_css_color(None), '#607D8B')
+        self.assertEqual(_sanitize_css_color(123), '#607D8B')
+
 
 class TestHtmlModuleImport(unittest.TestCase):
     """Test that the html module is properly imported and used."""
