@@ -135,7 +135,7 @@ class NonBScanner:
         Initialize NonBScanner with all detector modules
         
         Args:
-            enable_all_detectors: Enable all MAX_PARALLEL_DETECTORS detector classes (default: True)
+            enable_all_detectors: Enable all 9 detector classes (default: True)
             use_parallel: Use parallel processing for 9x wall-clock speedup (default: True)
         """
         self.detectors = {}
@@ -735,7 +735,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
     # Use parallel processing for 100x speedup (9 detectors run simultaneously)
     # Parallel is enabled by default (use_fast_mode=True), set to False to disable
     scanner = NonBScanner(use_parallel=use_fast_mode)
-    return scanner.analyze_sequence(sequence, sequence_name, use_parallel=use_fast_mode)
+    return scanner.analyze_sequence(sequence, sequence_name)
 
 
 def analyze_fasta(fasta_content: str) -> Dict[str, List[Dict[str, Any]]]:
