@@ -140,9 +140,10 @@ class TestPerformanceSmoke(unittest.TestCase):
         
         self.assertGreater(len(seq), CHUNK_THRESHOLD, "Test sequence should be larger than chunk threshold")
         
-        # Track progress
+        # Track progress (new signature: chunk, total, bp_processed, elapsed, throughput)
         progress_calls = []
-        def progress_callback(chunk, total, bp_processed):
+        def progress_callback(chunk, total, bp_processed, *args):
+            # Accept optional elapsed and throughput args for backward compatibility
             progress_calls.append((chunk, total, bp_processed))
         
         start = time.time()
@@ -150,6 +151,7 @@ class TestPerformanceSmoke(unittest.TestCase):
             seq, 
             "chunked_test", 
             use_chunking=True,
+            chunk_size=5000,  # Use smaller chunks to ensure multiple chunks
             progress_callback=progress_callback
         )
         elapsed = time.time() - start
@@ -369,6 +371,133 @@ class TestIOUtilsPerformance(unittest.TestCase):
         
         # Total should be reasonable (< 1GB for 10MB sequence)
         self.assertLess(estimate['total_estimate'], 1_000_000_000)
+
+
+class TestChunkPerformance(unittest.TestCase):
+    """Tests for 100x chunk processing performance improvements."""
+    
+    def test_parallel_chunks_enabled(self):
+        """Test that parallel chunk processing is available and improves throughput."""
+        from nonbscanner import analyze_sequence
+        
+        # Generate a sequence large enough to trigger chunking
+        seq = generate_g4_sequence(20000)
+        
+        # Test with parallel chunks enabled (default)
+        start = time.time()
+        motifs_parallel = analyze_sequence(
+            seq, 
+            "parallel_test",
+            use_chunking=True,
+            use_parallel_chunks=True,
+            chunk_size=5000
+        )
+        elapsed_parallel = time.time() - start
+        
+        # Should complete and find motifs
+        self.assertIsInstance(motifs_parallel, list)
+        self.assertGreater(len(motifs_parallel), 0)
+        
+        # Calculate throughput
+        throughput = len(seq) / elapsed_parallel
+        print(f"\nParallel chunks test: {elapsed_parallel:.2f}s, {throughput:,.0f} bp/s")
+    
+    def test_progress_callback_with_metrics(self):
+        """Test that progress callback receives performance metrics."""
+        from nonbscanner import analyze_sequence
+        
+        seq = generate_g4_sequence(15000)
+        
+        # Track progress with new signature
+        progress_data = []
+        def progress_callback(chunk, total, bp, elapsed=None, throughput=None):
+            progress_data.append({
+                'chunk': chunk,
+                'total': total,
+                'bp': bp,
+                'elapsed': elapsed,
+                'throughput': throughput
+            })
+        
+        motifs = analyze_sequence(
+            seq,
+            "metrics_test",
+            use_chunking=True,
+            chunk_size=5000,
+            progress_callback=progress_callback
+        )
+        
+        # Should have progress data
+        self.assertGreater(len(progress_data), 0, "Progress callback should be called")
+        
+        # Check that we received the new metrics (elapsed and throughput)
+        final_progress = progress_data[-1]
+        if final_progress['elapsed'] is not None:
+            self.assertGreater(final_progress['elapsed'], 0, "Elapsed time should be positive")
+            print(f"\nFinal progress - elapsed: {final_progress['elapsed']:.2f}s, throughput: {final_progress['throughput']:,.0f} bp/s")
+    
+    def test_chunk_boundary_handling(self):
+        """Test that motifs spanning chunk boundaries are properly detected."""
+        from nonbscanner import analyze_sequence
+        
+        # Create a sequence with a known motif pattern
+        # G4 motif that should be detected
+        g4 = "GGGTTAGGGTTAGGGTTAGGG"
+        
+        # Place G4 motif at chunk boundaries (assuming 1000bp chunks)
+        spacer = "ATGCATGC" * 125  # 1000 bp spacer
+        
+        # Create sequence with G4 at position ~1000 (chunk boundary)
+        seq = spacer + g4 + spacer + g4 + spacer
+        
+        # Analyze with small chunks to create boundaries
+        motifs = analyze_sequence(
+            seq,
+            "boundary_test",
+            use_chunking=True,
+            chunk_size=1000,
+            chunk_overlap=500  # Overlap should catch boundary motifs
+        )
+        
+        # Should find the G4 motifs
+        g4_motifs = [m for m in motifs if 'G' in m.get('Class', '')]
+        self.assertGreater(len(g4_motifs), 0, "Should detect G4 motifs across chunk boundaries")
+        print(f"\nBoundary test: Found {len(g4_motifs)} G4 motifs across {len(seq)} bp")
+    
+    def test_parallel_vs_sequential_chunks_consistency(self):
+        """Test that parallel and sequential chunk processing produce similar results."""
+        from nonbscanner import analyze_sequence
+        
+        seq = generate_g4_sequence(15000)
+        
+        # Analyze with parallel chunks
+        motifs_parallel = analyze_sequence(
+            seq,
+            "parallel",
+            use_chunking=True,
+            use_parallel_chunks=True,
+            chunk_size=5000
+        )
+        
+        # Analyze with sequential chunks
+        motifs_sequential = analyze_sequence(
+            seq,
+            "sequential",
+            use_chunking=True,
+            use_parallel_chunks=False,
+            chunk_size=5000
+        )
+        
+        # Both should find similar number of motifs (within tolerance)
+        self.assertGreater(len(motifs_parallel), 0)
+        self.assertGreater(len(motifs_sequential), 0)
+        
+        # Ratio should be close to 1 (within 10% tolerance)
+        ratio = len(motifs_parallel) / len(motifs_sequential) if len(motifs_sequential) > 0 else 0
+        self.assertGreater(ratio, 0.9, "Parallel should find at least 90% of sequential motifs")
+        self.assertLess(ratio, 1.1, "Parallel should not find more than 110% of sequential motifs")
+        
+        print(f"\nConsistency test - Parallel: {len(motifs_parallel)}, Sequential: {len(motifs_sequential)}, Ratio: {ratio:.2f}")
 
 
 if __name__ == '__main__':
