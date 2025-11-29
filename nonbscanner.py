@@ -67,7 +67,7 @@ import os
 import re
 import math
 import warnings
-from typing import List, Dict, Any, Optional, Union, Tuple
+from typing import List, Dict, Any, Optional, Union, Tuple, Callable
 from collections import defaultdict, Counter
 import pandas as pd
 
@@ -371,11 +371,194 @@ class NonBScanner:
 
 
 # =============================================================================
+# CHUNKING CONSTANTS AND HELPER FUNCTIONS
+# =============================================================================
+
+# Chunking threshold: sequences longer than this will be chunked
+CHUNK_THRESHOLD = 10000  # 10,000 bp
+
+# Default chunk size and overlap
+DEFAULT_CHUNK_SIZE = 10000  # 10,000 bp per chunk
+DEFAULT_CHUNK_OVERLAP = 500  # 500 bp overlap between chunks
+
+
+def _merge_chunk_motifs(all_motifs: List[Dict[str, Any]], chunk_info: List[Tuple[int, int, int]]) -> List[Dict[str, Any]]:
+    """
+    Merge motifs from overlapping chunks, handling boundary cases.
+    
+    Args:
+        all_motifs: List of all motifs from all chunks (with adjusted positions)
+        chunk_info: List of tuples (chunk_start, chunk_end, overlap) for each chunk
+        
+    Returns:
+        List of deduplicated, merged motifs
+    """
+    if not all_motifs:
+        return []
+    
+    # Group by class/subclass for overlap removal (avoiding redundant sorting)
+    groups = defaultdict(list)
+    for motif in all_motifs:
+        key = f"{motif.get('Class', '')}-{motif.get('Subclass', '')}"
+        groups[key].append(motif)
+    
+    merged_motifs = []
+    
+    for key, group_motifs in groups.items():
+        # Sort by score (highest first), then by length (longest first)
+        group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
+        
+        non_overlapping = []
+        for motif in group_motifs:
+            overlaps = False
+            for existing in non_overlapping:
+                # Check for overlap
+                if not (motif['End'] <= existing['Start'] or motif['Start'] >= existing['End']):
+                    overlaps = True
+                    break
+            
+            if not overlaps:
+                non_overlapping.append(motif)
+        
+        merged_motifs.extend(non_overlapping)
+    
+    # Sort final result by position
+    merged_motifs.sort(key=lambda x: x.get('Start', 0))
+    
+    return merged_motifs
+
+
+def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
+                             chunk_size: int = DEFAULT_CHUNK_SIZE,
+                             chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+                             progress_callback: Optional[Callable] = None) -> List[Dict[str, Any]]:
+    """
+    Analyze a large DNA sequence using chunking for improved performance and reliability.
+    
+    This function splits large sequences into smaller overlapping chunks, analyzes each
+    chunk independently, and then merges the results while handling boundary cases.
+    
+    Args:
+        sequence: DNA sequence to analyze (ATGC characters)
+        sequence_name: Identifier for the sequence
+        chunk_size: Size of each chunk in bp (default: 10,000)
+        chunk_overlap: Overlap between consecutive chunks in bp (default: 500)
+        progress_callback: Optional callback(current_chunk, total_chunks, bp_processed) for progress
+        
+    Returns:
+        List of motif dictionaries sorted by genomic position
+        
+    Note:
+        Overlap is necessary to catch motifs that span chunk boundaries.
+        The merge step deduplicates motifs that were detected in overlapping regions.
+    """
+    sequence = sequence.upper().strip()
+    seq_len = len(sequence)
+    
+    # Validate sequence
+    is_valid, msg = validate_sequence(sequence)
+    if not is_valid:
+        raise ValueError(f"Invalid sequence: {msg}")
+    
+    # If sequence is smaller than chunk size, process normally
+    if seq_len <= chunk_size:
+        scanner = NonBScanner()
+        return scanner.analyze_sequence(sequence, sequence_name)
+    
+    # Calculate chunks with symmetric overlap
+    chunks = []
+    chunk_info = []
+    pos = 0
+    chunk_num = 0
+    
+    while pos < seq_len:
+        chunk_start = pos
+        chunk_end = min(pos + chunk_size, seq_len)
+        
+        # Extract the chunk with symmetric overlap consideration
+        # All chunks (including first and last) get overlap at both ends where possible
+        actual_start = max(0, chunk_start - chunk_overlap)
+        actual_end = min(seq_len, chunk_end + chunk_overlap)
+        
+        chunks.append({
+            'seq': sequence[actual_start:actual_end],
+            'start': actual_start,
+            'end': actual_end,
+            'chunk_num': chunk_num,
+            'original_start': chunk_start,
+            'original_end': chunk_end
+        })
+        chunk_info.append((actual_start, actual_end, chunk_overlap))
+        
+        pos = chunk_end
+        chunk_num += 1
+    
+    total_chunks = len(chunks)
+    all_motifs = []
+    bp_processed = 0
+    
+    # Create scanner instance (reuse for all chunks)
+    scanner = NonBScanner()
+    
+    # Process each chunk
+    for i, chunk in enumerate(chunks):
+        # Report progress
+        if progress_callback:
+            progress_callback(i + 1, total_chunks, bp_processed)
+        
+        # Analyze the chunk
+        chunk_seq = chunk['seq']
+        offset = chunk['start']
+        
+        try:
+            # Analyze chunk - note we use a modified name to indicate it's a chunk
+            chunk_motifs = scanner.analyze_sequence(chunk_seq, f"{sequence_name}_chunk_{i}")
+            
+            # Adjust positions to reflect original sequence coordinates
+            for motif in chunk_motifs:
+                # Start and End are 1-based, so adjust appropriately
+                motif['Start'] = motif['Start'] + offset
+                motif['End'] = motif['End'] + offset
+                
+                # Update sequence name to the original name
+                motif['Sequence_Name'] = sequence_name
+                
+                # Update the actual sequence from the original (for accurate boundary handling)
+                actual_start = motif['Start'] - 1  # Convert to 0-based
+                actual_end = motif['End']
+                # Validate bounds before extracting sequence
+                if actual_start >= 0 and actual_end > actual_start and actual_end <= seq_len:
+                    motif['Sequence'] = sequence[actual_start:actual_end]
+            
+            all_motifs.extend(chunk_motifs)
+            
+        except Exception as e:
+            warnings.warn(f"Error processing chunk {i} of {sequence_name}: {e}")
+            continue
+        
+        # Update progress
+        bp_processed += len(chunk_seq)
+    
+    # Merge and deduplicate motifs from overlapping chunks
+    merged_motifs = _merge_chunk_motifs(all_motifs, chunk_info)
+    
+    # Final progress update
+    if progress_callback:
+        progress_callback(total_chunks, total_chunks, seq_len)
+    
+    return merged_motifs
+
+
+# =============================================================================
 # PUBLIC API FUNCTIONS
 # =============================================================================
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence", 
-                    use_fast_mode: bool = False) -> List[Dict[str, Any]]:
+                    use_fast_mode: bool = False,
+                    use_chunking: bool = True,
+                    chunk_size: int = DEFAULT_CHUNK_SIZE,
+                    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP,
+                    progress_callback: Optional[Callable] = None) -> List[Dict[str, Any]]:
     """
     Analyze a single DNA sequence for all Non-B DNA motifs (high-performance API).
     
@@ -434,7 +617,42 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         >>> motifs_fast = nbs.analyze_sequence("GGGTTAGGGTTAGGG", "test", use_fast_mode=True)
         >>> for m in motifs:
         ...     print(f"{m['Class']}: {m['Start']}-{m['End']}, score={m['Score']}")
+    
+    Chunking (for large sequences > 10,000 bp):
+        When use_chunking is True (default) and sequence length exceeds the chunk threshold
+        (default: 10,000 bp), the sequence is split into overlapping chunks for reliable
+        processing. This prevents memory issues and improves responsiveness for large genomes.
+        
+    Args:
+        sequence: DNA sequence (ATGC characters, case-insensitive)
+        sequence_name: Identifier for the sequence
+        use_fast_mode: Enable parallel processing for ~9x wall-clock speedup (9 parallel threads)
+        use_chunking: Enable chunking for sequences > 10,000 bp (default: True)
+        chunk_size: Size of each chunk in bp (default: 10,000)
+        chunk_overlap: Overlap between consecutive chunks in bp (default: 500)
+        progress_callback: Optional callback(current_chunk, total_chunks, bp_processed) for progress tracking
+        
+    Example:
+        >>> import nonbscanner as nbs
+        >>> # Standard mode with automatic chunking for large sequences
+        >>> motifs = nbs.analyze_sequence(large_genome_sequence, "genome")
+        >>> # With progress tracking
+        >>> def on_progress(chunk, total, bp): print(f"Chunk {chunk}/{total}")
+        >>> motifs = nbs.analyze_sequence(large_seq, "genome", progress_callback=on_progress)
     """
+    sequence = sequence.upper().strip()
+    seq_len = len(sequence)
+    
+    # Use chunking for large sequences (> chunk threshold)
+    if use_chunking and seq_len > CHUNK_THRESHOLD:
+        return analyze_sequence_chunked(
+            sequence, 
+            sequence_name,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            progress_callback=progress_callback
+        )
+    
     if use_fast_mode:
         # Use parallel processing for 9x speedup
         try:

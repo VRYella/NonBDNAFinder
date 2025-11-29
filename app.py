@@ -42,7 +42,8 @@ from utilities import (
 )
 from nonbscanner import (
     analyze_sequence, analyze_multiple_sequences,
-    get_motif_info as get_motif_classification_info
+    get_motif_info as get_motif_classification_info,
+    CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
 )
 from utilities import export_results_to_dataframe
 from visualizations import (
@@ -2000,16 +2001,53 @@ with tab_pages["Upload & Analyze"]:
                         """
                         detailed_progress_placeholder.markdown(detailed_progress_html, unsafe_allow_html=True)
                         
-                        # Run the analysis - use parallel scanner for large sequences if enabled
+                        # Run the analysis - use chunking for large sequences (>10,000 bp)
                         seq_start = time.time()
                         
-                        if use_parallel_scanner and len(seq) > 100000:
-                            # Use experimental parallel scanner for large sequences
+                        # Create a chunk progress placeholder for large sequences
+                        chunk_progress_placeholder = st.empty()
+                        
+                        # Define progress callback for chunked processing
+                        def chunking_progress_callback(current_chunk, total_chunks, bp_done):
+                            """Callback to update chunk progress for large sequences"""
+                            if show_chunk_progress and total_chunks > 1:
+                                chunk_percent = (current_chunk / total_chunks) * 100
+                                chunk_progress_placeholder.info(
+                                    f"🔄 Processing chunks: {current_chunk}/{total_chunks} ({chunk_percent:.1f}%) - "
+                                    f"{bp_done:,} bp processed"
+                                )
+                        
+                        if len(seq) > CHUNK_THRESHOLD:
+                            # Large sequence: use chunking with progress tracking
+                            if show_chunk_progress:
+                                num_chunks = (len(seq) // DEFAULT_CHUNK_SIZE) + 1
+                                chunk_progress_placeholder.info(
+                                    f"📦 Large sequence detected ({len(seq):,} bp). "
+                                    f"Splitting into ~{num_chunks} chunks of {DEFAULT_CHUNK_SIZE:,} bp..."
+                                )
+                            
+                            try:
+                                results = analyze_sequence(
+                                    seq, 
+                                    name, 
+                                    use_chunking=True,
+                                    chunk_size=DEFAULT_CHUNK_SIZE,
+                                    chunk_overlap=DEFAULT_CHUNK_OVERLAP,
+                                    progress_callback=chunking_progress_callback if show_chunk_progress else None
+                                )
+                                
+                                # Clear chunk progress
+                                if show_chunk_progress:
+                                    chunk_progress_placeholder.success(
+                                        f"✅ Chunk processing complete: {len(results)} motifs found in {len(seq):,} bp"
+                                    )
+                            except Exception as e:
+                                st.warning(f"Chunked analysis failed, trying standard mode: {e}")
+                                results = analyze_sequence(seq, name, use_chunking=False)
+                        elif use_parallel_scanner and len(seq) > 100000:
+                            # Use experimental parallel scanner for large sequences (legacy path)
                             try:
                                 from scanner_agent import ParallelScanner
-                                
-                                # Create chunk progress placeholder
-                                chunk_progress_placeholder = st.empty()
                                 
                                 def chunk_progress_callback(current, total):
                                     """Callback to update chunk progress"""
@@ -2022,8 +2060,7 @@ with tab_pages["Upload & Analyze"]:
                                 raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
                                 
                                 # Convert raw motifs to full motif format by running through scoring
-                                # For now, just use the standard analyzer
-                                results = analyze_sequence(seq, name)
+                                results = analyze_sequence(seq, name, use_chunking=False)
                                 
                                 # Clear chunk progress
                                 if show_chunk_progress:
@@ -2031,10 +2068,10 @@ with tab_pages["Upload & Analyze"]:
                                 
                             except Exception as e:
                                 st.warning(f"Parallel scanner failed, falling back to standard: {e}")
-                                results = analyze_sequence(seq, name)
+                                results = analyze_sequence(seq, name, use_chunking=False)
                         else:
-                            # Use standard consolidated NBDScanner analysis
-                            results = analyze_sequence(seq, name)
+                            # Standard consolidated NBDScanner analysis (for smaller sequences)
+                            results = analyze_sequence(seq, name, use_chunking=False)
                         
                         seq_time = time.time() - seq_start
                         

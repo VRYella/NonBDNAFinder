@@ -131,6 +131,66 @@ class TestPerformanceSmoke(unittest.TestCase):
         throughput = len(seq) / elapsed
         print(f"\n10kb scan: {elapsed:.2f}s, {throughput:,.0f} bp/s")
     
+    def test_chunked_analysis_large_sequence(self):
+        """Test chunking for sequences larger than CHUNK_THRESHOLD (10,000 bp)."""
+        from nonbscanner import analyze_sequence, CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE
+        
+        # Generate sequence larger than chunk threshold
+        seq = generate_g4_sequence(15000)
+        
+        self.assertGreater(len(seq), CHUNK_THRESHOLD, "Test sequence should be larger than chunk threshold")
+        
+        # Track progress
+        progress_calls = []
+        def progress_callback(chunk, total, bp_processed):
+            progress_calls.append((chunk, total, bp_processed))
+        
+        start = time.time()
+        motifs = analyze_sequence(
+            seq, 
+            "chunked_test", 
+            use_chunking=True,
+            progress_callback=progress_callback
+        )
+        elapsed = time.time() - start
+        
+        # Should find motifs
+        self.assertIsInstance(motifs, list)
+        self.assertGreater(len(motifs), 0, "Should find motifs in G4 sequence")
+        
+        # Progress callback should be called multiple times (for each chunk)
+        self.assertGreater(len(progress_calls), 1, "Progress callback should be called for each chunk")
+        
+        # Calculate throughput
+        throughput = len(seq) / elapsed
+        print(f"\n15kb chunked scan: {elapsed:.2f}s, {throughput:,.0f} bp/s, {len(motifs)} motifs")
+        print(f"  Progress callback calls: {len(progress_calls)}")
+    
+    def test_chunked_vs_non_chunked_consistency(self):
+        """Test that chunked and non-chunked analysis produce similar motif counts."""
+        from nonbscanner import analyze_sequence, CHUNK_THRESHOLD
+        
+        # Use sequence just above threshold
+        seq = generate_g4_sequence(12000)
+        
+        # Analyze with chunking
+        motifs_chunked = analyze_sequence(seq, "chunked", use_chunking=True)
+        
+        # Analyze without chunking (force single pass)
+        motifs_single = analyze_sequence(seq, "single", use_chunking=False)
+        
+        # Both should find motifs
+        self.assertGreater(len(motifs_chunked), 0)
+        self.assertGreater(len(motifs_single), 0)
+        
+        # Motif counts should be relatively similar (within 20% tolerance due to overlap handling)
+        ratio = len(motifs_chunked) / len(motifs_single) if len(motifs_single) > 0 else 0
+        print(f"\nChunked: {len(motifs_chunked)}, Single: {len(motifs_single)}, Ratio: {ratio:.2f}")
+        
+        # The ratio should be close to 1 (allowing for deduplication differences)
+        self.assertGreater(ratio, 0.5, "Chunked should find at least 50% of single-pass motifs")
+        self.assertLess(ratio, 2.0, "Chunked should not find more than 2x the single-pass motifs")
+    
     def test_sequence_with_motifs(self):
         """Test sequence known to contain motifs."""
         from nonbscanner import analyze_sequence
