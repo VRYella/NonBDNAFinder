@@ -422,281 +422,225 @@ if is_dark_mode:
 # Pre-calculate RGB values for all theme colors (performance optimization)
 rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
 
-# Generate SVG pattern based on theme
-dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
-
 st.markdown(f"""
     <style>
-    /* Import Google Fonts for professional scientific typography */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+    /* Google Fonts - optimized for performance with display=swap */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     /* ============================================
-       ENHANCED ANIMATIONS & KEYFRAMES
+       MINIMAL ANIMATIONS FOR PERFORMANCE
        ============================================ */
-    @keyframes shimmer {{
-        0% {{ background-position: -1000px 0; }}
-        100% {{ background-position: 1000px 0; }}
-    }}
-    
-    @keyframes pulse-glow {{
-        0%, 100% {{ box-shadow: 0 0 5px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4); }}
-        50% {{ box-shadow: 0 0 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.8); }}
-    }}
-    
-    @keyframes float-subtle {{
-        0%, 100% {{ transform: translateY(0); }}
-        50% {{ transform: translateY(-3px); }}
-    }}
-    
-    @keyframes scale-click {{
-        0% {{ transform: scale(1); }}
-        50% {{ transform: scale(0.97); }}
-        100% {{ transform: scale(1); }}
-    }}
-    
     @keyframes fade-in {{
-        from {{ opacity: 0; transform: translateY(10px); }}
-        to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    
-    @keyframes slide-in-right {{
-        from {{ opacity: 0; transform: translateX(-20px); }}
-        to {{ opacity: 1; transform: translateX(0); }}
+        from {{ opacity: 0; }}
+        to {{ opacity: 1; }}
     }}
     
     /* ============================================
-       SUBTLE BACKGROUND PATTERN WITH DNA MOTIF
+       MEDIUM BACKGROUND WITH OPTIMAL READABILITY
        ============================================ */
     body, [data-testid="stAppViewContainer"], .main {{
-        background: {'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(180deg, #f7fbff 0%, #f1f7fb 100%)'} !important;
-        color: {'#e2e8f0' if is_dark_mode else '#0f172a'} !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+        background: {'linear-gradient(180deg, #1a202c 0%, #2d3748 100%)' if is_dark_mode else 'linear-gradient(180deg, #f0f4f8 0%, #e2e8f0 100%)'} !important;
+        color: {'#f7fafc' if is_dark_mode else '#1a202c'} !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-weight: 500 !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
     }}
     
     /* ============================================
-       NAV BAR TWEAKS: lighter, centered, less-glow
+       NAV BAR: Clean, readable tabs with medium background
        ============================================ */
     
-    /* Make tab container lighter and remove heavy inner glow */
+    /* Tab container with medium background for readability */
     .stTabs [data-baseweb="tab-list"] {{
-        background: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(245,250,255,0.9) 50%) !important;
-        border-bottom: 2px solid rgba(30,47,68,0.06) !important;
-        box-shadow: 0 6px 14px rgba(14,30,50,0.06) !important;
-        padding: 10px !important;
-        border-radius: 14px !important;
-        margin: 0 auto 1.25rem auto !important;
+        background: {'linear-gradient(90deg, rgba(45,55,72,0.95) 0%, rgba(74,85,104,0.9) 50%)' if is_dark_mode else 'linear-gradient(90deg, rgba(247,250,252,0.98) 0%, rgba(237,242,247,0.95) 50%)'} !important;
+        border-bottom: 2px solid {'rgba(160,174,192,0.2)' if is_dark_mode else 'rgba(160,174,192,0.3)'} !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        padding: 12px !important;
+        border-radius: 12px !important;
+        margin: 0 auto 1.5rem auto !important;
         max-width: 1200px !important;
     }}
     
-    /* Make each tab pill centered and remove heavy hover glow */
+    /* Tab pills with bold text for readability */
     .stTabs [data-baseweb="tab"] {{
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         min-width: 140px !important;
-        padding: 10px 18px !important;
-        margin: 0 8px !important;
-        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,250,255,0.9)) !important;
-        color: #0f172a !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(16,24,40,0.06) !important;
-        box-shadow: 0 4px 10px rgba(14,30,50,0.06) !important;
-        line-height: 1 !important;
-        height: auto !important;
-        text-transform: none !important;
+        padding: 12px 20px !important;
+        margin: 0 6px !important;
+        background: {'linear-gradient(180deg, rgba(74,85,104,0.95), rgba(45,55,72,0.9))' if is_dark_mode else 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,250,252,0.95))'} !important;
+        color: {'#f7fafc' if is_dark_mode else '#2d3748'} !important;
+        border-radius: 10px !important;
+        border: 1px solid {'rgba(160,174,192,0.25)' if is_dark_mode else 'rgba(160,174,192,0.35)'} !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
         font-weight: 600 !important;
-        letter-spacing: 0.02em !important;
-        transition: all 0.3s ease !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 0.01em !important;
+        transition: all 0.25s ease !important;
     }}
     
-    /* Ensure tab text is vertically centered (handles icon/text combinations) */
+    /* Ensure tab text is properly aligned */
     .stTabs [data-baseweb="tab"] > * {{
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 8px !important;
+        gap: 6px !important;
     }}
     
-    /* Selected tab: subtle cyan outline and soft fill */
+    /* Selected tab: clear visual distinction with medium background */
     .stTabs [aria-selected="true"] {{
-        background: linear-gradient(180deg, #eaf8ff 0%, #dff3ff 100%) !important;
-        color: #03396c !important;
-        border: 1px solid rgba(2,119,189,0.18) !important;
-        box-shadow: 0 6px 18px rgba(3,57,108,0.08) !important;
-        transform: translateY(-4px) !important;
-    }}
-    
-    /* Hover state: light lift */
-    .stTabs [data-baseweb="tab"]:hover {{
+        background: {'linear-gradient(180deg, #4a5568 0%, #2d3748 100%)' if is_dark_mode else 'linear-gradient(180deg, #ebf8ff 0%, #bee3f8 100%)'} !important;
+        color: {'#fff' if is_dark_mode else '#2c5282'} !important;
+        border: 1px solid {'rgba(99,179,237,0.5)' if is_dark_mode else 'rgba(66,153,225,0.4)'} !important;
+        box-shadow: 0 4px 12px {'rgba(99,179,237,0.2)' if is_dark_mode else 'rgba(66,153,225,0.15)'} !important;
+        font-weight: 700 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 20px rgba(14,30,50,0.08) !important;
-        color: #022b55 !important;
     }}
     
-    /* Reduce the bright neon outline you had before */
+    /* Hover state: subtle feedback */
+    .stTabs [data-baseweb="tab"]:hover {{
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+        background: {'linear-gradient(180deg, rgba(74,85,104,1), rgba(45,55,72,0.95))' if is_dark_mode else 'linear-gradient(180deg, rgba(255,255,255,1), rgba(237,242,247,0.98))'} !important;
+    }}
+    
+    /* Hide unnecessary pseudo-elements */
     .stTabs [data-baseweb="tab"]::after,
     .stTabs [data-baseweb="tab"][aria-selected="true"]::after {{
         display: none !important;
     }}
     
-    /* Small-screen responsiveness: reduce padding and font-size */
+    /* Responsive adjustments */
     @media screen and (max-width: 900px) {{
-        .stTabs [data-baseweb="tab"] {{ min-width: 110px !important; padding: 8px 12px !important; font-size: 0.95rem !important; }}
-        .stTabs [data-baseweb="tab-list"] {{ padding: 8px !important; }}
+        .stTabs [data-baseweb="tab"] {{ min-width: 100px !important; padding: 10px 14px !important; font-size: 0.9rem !important; }}
+        .stTabs [data-baseweb="tab-list"] {{ padding: 10px !important; }}
     }}
     
-    /* Utility classes for custom colored pills if needed */
-    .nav-pill {{ padding: 8px 14px; border-radius: 10px; }}
-    .nav-pill.primary {{ background: #e8f4ff; color: #04395e; border: 1px solid rgba(2,119,189,0.08); }}
-    .nav-pill.green {{ background: #eef9f0; color: #0b5f2a; border: 1px solid rgba(6,150,90,0.06); }}
-    
-    /* Tab panel content area */
+    /* Tab panel content */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 2rem !important;
-        animation: fade-in 0.4s ease-out !important;
+        padding-top: 1.5rem !important;
     }}
     
     /* ============================================
-       HEADINGS: Enhanced typography with animations
+       HEADINGS: Bold, readable typography
        ============================================ */
     h1, h2, h3, h4 {{
-        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
         color: {current_theme['primary']} !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.02em;
-        margin-top: 1.3em;
-        margin-bottom: 0.8em;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        animation: fade-in 0.4s ease-out;
+        font-weight: 700 !important;
+        letter-spacing: -0.01em !important;
+        margin-top: 1.2em !important;
+        margin-bottom: 0.6em !important;
+        line-height: 1.3 !important;
     }}
     h1 {{ 
-        font-size: 2.6rem !important; 
-        font-weight: 900 !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
+        font-size: 2.25rem !important; 
+        font-weight: 800 !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: -0.03em;
     }}
     h2 {{ 
-        font-size: 1.8rem !important; 
+        font-size: 1.65rem !important; 
         color: {current_theme['primary']} !important; 
-        font-weight: 800 !important;
-        border-bottom: 3px solid {current_theme['bg_card']};
-        padding-bottom: 0.5rem;
+        font-weight: 700 !important;
+        border-bottom: 2px solid {'rgba(160,174,192,0.3)' if is_dark_mode else 'rgba(160,174,192,0.4)'};
+        padding-bottom: 0.4rem;
     }}
     h3 {{ 
-        font-size: 1.4rem !important; 
-        color: {current_theme['secondary']} !important; 
-        font-weight: 800 !important;
-    }}
-    h4 {{ 
-        font-size: 1.2rem !important; 
+        font-size: 1.35rem !important; 
         color: {current_theme['secondary']} !important; 
         font-weight: 700 !important;
     }}
-    
-    /* Body text: Scientific readability with optimal contrast */
-    .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 1.05rem !important;
-        font-family: 'Source Sans Pro', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        line-height: 1.75 !important;
-        color: {current_theme['text']} !important;
-        margin-bottom: 0.75em !important;
-        font-weight: 500;
+    h4 {{ 
+        font-size: 1.15rem !important; 
+        color: {current_theme['secondary']} !important; 
+        font-weight: 600 !important;
     }}
     
-    /* Input fields: Premium scientific design with elegant borders */
+    /* Body text: Optimal readability with medium weight */
+    .stMarkdown, .markdown-text-container, .stText, p, span, label {{
+        font-size: 1rem !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        line-height: 1.65 !important;
+        color: {current_theme['text']} !important;
+        margin-bottom: 0.6em !important;
+        font-weight: 500 !important;
+    }}
+    
+    /* Input fields: Clean design with medium background */
     input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
     .stMultiSelect>div>div>div, .stRadio>div>div>label>div {{
-        font-size: 1.0rem !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
-        border-radius: 10px !important;
-        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
-        background: {'#1e293b' if is_dark_mode else '#ffffff'} !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        font-size: 0.95rem !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        border-radius: 8px !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#cbd5e0'} !important;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        font-weight: 500 !important;
     }}
     input:focus, .stTextInput>div>div>input:focus {{
         border-color: {current_theme['secondary']} !important;
-        box-shadow: 0 0 0 4px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.12), 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) !important;
-        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
-        transform: translateY(-1px);
+        box-shadow: 0 0 0 3px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15) !important;
+        outline: none !important;
     }}
     
     /* ============================================
-       BUTTONS: Enhanced with click animations
+       BUTTONS: Bold text, medium background
        ============================================ */
     .stButton>button {{
-        font-size: 1.05rem !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
-        padding: 0.75em 1.8em !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
+        font-size: 1rem !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        padding: 0.7em 1.6em !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
         color: #fff !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         border: none !important;
         font-weight: 600 !important;
-        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35), 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.2);
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        letter-spacing: 0.03em;
-        position: relative;
-        overflow: hidden;
-    }}
-    .stButton>button::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.5s;
-    }}
-    .stButton>button:hover::before {{
-        left: 100%;
+        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
     }}
     .stButton>button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.45), 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
-        transform: translateY(-3px) scale(1.02);
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
     }}
     .stButton>button:active {{
-        transform: translateY(-1px) scale(0.97);
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
-        animation: scale-click 0.15s ease;
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 8px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
     }}
     
     /* ============================================
-       DATAFRAMES: Enhanced with compact/relaxed mode
+       DATAFRAMES: Readable with medium backgrounds
        ============================================ */
     .stDataFrame, .stTable {{
-        font-size: {'0.88rem' if is_compact else '0.96rem'} !important;
-        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        line-height: {'1.4' if is_compact else '1.65'} !important;
-        border-radius: 12px !important;
+        font-size: {'0.875rem' if is_compact else '0.925rem'} !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        line-height: {'1.45' if is_compact else '1.55'} !important;
+        border-radius: 10px !important;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
-        border: 1px solid {current_theme['bg_card']} !important;
-        animation: fade-in 0.4s ease-out;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        border: 1px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
     }}
     .stDataFrame thead tr th {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        color: white !important;
-        font-weight: 700 !important;
-        padding: {'0.6rem' if is_compact else '1rem'} !important;
-        font-size: {'0.85rem' if is_compact else '0.98rem'} !important;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-        border-bottom: 3px solid {current_theme['primary']} !important;
+        background: {'#2d3748' if is_dark_mode else f"{current_theme['primary']}"} !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+        padding: {'0.65rem' if is_compact else '0.9rem'} !important;
+        font-size: {'0.85rem' if is_compact else '0.9rem'} !important;
+        letter-spacing: 0.01em;
+        text-transform: none;
+        border-bottom: 2px solid {'#4a5568' if is_dark_mode else current_theme['secondary']} !important;
     }}
     .stDataFrame tbody tr {{
-        transition: all 0.25s ease;
-        border-bottom: 1px solid {current_theme['bg_card']} !important;
+        transition: background-color 0.15s ease;
+        border-bottom: 1px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
     }}
     .stDataFrame tbody tr:hover {{
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, #f0f7ff 0%, {current_theme['bg_card']} 100%)"} !important;
-        transform: scale(1.005);
-        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.1);
+        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
     }}
     .stDataFrame tbody tr td {{
         padding: {'0.5rem' if is_compact else '0.85rem'} !important;
@@ -705,325 +649,244 @@ st.markdown(f"""
     
     /* Highlight alternate rows */
     .stDataFrame tbody tr:nth-child(odd) {{
-        background: {'rgba(30, 41, 59, 0.3)' if is_dark_mode else 'rgba(227, 242, 253, 0.3)'} !important;
+        background: {'rgba(55, 65, 81, 0.4)' if is_dark_mode else 'rgba(247, 250, 252, 0.6)'} !important;
+    }}
+    .stDataFrame tbody td {{
+        padding: {'0.55rem' if is_compact else '0.75rem'} !important;
+        font-weight: 500 !important;
+        color: {current_theme['text']} !important;
     }}
     
-    /* Tab content spacing */
+    /* Tab content spacing - streamlined */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 2.5rem !important;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        padding-bottom: 2rem !important;
-        animation: fade-in 0.4s ease-out;
+        padding: 1.5rem 1rem 1.5rem 1rem !important;
     }}
     
     /* ============================================
-       GLASSMORPHISM CARDS: For summary displays
+       CARDS: Clean medium background
        ============================================ */
     .analysis-summary-card, .glassmorphism-card {{
-        margin: 1.5rem 0 !important;
-        padding: 2rem !important;
-        background: {'rgba(30, 41, 59, 0.8)' if is_dark_mode else 'rgba(255, 255, 255, 0.85)'} !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border-radius: 16px !important;
-        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12) !important;
-        border: 1px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else f"rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15)"} !important;
-        animation: fade-in 0.5s ease-out;
-        transition: all 0.3s ease;
+        margin: 1.25rem 0 !important;
+        padding: 1.5rem !important;
+        background: {'rgba(45, 55, 72, 0.9)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+        border: 1px solid {'rgba(74, 85, 104, 0.4)' if is_dark_mode else 'rgba(226, 232, 240, 0.8)'} !important;
     }}
     .analysis-summary-card:hover, .glassmorphism-card:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.18) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
     }}
     
-    /* Select boxes and multiselect: Premium dropdown design */
+    /* Select boxes and multiselect: Clean design */
     .stSelectbox > div > div > div, .stMultiSelect > div > div > div {{
-        min-height: 3.5rem !important;
-        padding: 1rem 1.2rem !important;
-        line-height: 1.65 !important;
-        border-radius: 12px !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
-        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s ease;
+        min-height: 2.75rem !important;
+        padding: 0.6rem 1rem !important;
+        line-height: 1.5 !important;
+        border-radius: 8px !important;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#cbd5e0'} !important;
+        font-weight: 500 !important;
+        transition: border-color 0.2s ease;
     }}
     .stSelectbox > div > div > div:hover, .stMultiSelect > div > div > div:hover {{
-        border-color: {current_theme['accent']} !important;
-        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.12);
-        transform: translateY(-1px);
+        border-color: {current_theme['secondary']} !important;
     }}
     
-    /* Enhanced input field spacing with elegant styling */
+    /* Text input and textarea: Clean styling */
     .stTextInput > div > div > input, .stTextArea textarea {{
-        padding: 1rem 1.3rem !important;
-        min-height: 3.5rem !important;
-        line-height: 1.6 !important;
-        border-radius: 12px !important;
-        font-size: 1.02rem !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
+        padding: 0.7rem 1rem !important;
+        min-height: 2.75rem !important;
+        line-height: 1.5 !important;
+        border-radius: 8px !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
     }}
     .stTextArea textarea {{
-        min-height: 120px !important;
+        min-height: 100px !important;
     }}
     
-    /* Number input styling with scientific precision */
+    /* Number input styling */
     .stNumberInput > div > div > input {{
-        padding: 1rem 1.3rem !important;
-        min-height: 3.5rem !important;
-        border-radius: 12px !important;
-        font-size: 1.02rem !important;
-        font-weight: 600;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
+        padding: 0.7rem 1rem !important;
+        min-height: 2.75rem !important;
+        border-radius: 8px !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
     }}
     
-    /* Radio buttons: Enhanced with elegant hover states and borders */
+    /* Radio buttons: Clean with bold selected state */
     .stRadio > div {{
-        gap: 0.4rem !important;
+        gap: 0.35rem !important;
     }}
     .stRadio > div > div > label {{
-        margin-bottom: 0.7rem !important;
-        padding: 0.65rem 1rem !important;
-        border-radius: 10px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        margin-bottom: 0.5rem !important;
+        padding: 0.55rem 0.9rem !important;
+        border-radius: 8px !important;
+        transition: background-color 0.2s ease;
+        border: 1.5px solid transparent;
+        background: {'#374151' if is_dark_mode else '#f7fafc'};
         cursor: pointer;
+        font-weight: 500 !important;
     }}
     .stRadio > div > div > label:hover {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-color: {current_theme['bg_card']} !important;
-        transform: translateX(4px);
-        box-shadow: 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
+        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
     }}
     .stRadio > div > div > label[data-checked="true"] {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
+        background: {'#4a5568' if is_dark_mode else current_theme['bg_card']} !important;
         border-color: {current_theme['secondary']} !important;
         font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
     }}
     /* Radio button circles */
     .stRadio > div > div > label > div:first-child {{
         border-width: 2px !important;
-        border-color: {current_theme['accent']} !important;
-        width: 22px !important;
-        height: 22px !important;
+        border-color: {'#718096' if is_dark_mode else '#a0aec0'} !important;
+        width: 18px !important;
+        height: 18px !important;
     }}
     .stRadio > div > div > label[data-checked="true"] > div:first-child {{
         border-color: {current_theme['primary']} !important;
         background-color: {current_theme['primary']} !important;
     }}
     
-    /* Number input styling */
-    .stNumberInput > div > div > input {{
-        padding: 0.85rem 1.1rem !important;
-        min-height: 3rem !important;
-        border-radius: 8px !important;
-    }}
-    
-    /* Info boxes and alerts: Scientific notification design */
+    /* Info boxes and alerts: Clean, readable design */
     .stAlert {{
-        border-radius: 12px !important;
-        border-left: 5px solid {current_theme['secondary']} !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        padding: 1.2rem !important;
-        font-weight: 500;
+        border-radius: 8px !important;
+        border-left: 4px solid {current_theme['secondary']} !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
+        padding: 1rem !important;
+        font-weight: 500 !important;
     }}
     .stAlert[data-baseweb="notification"] {{
         border-left-color: {current_theme['primary']} !important;
     }}
     .stSuccess {{
-        border-left-color: #2e7d32 !important;
-        background: {'linear-gradient(90deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
+        border-left-color: #38a169 !important;
+        background: {'#1c4532' if is_dark_mode else '#f0fff4'} !important;
     }}
     .stWarning {{
-        border-left-color: #f57c00 !important;
-        background: {'linear-gradient(90deg, #3a2e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #fff3e0 0%, #fff8f1 100%)'} !important;
+        border-left-color: #dd6b20 !important;
+        background: {'#452c19' if is_dark_mode else '#fffaf0'} !important;
     }}
     .stError {{
-        border-left-color: #c62828 !important;
-        background: {'linear-gradient(90deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #ffebee 0%, #fff5f5 100%)'} !important;
+        border-left-color: #e53e3e !important;
+        background: {'#452424' if is_dark_mode else '#fff5f5'} !important;
     }}
     
     /* ============================================
-       ADVANCED ELEGANT PROGRESS BARS
-       Animated gradient with glow effects
+       PROGRESS BARS: Clean, performant design
        ============================================ */
     .stProgress {{
-        margin: 1.5rem 0 !important;
+        margin: 1rem 0 !important;
     }}
     .stProgress > div > div {{
-        background: linear-gradient(90deg, 
-            {current_theme['primary']} 0%, 
-            {current_theme['secondary']} 25%, 
-            {current_theme['accent']} 50%,
-            {current_theme['secondary']} 75%,
-            {current_theme['primary']} 100%) !important;
-        background-size: 200% 100% !important;
-        border-radius: 16px !important;
-        box-shadow: 
-            0 4px 15px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4),
-            0 0 20px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.3),
-            inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
-        animation: progress-shimmer 2.5s ease-in-out infinite, progress-glow 1.5s ease-in-out infinite;
-        min-height: 14px !important;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }}
-    .stProgress > div > div::after {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-            90deg, 
-            transparent 0%, 
-            rgba(255, 255, 255, 0.4) 50%, 
-            transparent 100%
-        );
-        animation: progress-shine 2s ease-in-out infinite;
-    }}
-    @keyframes progress-shimmer {{
-        0% {{ background-position: 200% 0; }}
-        100% {{ background-position: -200% 0; }}
-    }}
-    @keyframes progress-glow {{
-        0%, 100% {{ 
-            box-shadow: 
-                0 4px 15px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4),
-                0 0 20px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.3);
-        }}
-        50% {{ 
-            box-shadow: 
-                0 6px 25px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.6),
-                0 0 35px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.5);
-        }}
-    }}
-    @keyframes progress-shine {{
-        0% {{ transform: translateX(-100%); }}
-        100% {{ transform: translateX(100%); }}
+        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2) !important;
+        min-height: 10px !important;
+        transition: width 0.3s ease;
     }}
     .stProgress > div {{
-        border-radius: 16px !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_light']} 0%, {current_theme['bg_card']} 100%)"} !important;
-        box-shadow: 
-            inset 0 3px 6px rgba(0, 0, 0, 0.1),
-            0 1px 2px rgba(255, 255, 255, 0.1) !important;
-        min-height: 16px !important;
+        border-radius: 8px !important;
+        background: {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        min-height: 12px !important;
         overflow: hidden;
-        position: relative;
     }}
     
-    /* Progress bar text styling */
+    /* Progress bar text */
     .stProgress + div p {{
-        font-size: 1.1rem !important;
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
         color: {current_theme['secondary']} !important;
-        margin-top: 0.75rem !important;
-        animation: fade-in 0.3s ease-out;
+        margin-top: 0.5rem !important;
     }}
     
-    /* File uploader: Premium drag-and-drop design */
+    /* File uploader: Clean design */
     [data-testid="stFileUploader"] {{
-        border: 3px dashed {current_theme['accent']} !important;
-        border-radius: 16px !important;
-        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(51, 65, 85, 0.2) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.3) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.2) 100%)"} !important;
-        padding: 2.5rem !important;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1);
+        border: 2px dashed {'#4a5568' if is_dark_mode else '#a0aec0'} !important;
+        border-radius: 10px !important;
+        background: {'#2d3748' if is_dark_mode else '#f7fafc'} !important;
+        padding: 1.5rem !important;
+        transition: border-color 0.2s ease;
     }}
     [data-testid="stFileUploader"]:hover {{
-        border-color: {current_theme['primary']} !important;
-        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(51, 65, 85, 0.4) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.5) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4) 100%)"} !important;
-        transform: scale(1.01);
-        box-shadow: 0 6px 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
+        border-color: {current_theme['secondary']} !important;
     }}
     [data-testid="stFileUploader"] section {{
         border: none !important;
     }}
     [data-testid="stFileUploader"] button {{
-        background: linear-gradient(135deg, {current_theme['secondary']} 0%, {current_theme['accent']} 100%) !important;
+        background: {current_theme['secondary']} !important;
         color: white !important;
         border: none !important;
-        border-radius: 10px !important;
-        padding: 0.6rem 1.5rem !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1.2rem !important;
         font-weight: 600 !important;
-        transition: all 0.3s ease;
     }}
     [data-testid="stFileUploader"] button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
+        background: {current_theme['primary']} !important;
     }}
     
-    /* Checkboxes: Modern toggle-style design */
+    /* Checkboxes: Clean design */
     .stCheckbox {{
-        padding: 0.5rem 0 !important;
+        padding: 0.35rem 0 !important;
     }}
     .stCheckbox > label {{
-        padding: 0.6rem 0.8rem !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease;
+        padding: 0.5rem 0.7rem !important;
+        border-radius: 6px !important;
+        transition: background-color 0.2s ease;
         cursor: pointer;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
-        border: 2px solid transparent;
+        background: {'#374151' if is_dark_mode else '#f7fafc'};
+        font-weight: 500 !important;
     }}
     .stCheckbox > label:hover {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-color: {current_theme['bg_card']} !important;
-        transform: translateX(3px);
+        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
     }}
     .stCheckbox > label > div:first-child {{
         border-width: 2px !important;
-        border-color: {current_theme['accent']} !important;
-        border-radius: 6px !important;
-        width: 22px !important;
-        height: 22px !important;
-        transition: all 0.3s ease;
+        border-color: {'#718096' if is_dark_mode else '#a0aec0'} !important;
+        border-radius: 4px !important;
+        width: 18px !important;
+        height: 18px !important;
     }}
     .stCheckbox > label > div:first-child[data-checked="true"] {{
         background-color: {current_theme['primary']} !important;
         border-color: {current_theme['primary']} !important;
     }}
     
-    /* Expander styling: Scientific accordion design with clean chevron */
+    /* Expander styling: Clean accordion design */
     .streamlit-expanderHeader {{
-        border-radius: 12px !important;
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        font-weight: 700 !important;
-        padding: 1rem 1.5rem !important;
-        border: 2px solid {current_theme['bg_card']} !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
+        border-radius: 8px !important;
+        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
+        font-weight: 600 !important;
+        padding: 0.85rem 1.2rem !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        transition: background-color 0.2s ease;
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
+        gap: 10px !important;
     }}
     .streamlit-expanderHeader:hover {{
-        background: {'linear-gradient(135deg, #475569 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
-        border-color: {current_theme['secondary']} !important;
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
+        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
     }}
     .streamlit-expanderContent {{
-        border-radius: 0 0 12px 12px !important;
-        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
-        border: 2px solid {current_theme['bg_card']} !important;
+        border-radius: 0 0 8px 8px !important;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
         border-top: none !important;
-        padding: 1.5rem !important;
+        padding: 1.2rem !important;
     }}
     
-    /* Clean chevron icon styling for expanders - replaces keyboard_arrow icons */
+    /* Chevron icon for expanders */
     .streamlit-expanderHeader svg {{
-        margin-right: 10px !important;
+        margin-right: 8px !important;
         flex-shrink: 0 !important;
-        width: 20px !important;
-        height: 20px !important;
+        width: 18px !important;
+        height: 18px !important;
         color: {current_theme['primary']} !important;
-        transition: transform 0.3s ease !important;
+        transition: transform 0.2s ease !important;
     }}
     
     /* Rotate chevron when expanded */
@@ -1031,129 +894,93 @@ st.markdown(f"""
         transform: rotate(90deg) !important;
     }}
     
-    /* Hide any raw icon text (like keyboard_arrow_right text) */
+    /* Hide raw icon text fallback */
     .streamlit-expanderHeader::before {{
         display: none !important;
     }}
     
-    /* Hide material icon text fallback */
-    .streamlit-expanderHeader span[class*="icon"],
-    .streamlit-expanderHeader [data-testid*="icon"] {{
-        font-size: 0 !important;
-    }}
-    .streamlit-expanderHeader span[class*="icon"]::before,
-    .streamlit-expanderHeader [data-testid*="icon"]::before {{
-        font-size: 1.2rem !important;
-    }}
-    
-    /* Fix: keyboard_arrow_down icon text overlap with flex container and proper line-height */
+    /* Expander header layout */
     .streamlit-expanderHeader {{
         display: flex !important;
         align-items: center !important;
-        line-height: 1.5 !important;
+        line-height: 1.4 !important;
     }}
     
-    /* Ensure label text doesn't overlap with icon - enhanced flex solution */
+    /* Expander text styling */
     .streamlit-expanderHeader p,
     .streamlit-expanderHeader label,
     .streamlit-expanderHeader div,
     .streamlit-expanderHeader span {{
         margin-left: 0 !important;
         flex: 1 !important;
-        white-space: normal !important;
-        word-wrap: break-word !important;
-        line-height: 1.5 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        line-height: 1.4 !important;
+        font-weight: 600 !important;
     }}
     
-    /* Hide keyboard_arrow_down text that may appear as fallback */
+    /* Hide keyboard_arrow_down text fallback */
     .streamlit-expanderHeader span:first-child {{
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        min-width: 24px !important;
-        max-width: 24px !important;
+        min-width: 20px !important;
+        max-width: 20px !important;
         overflow: hidden !important;
     }}
     
-    /* Global fix for icon and label spacing across all Streamlit elements */
+    /* Icon and label spacing */
     [role="button"] svg,
     [role="tab"] svg,
     button svg,
     label svg {{
-        margin-right: 6px !important;
+        margin-right: 5px !important;
         flex-shrink: 0 !important;
     }}
     
-    /* Ensure all interactive elements use flex layout for proper icon/text spacing */
+    /* Interactive elements layout */
     [role="button"],
     [role="tab"],
     button,
     label {{
         display: flex !important;
         align-items: center !important;
-        gap: 6px !important;
-        flex-wrap: wrap !important;
-        line-height: 1.5 !important;
+        gap: 5px !important;
+        line-height: 1.4 !important;
     }}
     
-    /* Prevent icon text from overlapping labels */
-    .material-icons-text {{
-        display: none !important;
-    }}
-    
-    /* Additional fix for Streamlit summary element icon text */
-    summary span {{
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-    }}
-    
-    /* Ensure icon container doesn't show raw text like 'keyboard_arrow_down' */
+    /* Icon container styling */
     [data-testid="StyledIconContainer"] {{
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 24px !important;
-        min-width: 24px !important;
+        width: 20px !important;
+        min-width: 20px !important;
         overflow: hidden !important;
     }}
     
     /* ============================================
-       METRIC CARDS: Glassmorphism with animations
+       METRIC CARDS: Clean, readable design
        ============================================ */
     [data-testid="stMetric"] {{
-        background: {'rgba(30, 41, 59, 0.7)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        padding: 1.5rem !important;
-        border-radius: 16px !important;
-        border: 2px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else current_theme['bg_card']} !important;
-        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.1) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: fade-in 0.5s ease-out;
+        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        padding: 1.2rem !important;
+        border-radius: 10px !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
     }}
     [data-testid="stMetric"]:hover {{
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2) !important;
-        border-color: {current_theme['accent']} !important;
-        animation: pulse-glow 2s infinite;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
     }}
     [data-testid="stMetricValue"] {{
-        font-size: 2.2rem !important;
-        font-weight: 800 !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-size: 1.85rem !important;
+        font-weight: 700 !important;
+        color: {current_theme['primary']} !important;
     }}
     [data-testid="stMetricLabel"] {{
-        font-size: 0.95rem !important;
+        font-size: 0.875rem !important;
         font-weight: 600 !important;
-        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
+        color: {'#a0aec0' if is_dark_mode else '#4a5568'} !important;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.03em;
     }}
     
     /* Spinner */
@@ -1161,222 +988,194 @@ st.markdown(f"""
         border-top-color: {current_theme['secondary']} !important;
     }}
     
-    /* Code blocks: Scientific monospace design */
+    /* Code blocks: Clean design */
     .stCodeBlock {{
-        border-radius: 12px !important;
-        border: 2px solid {current_theme['bg_card']} !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f8fbff 0%, {current_theme['bg_light']} 100%)"} !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        padding: 1rem !important;
+        border-radius: 8px !important;
+        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        background: {'#1a202c' if is_dark_mode else '#f7fafc'} !important;
+        padding: 0.9rem !important;
     }}
     code {{
         font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
-        font-size: 0.92rem !important;
+        font-size: 0.875rem !important;
         color: {current_theme['primary']} !important;
-        background: {'rgba(30, 41, 59, 0.4)' if is_dark_mode else f"rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4)"} !important;
-        padding: 0.2rem 0.5rem !important;
-        border-radius: 6px !important;
+        background: {'rgba(45, 55, 72, 0.5)' if is_dark_mode else 'rgba(226, 232, 240, 0.6)'} !important;
+        padding: 0.15rem 0.4rem !important;
+        border-radius: 4px !important;
+        font-weight: 500 !important;
     }}
     
-    /* Sidebar styling for navigation */
+    /* Sidebar styling */
     [data-testid="stSidebar"] {{
-        background: {'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(180deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-right: 2px solid {'#334155' if is_dark_mode else current_theme['bg_card']} !important;
+        background: {'#1a202c' if is_dark_mode else '#f7fafc'} !important;
+        border-right: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
     }}
     [data-testid="stSidebar"] .stMarkdown {{
-        color: {current_theme['primary']} !important;
+        color: {current_theme['text']} !important;
     }}
     
-    /* Scrollbar styling: Elegant scientific design */
+    /* Scrollbar: Simple design */
     ::-webkit-scrollbar {{
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
     }}
     ::-webkit-scrollbar-track {{
-        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f1f5f9 0%, {current_theme['bg_card']} 100%)"};
-        border-radius: 12px;
-        border: 1px solid {current_theme['bg_card']};
+        background: {'#2d3748' if is_dark_mode else '#edf2f7'};
+        border-radius: 8px;
     }}
     ::-webkit-scrollbar-thumb {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
-        border-radius: 12px;
-        border: 2px solid {'#1e293b' if is_dark_mode else '#f8fbff'};
-        box-shadow: 0 2px 6px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2);
+        background: {'#4a5568' if is_dark_mode else '#a0aec0'};
+        border-radius: 8px;
     }}
     ::-webkit-scrollbar-thumb:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
-        box-shadow: 0 3px 10px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.3);
+        background: {'#718096' if is_dark_mode else '#718096'};
     }}
     
-    /* Loading spinner */
-    .stSpinner > div {{
-        border-top-color: {current_theme['primary']} !important;
-        border-right-color: {current_theme['secondary']} !important;
-        border-bottom-color: {current_theme['accent']} !important;
-    }}
-    
-    /* Download buttons enhanced */
+    /* Download buttons */
     [data-testid="stDownloadButton"] button {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        background: {current_theme['primary']} !important;
         color: white !important;
-        border-radius: 12px !important;
-        padding: 0.7rem 1.6rem !important;
+        border-radius: 8px !important;
+        padding: 0.6rem 1.4rem !important;
         font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
-        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     [data-testid="stDownloadButton"] button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
+        background: {current_theme['secondary']} !important;
     }}
     
-    /* Caption text styling */
+    /* Caption text */
     .caption, [data-testid="stCaptionContainer"] {{
-        color: {'#94a3b8' if is_dark_mode else '#607d8b'} !important;
-        font-size: 0.9rem !important;
+        color: {'#a0aec0' if is_dark_mode else '#718096'} !important;
+        font-size: 0.85rem !important;
         font-style: italic;
+        font-weight: 500 !important;
     }}
     
     /* Success/Error message boxes */
     .element-container .stMarkdown .stSuccess {{
-        background: {'linear-gradient(135deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
-        border-left: 4px solid #2e7d32 !important;
-        border-radius: 10px !important;
-        padding: 1rem !important;
+        background: {'#1c4532' if is_dark_mode else '#f0fff4'} !important;
+        border-left: 4px solid #38a169 !important;
+        border-radius: 8px !important;
+        padding: 0.9rem !important;
     }}
     .element-container .stMarkdown .stError {{
-        background: {'linear-gradient(135deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #ffebee 0%, #fff5f5 100%)'} !important;
-        border-left: 4px solid #c62828 !important;
-        border-radius: 10px !important;
-        padding: 1rem !important;
+        background: {'#452424' if is_dark_mode else '#fff5f5'} !important;
+        border-left: 4px solid #e53e3e !important;
+        border-radius: 8px !important;
+        padding: 0.9rem !important;
     }}
     
-    /* Links styling */
+    /* Links */
     a {{
         color: {current_theme['secondary']} !important;
         text-decoration: none !important;
         font-weight: 600 !important;
-        transition: all 0.2s ease;
     }}
     a:hover {{
         color: {current_theme['primary']} !important;
         text-decoration: underline !important;
     }}
     
-    /* Tooltip improvements with advanced popovers */
+    /* Tooltip */
     [data-testid="stTooltipIcon"] {{
         color: {current_theme['accent']} !important;
         cursor: help;
-        transition: all 0.2s ease;
     }}
     [data-testid="stTooltipIcon"]:hover {{
-        transform: scale(1.2);
         color: {current_theme['secondary']} !important;
     }}
     
-    /* Enhanced hr separator */
+    /* Separator */
     hr {{
         border: none !important;
-        height: 2px !important;
-        background: linear-gradient(90deg, transparent 0%, {current_theme['bg_card']} 50%, transparent 100%) !important;
-        margin: 2rem 0 !important;
+        height: 1.5px !important;
+        background: {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        margin: 1.5rem 0 !important;
     }}
     
-    /* ============================================
-       STICKY RESULTS PANEL
-       ============================================ */
+    /* Sticky results panel */
     .sticky-results {{
         position: sticky;
         top: 0;
         z-index: 100;
-        background: {'rgba(15, 23, 42, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 1rem;
-        border-radius: 0 0 12px 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: {'rgba(26, 32, 44, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
+        padding: 0.9rem;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }}
     
     /* ============================================
-       RESPONSIVE DESIGN FOR TABLETS & LAPTOPS
-       Updated for colorful nav tabs
+       RESPONSIVE DESIGN
        ============================================ */
     @media screen and (max-width: 1200px) {{
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.9rem !important;
-            padding: 12px 16px !important;
+            font-size: 0.875rem !important;
+            padding: 10px 14px !important;
         }}
         .stTabs [data-baseweb="tab-list"] {{
-            border-radius: 16px !important;
-            gap: 6px !important;
+            border-radius: 10px !important;
+            gap: 5px !important;
         }}
-        h1 {{ font-size: 2rem !important; }}
-        h2 {{ font-size: 1.5rem !important; }}
+        h1 {{ font-size: 1.85rem !important; }}
+        h2 {{ font-size: 1.4rem !important; }}
         [data-testid="stMetric"] {{
             padding: 1rem !important;
         }}
         [data-testid="stMetricValue"] {{
-            font-size: 1.8rem !important;
+            font-size: 1.6rem !important;
         }}
     }}
     
     @media screen and (max-width: 768px) {{
         .stTabs [data-baseweb="tab-list"] {{
             flex-wrap: wrap !important;
-            border-radius: 12px !important;
+            border-radius: 8px !important;
             gap: 4px !important;
             padding: 6px !important;
         }}
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.75rem !important;
-            padding: 10px 12px !important;
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
             flex: 1 1 45% !important;
             min-width: 45% !important;
         }}
-        h1 {{ font-size: 1.6rem !important; }}
-        h2 {{ font-size: 1.3rem !important; }}
+        h1 {{ font-size: 1.5rem !important; }}
+        h2 {{ font-size: 1.25rem !important; }}
         h3 {{ font-size: 1.1rem !important; }}
         .stDataFrame, .stTable {{
-            font-size: 0.85rem !important;
+            font-size: 0.8rem !important;
         }}
         [data-testid="stMetric"] {{
             padding: 0.8rem !important;
         }}
         [data-testid="stMetricValue"] {{
-            font-size: 1.5rem !important;
+            font-size: 1.4rem !important;
         }}
         .stButton>button {{
-            padding: 0.6em 1.2em !important;
-            font-size: 0.95rem !important;
+            padding: 0.5em 1em !important;
+            font-size: 0.9rem !important;
         }}
     }}
     
-    /* ============================================
-       MODERN ACCORDION STYLING
-       ============================================ */
+    /* Accordion styling */
     details.streamlit-expander {{
-        border-radius: 12px !important;
+        border-radius: 8px !important;
         overflow: hidden;
-        transition: all 0.3s ease;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.6rem;
     }}
     
     details.streamlit-expander[open] {{
-        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }}
     
-    /* ============================================
-       HIGHLIGHT SELECTED ITEMS
-       ============================================ */
+    /* Highlighted rows */
     .highlighted-row {{
-        background: linear-gradient(90deg, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.2) 0%, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1) 100%) !important;
-        border-left: 4px solid {current_theme['accent']} !important;
+        background: rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.15) !important;
+        border-left: 3px solid {current_theme['accent']} !important;
     }}
     
-    /* ============================================
-       PRINT STYLES FOR PUBLICATION
-       ============================================ */
+    /* Print styles */
     @media print {{
         body, [data-testid="stAppViewContainer"], .main {{
             background: white !important;
