@@ -240,16 +240,6 @@ if 'color_theme' not in st.session_state:
 if 'tab_orientation' not in st.session_state:
     st.session_state.tab_orientation = 'horizontal'
 
-# Colorful tab palette - vibrant colors for each navigation tab
-TAB_COLORS = {
-    'Home': {'bg': '#FF6B6B', 'hover': '#FF5252', 'text': '#FFFFFF', 'icon': '🏠'},
-    'Upload & Analyze': {'bg': '#4ECDC4', 'hover': '#26A69A', 'text': '#FFFFFF', 'icon': '📤'},
-    'Results': {'bg': '#45B7D1', 'hover': '#0288D1', 'text': '#FFFFFF', 'icon': '📊'},
-    'Download': {'bg': '#96CEB4', 'hover': '#66BB6A', 'text': '#FFFFFF', 'icon': '💾'},
-    'Disease Analysis': {'bg': '#FFEAA7', 'hover': '#FFD54F', 'text': '#333333', 'icon': '🧬'},
-    'Documentation': {'bg': '#DDA0DD', 'hover': '#BA68C8', 'text': '#FFFFFF', 'icon': '📚'}
-}
-
 def hex_to_rgb(hex_color: str) -> tuple:
     """Convert hex color to RGB tuple for CSS rgba() usage."""
     hex_color = hex_color.lstrip('#')
@@ -431,69 +421,50 @@ st.markdown(f"""
        Supports both horizontal and vertical orientations
        ============================================ */
     
-    /* === {'VERTICAL' if is_vertical_tabs else 'HORIZONTAL'} TAB LAYOUT === */
+    /* Current layout mode: {'VERTICAL' if is_vertical_tabs else 'HORIZONTAL'} */
     
     {f'''
-    /* VERTICAL TAB LAYOUT */
+    /* VERTICAL TAB LAYOUT - uses flexbox for side navigation */
     .stTabs {{
         display: flex !important;
         flex-direction: row !important;
+        align-items: flex-start !important;
     }}
     .stTabs [data-baseweb="tab-list"] {{
         flex-direction: column !important;
-        width: 220px !important;
-        min-width: 220px !important;
-        max-width: 220px !important;
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
         height: auto !important;
-        min-height: 100vh !important;
+        min-height: 500px !important;
         border-bottom: none !important;
-        border-right: 4px solid {current_theme['primary']} !important;
+        border-right: 4px solid {current_theme["primary"]} !important;
         background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3) !important;
         margin-bottom: 0 !important;
-        border-radius: 0 !important;
-        padding: 1rem 0 !important;
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        z-index: 999 !important;
+        margin-right: 1rem !important;
+        border-radius: 16px !important;
+        padding: 1rem 0.5rem !important;
         gap: 8px !important;
+        position: sticky !important;
+        top: 3rem !important;
     }}
     .stTabs [data-baseweb="tab-panel"] {{
-        margin-left: 235px !important;
-        padding: 2rem !important;
-        width: calc(100% - 235px) !important;
+        flex: 1 !important;
+        padding: 1rem 2rem !important;
+        min-width: 0 !important;
     }}
     .stTabs [data-baseweb="tab"] {{
         width: 100% !important;
         min-width: 100% !important;
-        border-radius: 0 16px 16px 0 !important;
+        border-radius: 12px !important;
         margin: 4px 0 !important;
-        padding: 18px 20px !important;
+        padding: 14px 16px !important;
         text-align: left !important;
-        border-right: none !important;
-        border-left: 5px solid transparent !important;
-    }}
-    .stTabs [data-baseweb="tab"]::after {{
-        content: none !important;
-    }}
-    .stTabs [data-baseweb="tab"]::before {{
-        content: "" !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        height: 100% !important;
-        width: 5px !important;
-        background: transparent !important;
-        border-radius: 0 4px 4px 0 !important;
-        transition: all 0.3s ease !important;
-    }}
-    .stTabs [aria-selected="true"]::before {{
-        background: linear-gradient(180deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%) !important;
-        box-shadow: 0 0 15px rgba(255, 107, 107, 0.5) !important;
+        font-size: 0.95rem !important;
     }}
     ''' if is_vertical_tabs else f'''
-    /* HORIZONTAL TAB LAYOUT */
+    /* HORIZONTAL TAB LAYOUT - default top navigation */
     .stTabs [data-baseweb="tab-list"] {{
         width: 100% !important;
         justify-content: stretch !important;
