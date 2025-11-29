@@ -346,149 +346,92 @@ st.markdown(f"""
        SUBTLE BACKGROUND PATTERN WITH DNA MOTIF
        ============================================ */
     body, [data-testid="stAppViewContainer"], .main {{
-        background: 
-            {dna_pattern},
-            linear-gradient(135deg, {current_theme['bg_light']} 0%, {'#1e293b' if is_dark_mode else '#e8f4fd'} 50%, {current_theme['bg_light']} 100%) !important;
+        background: {'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(180deg, #f7fbff 0%, #f1f7fb 100%)'} !important;
+        color: {'#e2e8f0' if is_dark_mode else '#0f172a'} !important;
         font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
-        {'color: #e2e8f0 !important;' if is_dark_mode else ''}
     }}
     
     /* ============================================
-       COLORFUL ATTRACTIVE NAV TABS
-       Beautiful gradient tabs with horizontal navigation
+       NAV BAR TWEAKS: lighter, centered, less-glow
        ============================================ */
     
-    /* HORIZONTAL TAB LAYOUT - default top navigation */
+    /* Make tab container lighter and remove heavy inner glow */
     .stTabs [data-baseweb="tab-list"] {{
-        width: 100% !important;
-        justify-content: stretch !important;
-        border-bottom: none !important;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 4px 16px rgba({rgb["primary"][0]}, {rgb["primary"][1]}, {rgb["primary"][2]}, 0.2) !important;
-        margin-bottom: 2em !important;
-        border-radius: 20px !important;
-        animation: fade-in 0.5s ease-out !important;
-        min-height: 80px !important;
-        padding: 8px !important;
+        background: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(245,250,255,0.9) 50%) !important;
+        border-bottom: 2px solid rgba(30,47,68,0.06) !important;
+        box-shadow: 0 6px 14px rgba(14,30,50,0.06) !important;
+        padding: 10px !important;
+        border-radius: 14px !important;
+        margin: 0 auto 1.25rem auto !important;
+        max-width: 1200px !important;
+    }}
+    
+    /* Make each tab pill centered and remove heavy hover glow */
+    .stTabs [data-baseweb="tab"] {{
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 140px !important;
+        padding: 10px 18px !important;
+        margin: 0 8px !important;
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,250,255,0.9)) !important;
+        color: #0f172a !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(16,24,40,0.06) !important;
+        box-shadow: 0 4px 10px rgba(14,30,50,0.06) !important;
+        line-height: 1 !important;
+        height: auto !important;
+        text-transform: none !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.02em !important;
+        transition: all 0.3s ease !important;
+    }}
+    
+    /* Ensure tab text is vertically centered (handles icon/text combinations) */
+    .stTabs [data-baseweb="tab"] > * {{
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         gap: 8px !important;
     }}
     
-    /* Individual tab styling with colorful gradients */
-    .stTabs [data-baseweb="tab"] {{
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        flex: 1 1 0% !important;
-        min-width: 0 !important;
-        padding: 16px 24px !important;
-        text-align: center !important;
-        color: #FFFFFF !important;
-        letter-spacing: 0.04em !important;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        position: relative !important;
-        text-transform: uppercase !important;
-        border-radius: 14px !important;
-        margin: 2px !important;
-        background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%) !important;
-        border: 2px solid rgba(255,255,255,0.1) !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-        overflow: hidden !important;
-    }}
-    
-    /* Colorful tab backgrounds - nth-child selectors for each tab */
-    .stTabs [data-baseweb="tab"]:nth-child(1) {{
-        background: linear-gradient(145deg, #FF6B6B 0%, #EE5A5A 50%, #D94848 100%) !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(2) {{
-        background: linear-gradient(145deg, #4ECDC4 0%, #3DB9B0 50%, #26A69A 100%) !important;
-        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(3) {{
-        background: linear-gradient(145deg, #45B7D1 0%, #2CA5BF 50%, #0288D1 100%) !important;
-        box-shadow: 0 4px 15px rgba(69, 183, 209, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(4) {{
-        background: linear-gradient(145deg, #96CEB4 0%, #7FBF9F 50%, #66BB6A 100%) !important;
-        box-shadow: 0 4px 15px rgba(150, 206, 180, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(5) {{
-        background: linear-gradient(145deg, #FFEAA7 0%, #FFE082 50%, #FFD54F 100%) !important;
-        box-shadow: 0 4px 15px rgba(255, 234, 167, 0.4) !important;
-        color: #333333 !important;
-        text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(6) {{
-        background: linear-gradient(145deg, #DDA0DD 0%, #CE93D8 50%, #BA68C8 100%) !important;
-        box-shadow: 0 4px 15px rgba(221, 160, 221, 0.4) !important;
-    }}
-    
-    /* Tab hover effects - enhanced glow and scale */
-    .stTabs [data-baseweb="tab"]:hover {{
-        transform: translateY(-4px) scale(1.02) !important;
-        filter: brightness(1.15) !important;
-        z-index: 10 !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(1):hover {{
-        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6), 0 0 20px rgba(255, 107, 107, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(2):hover {{
-        box-shadow: 0 8px 30px rgba(78, 205, 196, 0.6), 0 0 20px rgba(78, 205, 196, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(3):hover {{
-        box-shadow: 0 8px 30px rgba(69, 183, 209, 0.6), 0 0 20px rgba(69, 183, 209, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(4):hover {{
-        box-shadow: 0 8px 30px rgba(150, 206, 180, 0.6), 0 0 20px rgba(150, 206, 180, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(5):hover {{
-        box-shadow: 0 8px 30px rgba(255, 234, 167, 0.6), 0 0 20px rgba(255, 234, 167, 0.4) !important;
-    }}
-    .stTabs [data-baseweb="tab"]:nth-child(6):hover {{
-        box-shadow: 0 8px 30px rgba(221, 160, 221, 0.6), 0 0 20px rgba(221, 160, 221, 0.4) !important;
-    }}
-    
-    /* Active/Selected tab styling */
+    /* Selected tab: subtle cyan outline and soft fill */
     .stTabs [aria-selected="true"] {{
-        transform: translateY(-4px) scale(1.05) !important;
-        filter: brightness(1.2) saturate(1.2) !important;
-        border: 3px solid rgba(255,255,255,0.5) !important;
-        font-weight: 800 !important;
-        z-index: 20 !important;
+        background: linear-gradient(180deg, #eaf8ff 0%, #dff3ff 100%) !important;
+        color: #03396c !important;
+        border: 1px solid rgba(2,119,189,0.18) !important;
+        box-shadow: 0 6px 18px rgba(3,57,108,0.08) !important;
+        transform: translateY(-4px) !important;
     }}
-    .stTabs [aria-selected="true"]:nth-child(1) {{
-        box-shadow: 0 10px 40px rgba(255, 107, 107, 0.7), 0 0 30px rgba(255, 107, 107, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    
+    /* Hover state: light lift */
+    .stTabs [data-baseweb="tab"]:hover {{
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(14,30,50,0.08) !important;
+        color: #022b55 !important;
     }}
-    .stTabs [aria-selected="true"]:nth-child(2) {{
-        box-shadow: 0 10px 40px rgba(78, 205, 196, 0.7), 0 0 30px rgba(78, 205, 196, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    
+    /* Reduce the bright neon outline you had before */
+    .stTabs [data-baseweb="tab"]::after,
+    .stTabs [data-baseweb="tab"][aria-selected="true"]::after {{
+        display: none !important;
     }}
-    .stTabs [aria-selected="true"]:nth-child(3) {{
-        box-shadow: 0 10px 40px rgba(69, 183, 209, 0.7), 0 0 30px rgba(69, 183, 209, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    
+    /* Small-screen responsiveness: reduce padding and font-size */
+    @media screen and (max-width: 900px) {{
+        .stTabs [data-baseweb="tab"] {{ min-width: 110px !important; padding: 8px 12px !important; font-size: 0.95rem !important; }}
+        .stTabs [data-baseweb="tab-list"] {{ padding: 8px !important; }}
     }}
-    .stTabs [aria-selected="true"]:nth-child(4) {{
-        box-shadow: 0 10px 40px rgba(150, 206, 180, 0.7), 0 0 30px rgba(150, 206, 180, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-    }}
-    .stTabs [aria-selected="true"]:nth-child(5) {{
-        box-shadow: 0 10px 40px rgba(255, 234, 167, 0.7), 0 0 30px rgba(255, 234, 167, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-    }}
-    .stTabs [aria-selected="true"]:nth-child(6) {{
-        box-shadow: 0 10px 40px rgba(221, 160, 221, 0.7), 0 0 30px rgba(221, 160, 221, 0.5), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-    }}
+    
+    /* Utility classes for custom colored pills if needed */
+    .nav-pill {{ padding: 8px 14px; border-radius: 10px; }}
+    .nav-pill.primary {{ background: #e8f4ff; color: #04395e; border: 1px solid rgba(2,119,189,0.08); }}
+    .nav-pill.green {{ background: #eef9f0; color: #0b5f2a; border: 1px solid rgba(6,150,90,0.06); }}
     
     /* Tab panel content area */
     .stTabs [data-baseweb="tab-panel"] {{
         padding-top: 2rem !important;
         animation: fade-in 0.4s ease-out !important;
-    }}
-    
-    /* Pulse animation for active tab */
-    @keyframes tab-pulse {{
-        0%, 100% {{ filter: brightness(1.2) saturate(1.2); }}
-        50% {{ filter: brightness(1.3) saturate(1.3); }}
-    }}
-    .stTabs [aria-selected="true"] {{
-        animation: tab-pulse 2s ease-in-out infinite !important;
     }}
     
     /* ============================================
