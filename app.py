@@ -26,12 +26,14 @@ ARCHITECTURE:
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import os  # Added for image path checking
 import numpy as np
 from collections import Counter
+import html as html_module  # For escaping user input
 # Import consolidated NBDScanner modules
 from utilities import (
     canonicalize_motif, parse_fasta, gc_content, reverse_complement, wrap,
@@ -77,6 +79,126 @@ except ImportError:
     NUMBA_AVAILABLE = False
     parallel_scan = None
     suggest_num_workers = lambda x: 1
+
+# ---------- HTML RENDERING HELPERS ----------
+# NOTE: The root cause of HTML being displayed as text (escaped) is that 
+# st.markdown() escapes HTML by default. For trusted HTML content, use 
+# unsafe_allow_html=True. For untrusted user input, do NOT use unsafe_allow_html 
+# to avoid XSS vulnerabilities.
+
+import re
+
+# Regex pattern for validating CSS color values
+_CSS_COLOR_PATTERN = re.compile(r'^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$')
+
+def _sanitize_css_color(color: str, default: str = '#607D8B') -> str:
+    """
+    Validate and sanitize a CSS color value to prevent CSS injection.
+    
+    Only accepts valid hex color codes (#RGB or #RRGGBB format).
+    Returns a safe default color if the input is invalid.
+    
+    Args:
+        color: Color value to validate
+        default: Safe default color to return if validation fails
+        
+    Returns:
+        Sanitized color value (hex format)
+    """
+    if isinstance(color, str) and _CSS_COLOR_PATTERN.match(color):
+        return color
+    return default
+
+
+def render_html(html_content: str) -> None:
+    """
+    Render trusted HTML content in Streamlit using st.markdown.
+    
+    This is a convenience wrapper that automatically sets unsafe_allow_html=True.
+    Only use this for trusted, internally-generated HTML content.
+    Do NOT use this for user-provided content to avoid XSS vulnerabilities.
+    
+    Args:
+        html_content: Trusted HTML string to render
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
+
+
+def render_html_component(html_content: str, height: int = 100, scrolling: bool = False) -> None:
+    """
+    Render HTML using Streamlit's components.html for complex HTML content.
+    
+    This uses an iframe to render HTML, providing better isolation and support
+    for JavaScript. Only use for trusted content.
+    
+    Args:
+        html_content: Trusted HTML string to render
+        height: Height of the component in pixels
+        scrolling: Whether to allow scrolling in the component
+    """
+    components.html(html_content, height=height, scrolling=scrolling)
+
+
+def render_motif_class_badges(motif_classes: list, colors: dict = None) -> str:
+    """
+    Generate HTML badges/pills for a list of motif classes.
+    
+    Creates styled inline badges for displaying motif classes in a visually
+    appealing format. Returns HTML string to be rendered with render_html().
+    
+    Args:
+        motif_classes: List of motif class names to display
+        colors: Optional dict mapping class names to colors. 
+                If None, uses MOTIF_CLASS_COLORS from visualizations.
+                
+    Returns:
+        HTML string containing styled badges
+    """
+    if colors is None:
+        colors = MOTIF_CLASS_COLORS
+    
+    badges = []
+    for cls in motif_classes:
+        # Escape the class name to prevent XSS from motif class names
+        safe_cls = html_module.escape(str(cls))
+        # Sanitize the color value to prevent CSS injection
+        raw_color = colors.get(cls, '#607D8B')
+        safe_color = _sanitize_css_color(raw_color)
+        badge_html = f'''<span style="
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 2px 4px;
+            background-color: {safe_color};
+            color: white;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">{safe_cls}</span>'''
+        badges.append(badge_html)
+    
+    return '<div style="display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0;">' + ''.join(badges) + '</div>'
+
+
+def display_motif_classes_styled(motif_classes: list, title: str = None, colors: dict = None) -> None:
+    """
+    Display a list of motif classes as styled HTML badges in Streamlit.
+    
+    This is a convenience function that combines render_motif_class_badges
+    and render_html for easy use.
+    
+    Args:
+        motif_classes: List of motif class names to display
+        title: Optional title to display above the badges
+        colors: Optional dict mapping class names to colors
+    """
+    if title:
+        render_html(f'<p style="margin-bottom: 8px; font-weight: 600;">{html_module.escape(title)}</p>')
+    
+    badges_html = render_motif_class_badges(motif_classes, colors)
+    render_html(badges_html)
+
 
 # ---------- CACHING FUNCTIONS (Memory-Efficient) ----------
 @st.cache_resource(show_spinner=False)
