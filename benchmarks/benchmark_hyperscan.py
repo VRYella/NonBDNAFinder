@@ -75,17 +75,20 @@ def get_test_patterns() -> List[Tuple[str, str, Dict]]:
     """
     Get a set of test patterns for benchmarking.
     
+    Note: Uses possessive quantifiers ({n,}+) to prevent catastrophic
+    backtracking on long sequences. Requires Python 3.11+.
+    
     Returns:
         List of (regex, pattern_id, metadata) tuples
     """
     return [
-        # G-quadruplex patterns
-        (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 
+        # G-quadruplex patterns (possessive quantifiers to prevent backtracking)
+        (r'G{3,}+[ACGT]{1,7}+G{3,}+[ACGT]{1,7}+G{3,}+[ACGT]{1,7}+G{3,}+', 
          'G4_1', {'class': 'G-Quadruplex', 'subclass': 'Canonical', 'score': 0.9}),
         (r'G{4,}', 'G_RUN', {'class': 'G-Quadruplex', 'subclass': 'G-run', 'score': 0.5}),
         
-        # i-Motif patterns
-        (r'C{3,}[ACGT]{1,7}C{3,}[ACGT]{1,7}C{3,}[ACGT]{1,7}C{3,}', 
+        # i-Motif patterns (possessive quantifiers to prevent backtracking)
+        (r'C{3,}+[ACGT]{1,7}+C{3,}+[ACGT]{1,7}+C{3,}+[ACGT]{1,7}+C{3,}+', 
          'IM_1', {'class': 'i-Motif', 'subclass': 'Canonical', 'score': 0.9}),
         (r'C{4,}', 'C_RUN', {'class': 'i-Motif', 'subclass': 'C-run', 'score': 0.5}),
         
@@ -229,14 +232,13 @@ def format_throughput(sequence_length: int, seconds: float) -> str:
         return f"{bps:.2f} bp/s"
 
 
-def run_benchmark(size: int = 100000, iterations: int = 5, verbose: bool = True):
+def run_benchmark(size: int = 100000, iterations: int = 5):
     """
     Run the complete benchmark suite.
     
     Args:
         size: Sequence length in base pairs
         iterations: Number of iterations per benchmark
-        verbose: Print detailed results
     """
     from scanner_backends import is_hyperscan_available
     
@@ -343,18 +345,12 @@ def main():
         default=5,
         help="Number of iterations per benchmark (default: 5)"
     )
-    parser.add_argument(
-        "--quiet", "-q",
-        action="store_true",
-        help="Reduce output verbosity"
-    )
     
     args = parser.parse_args()
     
     run_benchmark(
         size=args.size,
-        iterations=args.iterations,
-        verbose=not args.quiet
+        iterations=args.iterations
     )
 
 
