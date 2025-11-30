@@ -109,10 +109,19 @@ def benchmark_regex(sequence: str, patterns: List[Tuple[str, str, Dict]],
     """
     Benchmark pure Python regex matching.
     
+    Note: Pattern compilation is done outside the timing loop to measure
+    only the matching performance, consistent with the Hyperscan benchmark.
+    
     Returns:
         Tuple of (average_time_seconds, total_matches)
     """
     import re
+    
+    # Pre-compile patterns (not included in timing)
+    compiled_patterns = [
+        (re.compile(regex, re.IGNORECASE), pattern_id, metadata)
+        for regex, pattern_id, metadata in patterns
+    ]
     
     total_matches = 0
     times = []
@@ -121,8 +130,7 @@ def benchmark_regex(sequence: str, patterns: List[Tuple[str, str, Dict]],
         start = time.perf_counter()
         matches = 0
         
-        for regex, pattern_id, metadata in patterns:
-            compiled = re.compile(regex, re.IGNORECASE)
+        for compiled, pattern_id, metadata in compiled_patterns:
             for match in compiled.finditer(sequence):
                 matches += 1
         
@@ -171,6 +179,10 @@ def benchmark_fallback_regex(sequence: str, patterns: List[Tuple[str, str, Dict]
                              iterations: int = 3) -> Tuple[float, int]:
     """
     Benchmark the fallback regex implementation from hyperscan_backend.
+    
+    Note: This benchmarks the fallback_regex_scan function which includes
+    pattern compilation time internally. This represents the actual
+    performance when using the fallback path.
     
     Returns:
         Tuple of (average_time_seconds, total_matches)
