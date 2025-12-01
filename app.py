@@ -2131,7 +2131,7 @@ with tab_pages["Upload & Analyze"]:
                             'Length': stats['Length'],
                             'GC Content': f"{stats['GC%']:.1f}%",
                             'Motifs Found': len(results),
-                            'Unique Types': len(set(m.get('Type', 'Unknown') for m in results)),
+                            'Unique Types': len(set(m.get('Class', 'Unknown') for m in results)),
                             'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
                         })
                     
