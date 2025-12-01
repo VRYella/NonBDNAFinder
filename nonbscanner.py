@@ -117,8 +117,13 @@ PARALLEL_THRESHOLD = 1_000        # bp - Use parallel processing for sequences l
 MAX_PARALLEL_DETECTORS = 9        # Number of detector classes in the system
 MAX_PARALLEL_CHUNKS = None        # None = use cpu_count; set to limit parallel chunk processing
 
-# Module-level storage for the last analysis detector timings
-# This allows the app.py to access timing data without modifying return signatures
+# Module-level storage for the last analysis detector timings.
+# This provides a convenient way for app.py to access timing data without 
+# modifying function return signatures. The data is stored as a copy and
+# represents the timings from the most recent analyze_sequence() call.
+# Note: In multi-threaded environments with concurrent analyses, each thread
+# should use a separate NonBScanner instance and access timings via 
+# scanner.detector_timings instead of this global function.
 _last_detector_timings = {}
 
 
@@ -129,6 +134,10 @@ def get_last_detector_timings() -> Dict[str, float]:
     Returns:
         Dictionary mapping detector names to elapsed times in seconds.
         Keys are detector internal names (e.g., 'curved_dna', 'g_quadruplex').
+        
+    Note:
+        For thread-safe access to detector timings, use scanner.detector_timings
+        on a NonBScanner instance instead of this module-level function.
         
     Example:
         >>> from nonbscanner import analyze_sequence, get_last_detector_timings
@@ -367,8 +376,14 @@ class NonBScanner:
         return final_motifs
     
     def _run_detector_with_timing(self, detector, sequence: str, sequence_name: str, 
-                          detector_name: str) -> tuple:
+                          detector_name: str) -> Tuple[List[Dict[str, Any]], float]:
         """Run a detector with timing measurement for parallel execution.
+        
+        Args:
+            detector: The detector instance to run
+            sequence: DNA sequence to analyze
+            sequence_name: Name identifier for the sequence
+            detector_name: Name of the detector (for error messages)
         
         Returns:
             Tuple of (motifs_list, elapsed_time_seconds)
@@ -381,15 +396,6 @@ class NonBScanner:
         except Exception as e:
             warnings.warn(f"Error in {detector_name} detector: {e}")
             return [], 0.0
-    
-    def _run_detector_safe(self, detector, sequence: str, sequence_name: str, 
-                          detector_name: str) -> List[Dict[str, Any]]:
-        """Run a detector with error handling for parallel execution (legacy support)."""
-        try:
-            return detector.detect_motifs(sequence, sequence_name)
-        except Exception as e:
-            warnings.warn(f"Error in {detector_name} detector: {e}")
-            return []
     
     def _remove_overlaps(self, motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Remove overlapping motifs within the same class/subclass"""
