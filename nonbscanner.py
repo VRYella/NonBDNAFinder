@@ -117,6 +117,43 @@ PARALLEL_THRESHOLD = 1_000        # bp - Use parallel processing for sequences l
 MAX_PARALLEL_DETECTORS = 9        # Number of detector classes in the system
 MAX_PARALLEL_CHUNKS = None        # None = use cpu_count; set to limit parallel chunk processing
 
+# Module-level storage for the last analysis detector timings
+# This allows the app.py to access timing data without modifying return signatures
+_last_detector_timings = {}
+
+
+def get_last_detector_timings() -> Dict[str, float]:
+    """
+    Get the detector timings from the most recent analysis.
+    
+    Returns:
+        Dictionary mapping detector names to elapsed times in seconds.
+        Keys are detector internal names (e.g., 'curved_dna', 'g_quadruplex').
+        
+    Example:
+        >>> from nonbscanner import analyze_sequence, get_last_detector_timings
+        >>> motifs = analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test")
+        >>> timings = get_last_detector_timings()
+        >>> for name, time_sec in timings.items():
+        ...     print(f"{name}: {time_sec:.3f}s")
+    """
+    return _last_detector_timings.copy()
+
+
+def get_detector_display_names() -> Dict[str, str]:
+    """
+    Get mapping of detector internal names to human-readable display names.
+    
+    Returns:
+        Dictionary mapping internal names to display names.
+        
+    Example:
+        >>> names = get_detector_display_names()
+        >>> print(names['g_quadruplex'])  # 'G-Quadruplex'
+    """
+    return NonBScanner.DETECTOR_DISPLAY_NAMES.copy()
+
+
 # =============================================================================
 # MAIN SCANNER CLASS
 # =============================================================================
@@ -133,6 +170,19 @@ class NonBScanner:
     100x+ overall performance improvement over sequential pure-Python scanning.
     """
     
+    # Human-readable detector display names for UI
+    DETECTOR_DISPLAY_NAMES = {
+        'curved_dna': 'Curved DNA',
+        'slipped_dna': 'Slipped DNA',
+        'cruciform': 'Cruciform',
+        'r_loop': 'R-Loop',
+        'triplex': 'Triplex',
+        'g_quadruplex': 'G-Quadruplex',
+        'i_motif': 'i-Motif',
+        'z_dna': 'Z-DNA',
+        'a_philic': 'A-philic DNA'
+    }
+    
     def __init__(self, enable_all_detectors: bool = True, use_parallel: bool = True):
         """
         Initialize NonBScanner with all detector modules
@@ -143,6 +193,8 @@ class NonBScanner:
         """
         self.detectors = {}
         self.use_parallel = use_parallel
+        # Store detector timings from the last analysis
+        self.detector_timings = {}
         
         if enable_all_detectors:
             self.detectors = {
@@ -195,10 +247,14 @@ class NonBScanner:
             sequence: DNA sequence to analyze (ATGC characters)
             sequence_name: Identifier for the sequence
             use_parallel: Use parallel processing (default: True for sequences > 1000bp)
-            detector_callback: Optional callback(detector_name, completed, total) for progress
+            detector_callback: Optional callback(detector_name, completed, total, elapsed_time) for progress
             
         Returns:
             List of motif dictionaries sorted by genomic position
+            
+        Note:
+            After calling this method, detector timings are available via
+            self.detector_timings dictionary.
             
         Performance (100x improvement):
             - Sequential: ~5,000-8,000 bp/s per detector
@@ -212,6 +268,9 @@ class NonBScanner:
             >>> print(f"Found {len(motifs)} motifs")
             >>> for m in motifs:
             ...     print(f"{m['Class']} at {m['Start']}-{m['End']}")
+            >>> # Access detector timings
+            >>> for name, timing in scanner.detector_timings.items():
+            ...     print(f"{name}: {timing:.3f}s")
         """
         sequence = sequence.upper().strip()
         
@@ -228,6 +287,9 @@ class NonBScanner:
         total_detectors = len(self.detectors)
         completed = 0
         
+        # Reset detector timings for this analysis
+        self.detector_timings = {}
+        
         if use_parallel and len(self.detectors) > 1:
             # 100X PERFORMANCE: Run all MAX_PARALLEL_DETECTORS detectors in parallel
             with ThreadPoolExecutor(max_workers=min(MAX_PARALLEL_DETECTORS, len(self.detectors))) as executor:
@@ -235,7 +297,7 @@ class NonBScanner:
                 
                 for detector_name, detector in self.detectors.items():
                     future = executor.submit(
-                        self._run_detector_safe, 
+                        self._run_detector_with_timing, 
                         detector, 
                         sequence, 
                         sequence_name,
@@ -248,27 +310,38 @@ class NonBScanner:
                     detector_name = futures[future]
                     completed += 1
                     
-                    if detector_callback:
-                        detector_callback(detector_name, completed, total_detectors)
-                    
                     try:
-                        motifs = future.result()
+                        motifs, elapsed_time = future.result()
                         all_motifs.extend(motifs)
+                        self.detector_timings[detector_name] = elapsed_time
+                        
+                        if detector_callback:
+                            detector_callback(detector_name, completed, total_detectors, elapsed_time)
                     except Exception as e:
                         warnings.warn(f"Error in {detector_name} detector: {e}")
+                        self.detector_timings[detector_name] = 0.0
+                        if detector_callback:
+                            detector_callback(detector_name, completed, total_detectors, 0.0)
         else:
             # Sequential fallback for small sequences or when parallel disabled
             for detector_name, detector in self.detectors.items():
                 completed += 1
                 
-                if detector_callback:
-                    detector_callback(detector_name, completed, total_detectors)
-                
                 try:
+                    start_time = time.time()
                     motifs = detector.detect_motifs(sequence, sequence_name)
+                    elapsed_time = time.time() - start_time
+                    
                     all_motifs.extend(motifs)
+                    self.detector_timings[detector_name] = elapsed_time
+                    
+                    if detector_callback:
+                        detector_callback(detector_name, completed, total_detectors, elapsed_time)
                 except Exception as e:
                     warnings.warn(f"Error in {detector_name} detector: {e}")
+                    self.detector_timings[detector_name] = 0.0
+                    if detector_callback:
+                        detector_callback(detector_name, completed, total_detectors, 0.0)
                     continue
         
         # Remove overlaps within same class
@@ -287,11 +360,31 @@ class NonBScanner:
         # Sort by position
         final_motifs.sort(key=lambda x: x.get('Start', 0))
         
+        # Update module-level storage for external access
+        global _last_detector_timings
+        _last_detector_timings = self.detector_timings.copy()
+        
         return final_motifs
+    
+    def _run_detector_with_timing(self, detector, sequence: str, sequence_name: str, 
+                          detector_name: str) -> tuple:
+        """Run a detector with timing measurement for parallel execution.
+        
+        Returns:
+            Tuple of (motifs_list, elapsed_time_seconds)
+        """
+        try:
+            start_time = time.time()
+            motifs = detector.detect_motifs(sequence, sequence_name)
+            elapsed_time = time.time() - start_time
+            return motifs, elapsed_time
+        except Exception as e:
+            warnings.warn(f"Error in {detector_name} detector: {e}")
+            return [], 0.0
     
     def _run_detector_safe(self, detector, sequence: str, sequence_name: str, 
                           detector_name: str) -> List[Dict[str, Any]]:
-        """Run a detector with error handling for parallel execution."""
+        """Run a detector with error handling for parallel execution (legacy support)."""
         try:
             return detector.detect_motifs(sequence, sequence_name)
         except Exception as e:

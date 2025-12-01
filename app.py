@@ -45,7 +45,8 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, analyze_multiple_sequences,
     get_motif_info as get_motif_classification_info,
-    CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP
+    CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP,
+    get_last_detector_timings, get_detector_display_names
 )
 from utilities import export_results_to_dataframe
 from visualizations import (
@@ -1814,12 +1815,46 @@ with tab_pages["Upload & Analyze"]:
                     return total_bp / ESTIMATED_BP_PER_SECOND
                 
                 # Helper function to render the combined progress block
-                def render_progress_block(progress_pct, current_step, elapsed_sec, motifs_found, speed_bps, is_complete=False):
+                def render_progress_block(progress_pct, current_step, elapsed_sec, motifs_found, speed_bps, is_complete=False, detector_timings=None):
                     """Render the combined NBDScanner Run Button + Progress + Stats Block"""
                     # Calculate progress bar blocks (using Unicode block characters)
                     filled_blocks = int(progress_pct / 12.5)  # 8 total blocks
                     empty_blocks = 8 - filled_blocks
                     progress_visual = "█" * filled_blocks + "▒" * empty_blocks
+                    
+                    # Build detector timings HTML if available
+                    detector_timings_html = ""
+                    if is_complete and detector_timings:
+                        detector_display_names = get_detector_display_names()
+                        # Sort by detector name for consistent display order
+                        sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+                        
+                        detector_timings_html = """
+                        <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); 
+                                    border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);'>
+                            <div style='font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.9); 
+                                        margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;'>
+                                ⏱️ Detector Timings
+                            </div>
+                            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;'>
+                        """
+                        for det_name, det_time in sorted_detectors:
+                            display_name = detector_display_names.get(det_name, det_name)
+                            detector_timings_html += f"""
+                                <div style='background: rgba(102, 126, 234, 0.15); padding: 0.5rem 0.8rem; 
+                                            border-radius: 8px; border-left: 3px solid #667eea;'>
+                                    <span style='font-weight: 600; color: rgba(255,255,255,0.95); font-size: 0.8rem;'>
+                                        {html_module.escape(display_name)}
+                                    </span>
+                                    <span style='float: right; color: #4CAF50; font-weight: 700; font-size: 0.8rem;'>
+                                        {det_time:.3f}s
+                                    </span>
+                                </div>
+                            """
+                        detector_timings_html += """
+                            </div>
+                        </div>
+                        """
                     
                     if is_complete:
                         block_html = f"""
@@ -1856,6 +1891,7 @@ with tab_pages["Upload & Analyze"]:
                                     <p class='stat-label'>Detectors</p>
                                 </div>
                             </div>
+                            {detector_timings_html}
                         </div>
                         """
                     else:
@@ -2101,6 +2137,9 @@ with tab_pages["Upload & Analyze"]:
                     
                     st.session_state.summary_df = pd.DataFrame(summary)
                     
+                    # Get detector timings from the last analysis
+                    detector_timings = get_last_detector_timings()
+                    
                     # Store performance metrics with enhanced details
                     st.session_state.performance_metrics = {
                         'total_time': total_time,
@@ -2114,7 +2153,8 @@ with tab_pages["Upload & Analyze"]:
                         'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
                             'Hybrid/Cluster detection',
                             'Overlap resolution'
-                        ]
+                        ],
+                        'detector_timings': detector_timings  # Individual detector timings
                     }
                     
                     # Clear progress displays
@@ -2131,7 +2171,8 @@ with tab_pages["Upload & Analyze"]:
                         elapsed_sec=total_time,
                         motifs_found=total_motifs_found,
                         speed_bps=overall_speed,
-                        is_complete=True
+                        is_complete=True,
+                        detector_timings=detector_timings
                     )
                     combined_progress_placeholder.markdown(completion_html, unsafe_allow_html=True)
                     
@@ -2244,6 +2285,42 @@ with tab_pages["Results"]:
                 </div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Display detector timings if available
+            detector_timings = metrics.get('detector_timings', {})
+            if detector_timings:
+                detector_display_names = get_detector_display_names()
+                sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+                
+                detector_timings_html = """
+                <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                            border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;
+                            box-shadow: 0 10px 40px rgba(15, 52, 96, 0.25);'>
+                    <h4 style='margin: 0 0 1rem 0; text-align: center;
+                               color: rgba(255,255,255,0.95); font-size: 1.1rem; font-weight: 700;'>
+                        ⏱️ Individual Detector Timings
+                    </h4>
+                    <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;'>
+                """
+                for det_name, det_time in sorted_detectors:
+                    display_name = detector_display_names.get(det_name, det_name)
+                    detector_timings_html += f"""
+                        <div style='background: rgba(102, 126, 234, 0.15); padding: 0.7rem 1rem; 
+                                    border-radius: 10px; border-left: 3px solid #667eea;
+                                    display: flex; justify-content: space-between; align-items: center;'>
+                            <span style='font-weight: 600; color: rgba(255,255,255,0.95); font-size: 0.85rem;'>
+                                {html_module.escape(display_name)}
+                            </span>
+                            <span style='color: #4CAF50; font-weight: 700; font-size: 0.85rem;'>
+                                {det_time:.3f}s
+                            </span>
+                        </div>
+                    """
+                detector_timings_html += """
+                    </div>
+                </div>
+                """
+                st.markdown(detector_timings_html, unsafe_allow_html=True)
         
         # Enhanced summary display with modern styling
         st.markdown("""

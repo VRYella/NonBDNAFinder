@@ -500,6 +500,75 @@ class TestChunkPerformance(unittest.TestCase):
         print(f"\nConsistency test - Parallel: {len(motifs_parallel)}, Sequential: {len(motifs_sequential)}, Ratio: {ratio:.2f}")
 
 
+class TestDetectorTimings(unittest.TestCase):
+    """Tests for individual detector timing feature."""
+    
+    def test_detector_timings_available(self):
+        """Test that detector timings are available after analysis."""
+        from nonbscanner import analyze_sequence, get_last_detector_timings, get_detector_display_names
+        
+        # Known test sequence
+        seq = generate_g4_sequence(1000)
+        
+        # Run analysis
+        motifs = analyze_sequence(seq, "timing_test")
+        
+        # Get timings
+        timings = get_last_detector_timings()
+        
+        # Should have timings for all 9 detectors
+        self.assertIsInstance(timings, dict)
+        self.assertEqual(len(timings), 9, "Should have timings for all 9 detectors")
+        
+        # All timings should be non-negative floats
+        for det_name, det_time in timings.items():
+            self.assertIsInstance(det_time, float, f"Timing for {det_name} should be a float")
+            self.assertGreaterEqual(det_time, 0.0, f"Timing for {det_name} should be non-negative")
+        
+        # Display names should be available
+        display_names = get_detector_display_names()
+        self.assertIsInstance(display_names, dict)
+        self.assertEqual(len(display_names), 9)
+        
+        # All detector names should have display names
+        for det_name in timings.keys():
+            self.assertIn(det_name, display_names, f"Display name should exist for {det_name}")
+        
+        print(f"\nDetector timings test - Found timings for {len(timings)} detectors")
+        total_time = sum(timings.values())
+        print(f"Sum of detector times: {total_time:.3f}s")
+    
+    def test_detector_callback_receives_timing(self):
+        """Test that detector callback receives elapsed time."""
+        from nonbscanner import NonBScanner
+        
+        seq = generate_g4_sequence(500)
+        
+        # Track callbacks
+        callback_data = []
+        def timing_callback(det_name, completed, total, elapsed_time):
+            callback_data.append({
+                'name': det_name,
+                'completed': completed,
+                'total': total,
+                'elapsed': elapsed_time
+            })
+        
+        scanner = NonBScanner()
+        motifs = scanner.analyze_sequence(seq, "callback_test", detector_callback=timing_callback)
+        
+        # Should have received callbacks for all 9 detectors
+        self.assertEqual(len(callback_data), 9, "Should receive 9 callbacks")
+        
+        # Each callback should have timing
+        for cb in callback_data:
+            self.assertIn('elapsed', cb, "Callback should include elapsed time")
+            self.assertIsInstance(cb['elapsed'], float, "Elapsed time should be a float")
+            self.assertGreaterEqual(cb['elapsed'], 0.0, "Elapsed time should be non-negative")
+        
+        print(f"\nCallback test - Received {len(callback_data)} callbacks with timings")
+
+
 if __name__ == '__main__':
     # Run with verbose output for performance info
     unittest.main(verbosity=2)
