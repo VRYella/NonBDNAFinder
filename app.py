@@ -1786,7 +1786,6 @@ with tab_pages["Upload & Analyze"]:
                 timer_placeholder = st.empty()
                 progress_placeholder = st.empty()
                 status_placeholder = st.empty()
-                detailed_progress_placeholder = st.empty()
                 
                 start_time = time.time()
                 
@@ -1984,36 +1983,6 @@ with tab_pages["Upload & Analyze"]:
                         )
                         combined_progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
                         
-                        # Show detailed detector status panel
-                        detailed_progress_html = f"""
-                        <div style='background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
-                                    border-radius: 12px; padding: 1rem; margin: 0.8rem 0;
-                                    border: 1px solid #bdbdbd;'>
-                            <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Detection Pipeline</h4>
-                            <p style='margin: 0; font-size: 0.85rem; color: #616161;'>
-                                <strong>Sequence:</strong> {safe_name} ({len(seq):,} bp)<br/>
-                                <strong>Processed:</strong> {total_bp_processed:,} / {total_bp_all_sequences:,} bp
-                            </p>
-                            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.8rem; font-size: 0.8rem;'>
-                        """
-                        
-                        for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                            # All detectors run in parallel during analysis
-                            status_icon = "🔄"
-                            bg_color = "rgba(25, 118, 210, 0.1)"
-                            detailed_progress_html += f"""
-                                <div style='background: {bg_color}; padding: 0.4rem; border-radius: 6px; 
-                                            border-left: 3px solid #1976d2;'>
-                                    <span style='font-weight: 600;'>{status_icon} {detector_name}</span>
-                                </div>
-                            """
-                        
-                        detailed_progress_html += """
-                            </div>
-                        </div>
-                        """
-                        detailed_progress_placeholder.markdown(detailed_progress_html, unsafe_allow_html=True)
-                        
                         # Run the analysis - use chunking for large sequences (>10,000 bp)
                         seq_start = time.time()
                         
@@ -2160,7 +2129,6 @@ with tab_pages["Upload & Analyze"]:
                     # Clear progress displays
                     progress_placeholder.empty()
                     status_placeholder.empty()
-                    detailed_progress_placeholder.empty()
                     timer_placeholder.empty()
                     
                     # Show final completed progress block
@@ -2183,7 +2151,6 @@ with tab_pages["Upload & Analyze"]:
                     timer_placeholder.empty()
                     progress_placeholder.empty()
                     status_placeholder.empty()
-                    detailed_progress_placeholder.empty()
                     combined_progress_placeholder.empty()
                     st.error(f"❌ Analysis failed: {str(e)}")
                     st.session_state.analysis_status = "Error"
