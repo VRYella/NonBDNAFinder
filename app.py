@@ -140,6 +140,35 @@ def render_html_component(html_content: str, height: int = 100, scrolling: bool 
     components.html(html_content, height=height, scrolling=scrolling)
 
 
+def format_detector_timings_as_code(detector_timings: dict) -> str:
+    """
+    Format detector timings as a Python code-like string.
+    
+    Args:
+        detector_timings: Dictionary mapping detector names to timing values
+        
+    Returns:
+        Formatted string representing the timings in Python dictionary syntax
+    """
+    detector_display_names = get_detector_display_names()
+    sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+    
+    timing_lines = []
+    timing_lines.append("# NBDScanner Detector Timings")
+    timing_lines.append("# " + "─" * 40)
+    timing_lines.append("")
+    timing_lines.append("detector_timings = {")
+    for det_name, det_time in sorted_detectors:
+        display_name = detector_display_names.get(det_name, det_name)
+        timing_lines.append(f'    "{display_name}": {det_time:.4f},  # seconds')
+    timing_lines.append("}")
+    timing_lines.append("")
+    total_time = sum(det_time for _, det_time in sorted_detectors)
+    timing_lines.append(f"total_detector_time = {total_time:.4f}  # seconds")
+    
+    return "\n".join(timing_lines)
+
+
 def render_motif_class_badges(motif_classes: list, colors: dict = None) -> str:
     """
     Generate HTML badges/pills for a list of motif classes.
@@ -1821,25 +1850,7 @@ with tab_pages["Upload & Analyze"]:
                     # Build detector timings HTML if available - code-like format with soothing background
                     detector_timings_html = ""
                     if is_complete and detector_timings:
-                        detector_display_names = get_detector_display_names()
-                        # Sort by detector name for consistent display order
-                        sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
-                        
-                        # Build code-like timing output
-                        timing_lines = []
-                        timing_lines.append("# NBDScanner Detector Timings")
-                        timing_lines.append("# " + "─" * 40)
-                        timing_lines.append("")
-                        timing_lines.append("detector_timings = {")
-                        for det_name, det_time in sorted_detectors:
-                            display_name = detector_display_names.get(det_name, det_name)
-                            timing_lines.append(f'    "{display_name}": {det_time:.4f},  # seconds')
-                        timing_lines.append("}")
-                        timing_lines.append("")
-                        total_time = sum(det_time for _, det_time in sorted_detectors)
-                        timing_lines.append(f"total_detector_time = {total_time:.4f}  # seconds")
-                        
-                        timing_code = "\\n".join(timing_lines)
+                        timing_code = format_detector_timings_as_code(detector_timings)
                         
                         detector_timings_html = f"""
                         <div style='margin-top: 1.5rem; padding: 1.2rem; background: linear-gradient(135deg, #f0f9ff 0%, #e8f4f8 100%); 
@@ -2251,24 +2262,7 @@ with tab_pages["Results"]:
             # Display detector timings if available - code-like format with soothing background
             detector_timings = metrics.get('detector_timings', {})
             if detector_timings:
-                detector_display_names = get_detector_display_names()
-                sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
-                
-                # Build code-like timing output
-                timing_lines = []
-                timing_lines.append("# NBDScanner Detector Timings")
-                timing_lines.append("# ─────────────────────────────────────────")
-                timing_lines.append("")
-                timing_lines.append("detector_timings = {")
-                for det_name, det_time in sorted_detectors:
-                    display_name = detector_display_names.get(det_name, det_name)
-                    timing_lines.append(f'    "{display_name}": {det_time:.4f},  # seconds')
-                timing_lines.append("}")
-                timing_lines.append("")
-                total_time = sum(det_time for _, det_time in sorted_detectors)
-                timing_lines.append(f"total_detector_time = {total_time:.4f}  # seconds")
-                
-                timing_code = "\n".join(timing_lines)
+                timing_code = format_detector_timings_as_code(detector_timings)
                 
                 # Use Streamlit's native code display with soothing background wrapper
                 st.markdown("""
