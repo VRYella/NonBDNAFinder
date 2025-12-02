@@ -140,6 +140,35 @@ def render_html_component(html_content: str, height: int = 100, scrolling: bool 
     components.html(html_content, height=height, scrolling=scrolling)
 
 
+def format_detector_timings_as_code(detector_timings: dict) -> str:
+    """
+    Format detector timings as a Python code-like string.
+    
+    Args:
+        detector_timings: Dictionary mapping detector names to timing values
+        
+    Returns:
+        Formatted string representing the timings in Python dictionary syntax
+    """
+    detector_display_names = get_detector_display_names()
+    sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+    
+    timing_lines = []
+    timing_lines.append("# NBDScanner Detector Timings")
+    timing_lines.append("# " + "─" * 40)
+    timing_lines.append("")
+    timing_lines.append("detector_timings = {")
+    for det_name, det_time in sorted_detectors:
+        display_name = detector_display_names.get(det_name, det_name)
+        timing_lines.append(f'    "{display_name}": {det_time:.4f},  # seconds')
+    timing_lines.append("}")
+    timing_lines.append("")
+    total_time = sum(det_time for _, det_time in sorted_detectors)
+    timing_lines.append(f"total_detector_time = {total_time:.4f}  # seconds")
+    
+    return "\n".join(timing_lines)
+
+
 def render_motif_class_badges(motif_classes: list, colors: dict = None) -> str:
     """
     Generate HTML badges/pills for a list of motif classes.
@@ -1601,12 +1630,12 @@ with tab_pages["Upload & Analyze"]:
         st.markdown("""
         <style>
         .nbdscanner-analysis-block {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
             border-radius: 20px;
             padding: 2rem;
             margin: 1.5rem 0;
-            box-shadow: 0 15px 50px rgba(15, 52, 96, 0.4),
-                        0 0 0 1px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15),
+                        0 0 0 1px rgba(56, 189, 248, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -1616,8 +1645,8 @@ with tab_pages["Upload & Analyze"]:
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #06b6d4, #14b8a6, #10b981, #22c55e);
             background-size: 300% 100%;
             animation: gradient-flow 4s ease infinite;
         }
@@ -1627,40 +1656,38 @@ with tab_pages["Upload & Analyze"]:
         }
         .nbdscanner-title {
             font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #0369a1;
             text-align: center;
             margin-bottom: 1.5rem;
             letter-spacing: 0.02em;
         }
         .progress-container {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 16px;
             padding: 1.5rem;
             margin: 1.5rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(14, 165, 233, 0.2);
             backdrop-filter: blur(10px);
         }
         .progress-bar-outer {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(203, 213, 225, 0.5);
             border-radius: 10px;
             height: 24px;
             overflow: hidden;
             margin: 1rem 0;
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
         }
         .progress-bar-inner {
             height: 100%;
             background: linear-gradient(90deg, 
-                #667eea 0%, #764ba2 25%, #f64f59 50%, #c471ed 75%, #12c2e9 100%);
+                #0ea5e9 0%, #06b6d4 25%, #14b8a6 50%, #10b981 75%, #22c55e 100%);
             background-size: 300% 100%;
             border-radius: 10px;
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
             animation: shimmer-gradient 3s linear infinite;
             position: relative;
         }
@@ -1675,7 +1702,7 @@ with tab_pages["Upload & Analyze"]:
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: shine-sweep 2s ease-in-out infinite;
         }
         @keyframes shine-sweep {
@@ -1689,39 +1716,38 @@ with tab_pages["Upload & Analyze"]:
             margin-top: 1.5rem;
         }
         .stat-item {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 16px;
             padding: 1.2rem;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(14, 165, 233, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
         .stat-item:hover {
             transform: translateY(-3px);
-            border-color: rgba(102, 126, 234, 0.3);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            border-color: rgba(14, 165, 233, 0.25);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.12);
         }
         .stat-value {
             font-family: 'Inter', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #0891b2;
             margin: 0;
         }
         .stat-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            color: #475569;
             margin: 0.4rem 0 0 0;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
         }
         .step-indicator {
-            background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.12) 0%, transparent 100%);
             border-left: 4px solid;
-            border-image: linear-gradient(180deg, #667eea, #764ba2) 1;
+            border-image: linear-gradient(180deg, #0ea5e9, #06b6d4) 1;
             border-radius: 0 12px 12px 0;
             padding: 1rem 1.5rem;
             margin: 1rem 0;
@@ -1729,24 +1755,24 @@ with tab_pages["Upload & Analyze"]:
         .step-text {
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 1rem;
+            color: #1e3a5f;
+            font-size: 1.1rem;
             letter-spacing: 0.02em;
         }
         .completed-badge {
-            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
             border-radius: 16px;
             padding: 1.2rem 2rem;
             text-align: center;
             margin-top: 1.5rem;
-            box-shadow: 0 8px 30px rgba(0, 176, 155, 0.35);
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.25);
         }
         .completed-text {
             font-family: 'Inter', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 800;
             color: #ffffff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
         }
         </style>
         """, unsafe_allow_html=True)
@@ -1821,37 +1847,23 @@ with tab_pages["Upload & Analyze"]:
                     empty_blocks = 8 - filled_blocks
                     progress_visual = "█" * filled_blocks + "▒" * empty_blocks
                     
-                    # Build detector timings HTML if available
+                    # Build detector timings HTML if available - code-like format with soothing background
                     detector_timings_html = ""
                     if is_complete and detector_timings:
-                        detector_display_names = get_detector_display_names()
-                        # Sort by detector name for consistent display order
-                        sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+                        timing_code = format_detector_timings_as_code(detector_timings)
                         
-                        detector_timings_html = """
-                        <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); 
-                                    border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);'>
-                            <div style='font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.9); 
-                                        margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;'>
+                        detector_timings_html = f"""
+                        <div style='margin-top: 1.5rem; padding: 1.2rem; background: linear-gradient(135deg, #f0f9ff 0%, #e8f4f8 100%); 
+                                    border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);'>
+                            <div style='font-size: 1rem; font-weight: 700; color: #0369a1; 
+                                        margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em;'>
                                 ⏱️ Detector Timings
                             </div>
-                            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;'>
-                        """
-                        for det_name, det_time in sorted_detectors:
-                            display_name = detector_display_names.get(det_name, det_name)
-                            detector_timings_html += f"""
-                                <div style='background: rgba(102, 126, 234, 0.15); padding: 0.5rem 0.8rem; 
-                                            border-radius: 8px; border-left: 3px solid #667eea;'>
-                                    <span style='font-weight: 600; color: rgba(255,255,255,0.95); font-size: 0.8rem;'>
-                                        {html_module.escape(display_name)}
-                                    </span>
-                                    <span style='float: right; color: #4CAF50; font-weight: 700; font-size: 0.8rem;'>
-                                        {det_time:.3f}s
-                                    </span>
-                                </div>
-                            """
-                        detector_timings_html += """
-                            </div>
+                            <pre style='background: #fefefe; border-radius: 10px; padding: 1.2rem;
+                                        font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+                                        font-size: 0.95rem; line-height: 1.7; color: #1e3a5f;
+                                        border: 1px solid #cbd5e1; overflow-x: auto; margin: 0;
+                                        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); white-space: pre-wrap;'>{timing_code}</pre>
                         </div>
                         """
                     
@@ -1861,9 +1873,9 @@ with tab_pages["Upload & Analyze"]:
                             <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
                             <div class='progress-container'>
                                 <div style='display: flex; justify-content: space-between; align-items: center;'>
-                                    <span style='color: #ffffff; font-weight: 700; font-size: 0.9rem;'>Progress:</span>
-                                    <span style='font-family: monospace; color: #4CAF50; font-size: 1.2rem; letter-spacing: 2px;'>{progress_visual}</span>
-                                    <span style='color: #4CAF50; font-weight: 800;'>100%</span>
+                                    <span style='color: #1e3a5f; font-weight: 700; font-size: 1rem;'>Progress:</span>
+                                    <span style='font-family: monospace; color: #059669; font-size: 1.3rem; letter-spacing: 2px;'>{progress_visual}</span>
+                                    <span style='color: #059669; font-weight: 800; font-size: 1.1rem;'>100%</span>
                                 </div>
                                 <div class='progress-bar-outer'>
                                     <div class='progress-bar-inner' style='width: 100%;'></div>
@@ -1899,9 +1911,9 @@ with tab_pages["Upload & Analyze"]:
                             <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
                             <div class='progress-container'>
                                 <div style='display: flex; justify-content: space-between; align-items: center;'>
-                                    <span style='color: #ffffff; font-weight: 700; font-size: 0.9rem;'>Progress:</span>
-                                    <span style='font-family: monospace; color: #FFD700; font-size: 1.2rem; letter-spacing: 2px;'>{progress_visual}</span>
-                                    <span style='color: #FFD700; font-weight: 800;'>{progress_pct:.0f}%</span>
+                                    <span style='color: #1e3a5f; font-weight: 700; font-size: 1rem;'>Progress:</span>
+                                    <span style='font-family: monospace; color: #d97706; font-size: 1.3rem; letter-spacing: 2px;'>{progress_visual}</span>
+                                    <span style='color: #d97706; font-weight: 800; font-size: 1.1rem;'>{progress_pct:.0f}%</span>
                                 </div>
                                 <div class='progress-bar-outer'>
                                     <div class='progress-bar-inner' style='width: {progress_pct}%;'></div>
@@ -2177,117 +2189,94 @@ with tab_pages["Results"]:
     if not st.session_state.results:
         st.info("No analysis results. Please run motif analysis first.")
     else:
-        # Performance metrics display if available - modern glassmorphism design
+        # Performance metrics display if available - soothing light background with enlarged fonts
         if st.session_state.get('performance_metrics'):
             metrics = st.session_state.performance_metrics
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
                         border-radius: 20px; padding: 2rem; margin-bottom: 2rem;
-                        box-shadow: 0 15px 50px rgba(15, 52, 96, 0.35);
+                        box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);
+                        border: 1px solid rgba(56, 189, 248, 0.2);
                         position: relative; overflow: hidden;'>
-                <div style='position: absolute; top: 0; left: 0; right: 0; height: 3px;
-                            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
+                <div style='position: absolute; top: 0; left: 0; right: 0; height: 4px;
+                            background: linear-gradient(90deg, #0ea5e9, #06b6d4, #14b8a6, #10b981, #22c55e);
                             background-size: 300% 100%;'></div>
                 <h3 style='margin: 0 0 1.5rem 0; text-align: center;
-                           background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-                           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                           font-size: 1.4rem; font-weight: 800;'>
+                           color: #0369a1;
+                           font-size: 1.6rem; font-weight: 800;'>
                     ⚡ NBDScanner Performance Metrics
                 </h3>
-                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #12c2e9 0%, #c471ed 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.2rem;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(14, 165, 233, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #0891b2;'>
                             {metrics['total_time']:.2f}s</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>Processing Time</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Processing Time</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #6366f1;'>
                             {metrics['total_bp']:,}</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>Base Pairs</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Base Pairs</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #f64f59 0%, #c471ed 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(236, 72, 153, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #db2777;'>
                             {metrics['speed']:,.0f}</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>bp/second</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>bp/second</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #059669;'>
                             {metrics.get('detector_count', 9)}</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>Detectors</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Detectors</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(249, 115, 22, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #ea580c;'>
                             {metrics['sequences']}</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>Sequences</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Sequences</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.2rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);'>
-                        <p style='margin: 0; font-size: 1.8rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
+                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(34, 197, 94, 0.2);
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
+                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #16a34a;'>
                             {metrics['total_motifs']}</p>
-                        <p style='margin: 0.3rem 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.75rem;
-                                  text-transform: uppercase; letter-spacing: 0.1em;'>Total Motifs</p>
+                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
+                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Total Motifs</p>
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Display detector timings if available
+            # Display detector timings if available - code-like format with soothing background
             detector_timings = metrics.get('detector_timings', {})
             if detector_timings:
-                detector_display_names = get_detector_display_names()
-                sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
+                timing_code = format_detector_timings_as_code(detector_timings)
                 
-                detector_timings_html = """
-                <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                            border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;
-                            box-shadow: 0 10px 40px rgba(15, 52, 96, 0.25);'>
+                # Use Streamlit's native code display with soothing background wrapper
+                st.markdown("""
+                <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
+                            border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
+                            box-shadow: 0 6px 24px rgba(56, 189, 248, 0.15);
+                            border: 1px solid rgba(56, 189, 248, 0.2);'>
                     <h4 style='margin: 0 0 1rem 0; text-align: center;
-                               color: rgba(255,255,255,0.95); font-size: 1.1rem; font-weight: 700;'>
+                               color: #0369a1; font-size: 1.4rem; font-weight: 700;'>
                         ⏱️ Individual Detector Timings
                     </h4>
-                    <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;'>
-                """
-                for det_name, det_time in sorted_detectors:
-                    display_name = detector_display_names.get(det_name, det_name)
-                    detector_timings_html += f"""
-                        <div style='background: rgba(102, 126, 234, 0.15); padding: 0.7rem 1rem; 
-                                    border-radius: 10px; border-left: 3px solid #667eea;
-                                    display: flex; justify-content: space-between; align-items: center;'>
-                            <span style='font-weight: 600; color: rgba(255,255,255,0.95); font-size: 0.85rem;'>
-                                {html_module.escape(display_name)}
-                            </span>
-                            <span style='color: #4CAF50; font-weight: 700; font-size: 0.85rem;'>
-                                {det_time:.3f}s
-                            </span>
-                        </div>
-                    """
-                detector_timings_html += """
-                    </div>
                 </div>
-                """
-                st.markdown(detector_timings_html, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+                st.code(timing_code, language="python")
         
         # Enhanced summary display with modern styling
         st.markdown("""
