@@ -1841,31 +1841,15 @@ with tab_pages["Upload & Analyze"]:
                 
                 # Helper function to render the combined progress block
                 def render_progress_block(progress_pct, current_step, elapsed_sec, motifs_found, speed_bps, is_complete=False, detector_timings=None):
-                    """Render the combined NBDScanner Run Button + Progress + Stats Block"""
+                    """Render the combined NBDScanner Run Button + Progress + Stats Block.
+                    
+                    Note: Detector timings are displayed in the Results tab instead of here
+                    for a cleaner upload page experience.
+                    """
                     # Calculate progress bar blocks (using Unicode block characters)
                     filled_blocks = int(progress_pct / 12.5)  # 8 total blocks
                     empty_blocks = 8 - filled_blocks
                     progress_visual = "█" * filled_blocks + "▒" * empty_blocks
-                    
-                    # Build detector timings HTML if available - code-like format with soothing background
-                    detector_timings_html = ""
-                    if is_complete and detector_timings:
-                        timing_code = format_detector_timings_as_code(detector_timings)
-                        
-                        detector_timings_html = f"""
-                        <div style='margin-top: 1.5rem; padding: 1.2rem; background: linear-gradient(135deg, #f0f9ff 0%, #e8f4f8 100%); 
-                                    border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);'>
-                            <div style='font-size: 1rem; font-weight: 700; color: #0369a1; 
-                                        margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em;'>
-                                ⏱️ Detector Timings
-                            </div>
-                            <pre style='background: #fefefe; border-radius: 10px; padding: 1.2rem;
-                                        font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
-                                        font-size: 0.95rem; line-height: 1.7; color: #1e3a5f;
-                                        border: 1px solid #cbd5e1; overflow-x: auto; margin: 0;
-                                        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); white-space: pre-wrap;'>{timing_code}</pre>
-                        </div>
-                        """
                     
                     if is_complete:
                         block_html = f"""
@@ -1902,7 +1886,6 @@ with tab_pages["Upload & Analyze"]:
                                     <p class='stat-label'>Detectors</p>
                                 </div>
                             </div>
-                            {detector_timings_html}
                         </div>
                         """
                     else:
@@ -2002,13 +1985,21 @@ with tab_pages["Upload & Analyze"]:
                         chunk_progress_placeholder = st.empty()
                         
                         # Define progress callback for chunked processing
-                        def chunking_progress_callback(current_chunk, total_chunks, bp_done):
-                            """Callback to update chunk progress for large sequences"""
+                        def chunking_progress_callback(current_chunk, total_chunks, bp_done, elapsed_time, throughput):
+                            """Callback to update chunk progress for large sequences.
+                            
+                            Args:
+                                current_chunk: Current chunk number being processed
+                                total_chunks: Total number of chunks
+                                bp_done: Base pairs processed so far
+                                elapsed_time: Time elapsed since processing started
+                                throughput: Processing speed in bp/second
+                            """
                             if show_chunk_progress and total_chunks > 1:
                                 chunk_percent = (current_chunk / total_chunks) * 100
                                 chunk_progress_placeholder.info(
                                     f"🔄 Processing chunks: {current_chunk}/{total_chunks} ({chunk_percent:.1f}%) - "
-                                    f"{bp_done:,} bp processed"
+                                    f"{bp_done:,} bp processed ({throughput:,.0f} bp/s)"
                                 )
                         
                         if len(seq) > CHUNK_THRESHOLD:
