@@ -110,8 +110,8 @@ __version__ = "2024.1"
 __author__ = "Dr. Venkata Rajesh Yella"
 
 # Performance constants
-CHUNK_THRESHOLD = 10_000          # bp - Use chunking for sequences larger than this
-DEFAULT_CHUNK_SIZE = 50_000       # bp - Optimized chunk size for parallel processing (larger = better throughput)
+CHUNK_THRESHOLD = 0               # bp - Always use chunking (irrespective of sequence size)
+DEFAULT_CHUNK_SIZE = 10_000       # bp - Fixed 10000nt chunk size as per specification
 DEFAULT_CHUNK_OVERLAP = 500       # bp - Overlap between chunks (must be >= max motif length)
 PARALLEL_THRESHOLD = 1_000        # bp - Use parallel processing for sequences larger than this
 MAX_PARALLEL_DETECTORS = 9        # Number of detector classes in the system
@@ -677,7 +677,7 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     PERFORMANCE OPTIMIZATIONS:
     - Parallel chunk processing using ThreadPoolExecutor
     - Each chunk runs all 9 detectors in parallel (nested parallelism)
-    - Optimized chunk size (50KB default) for better cache utilization
+    - Fixed chunk size (10KB) for consistent analysis across all sequence sizes
     - Interval-based deduplication for overlapping regions
     
     This function splits large sequences into smaller overlapping chunks, analyzes
@@ -686,7 +686,7 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     Args:
         sequence: DNA sequence to analyze (ATGC characters)
         sequence_name: Identifier for the sequence
-        chunk_size: Size of each chunk in bp (default: 50,000 for optimal throughput)
+        chunk_size: Size of each chunk in bp (default: 10,000 as per specification)
         chunk_overlap: Overlap between consecutive chunks in bp (default: 500)
         progress_callback: Optional callback(current_chunk, total_chunks, bp_processed, elapsed_time, throughput) for progress
         use_parallel_chunks: Enable parallel chunk processing (default: True)
@@ -859,7 +859,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
     This function achieves significant performance improvement through:
     1. Parallel chunk processing (multiple chunks analyzed simultaneously)
     2. Parallel detector execution (all 9 detectors run simultaneously per chunk)
-    3. Optimized chunk size (50KB default) for better cache utilization
+    3. Fixed chunk size (10KB) for consistent analysis across all sequence sizes
     4. Interval-based deduplication for overlapping regions
     
     Performance targets (system-dependent):
@@ -901,7 +901,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         use_fast_mode: Enable parallel detector execution (default: True)
         use_chunking: Enable chunking for sequences > threshold (default: True)
         use_parallel_chunks: Enable parallel chunk processing (default: True)
-        chunk_size: Size of each chunk in bp (default: 50,000 for optimal throughput)
+        chunk_size: Size of each chunk in bp (default: 10,000 as per specification)
         chunk_overlap: Overlap between consecutive chunks in bp (default: 500)
         progress_callback: Optional callback(current_chunk, total_chunks, bp_processed, 
                           elapsed_time, throughput) for detailed progress tracking
