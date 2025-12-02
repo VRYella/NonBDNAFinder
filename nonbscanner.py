@@ -677,7 +677,7 @@ def analyze_sequence_chunked(sequence: str, sequence_name: str = "sequence",
     PERFORMANCE OPTIMIZATIONS:
     - Parallel chunk processing using ThreadPoolExecutor
     - Each chunk runs all 9 detectors in parallel (nested parallelism)
-    - Optimized chunk size (50KB default) for better cache utilization
+    - Fixed chunk size (10KB) for consistent analysis across all sequence sizes
     - Interval-based deduplication for overlapping regions
     
     This function splits large sequences into smaller overlapping chunks, analyzes
@@ -859,7 +859,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
     This function achieves significant performance improvement through:
     1. Parallel chunk processing (multiple chunks analyzed simultaneously)
     2. Parallel detector execution (all 9 detectors run simultaneously per chunk)
-    3. Optimized chunk size (50KB default) for better cache utilization
+    3. Fixed chunk size (10KB) for consistent analysis across all sequence sizes
     4. Interval-based deduplication for overlapping regions
     
     Performance targets (system-dependent):
