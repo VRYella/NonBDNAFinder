@@ -125,23 +125,25 @@ st.set_page_config(
 )
 
 # =============================================================================
-# SERVER/STREAMLIT VERSION: SEQUENCE LENGTH LIMIT
+# SERVER/STREAMLIT VERSION: SEQUENCE LENGTH LIMIT REMOVED
 # =============================================================================
-# Maximum sequence length allowed for server/Streamlit version.
-# Rationale for 1 million nucleotides (1 Mbp) limit:
-# - Memory: ~100-200 MB RAM required for 1 Mbp sequence analysis
-# - Processing time: ~3-5 minutes per 1 Mbp with all 9 detectors
-# - Cloud resource constraints: Prevents excessive resource consumption on shared infrastructure
-# - User experience: Ensures responsive analysis without timeout issues
-# For genome-scale analysis (>1 Mbp), use the local Jupyter notebook version
-MAX_SEQUENCE_LENGTH = 1_000_000  # 1 million nucleotides (1 Mbp)
+# The previous maximum sequence length limit (1 Mbp) has been REMOVED.
+# The system now uses chunking with 10,000 nucleotide chunks and 500 bp overlap
+# to handle sequences of any size efficiently.
+#
+# Chunking is automatically applied to large sequences for optimal performance.
+# See nonbscanner.py for chunking configuration:
+# - CHUNK_THRESHOLD: 10,000 bp (sequences larger than this are chunked)
+# - DEFAULT_CHUNK_SIZE: 10,000 bp per chunk
+# - DEFAULT_CHUNK_OVERLAP: 500 bp overlap between chunks
+#
+# Setting MAX_SEQUENCE_LENGTH to a very large value to effectively disable the limit
+# while maintaining backward compatibility with any code that references it.
+MAX_SEQUENCE_LENGTH = 10_000_000_000  # 10 billion nucleotides (effectively unlimited)
 
 def format_sequence_limit():
-    """Format the sequence limit for display (e.g., '1,000,000 nucleotides (1 Mbp)')"""
-    mbp = MAX_SEQUENCE_LENGTH / 1_000_000
-    if mbp == 1.0:
-        return f"{MAX_SEQUENCE_LENGTH:,} nucleotides (1 Mbp)"
-    return f"{MAX_SEQUENCE_LENGTH:,} nucleotides ({mbp:.1f} Mbp)"
+    """Format the sequence limit for display - now shows 'unlimited' since limit is removed"""
+    return "unlimited (chunked processing enabled)"
 
 # Get motif classification info
 CLASSIFICATION_INFO = get_motif_classification_info()
@@ -1314,11 +1316,10 @@ with tab_pages["Upload & Analyze"]:
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 200MB/file.")
     
-    # Show sequence length limit info for web version
-    limit_display = format_sequence_limit()
-    st.info(f"""
-    📏 **Web Version Limit**: Maximum {limit_display} per sequence.  
-    💡 For **unlimited** sequence analysis (genome-scale), use the local **Jupyter notebook** version (`NonBScanner_Local.ipynb`).
+    # Show unlimited processing info for web version
+    st.info("""
+    📏 **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
+    🔧 Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
     """)
 
     st.markdown("---")
