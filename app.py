@@ -1316,11 +1316,10 @@ with tab_pages["Upload & Analyze"]:
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 200MB/file.")
     
-    # Show sequence length limit info for web version
-    limit_display = format_sequence_limit()
-    st.info(f"""
-    📏 **Web Version Limit**: Maximum {limit_display} per sequence.  
-    💡 For **unlimited** sequence analysis (genome-scale), use the local **Jupyter notebook** version (`NonBScanner_Local.ipynb`).
+    # Show unlimited processing info for web version
+    st.info("""
+    📏 **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
+    🔧 Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
     """)
 
     st.markdown("---")
