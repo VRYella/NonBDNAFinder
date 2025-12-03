@@ -57,23 +57,26 @@ from typing import List, Dict, Tuple
 # -------------------------
 # Parameters (user constraints)
 # -------------------------
+# Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
 DIRECT_MIN_UNIT = 10
-DIRECT_MAX_UNIT = 300
-DIRECT_MAX_SPACER = 10
+DIRECT_MAX_UNIT = 50
+DIRECT_MAX_SPACER = 0
 
-INVERTED_MIN_ARM = 6
-INVERTED_MAX_LOOP = 100
+# Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
+INVERTED_MIN_ARM = 10
+INVERTED_MAX_LOOP = 3
 
+# Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt
 MIRROR_MIN_ARM = 10
-MIRROR_MAX_LOOP = 100
+MIRROR_MAX_LOOP = 8
 
 STR_MIN_UNIT = 1
 STR_MAX_UNIT = 9
-STR_MIN_TOTAL = 20  # Minimum total motif length ≥20bp
+STR_MIN_TOTAL = 10
 
 # Seeds (k) used for k-mer indexing (trade-off: larger k -> fewer hits)
 K_DIRECT = 10   # equal to DIRECT_MIN_UNIT (good seed)
-K_INVERTED = 6  # equal to INVERTED_MIN_ARM (min arm)
+K_INVERTED = 10  # equal to INVERTED_MIN_ARM (min arm) - updated for Cruciform
 K_MIRROR = 10   # equal to MIRROR_MIN_ARM
 
 # Safety thresholds

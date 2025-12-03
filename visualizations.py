@@ -133,43 +133,75 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
                            title: Optional[str] = None,
                            figsize: Tuple[int, int] = (10, 6)) -> plt.Figure:
     """
-    Plot distribution of motifs by class or subclass
+    Plot distribution of motifs by class or subclass.
+    
+    Shows all classes/subclasses even when count is 0, ensuring comprehensive
+    visualization of both detected and undetected motif types.
     
     Args:
-        motifs: List of motif dictionaries
-        by: Group by 'Class' or 'Subclass'
-        title: Custom plot title
-        figsize: Figure size (width, height)
+        motifs: List of motif dictionaries.
+        by: Group by 'Class' or 'Subclass'.
+        title: Custom plot title.
+        figsize: Figure size (width, height).
         
     Returns:
         Matplotlib figure object
     """
     set_scientific_style()
     
-    if not motifs:
-        fig, ax = plt.subplots(figsize=figsize)
-        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Motif Distribution')
-        return fig
+    # Define ALL expected classes and subclasses (always show these)
+    ALL_CLASSES = [
+        'Curved_DNA', 'Slipped_DNA', 'Cruciform', 'R-Loop', 'Triplex',
+        'G-Quadruplex', 'i-Motif', 'Z-DNA', 'A-philic_DNA', 'Hybrid', 'Non-B_DNA_Clusters'
+    ]
+    
+    ALL_SUBCLASSES = [
+        'Global Curvature', 'Local Curvature',  # Curved DNA
+        'Direct Repeat', 'STR',  # Slipped DNA
+        'Inverted Repeats',  # Cruciform
+        'R-loop formation sites', 'QmRLFS-m1', 'QmRLFS-m2',  # R-Loop
+        'Triplex', 'Sticky DNA',  # Triplex
+        'Canonical G4', 'Relaxed G4', 'Bulged G4', 'Bipartite G4',  # G-Quadruplex
+        'Multimeric G4', 'Imperfect G4', 'G-Triplex intermediate',
+        'Canonical i-motif', 'Relaxed i-motif', 'AC-motif',  # i-Motif
+        'Z-DNA', 'eGZ (Extruded-G) DNA',  # Z-DNA
+        'A-philic DNA',  # A-philic
+    ]
     
     # Count motifs by specified grouping
-    counts = Counter(m.get(by, 'Unknown') for m in motifs)
+    counts = Counter(m.get(by, 'Unknown') for m in motifs) if motifs else Counter()
     
-    # Prepare data
-    categories = list(counts.keys())
-    values = list(counts.values())
+    # Prepare data with all categories
+    if by == 'Class':
+        categories = ALL_CLASSES
+    else:
+        categories = ALL_SUBCLASSES
+    
+    # Get counts (0 if not present)
+    values = [counts.get(cat, 0) for cat in categories]
     
     # Get colors
     if by == 'Class':
         colors = [MOTIF_CLASS_COLORS.get(cat, '#808080') for cat in categories]
     else:
-        colors = sns.color_palette("husl", len(categories))
+        # Map subclasses to their parent class colors
+        subclass_to_class = {
+            'Global Curvature': 'Curved_DNA', 'Local Curvature': 'Curved_DNA',
+            'Direct Repeat': 'Slipped_DNA', 'STR': 'Slipped_DNA',
+            'Inverted Repeats': 'Cruciform',
+            'R-loop formation sites': 'R-Loop', 'QmRLFS-m1': 'R-Loop', 'QmRLFS-m2': 'R-Loop',
+            'Triplex': 'Triplex', 'Sticky DNA': 'Triplex',
+            'Canonical G4': 'G-Quadruplex', 'Relaxed G4': 'G-Quadruplex',
+            'Bulged G4': 'G-Quadruplex', 'Bipartite G4': 'G-Quadruplex',
+            'Multimeric G4': 'G-Quadruplex', 'Imperfect G4': 'G-Quadruplex',
+            'G-Triplex intermediate': 'G-Quadruplex',
+            'Canonical i-motif': 'i-Motif', 'Relaxed i-motif': 'i-Motif', 'AC-motif': 'i-Motif',
+            'Z-DNA': 'Z-DNA', 'eGZ (Extruded-G) DNA': 'Z-DNA',
+            'A-philic DNA': 'A-philic_DNA',
+        }
+        colors = [MOTIF_CLASS_COLORS.get(subclass_to_class.get(cat, ''), '#808080') for cat in categories]
     
-    # Create plot with dynamic sizing based on number of categories
-    if len(categories) > 15:
-        figsize = (max(12, len(categories) * 0.6), 6)
-    
+    # Create plot
     fig, ax = plt.subplots(figsize=figsize)
     
     bars = ax.bar(range(len(categories)), values, color=colors, alpha=0.8, edgecolor='black', linewidth=0.5)
@@ -180,17 +212,18 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     ax.set_title(title or f'Distribution of Motifs by {by}', fontsize=13, fontweight='bold')
     ax.set_xticks(range(len(categories)))
     
-    # Adjust label rotation and alignment based on number of categories
+    # Adjust label rotation
     if len(categories) > 10:
         ax.set_xticklabels(categories, rotation=60, ha='right', fontsize=8)
     else:
         ax.set_xticklabels(categories, rotation=45, ha='right', fontsize=9)
     
-    # Add count labels on bars (only if not too crowded)
+    # Add count labels on bars
     if len(categories) <= 20:
+        max_val = max(values) if max(values) > 0 else 1
         for bar, count in zip(bars, values):
             height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + max(values) * 0.01,
+            ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.01,
                     str(count), ha='center', va='bottom', fontweight='bold', fontsize=9)
     
     plt.tight_layout()
@@ -1631,6 +1664,309 @@ def plot_enrichment_summary_table(enrichment_results: Dict[str, Dict[str, Any]],
     plt.title(title, fontsize=14, fontweight='bold', pad=20)
     plt.tight_layout()
     
+    return fig
+
+
+# =============================================================================
+# CIRCOS PLOT FOR NON-B DNA MOTIF DENSITY
+# =============================================================================
+
+# Motif classes to exclude from Circos visualization (dynamic classes)
+CIRCOS_EXCLUDED_CLASSES = ['Hybrid', 'Non-B_DNA_Clusters']
+
+
+def plot_circos_motif_density(motifs: List[Dict[str, Any]], 
+                               sequence_length: int,
+                               title: str = "Non-B DNA Motif Density Circos Plot",
+                               figsize: Tuple[int, int] = (12, 12),
+                               window_size: int = None) -> plt.Figure:
+    """
+    Create a circular Circos-style plot showing non-B DNA motif class density.
+    
+    The plot shows:
+    - Outer ring: Sequence position ruler
+    - Inner rings: One ring per motif class showing density
+    - Center: Summary statistics
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size (width, height)
+        window_size: Window size for density calculation (auto-calculated if None)
+        
+    Returns:
+        Matplotlib figure object with Circos-style visualization
+    """
+    set_scientific_style()
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Auto-calculate window size if not provided
+    if window_size is None:
+        window_size = max(100, sequence_length // 50)
+    
+    # Calculate number of windows
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Get unique classes (excluding Hybrid and Clusters for cleaner visualization)
+    classes = sorted(set(m.get('Class', 'Unknown') for m in motifs 
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+    
+    if not classes:
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+    
+    # Calculate density per window per class
+    class_densities = {}
+    for class_name in classes:
+        densities = []
+        class_motifs = [m for m in motifs if m.get('Class') == class_name]
+        
+        for i in range(num_windows):
+            window_start = i * window_size
+            window_end = (i + 1) * window_size
+            
+            # Count motifs in this window
+            count = 0
+            for motif in class_motifs:
+                motif_start = motif.get('Start', 0) - 1  # 0-based
+                motif_end = motif.get('End', 0)
+                # Check overlap with window
+                if not (motif_end <= window_start or motif_start >= window_end):
+                    count += 1
+            
+            # Convert to density (motifs per kb)
+            window_kb = window_size / 1000
+            densities.append(count / window_kb if window_kb > 0 else 0)
+        
+        class_densities[class_name] = densities
+    
+    # Create figure
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111, projection='polar')
+    
+    # Calculate angles for each window
+    theta = np.linspace(0, 2 * np.pi, num_windows, endpoint=False)
+    
+    # Width of each bar
+    width = 2 * np.pi / num_windows * 0.8
+    
+    # Ring configuration
+    ring_width = 0.12
+    inner_radius = 0.3
+    
+    # Plot each class as a ring
+    for i, class_name in enumerate(classes):
+        densities = class_densities[class_name]
+        
+        # Normalize densities for this class (0-1 scale for bar height)
+        max_density = max(densities) if max(densities) > 0 else 1
+        normalized = [d / max_density for d in densities]
+        
+        # Calculate ring position
+        ring_bottom = inner_radius + i * ring_width
+        
+        # Get color for this class
+        color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+        
+        # Plot bars for this ring
+        heights = [n * ring_width * 0.9 for n in normalized]
+        bars = ax.bar(theta, heights, width=width, bottom=ring_bottom,
+                     color=color, alpha=0.7, edgecolor='white', linewidth=0.5,
+                     label=f'{class_name} (max: {max_density:.1f}/kb)')
+    
+    # Add outer position ruler
+    outer_radius = inner_radius + len(classes) * ring_width + 0.05
+    ruler_theta = np.linspace(0, 2 * np.pi, 12, endpoint=False)
+    ruler_labels = [f'{int(i * sequence_length / 12 / 1000)}kb' for i in range(12)]
+    
+    ax.set_xticks(ruler_theta)
+    ax.set_xticklabels(ruler_labels, fontsize=9, fontweight='bold')
+    
+    # Remove radial labels
+    ax.set_yticklabels([])
+    
+    # Set limits
+    ax.set_ylim(0, outer_radius + 0.1)
+    
+    # Add legend
+    ax.legend(loc='center', bbox_to_anchor=(0.5, 0.5), fontsize=8, 
+             framealpha=0.9, ncol=1)
+    
+    # Add title
+    fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+    
+    # Add center statistics
+    total_motifs = len([m for m in motifs if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES])
+    center_text = f"Total: {total_motifs}\n{len(classes)} classes\n{sequence_length/1000:.1f} kb"
+    ax.text(0, 0, center_text, ha='center', va='center', fontsize=10, fontweight='bold')
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_radial_class_density(motifs: List[Dict[str, Any]], 
+                               sequence_length: int,
+                               title: str = "Radial Motif Class Density",
+                               figsize: Tuple[int, int] = (10, 10)) -> plt.Figure:
+    """
+    Create a radial bar chart showing motif density per class.
+    
+    A simpler alternative to full Circos plot, showing aggregate density
+    per motif class in a radial/polar layout.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size
+        
+    Returns:
+        Matplotlib figure object
+    """
+    set_scientific_style()
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Calculate density per class (motifs per kb)
+    sequence_kb = sequence_length / 1000
+    class_counts = Counter(m.get('Class', 'Unknown') for m in motifs
+                          if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES)
+    
+    if not class_counts:
+        class_counts = Counter(m.get('Class', 'Unknown') for m in motifs)
+    
+    classes = list(class_counts.keys())
+    densities = [class_counts[c] / sequence_kb for c in classes]
+    
+    # Create polar plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111, projection='polar')
+    
+    # Calculate angles
+    num_classes = len(classes)
+    theta = np.linspace(0, 2 * np.pi, num_classes, endpoint=False)
+    width = 2 * np.pi / num_classes * 0.7
+    
+    # Get colors
+    colors = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
+    
+    # Plot bars
+    bars = ax.bar(theta, densities, width=width, color=colors, alpha=0.8,
+                 edgecolor='white', linewidth=2)
+    
+    # Add class labels
+    ax.set_xticks(theta)
+    ax.set_xticklabels(classes, fontsize=10, fontweight='bold')
+    
+    # Add value labels on bars
+    for angle, density, bar in zip(theta, densities, bars):
+        ax.text(angle, density + max(densities) * 0.05, f'{density:.1f}',
+               ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    # Style
+    ax.set_ylabel('Density (motifs/kb)', labelpad=30, fontsize=11, fontweight='bold')
+    ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_stacked_density_track(motifs: List[Dict[str, Any]], 
+                                sequence_length: int,
+                                title: str = "Stacked Motif Density Track",
+                                figsize: Tuple[int, int] = (14, 6),
+                                window_size: int = None) -> plt.Figure:
+    """
+    Create a stacked area chart showing motif density along the sequence.
+    
+    A linear (non-circular) alternative to Circos plot showing how different
+    motif classes are distributed along the sequence.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size
+        window_size: Window size for density calculation (auto if None)
+        
+    Returns:
+        Matplotlib figure object
+    """
+    set_scientific_style()
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Auto-calculate window size
+    if window_size is None:
+        window_size = max(100, sequence_length // 100)
+    
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Get unique classes
+    classes = sorted(set(m.get('Class', 'Unknown') for m in motifs
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+    
+    if not classes:
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+    
+    # Calculate density per window per class
+    positions = np.arange(num_windows) * window_size / 1000  # In kb
+    class_densities = {}
+    
+    for class_name in classes:
+        densities = []
+        class_motifs = [m for m in motifs if m.get('Class') == class_name]
+        
+        for i in range(num_windows):
+            window_start = i * window_size
+            window_end = (i + 1) * window_size
+            
+            count = 0
+            for motif in class_motifs:
+                motif_start = motif.get('Start', 0) - 1
+                motif_end = motif.get('End', 0)
+                if not (motif_end <= window_start or motif_start >= window_end):
+                    count += 1
+            
+            densities.append(count)
+        
+        class_densities[class_name] = densities
+    
+    # Create stacked area plot
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Stack the densities
+    colors = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
+    
+    # Create arrays for stacking
+    density_arrays = [np.array(class_densities[c]) for c in classes]
+    
+    ax.stackplot(positions, *density_arrays, labels=classes, colors=colors, alpha=0.8)
+    
+    # Styling
+    ax.set_xlabel('Position (kb)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Motif Count per Window', fontsize=12, fontweight='bold')
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
+    ax.grid(axis='y', alpha=0.3)
+    
+    plt.tight_layout()
     return fig
 
 

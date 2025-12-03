@@ -26,14 +26,12 @@ ARCHITECTURE:
 """
 
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import os  # Added for image path checking
 import numpy as np
 from collections import Counter
-import html as html_module  # For escaping user input
 # Import consolidated NBDScanner modules
 from utilities import (
     canonicalize_motif, parse_fasta, gc_content, reverse_complement, wrap,
@@ -44,16 +42,15 @@ from utilities import (
 )
 from nonbscanner import (
     analyze_sequence, analyze_multiple_sequences,
-    get_motif_info as get_motif_classification_info,
-    CHUNK_THRESHOLD, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP,
-    get_last_detector_timings, get_detector_display_names
+    get_motif_info as get_motif_classification_info
 )
 from utilities import export_results_to_dataframe
 from visualizations import (
     plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
     plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
     save_all_plots, MOTIF_CLASS_COLORS,
-    plot_density_comparison, plot_enrichment_analysis, plot_enrichment_summary_table
+    plot_density_comparison, plot_enrichment_analysis, plot_enrichment_summary_table,
+    plot_circos_motif_density, plot_radial_class_density, plot_stacked_density_track
 )
 
 # Try to import Entrez for demo functionality
@@ -69,166 +66,6 @@ try:
     HYPERSCAN_AVAILABLE = True
 except ImportError:
     HYPERSCAN_AVAILABLE = False
-
-# Try to import scanner backends for parallel processing
-try:
-    from scanner_backends import get_best_backend, NUMBA_AVAILABLE
-    from scanner_backends.parallel_worker import parallel_scan, suggest_num_workers
-    SCANNER_BACKENDS_AVAILABLE = True
-except ImportError:
-    SCANNER_BACKENDS_AVAILABLE = False
-    NUMBA_AVAILABLE = False
-    parallel_scan = None
-    suggest_num_workers = lambda x: 1
-
-# ---------- HTML RENDERING HELPERS ----------
-# NOTE: The root cause of HTML being displayed as text (escaped) is that 
-# st.markdown() escapes HTML by default. For trusted HTML content, use 
-# unsafe_allow_html=True. For untrusted user input, do NOT use unsafe_allow_html 
-# to avoid XSS vulnerabilities.
-
-import re
-
-# Regex pattern for validating CSS color values
-_CSS_COLOR_PATTERN = re.compile(r'^#[0-9A-Fa-f]{6}$|^#[0-9A-Fa-f]{3}$')
-
-def _sanitize_css_color(color: str, default: str = '#607D8B') -> str:
-    """
-    Validate and sanitize a CSS color value to prevent CSS injection.
-    
-    Only accepts valid hex color codes (#RGB or #RRGGBB format).
-    Returns a safe default color if the input is invalid.
-    
-    Args:
-        color: Color value to validate
-        default: Safe default color to return if validation fails
-        
-    Returns:
-        Sanitized color value (hex format)
-    """
-    if isinstance(color, str) and _CSS_COLOR_PATTERN.match(color):
-        return color
-    return default
-
-
-def render_html(html_content: str) -> None:
-    """
-    Render trusted HTML content in Streamlit using st.markdown.
-    
-    This is a convenience wrapper that automatically sets unsafe_allow_html=True.
-    Only use this for trusted, internally-generated HTML content.
-    Do NOT use this for user-provided content to avoid XSS vulnerabilities.
-    
-    Args:
-        html_content: Trusted HTML string to render
-    """
-    st.markdown(html_content, unsafe_allow_html=True)
-
-
-def render_html_component(html_content: str, height: int = 100, scrolling: bool = False) -> None:
-    """
-    Render HTML using Streamlit's components.html for complex HTML content.
-    
-    This uses an iframe to render HTML, providing better isolation and support
-    for JavaScript. Only use for trusted content.
-    
-    Args:
-        html_content: Trusted HTML string to render
-        height: Height of the component in pixels
-        scrolling: Whether to allow scrolling in the component
-    """
-    components.html(html_content, height=height, scrolling=scrolling)
-
-
-def format_detector_timings_as_code(detector_timings: dict) -> str:
-    """
-    Format detector timings as a Python code-like string.
-    
-    Args:
-        detector_timings: Dictionary mapping detector names to timing values
-        
-    Returns:
-        Formatted string representing the timings in Python dictionary syntax
-    """
-    detector_display_names = get_detector_display_names()
-    sorted_detectors = sorted(detector_timings.items(), key=lambda x: x[0])
-    
-    timing_lines = []
-    timing_lines.append("# NBDScanner Detector Timings")
-    timing_lines.append("# " + "─" * 40)
-    timing_lines.append("")
-    timing_lines.append("detector_timings = {")
-    for det_name, det_time in sorted_detectors:
-        display_name = detector_display_names.get(det_name, det_name)
-        timing_lines.append(f'    "{display_name}": {det_time:.4f},  # seconds')
-    timing_lines.append("}")
-    timing_lines.append("")
-    total_time = sum(det_time for _, det_time in sorted_detectors)
-    timing_lines.append(f"total_detector_time = {total_time:.4f}  # seconds")
-    
-    return "\n".join(timing_lines)
-
-
-def render_motif_class_badges(motif_classes: list, colors: dict = None) -> str:
-    """
-    Generate HTML badges/pills for a list of motif classes.
-    
-    Creates styled inline badges for displaying motif classes in a visually
-    appealing format. Returns HTML string to be rendered with render_html().
-    
-    Args:
-        motif_classes: List of motif class names to display
-        colors: Optional dict mapping class names to colors. 
-                If None, uses MOTIF_CLASS_COLORS from visualizations.
-                
-    Returns:
-        HTML string containing styled badges
-    """
-    if colors is None:
-        colors = MOTIF_CLASS_COLORS
-    
-    badges = []
-    for cls in motif_classes:
-        # Escape the class name to prevent XSS from motif class names
-        safe_cls = html_module.escape(str(cls))
-        # Sanitize the color value to prevent CSS injection
-        raw_color = colors.get(cls, '#607D8B')
-        safe_color = _sanitize_css_color(raw_color)
-        badge_html = f'''<span style="
-            display: inline-block;
-            padding: 4px 12px;
-            margin: 2px 4px;
-            background-color: {safe_color};
-            color: white;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        ">{safe_cls}</span>'''
-        badges.append(badge_html)
-    
-    return '<div style="display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0;">' + ''.join(badges) + '</div>'
-
-
-def display_motif_classes_styled(motif_classes: list, title: str = None, colors: dict = None) -> None:
-    """
-    Display a list of motif classes as styled HTML badges in Streamlit.
-    
-    This is a convenience function that combines render_motif_class_badges
-    and render_html for easy use.
-    
-    Args:
-        motif_classes: List of motif class names to display
-        title: Optional title to display above the badges
-        colors: Optional dict mapping class names to colors
-    """
-    if title:
-        render_html(f'<p style="margin-bottom: 8px; font-weight: 600;">{html_module.escape(title)}</p>')
-    
-    badges_html = render_motif_class_badges(motif_classes, colors)
-    render_html(badges_html)
-
 
 # ---------- CACHING FUNCTIONS (Memory-Efficient) ----------
 @st.cache_resource(show_spinner=False)
@@ -279,50 +116,6 @@ def cache_hyperscan_database(_patterns: list = None):
         return None
 
 
-def analyze_sequence_optimized(sequence: str, sequence_name: str = "sequence", 
-                               use_parallel: bool = False, progress_bar=None) -> list:
-    """
-    Analyze sequence with optional parallel processing for large sequences.
-    
-    For sequences >200KB, uses parallel scanning with shared memory if available.
-    Falls back to standard sequential scanning otherwise.
-    
-    Args:
-        sequence: DNA sequence string
-        sequence_name: Name for the sequence
-        use_parallel: Enable parallel processing (auto-enabled for large sequences)
-        progress_bar: Optional Streamlit progress bar to update
-        
-    Returns:
-        List of detected motifs
-    """
-    seq_len = len(sequence)
-    
-    # Auto-enable parallel for large sequences if available
-    if SCANNER_BACKENDS_AVAILABLE and seq_len > 200_000 and (use_parallel or seq_len > 500_000):
-        try:
-            # Use parallel scanning with progress callback
-            def update_progress(completed, total):
-                if progress_bar is not None:
-                    progress_bar.progress(completed / total, text=f"Scanning chunks: {completed}/{total}")
-            
-            num_workers = suggest_num_workers(seq_len)
-            motifs = parallel_scan(
-                sequence,
-                sequence_name=sequence_name,
-                num_workers=num_workers,
-                chunk_size=100_000,
-                progress_callback=update_progress if progress_bar else None
-            )
-            return motifs
-        except Exception as e:
-            # Fall back to standard scanning on error
-            st.warning(f"Parallel scanning failed, using standard mode: {e}")
-    
-    # Standard sequential scanning
-    return analyze_sequence(sequence, sequence_name)
-
-
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
     page_title="NBDScanner - Non-B DNA Motif Finder",
@@ -330,6 +123,25 @@ st.set_page_config(
     page_icon="🧬",
     menu_items={'About': "NBDScanner | Developed by Dr. Venkata Rajesh Yella"}
 )
+
+# =============================================================================
+# SERVER/STREAMLIT VERSION: SEQUENCE LENGTH LIMIT
+# =============================================================================
+# Maximum sequence length allowed for server/Streamlit version.
+# Rationale for 1 million nucleotides (1 Mbp) limit:
+# - Memory: ~100-200 MB RAM required for 1 Mbp sequence analysis
+# - Processing time: ~3-5 minutes per 1 Mbp with all 9 detectors
+# - Cloud resource constraints: Prevents excessive resource consumption on shared infrastructure
+# - User experience: Ensures responsive analysis without timeout issues
+# For genome-scale analysis (>1 Mbp), use the local Jupyter notebook version
+MAX_SEQUENCE_LENGTH = 1_000_000  # 1 million nucleotides (1 Mbp)
+
+def format_sequence_limit():
+    """Format the sequence limit for display (e.g., '1,000,000 nucleotides (1 Mbp)')"""
+    mbp = MAX_SEQUENCE_LENGTH / 1_000_000
+    if mbp == 1.0:
+        return f"{MAX_SEQUENCE_LENGTH:,} nucleotides (1 Mbp)"
+    return f"{MAX_SEQUENCE_LENGTH:,} nucleotides ({mbp:.1f} Mbp)"
 
 # Get motif classification info
 CLASSIFICATION_INFO = get_motif_classification_info()
@@ -452,225 +264,262 @@ if is_dark_mode:
 # Pre-calculate RGB values for all theme colors (performance optimization)
 rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
 
+# Generate SVG pattern based on theme
+dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
+
 st.markdown(f"""
     <style>
-    /* Google Fonts - optimized for performance with display=swap */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    /* Import Google Fonts for professional scientific typography */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
     
     /* ============================================
-       MINIMAL ANIMATIONS FOR PERFORMANCE
+       ENHANCED ANIMATIONS & KEYFRAMES
        ============================================ */
+    @keyframes shimmer {{
+        0% {{ background-position: -1000px 0; }}
+        100% {{ background-position: 1000px 0; }}
+    }}
+    
+    @keyframes pulse-glow {{
+        0%, 100% {{ box-shadow: 0 0 5px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.4); }}
+        50% {{ box-shadow: 0 0 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.8); }}
+    }}
+    
+    @keyframes float-subtle {{
+        0%, 100% {{ transform: translateY(0); }}
+        50% {{ transform: translateY(-3px); }}
+    }}
+    
+    @keyframes scale-click {{
+        0% {{ transform: scale(1); }}
+        50% {{ transform: scale(0.97); }}
+        100% {{ transform: scale(1); }}
+    }}
+    
     @keyframes fade-in {{
-        from {{ opacity: 0; }}
-        to {{ opacity: 1; }}
+        from {{ opacity: 0; transform: translateY(10px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    
+    @keyframes slide-in-right {{
+        from {{ opacity: 0; transform: translateX(-20px); }}
+        to {{ opacity: 1; transform: translateX(0); }}
     }}
     
     /* ============================================
-       MEDIUM BACKGROUND WITH OPTIMAL READABILITY
+       SUBTLE BACKGROUND PATTERN WITH DNA MOTIF
        ============================================ */
     body, [data-testid="stAppViewContainer"], .main {{
-        background: {'linear-gradient(180deg, #1a202c 0%, #2d3748 100%)' if is_dark_mode else 'linear-gradient(180deg, #f0f4f8 0%, #e2e8f0 100%)'} !important;
-        color: {'#f7fafc' if is_dark_mode else '#1a202c'} !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-        font-weight: 500 !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
+        background: 
+            {dna_pattern},
+            linear-gradient(135deg, {current_theme['bg_light']} 0%, {'#1e293b' if is_dark_mode else '#e8f4fd'} 50%, {current_theme['bg_light']} 100%) !important;
+        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+        {'color: #e2e8f0 !important;' if is_dark_mode else ''}
     }}
     
     /* ============================================
-       NAV BAR: Clean, readable tabs with medium background
+       TABS: Premium scientific design with animations
        ============================================ */
-    
-    /* Tab container with medium background for readability */
     .stTabs [data-baseweb="tab-list"] {{
-        background: {'linear-gradient(90deg, rgba(45,55,72,0.95) 0%, rgba(74,85,104,0.9) 50%)' if is_dark_mode else 'linear-gradient(90deg, rgba(247,250,252,0.98) 0%, rgba(237,242,247,0.95) 50%)'} !important;
-        border-bottom: 2px solid {'rgba(160,174,192,0.2)' if is_dark_mode else 'rgba(160,174,192,0.3)'} !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-        padding: 12px !important;
-        border-radius: 12px !important;
-        margin: 0 auto 1.5rem auto !important;
-        max-width: 1200px !important;
+        width: 98vw !important;
+        justify-content: stretch !important;
+        border-bottom: 3px solid {current_theme['primary']};
+        background: {'linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(90deg, #ffffff 0%, {current_theme['bg_card']} 50%, #f8fbff 100%)"} !important;
+        box-shadow: 0 6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12);
+        margin-bottom: 1.5em;
+        border-radius: 12px 12px 0 0;
+        animation: fade-in 0.5s ease-out;
     }}
-    
-    /* Tab pills with bold text for readability */
     .stTabs [data-baseweb="tab"] {{
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        min-width: 140px !important;
-        padding: 12px 20px !important;
-        margin: 0 6px !important;
-        background: {'linear-gradient(180deg, rgba(74,85,104,0.95), rgba(45,55,72,0.9))' if is_dark_mode else 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,250,252,0.95))'} !important;
-        color: {'#f7fafc' if is_dark_mode else '#2d3748'} !important;
-        border-radius: 10px !important;
-        border: 1px solid {'rgba(160,174,192,0.25)' if is_dark_mode else 'rgba(160,174,192,0.35)'} !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+        font-size: 1.1rem !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
-        letter-spacing: 0.01em !important;
-        transition: all 0.25s ease !important;
+        flex: 1 1 0%;
+        min-width: 0 !important;
+        padding: 16px 12px !important;
+        text-align: center;
+        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
+        background: transparent !important;
+        border-right: 1px solid rgba({'255,255,255' if is_dark_mode else '0,0,0'},0.05) !important;
+        letter-spacing: 0.04em;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }}
-    
-    /* Ensure tab text is properly aligned */
-    .stTabs [data-baseweb="tab"] > * {{
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 6px !important;
+    .stTabs [data-baseweb="tab"]::after {{
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0%;
+        height: 4px;
+        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(-50%);
+        border-radius: 4px 4px 0 0;
     }}
-    
-    /* Selected tab: clear visual distinction with medium background */
-    .stTabs [aria-selected="true"] {{
-        background: {'linear-gradient(180deg, #4a5568 0%, #2d3748 100%)' if is_dark_mode else 'linear-gradient(180deg, #ebf8ff 0%, #bee3f8 100%)'} !important;
-        color: {'#fff' if is_dark_mode else '#2c5282'} !important;
-        border: 1px solid {'rgba(99,179,237,0.5)' if is_dark_mode else 'rgba(66,153,225,0.4)'} !important;
-        box-shadow: 0 4px 12px {'rgba(99,179,237,0.2)' if is_dark_mode else 'rgba(66,153,225,0.15)'} !important;
-        font-weight: 700 !important;
-        transform: translateY(-2px) !important;
-    }}
-    
-    /* Hover state: subtle feedback */
     .stTabs [data-baseweb="tab"]:hover {{
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-        background: {'linear-gradient(180deg, rgba(74,85,104,1), rgba(45,55,72,0.95))' if is_dark_mode else 'linear-gradient(180deg, rgba(255,255,255,1), rgba(237,242,247,0.98))'} !important;
+        background: {'linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%)' if is_dark_mode else f"linear-gradient(180deg, rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.05) 0%, rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) 100%)"} !important;
+        color: {current_theme['primary']} !important;
+        transform: translateY(-2px);
     }}
-    
-    /* Hide unnecessary pseudo-elements */
-    .stTabs [data-baseweb="tab"]::after,
-    .stTabs [data-baseweb="tab"][aria-selected="true"]::after {{
-        display: none !important;
+    .stTabs [data-baseweb="tab"]:hover::after {{
+        width: 60%;
     }}
-    
-    /* Responsive adjustments */
-    @media screen and (max-width: 900px) {{
-        .stTabs [data-baseweb="tab"] {{ min-width: 100px !important; padding: 10px 14px !important; font-size: 0.9rem !important; }}
-        .stTabs [data-baseweb="tab-list"] {{ padding: 10px !important; }}
+    .stTabs [aria-selected="true"] {{
+        color: {current_theme['primary']} !important;
+        background: {'linear-gradient(180deg, #334155 0%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(180deg, #ffffff 0%, {current_theme['bg_card']} 100%)"} !important;
+        box-shadow: 0 -4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15), inset 0 -3px 0 0 {current_theme['primary']};
+        font-weight: 700 !important;
+        transform: translateY(-2px);
     }}
-    
-    /* Tab panel content */
-    .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 1.5rem !important;
+    .stTabs [aria-selected="true"]::after {{
+        width: 100%;
+        height: 5px;
+    }}
+    .stTabs [data-baseweb="tab"]:last-child {{
+        border-right: none !important;
     }}
     
     /* ============================================
-       HEADINGS: Bold, readable typography
+       HEADINGS: Enhanced typography with animations
        ============================================ */
     h1, h2, h3, h4 {{
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
         color: {current_theme['primary']} !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.01em !important;
-        margin-top: 1.2em !important;
-        margin-bottom: 0.6em !important;
-        line-height: 1.3 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em;
+        margin-top: 1.3em;
+        margin-bottom: 0.8em;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        animation: fade-in 0.4s ease-out;
     }}
     h1 {{ 
-        font-size: 2.25rem !important; 
-        font-weight: 800 !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
+        font-size: 2.6rem !important; 
+        font-weight: 900 !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        letter-spacing: -0.03em;
     }}
     h2 {{ 
-        font-size: 1.65rem !important; 
+        font-size: 1.8rem !important; 
         color: {current_theme['primary']} !important; 
-        font-weight: 700 !important;
-        border-bottom: 2px solid {'rgba(160,174,192,0.3)' if is_dark_mode else 'rgba(160,174,192,0.4)'};
-        padding-bottom: 0.4rem;
+        font-weight: 800 !important;
+        border-bottom: 3px solid {current_theme['bg_card']};
+        padding-bottom: 0.5rem;
     }}
     h3 {{ 
-        font-size: 1.35rem !important; 
+        font-size: 1.4rem !important; 
+        color: {current_theme['secondary']} !important; 
+        font-weight: 800 !important;
+    }}
+    h4 {{ 
+        font-size: 1.2rem !important; 
         color: {current_theme['secondary']} !important; 
         font-weight: 700 !important;
     }}
-    h4 {{ 
-        font-size: 1.15rem !important; 
-        color: {current_theme['secondary']} !important; 
-        font-weight: 600 !important;
-    }}
     
-    /* Body text: Optimal readability with medium weight */
+    /* Body text: Scientific readability with optimal contrast */
     .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 1rem !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-        line-height: 1.65 !important;
+        font-size: 1.05rem !important;
+        font-family: 'Source Sans Pro', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        line-height: 1.75 !important;
         color: {current_theme['text']} !important;
-        margin-bottom: 0.6em !important;
-        font-weight: 500 !important;
+        margin-bottom: 0.75em !important;
+        font-weight: 500;
     }}
     
-    /* Input fields: Clean design with medium background */
+    /* Input fields: Premium scientific design with elegant borders */
     input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
     .stMultiSelect>div>div>div, .stRadio>div>div>label>div {{
-        font-size: 0.95rem !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-        border-radius: 8px !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#cbd5e0'} !important;
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        font-weight: 500 !important;
+        font-size: 1.0rem !important;
+        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
+        border-radius: 10px !important;
+        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
+        background: {'#1e293b' if is_dark_mode else '#ffffff'} !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }}
     input:focus, .stTextInput>div>div>input:focus {{
         border-color: {current_theme['secondary']} !important;
-        box-shadow: 0 0 0 3px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15) !important;
-        outline: none !important;
+        box-shadow: 0 0 0 4px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.12), 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) !important;
+        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
+        transform: translateY(-1px);
     }}
     
     /* ============================================
-       BUTTONS: Bold text, medium background
+       BUTTONS: Enhanced with click animations
        ============================================ */
     .stButton>button {{
-        font-size: 1rem !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-        padding: 0.7em 1.6em !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        font-size: 1.05rem !important;
+        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
+        padding: 0.75em 1.8em !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
         color: #fff !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         border: none !important;
         font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
+        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35), 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.2);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 0.03em;
+        position: relative;
+        overflow: hidden;
+    }}
+    .stButton>button::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }}
+    .stButton>button:hover::before {{
+        left: 100%;
     }}
     .stButton>button:hover {{
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.45), 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
+        transform: translateY(-3px) scale(1.02);
     }}
     .stButton>button:active {{
-        transform: translateY(0) !important;
-        box-shadow: 0 2px 8px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
+        transform: translateY(-1px) scale(0.97);
+        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
+        animation: scale-click 0.15s ease;
     }}
     
     /* ============================================
-       DATAFRAMES: Readable with medium backgrounds
+       DATAFRAMES: Enhanced with compact/relaxed mode
        ============================================ */
     .stDataFrame, .stTable {{
-        font-size: {'0.875rem' if is_compact else '0.925rem'} !important;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-        line-height: {'1.45' if is_compact else '1.55'} !important;
-        border-radius: 10px !important;
+        font-size: {'0.88rem' if is_compact else '0.96rem'} !important;
+        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        line-height: {'1.4' if is_compact else '1.65'} !important;
+        border-radius: 12px !important;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-        border: 1px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid {current_theme['bg_card']} !important;
+        animation: fade-in 0.4s ease-out;
     }}
     .stDataFrame thead tr th {{
-        background: {'#2d3748' if is_dark_mode else f"{current_theme['primary']}"} !important;
-        color: #fff !important;
-        font-weight: 600 !important;
-        padding: {'0.65rem' if is_compact else '0.9rem'} !important;
-        font-size: {'0.85rem' if is_compact else '0.9rem'} !important;
-        letter-spacing: 0.01em;
-        text-transform: none;
-        border-bottom: 2px solid {'#4a5568' if is_dark_mode else current_theme['secondary']} !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        color: white !important;
+        font-weight: 700 !important;
+        padding: {'0.6rem' if is_compact else '1rem'} !important;
+        font-size: {'0.85rem' if is_compact else '0.98rem'} !important;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        border-bottom: 3px solid {current_theme['primary']} !important;
     }}
     .stDataFrame tbody tr {{
-        transition: background-color 0.15s ease;
-        border-bottom: 1px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        transition: all 0.25s ease;
+        border-bottom: 1px solid {current_theme['bg_card']} !important;
     }}
     .stDataFrame tbody tr:hover {{
-        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
+        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, #f0f7ff 0%, {current_theme['bg_card']} 100%)"} !important;
+        transform: scale(1.005);
+        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.1);
     }}
     .stDataFrame tbody tr td {{
         padding: {'0.5rem' if is_compact else '0.85rem'} !important;
@@ -679,244 +528,263 @@ st.markdown(f"""
     
     /* Highlight alternate rows */
     .stDataFrame tbody tr:nth-child(odd) {{
-        background: {'rgba(55, 65, 81, 0.4)' if is_dark_mode else 'rgba(247, 250, 252, 0.6)'} !important;
-    }}
-    .stDataFrame tbody td {{
-        padding: {'0.55rem' if is_compact else '0.75rem'} !important;
-        font-weight: 500 !important;
-        color: {current_theme['text']} !important;
+        background: {'rgba(30, 41, 59, 0.3)' if is_dark_mode else 'rgba(227, 242, 253, 0.3)'} !important;
     }}
     
-    /* Tab content spacing - streamlined */
+    /* Tab content spacing */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding: 1.5rem 1rem 1.5rem 1rem !important;
+        padding-top: 2.5rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        padding-bottom: 2rem !important;
+        animation: fade-in 0.4s ease-out;
     }}
     
     /* ============================================
-       CARDS: Clean medium background
+       GLASSMORPHISM CARDS: For summary displays
        ============================================ */
     .analysis-summary-card, .glassmorphism-card {{
-        margin: 1.25rem 0 !important;
-        padding: 1.5rem !important;
-        background: {'rgba(45, 55, 72, 0.9)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
-        border: 1px solid {'rgba(74, 85, 104, 0.4)' if is_dark_mode else 'rgba(226, 232, 240, 0.8)'} !important;
+        margin: 1.5rem 0 !important;
+        padding: 2rem !important;
+        background: {'rgba(30, 41, 59, 0.8)' if is_dark_mode else 'rgba(255, 255, 255, 0.85)'} !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12) !important;
+        border: 1px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else f"rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15)"} !important;
+        animation: fade-in 0.5s ease-out;
+        transition: all 0.3s ease;
     }}
     .analysis-summary-card:hover, .glassmorphism-card:hover {{
-        box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.18) !important;
     }}
     
-    /* Select boxes and multiselect: Clean design */
+    /* Select boxes and multiselect: Premium dropdown design */
     .stSelectbox > div > div > div, .stMultiSelect > div > div > div {{
-        min-height: 2.75rem !important;
-        padding: 0.6rem 1rem !important;
-        line-height: 1.5 !important;
-        border-radius: 8px !important;
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#cbd5e0'} !important;
-        font-weight: 500 !important;
-        transition: border-color 0.2s ease;
+        min-height: 3.5rem !important;
+        padding: 1rem 1.2rem !important;
+        line-height: 1.65 !important;
+        border-radius: 12px !important;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
+        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
     }}
     .stSelectbox > div > div > div:hover, .stMultiSelect > div > div > div:hover {{
-        border-color: {current_theme['secondary']} !important;
+        border-color: {current_theme['accent']} !important;
+        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.12);
+        transform: translateY(-1px);
     }}
     
-    /* Text input and textarea: Clean styling */
+    /* Enhanced input field spacing with elegant styling */
     .stTextInput > div > div > input, .stTextArea textarea {{
-        padding: 0.7rem 1rem !important;
-        min-height: 2.75rem !important;
-        line-height: 1.5 !important;
-        border-radius: 8px !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        padding: 1rem 1.3rem !important;
+        min-height: 3.5rem !important;
+        line-height: 1.6 !important;
+        border-radius: 12px !important;
+        font-size: 1.02rem !important;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
     }}
     .stTextArea textarea {{
-        min-height: 100px !important;
+        min-height: 120px !important;
     }}
     
-    /* Number input styling */
+    /* Number input styling with scientific precision */
     .stNumberInput > div > div > input {{
-        padding: 0.7rem 1rem !important;
-        min-height: 2.75rem !important;
-        border-radius: 8px !important;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
+        padding: 1rem 1.3rem !important;
+        min-height: 3.5rem !important;
+        border-radius: 12px !important;
+        font-size: 1.02rem !important;
+        font-weight: 600;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
     }}
     
-    /* Radio buttons: Clean with bold selected state */
+    /* Radio buttons: Enhanced with elegant hover states and borders */
     .stRadio > div {{
-        gap: 0.35rem !important;
+        gap: 0.4rem !important;
     }}
     .stRadio > div > div > label {{
-        margin-bottom: 0.5rem !important;
-        padding: 0.55rem 0.9rem !important;
-        border-radius: 8px !important;
-        transition: background-color 0.2s ease;
-        border: 1.5px solid transparent;
-        background: {'#374151' if is_dark_mode else '#f7fafc'};
+        margin-bottom: 0.7rem !important;
+        padding: 0.65rem 1rem !important;
+        border-radius: 10px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
         cursor: pointer;
-        font-weight: 500 !important;
     }}
     .stRadio > div > div > label:hover {{
-        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
+        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
+        border-color: {current_theme['bg_card']} !important;
+        transform: translateX(4px);
+        box-shadow: 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
     }}
     .stRadio > div > div > label[data-checked="true"] {{
-        background: {'#4a5568' if is_dark_mode else current_theme['bg_card']} !important;
+        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
         border-color: {current_theme['secondary']} !important;
         font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
     }}
     /* Radio button circles */
     .stRadio > div > div > label > div:first-child {{
         border-width: 2px !important;
-        border-color: {'#718096' if is_dark_mode else '#a0aec0'} !important;
-        width: 18px !important;
-        height: 18px !important;
+        border-color: {current_theme['accent']} !important;
+        width: 22px !important;
+        height: 22px !important;
     }}
     .stRadio > div > div > label[data-checked="true"] > div:first-child {{
         border-color: {current_theme['primary']} !important;
         background-color: {current_theme['primary']} !important;
     }}
     
-    /* Info boxes and alerts: Clean, readable design */
-    .stAlert {{
+    /* Number input styling */
+    .stNumberInput > div > div > input {{
+        padding: 0.85rem 1.1rem !important;
+        min-height: 3rem !important;
         border-radius: 8px !important;
-        border-left: 4px solid {current_theme['secondary']} !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
-        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
-        padding: 1rem !important;
-        font-weight: 500 !important;
+    }}
+    
+    /* Info boxes and alerts: Scientific notification design */
+    .stAlert {{
+        border-radius: 12px !important;
+        border-left: 5px solid {current_theme['secondary']} !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
+        padding: 1.2rem !important;
+        font-weight: 500;
     }}
     .stAlert[data-baseweb="notification"] {{
         border-left-color: {current_theme['primary']} !important;
     }}
     .stSuccess {{
-        border-left-color: #38a169 !important;
-        background: {'#1c4532' if is_dark_mode else '#f0fff4'} !important;
+        border-left-color: #2e7d32 !important;
+        background: {'linear-gradient(90deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
     }}
     .stWarning {{
-        border-left-color: #dd6b20 !important;
-        background: {'#452c19' if is_dark_mode else '#fffaf0'} !important;
+        border-left-color: #f57c00 !important;
+        background: {'linear-gradient(90deg, #3a2e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #fff3e0 0%, #fff8f1 100%)'} !important;
     }}
     .stError {{
-        border-left-color: #e53e3e !important;
-        background: {'#452424' if is_dark_mode else '#fff5f5'} !important;
+        border-left-color: #c62828 !important;
+        background: {'linear-gradient(90deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #ffebee 0%, #fff5f5 100%)'} !important;
     }}
     
-    /* ============================================
-       PROGRESS BARS: Clean, performant design
-       ============================================ */
-    .stProgress {{
-        margin: 1rem 0 !important;
-    }}
+    /* Progress bars: Elegant animated design */
     .stProgress > div > div {{
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        border-radius: 8px !important;
-        box-shadow: 0 2px 4px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2) !important;
-        min-height: 10px !important;
-        transition: width 0.3s ease;
+        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
+        animation: shimmer 2s infinite;
+    }}
+    @keyframes shimmer {{
+        0% {{ background-position: -1000px 0; }}
+        100% {{ background-position: 1000px 0; }}
     }}
     .stProgress > div {{
-        border-radius: 8px !important;
-        background: {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
-        min-height: 12px !important;
-        overflow: hidden;
+        border-radius: 12px !important;
+        background: {current_theme['bg_card']} !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
     }}
     
-    /* Progress bar text */
-    .stProgress + div p {{
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: {current_theme['secondary']} !important;
-        margin-top: 0.5rem !important;
-    }}
-    
-    /* File uploader: Clean design */
+    /* File uploader: Premium drag-and-drop design */
     [data-testid="stFileUploader"] {{
-        border: 2px dashed {'#4a5568' if is_dark_mode else '#a0aec0'} !important;
-        border-radius: 10px !important;
-        background: {'#2d3748' if is_dark_mode else '#f7fafc'} !important;
-        padding: 1.5rem !important;
-        transition: border-color 0.2s ease;
+        border: 3px dashed {current_theme['accent']} !important;
+        border-radius: 16px !important;
+        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(51, 65, 85, 0.2) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.3) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.2) 100%)"} !important;
+        padding: 2.5rem !important;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1);
     }}
     [data-testid="stFileUploader"]:hover {{
-        border-color: {current_theme['secondary']} !important;
+        border-color: {current_theme['primary']} !important;
+        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(51, 65, 85, 0.4) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.5) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4) 100%)"} !important;
+        transform: scale(1.01);
+        box-shadow: 0 6px 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
     }}
     [data-testid="stFileUploader"] section {{
         border: none !important;
     }}
     [data-testid="stFileUploader"] button {{
-        background: {current_theme['secondary']} !important;
+        background: linear-gradient(135deg, {current_theme['secondary']} 0%, {current_theme['accent']} 100%) !important;
         color: white !important;
         border: none !important;
-        border-radius: 8px !important;
-        padding: 0.5rem 1.2rem !important;
+        border-radius: 10px !important;
+        padding: 0.6rem 1.5rem !important;
         font-weight: 600 !important;
+        transition: all 0.3s ease;
     }}
     [data-testid="stFileUploader"] button:hover {{
-        background: {current_theme['primary']} !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
     }}
     
-    /* Checkboxes: Clean design */
+    /* Checkboxes: Modern toggle-style design */
     .stCheckbox {{
-        padding: 0.35rem 0 !important;
+        padding: 0.5rem 0 !important;
     }}
     .stCheckbox > label {{
-        padding: 0.5rem 0.7rem !important;
-        border-radius: 6px !important;
-        transition: background-color 0.2s ease;
+        padding: 0.6rem 0.8rem !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease;
         cursor: pointer;
-        background: {'#374151' if is_dark_mode else '#f7fafc'};
-        font-weight: 500 !important;
+        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
+        border: 2px solid transparent;
     }}
     .stCheckbox > label:hover {{
-        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
+        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
+        border-color: {current_theme['bg_card']} !important;
+        transform: translateX(3px);
     }}
     .stCheckbox > label > div:first-child {{
         border-width: 2px !important;
-        border-color: {'#718096' if is_dark_mode else '#a0aec0'} !important;
-        border-radius: 4px !important;
-        width: 18px !important;
-        height: 18px !important;
+        border-color: {current_theme['accent']} !important;
+        border-radius: 6px !important;
+        width: 22px !important;
+        height: 22px !important;
+        transition: all 0.3s ease;
     }}
     .stCheckbox > label > div:first-child[data-checked="true"] {{
         background-color: {current_theme['primary']} !important;
         border-color: {current_theme['primary']} !important;
     }}
     
-    /* Expander styling: Clean accordion design */
+    /* Expander styling: Scientific accordion design with clean chevron */
     .streamlit-expanderHeader {{
-        border-radius: 8px !important;
-        background: {'#374151' if is_dark_mode else '#f7fafc'} !important;
-        font-weight: 600 !important;
-        padding: 0.85rem 1.2rem !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
-        transition: background-color 0.2s ease;
+        border-radius: 12px !important;
+        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
+        font-weight: 700 !important;
+        padding: 1rem 1.5rem !important;
+        border: 2px solid {current_theme['bg_card']} !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
         display: flex !important;
         align-items: center !important;
-        gap: 10px !important;
+        gap: 12px !important;
     }}
     .streamlit-expanderHeader:hover {{
-        background: {'#4a5568' if is_dark_mode else '#edf2f7'} !important;
+        background: {'linear-gradient(135deg, #475569 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
+        border-color: {current_theme['secondary']} !important;
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
     }}
     .streamlit-expanderContent {{
-        border-radius: 0 0 8px 8px !important;
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        border-radius: 0 0 12px 12px !important;
+        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
+        border: 2px solid {current_theme['bg_card']} !important;
         border-top: none !important;
-        padding: 1.2rem !important;
+        padding: 1.5rem !important;
     }}
     
-    /* Chevron icon for expanders */
+    /* Clean chevron icon styling for expanders - replaces keyboard_arrow icons */
     .streamlit-expanderHeader svg {{
-        margin-right: 8px !important;
+        margin-right: 10px !important;
         flex-shrink: 0 !important;
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
         color: {current_theme['primary']} !important;
-        transition: transform 0.2s ease !important;
+        transition: transform 0.3s ease !important;
     }}
     
     /* Rotate chevron when expanded */
@@ -924,93 +792,129 @@ st.markdown(f"""
         transform: rotate(90deg) !important;
     }}
     
-    /* Hide raw icon text fallback */
+    /* Hide any raw icon text (like keyboard_arrow_right text) */
     .streamlit-expanderHeader::before {{
         display: none !important;
     }}
     
-    /* Expander header layout */
+    /* Hide material icon text fallback */
+    .streamlit-expanderHeader span[class*="icon"],
+    .streamlit-expanderHeader [data-testid*="icon"] {{
+        font-size: 0 !important;
+    }}
+    .streamlit-expanderHeader span[class*="icon"]::before,
+    .streamlit-expanderHeader [data-testid*="icon"]::before {{
+        font-size: 1.2rem !important;
+    }}
+    
+    /* Fix: keyboard_arrow_down icon text overlap with flex container and proper line-height */
     .streamlit-expanderHeader {{
         display: flex !important;
         align-items: center !important;
-        line-height: 1.4 !important;
+        line-height: 1.5 !important;
     }}
     
-    /* Expander text styling */
+    /* Ensure label text doesn't overlap with icon - enhanced flex solution */
     .streamlit-expanderHeader p,
     .streamlit-expanderHeader label,
     .streamlit-expanderHeader div,
     .streamlit-expanderHeader span {{
         margin-left: 0 !important;
         flex: 1 !important;
-        line-height: 1.4 !important;
-        font-weight: 600 !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        line-height: 1.5 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }}
     
-    /* Hide keyboard_arrow_down text fallback */
+    /* Hide keyboard_arrow_down text that may appear as fallback */
     .streamlit-expanderHeader span:first-child {{
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        min-width: 20px !important;
-        max-width: 20px !important;
+        min-width: 24px !important;
+        max-width: 24px !important;
         overflow: hidden !important;
     }}
     
-    /* Icon and label spacing */
+    /* Global fix for icon and label spacing across all Streamlit elements */
     [role="button"] svg,
     [role="tab"] svg,
     button svg,
     label svg {{
-        margin-right: 5px !important;
+        margin-right: 6px !important;
         flex-shrink: 0 !important;
     }}
     
-    /* Interactive elements layout */
+    /* Ensure all interactive elements use flex layout for proper icon/text spacing */
     [role="button"],
     [role="tab"],
     button,
     label {{
         display: flex !important;
         align-items: center !important;
-        gap: 5px !important;
-        line-height: 1.4 !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+        line-height: 1.5 !important;
     }}
     
-    /* Icon container styling */
+    /* Prevent icon text from overlapping labels */
+    .material-icons-text {{
+        display: none !important;
+    }}
+    
+    /* Additional fix for Streamlit summary element icon text */
+    summary span {{
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }}
+    
+    /* Ensure icon container doesn't show raw text like 'keyboard_arrow_down' */
     [data-testid="StyledIconContainer"] {{
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 20px !important;
-        min-width: 20px !important;
+        width: 24px !important;
+        min-width: 24px !important;
         overflow: hidden !important;
     }}
     
     /* ============================================
-       METRIC CARDS: Clean, readable design
+       METRIC CARDS: Glassmorphism with animations
        ============================================ */
     [data-testid="stMetric"] {{
-        background: {'#2d3748' if is_dark_mode else '#fff'} !important;
-        padding: 1.2rem !important;
-        border-radius: 10px !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+        background: {'rgba(30, 41, 59, 0.7)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        padding: 1.5rem !important;
+        border-radius: 16px !important;
+        border: 2px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else current_theme['bg_card']} !important;
+        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.1) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fade-in 0.5s ease-out;
     }}
     [data-testid="stMetric"]:hover {{
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2) !important;
+        border-color: {current_theme['accent']} !important;
+        animation: pulse-glow 2s infinite;
     }}
     [data-testid="stMetricValue"] {{
-        font-size: 1.85rem !important;
-        font-weight: 700 !important;
-        color: {current_theme['primary']} !important;
+        font-size: 2.2rem !important;
+        font-weight: 800 !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }}
     [data-testid="stMetricLabel"] {{
-        font-size: 0.875rem !important;
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
-        color: {'#a0aec0' if is_dark_mode else '#4a5568'} !important;
+        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.05em;
     }}
     
     /* Spinner */
@@ -1018,194 +922,209 @@ st.markdown(f"""
         border-top-color: {current_theme['secondary']} !important;
     }}
     
-    /* Code blocks: Clean design */
+    /* Code blocks: Scientific monospace design */
     .stCodeBlock {{
-        border-radius: 8px !important;
-        border: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
-        background: {'#1a202c' if is_dark_mode else '#f7fafc'} !important;
-        padding: 0.9rem !important;
+        border-radius: 12px !important;
+        border: 2px solid {current_theme['bg_card']} !important;
+        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f8fbff 0%, {current_theme['bg_light']} 100%)"} !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        padding: 1rem !important;
     }}
     code {{
         font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
-        font-size: 0.875rem !important;
+        font-size: 0.92rem !important;
         color: {current_theme['primary']} !important;
-        background: {'rgba(45, 55, 72, 0.5)' if is_dark_mode else 'rgba(226, 232, 240, 0.6)'} !important;
-        padding: 0.15rem 0.4rem !important;
-        border-radius: 4px !important;
-        font-weight: 500 !important;
+        background: {'rgba(30, 41, 59, 0.4)' if is_dark_mode else f"rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4)"} !important;
+        padding: 0.2rem 0.5rem !important;
+        border-radius: 6px !important;
     }}
     
-    /* Sidebar styling */
+    /* Sidebar styling for navigation */
     [data-testid="stSidebar"] {{
-        background: {'#1a202c' if is_dark_mode else '#f7fafc'} !important;
-        border-right: 1.5px solid {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
+        background: {'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(180deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
+        border-right: 2px solid {'#334155' if is_dark_mode else current_theme['bg_card']} !important;
     }}
     [data-testid="stSidebar"] .stMarkdown {{
-        color: {current_theme['text']} !important;
+        color: {current_theme['primary']} !important;
     }}
     
-    /* Scrollbar: Simple design */
+    /* Scrollbar styling: Elegant scientific design */
     ::-webkit-scrollbar {{
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
     }}
     ::-webkit-scrollbar-track {{
-        background: {'#2d3748' if is_dark_mode else '#edf2f7'};
-        border-radius: 8px;
+        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f1f5f9 0%, {current_theme['bg_card']} 100%)"};
+        border-radius: 12px;
+        border: 1px solid {current_theme['bg_card']};
     }}
     ::-webkit-scrollbar-thumb {{
-        background: {'#4a5568' if is_dark_mode else '#a0aec0'};
-        border-radius: 8px;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
+        border-radius: 12px;
+        border: 2px solid {'#1e293b' if is_dark_mode else '#f8fbff'};
+        box-shadow: 0 2px 6px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2);
     }}
     ::-webkit-scrollbar-thumb:hover {{
-        background: {'#718096' if is_dark_mode else '#718096'};
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
+        box-shadow: 0 3px 10px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.3);
     }}
     
-    /* Download buttons */
+    /* Loading spinner */
+    .stSpinner > div {{
+        border-top-color: {current_theme['primary']} !important;
+        border-right-color: {current_theme['secondary']} !important;
+        border-bottom-color: {current_theme['accent']} !important;
+    }}
+    
+    /* Download buttons enhanced */
     [data-testid="stDownloadButton"] button {{
-        background: {current_theme['primary']} !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
         color: white !important;
-        border-radius: 8px !important;
-        padding: 0.6rem 1.4rem !important;
+        border-radius: 12px !important;
+        padding: 0.7rem 1.6rem !important;
         font-weight: 600 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
+        transition: all 0.3s ease;
     }}
     [data-testid="stDownloadButton"] button:hover {{
-        background: {current_theme['secondary']} !important;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
     }}
     
-    /* Caption text */
+    /* Caption text styling */
     .caption, [data-testid="stCaptionContainer"] {{
-        color: {'#a0aec0' if is_dark_mode else '#718096'} !important;
-        font-size: 0.85rem !important;
+        color: {'#94a3b8' if is_dark_mode else '#607d8b'} !important;
+        font-size: 0.9rem !important;
         font-style: italic;
-        font-weight: 500 !important;
     }}
     
     /* Success/Error message boxes */
     .element-container .stMarkdown .stSuccess {{
-        background: {'#1c4532' if is_dark_mode else '#f0fff4'} !important;
-        border-left: 4px solid #38a169 !important;
-        border-radius: 8px !important;
-        padding: 0.9rem !important;
+        background: {'linear-gradient(135deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
+        border-left: 4px solid #2e7d32 !important;
+        border-radius: 10px !important;
+        padding: 1rem !important;
     }}
     .element-container .stMarkdown .stError {{
-        background: {'#452424' if is_dark_mode else '#fff5f5'} !important;
-        border-left: 4px solid #e53e3e !important;
-        border-radius: 8px !important;
-        padding: 0.9rem !important;
+        background: {'linear-gradient(135deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #ffebee 0%, #fff5f5 100%)'} !important;
+        border-left: 4px solid #c62828 !important;
+        border-radius: 10px !important;
+        padding: 1rem !important;
     }}
     
-    /* Links */
+    /* Links styling */
     a {{
         color: {current_theme['secondary']} !important;
         text-decoration: none !important;
         font-weight: 600 !important;
+        transition: all 0.2s ease;
     }}
     a:hover {{
         color: {current_theme['primary']} !important;
         text-decoration: underline !important;
     }}
     
-    /* Tooltip */
+    /* Tooltip improvements with advanced popovers */
     [data-testid="stTooltipIcon"] {{
         color: {current_theme['accent']} !important;
         cursor: help;
+        transition: all 0.2s ease;
     }}
     [data-testid="stTooltipIcon"]:hover {{
+        transform: scale(1.2);
         color: {current_theme['secondary']} !important;
     }}
     
-    /* Separator */
+    /* Enhanced hr separator */
     hr {{
         border: none !important;
-        height: 1.5px !important;
-        background: {'#4a5568' if is_dark_mode else '#e2e8f0'} !important;
-        margin: 1.5rem 0 !important;
+        height: 2px !important;
+        background: linear-gradient(90deg, transparent 0%, {current_theme['bg_card']} 50%, transparent 100%) !important;
+        margin: 2rem 0 !important;
     }}
     
-    /* Sticky results panel */
+    /* ============================================
+       STICKY RESULTS PANEL
+       ============================================ */
     .sticky-results {{
         position: sticky;
         top: 0;
         z-index: 100;
-        background: {'rgba(26, 32, 44, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
-        padding: 0.9rem;
-        border-radius: 0 0 10px 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        background: {'rgba(15, 23, 42, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 1rem;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }}
     
     /* ============================================
-       RESPONSIVE DESIGN
+       RESPONSIVE DESIGN FOR TABLETS & LAPTOPS
        ============================================ */
     @media screen and (max-width: 1200px) {{
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.875rem !important;
-            padding: 10px 14px !important;
+            font-size: 0.95rem !important;
+            padding: 12px 8px !important;
         }}
-        .stTabs [data-baseweb="tab-list"] {{
-            border-radius: 10px !important;
-            gap: 5px !important;
-        }}
-        h1 {{ font-size: 1.85rem !important; }}
-        h2 {{ font-size: 1.4rem !important; }}
+        h1 {{ font-size: 2rem !important; }}
+        h2 {{ font-size: 1.5rem !important; }}
         [data-testid="stMetric"] {{
             padding: 1rem !important;
         }}
         [data-testid="stMetricValue"] {{
-            font-size: 1.6rem !important;
+            font-size: 1.8rem !important;
         }}
     }}
     
     @media screen and (max-width: 768px) {{
-        .stTabs [data-baseweb="tab-list"] {{
-            flex-wrap: wrap !important;
-            border-radius: 8px !important;
-            gap: 4px !important;
-            padding: 6px !important;
-        }}
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.8rem !important;
-            padding: 8px 10px !important;
-            flex: 1 1 45% !important;
-            min-width: 45% !important;
+            font-size: 0.85rem !important;
+            padding: 10px 6px !important;
         }}
-        h1 {{ font-size: 1.5rem !important; }}
-        h2 {{ font-size: 1.25rem !important; }}
+        h1 {{ font-size: 1.6rem !important; }}
+        h2 {{ font-size: 1.3rem !important; }}
         h3 {{ font-size: 1.1rem !important; }}
         .stDataFrame, .stTable {{
-            font-size: 0.8rem !important;
+            font-size: 0.85rem !important;
         }}
         [data-testid="stMetric"] {{
             padding: 0.8rem !important;
         }}
         [data-testid="stMetricValue"] {{
-            font-size: 1.4rem !important;
+            font-size: 1.5rem !important;
         }}
         .stButton>button {{
-            padding: 0.5em 1em !important;
-            font-size: 0.9rem !important;
+            padding: 0.6em 1.2em !important;
+            font-size: 0.95rem !important;
         }}
     }}
     
-    /* Accordion styling */
+    /* ============================================
+       MODERN ACCORDION STYLING
+       ============================================ */
     details.streamlit-expander {{
-        border-radius: 8px !important;
+        border-radius: 12px !important;
         overflow: hidden;
-        margin-bottom: 0.6rem;
+        transition: all 0.3s ease;
+        margin-bottom: 0.8rem;
     }}
     
     details.streamlit-expander[open] {{
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
     }}
     
-    /* Highlighted rows */
+    /* ============================================
+       HIGHLIGHT SELECTED ITEMS
+       ============================================ */
     .highlighted-row {{
-        background: rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.15) !important;
-        border-left: 3px solid {current_theme['accent']} !important;
+        background: linear-gradient(90deg, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.2) 0%, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1) 100%) !important;
+        border-left: 4px solid {current_theme['accent']} !important;
     }}
     
-    /* Print styles */
+    /* ============================================
+       PRINT STYLES FOR PUBLICATION
+       ============================================ */
     @media print {{
         body, [data-testid="stAppViewContainer"], .main {{
             background: white !important;
@@ -1394,6 +1313,13 @@ with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 200MB/file.")
+    
+    # Show sequence length limit info for web version
+    limit_display = format_sequence_limit()
+    st.info(f"""
+    📏 **Web Version Limit**: Maximum {limit_display} per sequence.  
+    💡 For **unlimited** sequence analysis (genome-scale), use the local **Jupyter notebook** version (`NonBScanner_Local.ipynb`).
+    """)
 
     st.markdown("---")
 
@@ -1431,7 +1357,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Loaded {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     if len(seqs) > 3:
                         st.caption(f"...and {len(seqs)-3} more.")
@@ -1459,7 +1385,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Pasted {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     if len(seqs) > 3:
                         st.caption(f"...and {len(seqs)-3} more.")
@@ -1496,7 +1422,7 @@ with tab_pages["Upload & Analyze"]:
                     st.success(f"✅ Multi-FASTA example loaded with {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
-                        st.markdown(f"**{html_module.escape(names[i])}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     st.code(EXAMPLE_MULTI_FASTA, language="fasta")
 
@@ -1511,7 +1437,7 @@ with tab_pages["Upload & Analyze"]:
                 "eGZ-motif": "CGG repeat region",
                 "AC-motif": "A-rich/C-rich consensus region"
             }
-            with st.popover("Motif Example Queries"):
+            with st.expander("Motif Example Queries"):
                 for motif, example in motif_examples.items():
                     st.write(f"**{motif}**: `{example}`")
             query = st.text_input("Enter query (accession, gene, etc.):")
@@ -1529,7 +1455,7 @@ with tab_pages["Upload & Analyze"]:
                         st.success(f"Fetched {len(seqs)} sequences.")
                         for i, seq in enumerate(seqs[:3]):
                             stats = get_basic_stats(seq)
-                            st.markdown(f"<b>{html_module.escape(names[i])}</b>: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                            st.markdown(f"<b>{names[i]}</b>: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
                             st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                 else:
                     st.warning("Enter a query before fetching.")
@@ -1545,633 +1471,443 @@ with tab_pages["Upload & Analyze"]:
             st.markdown("### 📊 Sequence Preview")
             for i, seq in enumerate(st.session_state.seqs[:2]):
                 stats = get_basic_stats(seq)
-                st.markdown(f"**{html_module.escape(st.session_state.names[i])}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
+                st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
                 st.code(wrap(seq[:400]), language="fasta")
             if len(st.session_state.seqs) > 2:
                 st.caption(f"...and {len(st.session_state.seqs)-2} more.")
 
     # ----- RIGHT COLUMN: Analysis Controls + Run Button + Summary Table -----
     with col_right:
-        # Elegant Analysis Control Panel
-        st.markdown("""
-        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;
-                    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
-                    position: relative; overflow: hidden;'>
-            <div style='position: absolute; top: -30px; right: -30px; width: 120px; height: 120px;
-                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-                        border-radius: 50%;'></div>
-            <div style='position: relative; z-index: 1;'>
-                <h2 style='margin: 0 0 0.5rem 0; color: white; font-size: 1.6rem; font-weight: 800;
-                           display: flex; align-items: center; gap: 0.5rem;'>
-                    🚀 Analysis & Run
-                </h2>
-                <p style='color: rgba(255,255,255,0.9); font-size: 0.95rem; margin: 0;'>
-                    Configure and execute Non-B DNA motif detection
-                </p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("### 🚀 Analysis & Run")
         
-        # Analysis Options Card
-        st.markdown("""
-        <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                    border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border: 1px solid rgba(0,0,0,0.08);
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
-            <h4 style='margin: 0 0 1rem 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
-                <span style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                             font-size: 1.2rem;'>⚙️</span>
-                Analysis Configuration
-            </h4>
-        </div>
-        """, unsafe_allow_html=True)
+        # Analysis controls simplified
+        st.markdown("### ⚙️ Analysis Options")
         
-        # Detection info with elegant badge
-        st.markdown("""
-        <div style='background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-                    border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
-                    border-left: 4px solid #00bcd4;
-                    display: flex; align-items: center; gap: 0.75rem;'>
-            <span style='font-size: 1.5rem;'>🔬</span>
-            <div>
-                <p style='margin: 0; color: #006064; font-weight: 700; font-size: 0.95rem;'>
-                    Comprehensive Detection Enabled
-                </p>
-                <p style='margin: 0.2rem 0 0 0; color: #00838f; font-size: 0.85rem;'>
-                    11 motif classes • 22+ subclasses • Parallel processing
-                </p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Enable all classes by default in consolidated system
+        st.info("🔬 **NBDScanner detects all 11 motif classes with 22+ subclasses automatically**")
         
-        # Simple options with modern toggle-like appearance
+        # Simple options
         col1, col2 = st.columns(2)
         with col1:
-            detailed_output = st.checkbox("📊 Detailed Analysis", value=True, 
+            detailed_output = st.checkbox("Detailed Analysis", value=True, 
                                         help="Include comprehensive motif metadata")
         with col2:
-            quality_check = st.checkbox("✓ Quality Validation", value=True, 
+            quality_check = st.checkbox("Quality Validation", value=True, 
                                       help="Validate detected motifs")
         
-        # Chunking and parallel programming are now enabled by default
-        # to improve performance for all users without requiring configuration.
-        # Large sequences (>10kb) automatically use chunking, and progress is always shown.
-        show_chunk_progress = True
-        use_parallel_scanner = True
+        # Advanced options (collapsible)
+        with st.expander("Advanced Options"):
+            show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
+                                             help="Display detailed progress for each processing chunk (useful for large sequences)")
+            use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
+                                              help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
+            
+            if use_parallel_scanner:
+                st.info("ℹ️ Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
         
         # Hardcoded default overlap handling: always remove overlaps within subclasses
         nonoverlap = True
         overlap_option = "Remove overlaps within subclasses"
         
         
-        # ========== MODERN NBDSCANNER ANALYSIS STYLES ==========
-        st.markdown("""
-        <style>
-        .nbdscanner-analysis-block {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
-            border-radius: 20px;
-            padding: 2rem;
-            margin: 1.5rem 0;
-            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15),
-                        0 0 0 1px rgba(56, 189, 248, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-        .nbdscanner-analysis-block::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #0ea5e9, #06b6d4, #14b8a6, #10b981, #22c55e);
-            background-size: 300% 100%;
-            animation: gradient-flow 4s ease infinite;
-        }
-        @keyframes gradient-flow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        .nbdscanner-title {
-            font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #0369a1;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            letter-spacing: 0.02em;
-        }
-        .progress-container {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border: 1px solid rgba(14, 165, 233, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        .progress-bar-outer {
-            background: rgba(203, 213, 225, 0.5);
-            border-radius: 10px;
-            height: 24px;
-            overflow: hidden;
-            margin: 1rem 0;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .progress-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, 
-                #0ea5e9 0%, #06b6d4 25%, #14b8a6 50%, #10b981 75%, #22c55e 100%);
-            background-size: 300% 100%;
-            border-radius: 10px;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
-            animation: shimmer-gradient 3s linear infinite;
-            position: relative;
-        }
-        @keyframes shimmer-gradient {
-            0% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .progress-bar-inner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: shine-sweep 2s ease-in-out infinite;
-        }
-        @keyframes shine-sweep {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-        .stat-item {
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 16px;
-            padding: 1.2rem;
-            text-align: center;
-            border: 1px solid rgba(14, 165, 233, 0.15);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-        .stat-item:hover {
-            transform: translateY(-3px);
-            border-color: rgba(14, 165, 233, 0.25);
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.12);
-        }
-        .stat-value {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0891b2;
-            margin: 0;
-        }
-        .stat-label {
-            font-size: 0.85rem;
-            color: #475569;
-            margin: 0.4rem 0 0 0;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        .step-indicator {
-            background: linear-gradient(90deg, rgba(14, 165, 233, 0.12) 0%, transparent 100%);
-            border-left: 4px solid;
-            border-image: linear-gradient(180deg, #0ea5e9, #06b6d4) 1;
-            border-radius: 0 12px 12px 0;
-            padding: 1rem 1.5rem;
-            margin: 1rem 0;
-        }
-        .step-text {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            color: #1e3a5f;
-            font-size: 1.1rem;
-            letter-spacing: 0.02em;
-        }
-        .completed-badge {
-            background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
-            border-radius: 16px;
-            padding: 1.2rem 2rem;
-            text-align: center;
-            margin-top: 1.5rem;
-            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.25);
-        }
-        .completed-text {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #ffffff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
+        # ========== RUN ANALYSIS BUTTON ========== 
         if st.button("🔬 Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
             # Simplified validation
             if not st.session_state.seqs:
                 st.error("❌ Please upload or input sequences before running analysis.")
                 st.session_state.analysis_status = "Error"
             else:
-                st.session_state.analysis_status = "Running"
+                # =============================================================
+                # SEQUENCE LENGTH VALIDATION FOR SERVER/STREAMLIT VERSION
+                # =============================================================
+                # Check if any sequence exceeds the maximum allowed length
+                sequences_over_limit = []
+                total_length = 0
+                for i, seq in enumerate(st.session_state.seqs):
+                    seq_len = len(seq)
+                    total_length += seq_len
+                    if seq_len > MAX_SEQUENCE_LENGTH:
+                        seq_name = st.session_state.names[i] if i < len(st.session_state.names) else f"Sequence {i+1}"
+                        sequences_over_limit.append((seq_name, seq_len))
                 
-                # Store analysis parameters in session state for use in download section
-                st.session_state.overlap_option_used = overlap_option
-                st.session_state.nonoverlap_used = nonoverlap
-                
-                # Set analysis parameters based on user selections
-                # nonoverlap is already set above based on user selection
-                report_hotspots = True  # Enable hotspot detection 
-                calculate_conservation = False  # Disable to reduce computation time
-                threshold = 0.0  # Show all detected motifs (even 0 scores)
-                
-                validation_messages = []
-
-                # Scientific validation check
-                if CONFIG_AVAILABLE and st.session_state.get('selected_classes'):
-                    for class_id in st.session_state.selected_classes:
-                        limits = get_motif_limits(class_id)
-                        if limits:
-                            validation_messages.append(f"✓ {class_id}: Length limits {limits}")
-                
-                # Enhanced progress tracking with timer
-                import time
-                
-                # Create placeholder for combined progress block
-                combined_progress_placeholder = st.empty()
-                timer_placeholder = st.empty()
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                
-                start_time = time.time()
-                
-                # Define detector processes for display
-                DETECTOR_PROCESSES = [
-                    ("Curved DNA", "A-tract mediated DNA bending detection"),
-                    ("Slipped DNA", "Direct repeats and STR detection"),
-                    ("Cruciform", "Inverted repeat/palindrome detection"),
-                    ("R-Loop", "RNA-DNA hybrid formation site detection"),
-                    ("Triplex", "Three-stranded structure detection"),
-                    ("G-Quadruplex", "Four-stranded G-rich structure detection"),
-                    ("i-Motif", "C-rich structure detection"),
-                    ("Z-DNA", "Left-handed helix detection"),
-                    ("A-philic DNA", "A-rich structural element detection")
-                ]
-                
-                # Constants for progress estimation
-                # ESTIMATED_BP_PER_SECOND: Empirical processing rate based on benchmark testing
-                # on 10kb sequences with all 9 detectors running. Actual speed may vary
-                # depending on sequence complexity and hardware configuration.
-                ESTIMATED_BP_PER_SECOND = 5800
-                CHUNK_SIZE_FOR_PARALLEL = 50000  # Chunk size for parallel processing display
-                
-                # Estimate processing time based on sequence length
-                def estimate_time(total_bp):
-                    return total_bp / ESTIMATED_BP_PER_SECOND
-                
-                # Helper function to render the combined progress block
-                def render_progress_block(progress_pct, current_step, elapsed_sec, motifs_found, speed_bps, is_complete=False, detector_timings=None):
-                    """Render the combined NBDScanner Run Button + Progress + Stats Block.
+                if sequences_over_limit:
+                    limit_display = format_sequence_limit()
+                    st.error(f"""
+                    ❌ **Sequence Length Limit Exceeded**
                     
-                    Note: Detector timings are displayed in the Results tab instead of here
-                    for a cleaner upload page experience.
-                    """
-                    # Calculate progress bar blocks (using Unicode block characters)
-                    filled_blocks = int(progress_pct / 12.5)  # 8 total blocks
-                    empty_blocks = 8 - filled_blocks
-                    progress_visual = "█" * filled_blocks + "▒" * empty_blocks
+                    The following sequence(s) exceed the maximum allowed length of **{limit_display}** for the web version:
+                    """)
+                    for seq_name, seq_len in sequences_over_limit:
+                        st.error(f"• **{seq_name}**: {seq_len:,} nucleotides ({seq_len - MAX_SEQUENCE_LENGTH:,} over limit)")
                     
-                    if is_complete:
-                        block_html = f"""
-                        <div class='nbdscanner-analysis-block'>
-                            <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
-                            <div class='progress-container'>
-                                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                                    <span style='color: #1e3a5f; font-weight: 700; font-size: 1rem;'>Progress:</span>
-                                    <span style='font-family: monospace; color: #059669; font-size: 1.3rem; letter-spacing: 2px;'>{progress_visual}</span>
-                                    <span style='color: #059669; font-weight: 800; font-size: 1.1rem;'>100%</span>
-                                </div>
-                                <div class='progress-bar-outer'>
-                                    <div class='progress-bar-inner' style='width: 100%;'></div>
-                                </div>
-                            </div>
-                            <div class='completed-badge'>
-                                <span class='completed-text'>✓ Analysis Completed</span>
-                            </div>
-                            <div class='stats-grid'>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{elapsed_sec:.1f}s</p>
-                                    <p class='stat-label'>Total Time</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{motifs_found:,}</p>
-                                    <p class='stat-label'>Motifs Found</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{speed_bps:,.0f}</p>
-                                    <p class='stat-label'>bp/sec</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>9</p>
-                                    <p class='stat-label'>Detectors</p>
-                                </div>
-                            </div>
-                        </div>
-                        """
-                    else:
-                        block_html = f"""
-                        <div class='nbdscanner-analysis-block'>
-                            <div class='nbdscanner-title'>🧬 NBDScanner Analysis</div>
-                            <div class='progress-container'>
-                                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                                    <span style='color: #1e3a5f; font-weight: 700; font-size: 1rem;'>Progress:</span>
-                                    <span style='font-family: monospace; color: #d97706; font-size: 1.3rem; letter-spacing: 2px;'>{progress_visual}</span>
-                                    <span style='color: #d97706; font-weight: 800; font-size: 1.1rem;'>{progress_pct:.0f}%</span>
-                                </div>
-                                <div class='progress-bar-outer'>
-                                    <div class='progress-bar-inner' style='width: {progress_pct}%;'></div>
-                                </div>
-                            </div>
-                            <div class='step-indicator'>
-                                <span class='step-text'>🔄 Step: {current_step}</span>
-                            </div>
-                            <div class='stats-grid'>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{elapsed_sec:.1f}s</p>
-                                    <p class='stat-label'>Elapsed Time</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{motifs_found:,}</p>
-                                    <p class='stat-label'>Motifs Found</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>{speed_bps:,.0f}</p>
-                                    <p class='stat-label'>bp/sec</p>
-                                </div>
-                                <div class='stat-item'>
-                                    <p class='stat-value'>9</p>
-                                    <p class='stat-label'>Detectors</p>
-                                </div>
-                            </div>
-                        </div>
-                        """
-                    return block_html
-                
-                total_bp_all_sequences = sum(len(seq) for seq in st.session_state.seqs)
-                estimated_total_time = estimate_time(total_bp_all_sequences)
-                
-                try:
-                    # Filter which classes to analyze based on selection
-                    analysis_classes = st.session_state.selected_classes if st.session_state.selected_classes else None
+                    st.info("""
+                    💡 **For unlimited sequence analysis:**
                     
-                    # Run analysis on each sequence
-                    all_results = []
-                    all_hotspots = []
-                    
-                    total_bp_processed = 0
-                    
-                    # Track total motifs found so far
-                    total_motifs_so_far = 0
-                    
-                    for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
-                        progress = (i + 1) / len(st.session_state.seqs)
-                        
-                        # Calculate elapsed time and estimated remaining
-                        elapsed = time.time() - start_time
-                        
-                        # Calculate estimated remaining time (ensure non-negative)
-                        if elapsed > 0 and total_bp_processed > 0:
-                            current_rate = total_bp_processed / elapsed
-                            remaining_bp = total_bp_all_sequences - total_bp_processed
-                            estimated_remaining = max(0, remaining_bp / current_rate) if current_rate > 0 else 0
-                        else:
-                            estimated_remaining = max(0, estimated_total_time - elapsed)
-                        
-                        # Calculate overall percentage
-                        overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
-                        
-                        # Calculate current speed
-                        current_speed = total_bp_processed / elapsed if elapsed > 0 else 0
-                        
-                        # Determine current step name (escape for HTML safety)
-                        safe_name = html_module.escape(name)
-                        current_step_name = f"Analyzing {safe_name} ({i+1}/{len(st.session_state.seqs)})"
-                        
-                        # Render the combined progress block
-                        progress_html = render_progress_block(
-                            progress_pct=overall_percentage,
-                            current_step=current_step_name,
-                            elapsed_sec=elapsed,
-                            motifs_found=total_motifs_so_far,
-                            speed_bps=current_speed,
-                            is_complete=False
-                        )
-                        combined_progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
-                        
-                        # Run the analysis - use chunking for large sequences (>10,000 bp)
-                        seq_start = time.time()
-                        
-                        # Create a chunk progress placeholder for large sequences
-                        chunk_progress_placeholder = st.empty()
-                        
-                        # Define progress callback for chunked processing
-                        def chunking_progress_callback(current_chunk, total_chunks, bp_done, elapsed_time, throughput):
-                            """Callback to update chunk progress for large sequences.
-                            
-                            Args:
-                                current_chunk: Current chunk number being processed
-                                total_chunks: Total number of chunks
-                                bp_done: Base pairs processed so far
-                                elapsed_time: Time elapsed since processing started
-                                throughput: Processing speed in bp/second
-                            """
-                            if show_chunk_progress and total_chunks > 1:
-                                chunk_percent = (current_chunk / total_chunks) * 100
-                                chunk_progress_placeholder.info(
-                                    f"🔄 Processing chunks: {current_chunk}/{total_chunks} ({chunk_percent:.1f}%) - "
-                                    f"{bp_done:,} bp processed ({throughput:,.0f} bp/s)"
-                                )
-                        
-                        if len(seq) > CHUNK_THRESHOLD:
-                            # Large sequence: use chunking with progress tracking
-                            if show_chunk_progress:
-                                num_chunks = (len(seq) // DEFAULT_CHUNK_SIZE) + 1
-                                chunk_progress_placeholder.info(
-                                    f"📦 Large sequence detected ({len(seq):,} bp). "
-                                    f"Splitting into ~{num_chunks} chunks of {DEFAULT_CHUNK_SIZE:,} bp..."
-                                )
-                            
-                            try:
-                                results = analyze_sequence(
-                                    seq, 
-                                    name, 
-                                    use_chunking=True,
-                                    chunk_size=DEFAULT_CHUNK_SIZE,
-                                    chunk_overlap=DEFAULT_CHUNK_OVERLAP,
-                                    progress_callback=chunking_progress_callback if show_chunk_progress else None
-                                )
-                                
-                                # Clear chunk progress
-                                if show_chunk_progress:
-                                    chunk_progress_placeholder.success(
-                                        f"✅ Chunk processing complete: {len(results)} motifs found in {len(seq):,} bp"
-                                    )
-                            except Exception as e:
-                                st.warning(f"Chunked analysis failed, trying standard mode: {e}")
-                                results = analyze_sequence(seq, name, use_chunking=False)
-                        elif use_parallel_scanner and len(seq) > 100000:
-                            # Use experimental parallel scanner for large sequences (legacy path)
-                            try:
-                                from scanner_agent import ParallelScanner
-                                
-                                def chunk_progress_callback(current, total):
-                                    """Callback to update chunk progress"""
-                                    if show_chunk_progress:
-                                        chunk_percent = (current / total) * 100
-                                        chunk_progress_placeholder.info(f"🔄 Processing chunks: {current}/{total} ({chunk_percent:.1f}%)")
-                                
-                                # Run parallel scanner
-                                scanner = ParallelScanner(seq, hs_db=None)
-                                raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
-                                
-                                # Convert raw motifs to full motif format by running through scoring
-                                results = analyze_sequence(seq, name, use_chunking=False)
-                                
-                                # Clear chunk progress
-                                if show_chunk_progress:
-                                    chunk_progress_placeholder.success(f"✅ Chunk processing complete: {len(raw_motifs)} raw motifs found")
-                                
-                            except Exception as e:
-                                st.warning(f"Parallel scanner failed, falling back to standard: {e}")
-                                results = analyze_sequence(seq, name, use_chunking=False)
-                        else:
-                            # Standard consolidated NBDScanner analysis (for smaller sequences)
-                            results = analyze_sequence(seq, name, use_chunking=False)
-                        
-                        seq_time = time.time() - seq_start
-                        
-                        # Ensure all motifs have required fields
-                        results = [ensure_subclass(motif) for motif in results]
-                        all_results.append(results)
-                        
-                        total_bp_processed += len(seq)
-                        total_motifs_so_far += len(results)
-                        
-                        # Calculate processing speed
-                        elapsed = time.time() - start_time
-                        speed = total_bp_processed / elapsed if elapsed > 0 else 0
-                        
-                        # Update the combined progress block after sequence completion
-                        progress_pct = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 100
-                        current_step_name = f"Completed {safe_name}"
-                        progress_html = render_progress_block(
-                            progress_pct=progress_pct,
-                            current_step=current_step_name,
-                            elapsed_sec=elapsed,
-                            motifs_found=total_motifs_so_far,
-                            speed_bps=speed,
-                            is_complete=False
-                        )
-                        combined_progress_placeholder.markdown(progress_html, unsafe_allow_html=True)
-                        
-                        status_placeholder.info(f"✓ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) - {len(results)} motifs found")
-                    
-                    # Store results
-                    st.session_state.results = all_results
-                    
-                    # Final timing statistics
-                    total_time = time.time() - start_time
-                    overall_speed = total_bp_processed / total_time if total_time > 0 else 0
-                    
-                    # Generate summary
-                    summary = []
-                    for i, results in enumerate(all_results):
-                        seq = st.session_state.seqs[i]
-                        stats = get_basic_stats(seq, results)
-                        summary.append({
-                            'Sequence': st.session_state.names[i],
-                            'Length': stats['Length'],
-                            'GC Content': f"{stats['GC%']:.1f}%",
-                            'Motifs Found': len(results),
-                            'Unique Types': len(set(m.get('Class', 'Unknown') for m in results)),
-                            'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
-                        })
-                    
-                    st.session_state.summary_df = pd.DataFrame(summary)
-                    
-                    # Get detector timings from the last analysis
-                    detector_timings = get_last_detector_timings()
-                    
-                    # Store performance metrics with enhanced details
-                    st.session_state.performance_metrics = {
-                        'total_time': total_time,
-                        'total_bp': total_bp_processed,
-                        'speed': overall_speed,
-                        'sequences': len(st.session_state.seqs),
-                        'total_motifs': sum(len(r) for r in all_results),
-                        'detector_count': len(DETECTOR_PROCESSES),  # Number of detector processes
-                        'estimated_time': estimated_total_time,  # Initial estimated time
-                        # Derive analysis steps from DETECTOR_PROCESSES plus post-processing steps
-                        'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
-                            'Hybrid/Cluster detection',
-                            'Overlap resolution'
-                        ],
-                        'detector_timings': detector_timings  # Individual detector timings
-                    }
-                    
-                    # Clear progress displays
-                    progress_placeholder.empty()
-                    status_placeholder.empty()
-                    timer_placeholder.empty()
-                    
-                    # Show final completed progress block
-                    total_motifs_found = sum(len(r) for r in all_results)
-                    completion_html = render_progress_block(
-                        progress_pct=100,
-                        current_step="All detectors completed",
-                        elapsed_sec=total_time,
-                        motifs_found=total_motifs_found,
-                        speed_bps=overall_speed,
-                        is_complete=True,
-                        detector_timings=detector_timings
-                    )
-                    combined_progress_placeholder.markdown(completion_html, unsafe_allow_html=True)
-                    
-                    st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
-                    st.session_state.analysis_status = "Complete"
-                    
-                except Exception as e:
-                    timer_placeholder.empty()
-                    progress_placeholder.empty()
-                    status_placeholder.empty()
-                    combined_progress_placeholder.empty()
-                    st.error(f"❌ Analysis failed: {str(e)}")
+                    Use the **local Jupyter notebook version** (`NonBScanner_Local.ipynb`) which has no sequence length limits.
+                    The local version is optimized for large genome-scale analysis on your own hardware.
+                    """)
                     st.session_state.analysis_status = "Error"
+                else:
+                    st.session_state.analysis_status = "Running"
+                    
+                    # Store analysis parameters in session state for use in download section
+                    st.session_state.overlap_option_used = overlap_option
+                    st.session_state.nonoverlap_used = nonoverlap
+                    
+                    # Set analysis parameters based on user selections
+                    # nonoverlap is already set above based on user selection
+                    report_hotspots = True  # Enable hotspot detection 
+                    calculate_conservation = False  # Disable to reduce computation time
+                    threshold = 0.0  # Show all detected motifs (even 0 scores)
+                    
+                    validation_messages = []
+
+                    # Scientific validation check
+                    if CONFIG_AVAILABLE and st.session_state.get('selected_classes'):
+                        for class_id in st.session_state.selected_classes:
+                            limits = get_motif_limits(class_id)
+                            if limits:
+                                validation_messages.append(f"✓ {class_id}: Length limits {limits}")
+                    
+                    # Enhanced progress tracking with timer
+                    import time
+                    
+                    # Create placeholder for timer and progress
+                    timer_placeholder = st.empty()
+                    progress_placeholder = st.empty()
+                    status_placeholder = st.empty()
+                    detailed_progress_placeholder = st.empty()
+                    
+                    start_time = time.time()
+                    
+                    # Define detector processes for display
+                    DETECTOR_PROCESSES = [
+                        ("Curved DNA", "A-tract mediated DNA bending detection"),
+                        ("Slipped DNA", "Direct repeats and STR detection"),
+                        ("Cruciform", "Inverted repeat/palindrome detection"),
+                        ("R-Loop", "RNA-DNA hybrid formation site detection"),
+                        ("Triplex", "Three-stranded structure detection"),
+                        ("G-Quadruplex", "Four-stranded G-rich structure detection"),
+                        ("i-Motif", "C-rich structure detection"),
+                        ("Z-DNA", "Left-handed helix detection"),
+                        ("A-philic DNA", "A-rich structural element detection")
+                    ]
+                    
+                    # Constants for progress estimation
+                    # ESTIMATED_BP_PER_SECOND: Empirical processing rate based on benchmark testing
+                    # on 10kb sequences with all 9 detectors running. Actual speed may vary
+                    # depending on sequence complexity and hardware configuration.
+                    ESTIMATED_BP_PER_SECOND = 5800
+                    CHUNK_SIZE_FOR_PARALLEL = 50000  # Chunk size for parallel processing display
+                    
+                    # Helper function to generate progress HTML template
+                    def build_progress_html(elapsed, estimated_remaining, progress_display, 
+                                            status_text, seq_info_html, detector_count):
+                        """Build the progress timer HTML with consistent styling."""
+                        return f"""
+                        <div style='background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%); 
+                                    border-radius: 12px; padding: 1.5rem; color: white;
+                                    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3); margin-bottom: 1rem;'>
+                            <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⏱️ NonBScanner Analysis Progress</h3>
+                            <p style='margin: 0 0 1rem 0; text-align: center; opacity: 0.9; font-size: 0.95rem;'>{status_text}</p>
+                            
+                            <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1rem;'>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{elapsed:.1f}s</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Elapsed Time</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{estimated_remaining:.1f}s</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Est. Remaining</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{progress_display}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Overall Progress</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{detector_count}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
+                                </div>
+                            </div>
+                            
+                            <div style='background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;'>
+                                {seq_info_html}
+                            </div>
+                        </div>
+                        """
+                    
+                    # Estimate processing time based on sequence length
+                    def estimate_time(total_bp):
+                        return total_bp / ESTIMATED_BP_PER_SECOND
+                    
+                    total_bp_all_sequences = sum(len(seq) for seq in st.session_state.seqs)
+                    estimated_total_time = estimate_time(total_bp_all_sequences)
+                    
+                    try:
+                        # Filter which classes to analyze based on selection
+                        analysis_classes = st.session_state.selected_classes if st.session_state.selected_classes else None
+                        
+                        # Run analysis on each sequence
+                        all_results = []
+                        all_hotspots = []
+                        
+                        total_bp_processed = 0
+                        
+                        with progress_placeholder.container():
+                            pbar = st.progress(0)
+                            
+                        for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
+                            progress = (i + 1) / len(st.session_state.seqs)
+                            
+                            # Calculate elapsed time and estimated remaining
+                            elapsed = time.time() - start_time
+                            
+                            # Calculate estimated remaining time (ensure non-negative)
+                            if elapsed > 0 and total_bp_processed > 0:
+                                current_rate = total_bp_processed / elapsed
+                                remaining_bp = total_bp_all_sequences - total_bp_processed
+                                estimated_remaining = max(0, remaining_bp / current_rate) if current_rate > 0 else 0
+                            else:
+                                estimated_remaining = max(0, estimated_total_time - elapsed)
+                            
+                            # Calculate overall percentage
+                            overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                            
+                            # Determine status text based on progress state
+                            if total_bp_processed == 0:
+                                status_text = "🔄 Starting analysis..."
+                                progress_display = "Starting"
+                            else:
+                                status_text = "🔄 Analysis in progress..."
+                                progress_display = f"{overall_percentage:.1f}%"
+                            
+                            # Build sequence info HTML
+                            seq_info_html = f"""
+                                <p style='margin: 0; font-size: 0.9rem; text-align: center;'>
+                                    <strong>Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} ({len(seq):,} bp)
+                                </p>
+                                <p style='margin: 0.3rem 0 0 0; font-size: 0.85rem; opacity: 0.9; text-align: center;'>
+                                    Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
+                                </p>
+                            """
+                            
+                            # Build timer HTML using helper function
+                            timer_html = build_progress_html(
+                                elapsed, estimated_remaining, progress_display,
+                                status_text, seq_info_html, len(DETECTOR_PROCESSES)
+                            )
+                            
+                            # Add chunk progress if enabled
+                            if show_chunk_progress and use_parallel_scanner:
+                                # Calculate estimated chunks for this sequence
+                                est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
+                                # Insert chunk info before the closing div
+                                timer_html = timer_html[:-6] + f"<p style='margin: 0.5rem 0; opacity: 0.8; font-size: 0.9rem; text-align: center;'>📦 Estimated chunks: {est_chunks}</p></div>"
+                            
+                            timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
+                            
+                            # Show detailed progress panel with detector sequence
+                            # The status_icon shows all detectors as "running" during analysis since they run in parallel
+                            detailed_progress_html = f"""
+                            <div style='background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
+                                        border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+                                        border: 1px solid #bdbdbd;'>
+                                <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Analysis Pipeline - Sequence of Operations</h4>
+                                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.85rem;'>
+                            """
+                            
+                            for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
+                                # All detectors run in parallel during analysis, so show as "running"
+                                status_icon = "🔄"
+                                bg_color = "rgba(25, 118, 210, 0.1)"
+                                detailed_progress_html += f"""
+                                    <div style='background: {bg_color}; padding: 0.5rem; border-radius: 6px; 
+                                                border-left: 3px solid #1976d2;'>
+                                        <span style='font-weight: 600;'>{status_icon} {j+1}. {detector_name}</span>
+                                        <br/><span style='font-size: 0.75rem; color: #757575;'>{detector_desc}</span>
+                                    </div>
+                                """
+                            
+                            detailed_progress_html += """
+                                </div>
+                                <p style='margin: 0.8rem 0 0 0; font-size: 0.8rem; color: #616161; text-align: center;'>
+                                    All 9 detectors run in parallel for each sequence, followed by hybrid/cluster detection
+                                </p>
+                            </div>
+                            """
+                            detailed_progress_placeholder.markdown(detailed_progress_html, unsafe_allow_html=True)
+                            
+                            # Run the analysis - use parallel scanner for large sequences if enabled
+                            seq_start = time.time()
+                            
+                            if use_parallel_scanner and len(seq) > 100000:
+                                # Use experimental parallel scanner for large sequences
+                                try:
+                                    from scanner_agent import ParallelScanner
+                                    
+                                    # Create chunk progress placeholder
+                                    chunk_progress_placeholder = st.empty()
+                                    
+                                    def chunk_progress_callback(current, total):
+                                        """Callback to update chunk progress"""
+                                        if show_chunk_progress:
+                                            chunk_percent = (current / total) * 100
+                                            chunk_progress_placeholder.info(f"🔄 Processing chunks: {current}/{total} ({chunk_percent:.1f}%)")
+                                    
+                                    # Run parallel scanner
+                                    scanner = ParallelScanner(seq, hs_db=None)
+                                    raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
+                                    
+                                    # Convert raw motifs to full motif format by running through scoring
+                                    # For now, just use the standard analyzer
+                                    results = analyze_sequence(seq, name)
+                                    
+                                    # Clear chunk progress
+                                    if show_chunk_progress:
+                                        chunk_progress_placeholder.success(f"✅ Chunk processing complete: {len(raw_motifs)} raw motifs found")
+                                    
+                                except Exception as e:
+                                    st.warning(f"Parallel scanner failed, falling back to standard: {e}")
+                                    results = analyze_sequence(seq, name)
+                            else:
+                                # Use standard consolidated NBDScanner analysis
+                                results = analyze_sequence(seq, name)
+                            
+                            seq_time = time.time() - seq_start
+                            
+                            # Ensure all motifs have required fields
+                            results = [ensure_subclass(motif) for motif in results]
+                            all_results.append(results)
+                            
+                            total_bp_processed += len(seq)
+                            
+                            # Calculate processing speed and update elapsed time
+                            elapsed = time.time() - start_time
+                            speed = total_bp_processed / elapsed if elapsed > 0 else 0
+                            
+                            # Recalculate estimated remaining time with actual speed
+                            if speed > 0:
+                                remaining_bp = total_bp_all_sequences - total_bp_processed
+                                estimated_remaining = max(0, remaining_bp / speed)
+                            else:
+                                estimated_remaining = 0
+                            
+                            # Calculate actual progress percentage
+                            actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                            
+                            # Build sequence completion info HTML
+                            seq_complete_info_html = f"""
+                                <p style='margin: 0; font-size: 0.9rem; text-align: center;'>
+                                    <strong>Processed</strong>: {name} ({len(seq):,} bp) in {seq_time:.2f}s - {len(results)} motifs found
+                                </p>
+                                <p style='margin: 0.3rem 0 0 0; font-size: 0.85rem; opacity: 0.9; text-align: center;'>
+                                    Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp ({speed:,.0f} bp/s)
+                                </p>
+                            """
+                            
+                            # Update timer display with actual progress using helper function
+                            updated_timer_html = build_progress_html(
+                                elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
+                                f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
+                                seq_complete_info_html, len(DETECTOR_PROCESSES)
+                            )
+                            timer_placeholder.markdown(updated_timer_html, unsafe_allow_html=True)
+                            
+                            with progress_placeholder.container():
+                                pbar.progress(progress, text=f"Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
+                            
+                            status_placeholder.info(f"✓ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) - {len(results)} motifs found")
+                        
+                        # Store results
+                        st.session_state.results = all_results
+                        
+                        # Final timing statistics
+                        total_time = time.time() - start_time
+                        overall_speed = total_bp_processed / total_time if total_time > 0 else 0
+                        
+                        # Generate summary
+                        summary = []
+                        for i, results in enumerate(all_results):
+                            seq = st.session_state.seqs[i]
+                            stats = get_basic_stats(seq, results)
+                            summary.append({
+                                'Sequence': st.session_state.names[i],
+                                'Length': stats['Length'],
+                                'GC Content': f"{stats['GC%']:.1f}%",
+                                'Motifs Found': len(results),
+                                'Unique Types': len(set(m.get('Type', 'Unknown') for m in results)),
+                                'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
+                            })
+                        
+                        st.session_state.summary_df = pd.DataFrame(summary)
+                        
+                        # Store performance metrics with enhanced details
+                        st.session_state.performance_metrics = {
+                            'total_time': total_time,
+                            'total_bp': total_bp_processed,
+                            'speed': overall_speed,
+                            'sequences': len(st.session_state.seqs),
+                            'total_motifs': sum(len(r) for r in all_results),
+                            'detector_count': len(DETECTOR_PROCESSES),  # Number of detector processes
+                            'estimated_time': estimated_total_time,  # Initial estimated time
+                            # Derive analysis steps from DETECTOR_PROCESSES plus post-processing steps
+                            'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
+                                'Hybrid/Cluster detection',
+                                'Overlap resolution'
+                            ]
+                        }
+                        
+                        # Clear progress displays
+                        progress_placeholder.empty()
+                        status_placeholder.empty()
+                        detailed_progress_placeholder.empty()
+                        
+                        # Show final success message with enhanced performance metrics
+                        timer_placeholder.markdown(f"""
+                        <div style='background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); 
+                                    border-radius: 12px; padding: 1.5rem; color: white;
+                                    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); margin-bottom: 1rem;'>
+                            <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>✅ Analysis Complete!</h3>
+                            <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_time:.2f}s</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Total Time</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_bp_processed:,}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Base Pairs</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{overall_speed:,.0f}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>bp/second</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{len(DETECTOR_PROCESSES)}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Detectors Run</p>
+                                </div>
+                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{sum(len(r) for r in all_results)}</h2>
+                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Motifs Found</p>
+                                </div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
+                        st.session_state.analysis_status = "Complete"
+                        
+                    except Exception as e:
+                        timer_placeholder.empty()
+                        progress_placeholder.empty()
+                        status_placeholder.empty()
+                        detailed_progress_placeholder.empty()
+                        st.error(f"❌ Analysis failed: {str(e)}")
+                        st.session_state.analysis_status = "Error"
 
         # Show quick summary table if available
         if st.session_state.get('summary_df') is not None:
-            st.markdown("""
-            <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                        border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem;
-                        border: 1px solid rgba(0,0,0,0.08);
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
-                <h4 style='margin: 0 0 1rem 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
-                    <span style='font-size: 1.2rem;'>📊</span>
-                    Analysis Summary
-                </h4>
-            </div>
-            """, unsafe_allow_html=True)
-            st.dataframe(st.session_state.summary_df, use_container_width=True)
+            st.markdown("#### Analysis Summary")
+            st.dataframe(st.session_state.summary_df)
     # End of Upload & Analyze tab
     st.markdown("---")
 # ---------- RESULTS ----------
@@ -2180,107 +1916,45 @@ with tab_pages["Results"]:
     if not st.session_state.results:
         st.info("No analysis results. Please run motif analysis first.")
     else:
-        # Performance metrics display if available - soothing light background with enlarged fonts
+        # Performance metrics display if available
         if st.session_state.get('performance_metrics'):
             metrics = st.session_state.performance_metrics
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
-                        border-radius: 20px; padding: 2rem; margin-bottom: 2rem;
-                        box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);
-                        border: 1px solid rgba(56, 189, 248, 0.2);
-                        position: relative; overflow: hidden;'>
-                <div style='position: absolute; top: 0; left: 0; right: 0; height: 4px;
-                            background: linear-gradient(90deg, #0ea5e9, #06b6d4, #14b8a6, #10b981, #22c55e);
-                            background-size: 300% 100%;'></div>
-                <h3 style='margin: 0 0 1.5rem 0; text-align: center;
-                           color: #0369a1;
-                           font-size: 1.6rem; font-weight: 800;'>
-                    ⚡ NBDScanner Performance Metrics
-                </h3>
-                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.2rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(14, 165, 233, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #0891b2;'>
-                            {metrics['total_time']:.2f}s</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Processing Time</p>
+            <div style='background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); 
+                        border-radius: 12px; padding: 1.5rem; color: white; margin-bottom: 2rem;
+                        box-shadow: 0 4px 16px rgba(13, 71, 161, 0.25);'>
+                <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⚡ Performance Metrics</h3>
+                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_time']:.2f}s</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Processing Time</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #6366f1;'>
-                            {metrics['total_bp']:,}</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Base Pairs</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_bp']:,}</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Base Pairs</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(236, 72, 153, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #db2777;'>
-                            {metrics['speed']:,.0f}</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>bp/second</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['speed']:,.0f}</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>bp/second</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #059669;'>
-                            {metrics.get('detector_count', 9)}</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Detectors</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics.get('detector_count', 9)}</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(249, 115, 22, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #ea580c;'>
-                            {metrics['sequences']}</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Sequences</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['sequences']}</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Sequences</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.8); 
-                                padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(34, 197, 94, 0.2);
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>
-                        <p style='margin: 0; font-size: 2rem; font-weight: 800; color: #16a34a;'>
-                            {metrics['total_motifs']}</p>
-                        <p style='margin: 0.4rem 0 0 0; color: #475569; font-size: 0.9rem;
-                                  text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;'>Total Motifs</p>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
+                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_motifs']}</h2>
+                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Total Motifs</p>
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            
-            # Display detector timings if available - code-like format with soothing background
-            detector_timings = metrics.get('detector_timings', {})
-            if detector_timings:
-                timing_code = format_detector_timings_as_code(detector_timings)
-                
-                # Use Streamlit's native code display with soothing background wrapper
-                st.markdown("""
-                <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #e8f4f8 100%);
-                            border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
-                            box-shadow: 0 6px 24px rgba(56, 189, 248, 0.15);
-                            border: 1px solid rgba(56, 189, 248, 0.2);'>
-                    <h4 style='margin: 0 0 1rem 0; text-align: center;
-                               color: #0369a1; font-size: 1.4rem; font-weight: 700;'>
-                        ⏱️ Individual Detector Timings
-                    </h4>
-                </div>
-                """, unsafe_allow_html=True)
-                st.code(timing_code, language="python")
         
-        # Enhanced summary display with modern styling
-        st.markdown("""
-        <div style='background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                    border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border: 1px solid rgba(0,0,0,0.08);
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);'>
-            <h3 style='margin: 0; color: #1a1a2e; display: flex; align-items: center; gap: 0.5rem;'>
-                <span style='font-size: 1.3rem;'>📊</span>
-                Analysis Summary
-            </h3>
-        </div>
-        """, unsafe_allow_html=True)
+        # Enhanced summary display
+        st.markdown("### 📊 Analysis Summary")
         st.dataframe(st.session_state.summary_df, use_container_width=True)
         
         # Sequence selection for detailed analysis using pills for better UX
@@ -2319,76 +1993,50 @@ with tab_pages["Results"]:
             coverage_pct = stats.get("Motif Coverage %", 0)
             non_b_density = (motif_count / sequence_length * 1000) if sequence_length > 0 else 0
             
-            # Enhanced summary card with modern glassmorphism styling
+            # Enhanced summary card with modern research-quality styling
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                        border-radius: 24px; padding: 2.5rem; margin: 1.5rem 0;
-                        box-shadow: 0 20px 60px rgba(15, 52, 96, 0.4);
-                        position: relative; overflow: hidden;'>
-                <div style='position: absolute; top: 0; left: 0; right: 0; height: 4px;
-                            background: linear-gradient(90deg, #667eea, #764ba2, #f64f59, #c471ed, #12c2e9);
-                            background-size: 300% 100%;'></div>
-                <div style='position: absolute; top: -100px; right: -100px; width: 300px; height: 300px;
-                            background: radial-gradient(circle, rgba(102,126,234,0.15) 0%, transparent 70%);
-                            border-radius: 50%;'></div>
-                <h3 style='margin: 0 0 2rem 0; text-align: center; font-size: 1.6rem; font-weight: 800;
-                           background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-                           -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                           position: relative; z-index: 1;'>
+            <div style='background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); 
+                        border-radius: 16px; padding: 2rem; margin: 1.5rem 0; color: white;
+                        box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);'>
+                <h3 style='margin: 0 0 1.5rem 0; color: white; text-align: center; font-size: 1.5rem; font-weight: 700;'>
                     🧬 NBDScanner Analysis Results
                 </h3>
                 <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-                            gap: 1.5rem; position: relative; z-index: 1;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-                                transition: all 0.3s ease;'>
-                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #12c2e9 0%, #c471ed 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                            gap: 1.5rem; margin-top: 1rem;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
                             {stats.get("Coverage%", 0):.2f}%
-                        </p>
-                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
-                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
+                        </h2>
+                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
                             Sequence Coverage
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-                                transition: all 0.3s ease;'>
-                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
                             {stats.get("Density", 0):.2f}
-                        </p>
-                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
-                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
-                            Motif Density<br><span style='font-size: 0.7rem;'>(motifs/kb)</span>
+                        </h2>
+                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                            Motif Density<br>(motifs/kb)
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-                                transition: all 0.3s ease;'>
-                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #f64f59 0%, #c471ed 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
                             {motif_count}
-                        </p>
-                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
-                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
+                        </h2>
+                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
                             Total Motifs
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.05); 
-                                padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-                                transition: all 0.3s ease;'>
-                        <p style='margin: 0 0 0.5rem 0; font-size: 2.4rem; font-weight: 800;
-                                  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-                                  -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
                             {sequence_length:,}
-                        </p>
-                        <p style='margin: 0; font-size: 0.85rem; color: rgba(255,255,255,0.7);
-                                  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'>
-                            Sequence Length<br><span style='font-size: 0.7rem;'>(bp)</span>
+                        </h2>
+                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                            Sequence Length (bp)
                         </p>
                     </div>
                 </div>
@@ -2495,311 +2143,274 @@ with tab_pages["Results"]:
                 st.dataframe(display_df, use_container_width=True, height=360)
             
             # CONSOLIDATED VISUALIZATION SUITE
-            st.markdown('<h3>📊 NBDScanner Visualizations</h3>', unsafe_allow_html=True)
+            st.markdown('<h3>Visualizations</h3>', unsafe_allow_html=True)
             
-            # Create tabs for different visualization categories including Cluster/Hybrid tab
-            viz_tabs = st.tabs(["📈 Distribution", "🗺️ Coverage Map", "📊 Statistics", "🔗 Cluster/Hybrid"])
+            # Create 4 visualization tabs including dedicated Cluster/Hybrid tab
+            viz_tabs = st.tabs(["Distribution", "Coverage & Density", "Statistics", "Cluster/Hybrid"])
             
             with viz_tabs[0]:  # Distribution
-                st.subheader("Motif Distribution Analysis")
+                st.markdown("##### Motif Distribution")
                 try:
+                    # Class distribution
                     fig1 = plot_motif_distribution(filtered_motifs, by='Class', title=f"Motif Classes - {sequence_name}")
                     st.pyplot(fig1)
                     plt.close(fig1)
                     
+                    # Subclass distribution
                     fig2 = plot_motif_distribution(filtered_motifs, by='Subclass', title=f"Motif Subclasses - {sequence_name}")
                     st.pyplot(fig2) 
                     plt.close(fig2)
                     
-                    # Pie chart
+                    # Nested pie chart
                     fig3 = plot_nested_pie_chart(filtered_motifs, title=f"Class-Subclass Distribution - {sequence_name}")
                     st.pyplot(fig3)
                     plt.close(fig3)
                 except Exception as e:
                     st.error(f"Error generating distribution plots: {e}")
             
-            with viz_tabs[1]:  # Coverage Map
-                st.subheader("Sequence Coverage Analysis")
+            with viz_tabs[1]:  # Coverage & Density (merged Coverage Map and Circos)
+                st.markdown("##### Sequence Coverage Analysis")
                 try:
-                    # Coverage map showing motif positions
-                    st.markdown("**Motif Position Map**")
+                    # Coverage map
                     fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
                     st.pyplot(fig4)
                     plt.close(fig4)
                     
-                    # Add density heatmap for comprehensive coverage analysis
-                    st.markdown("**Motif Density Heatmap**")
+                    # Density heatmap
                     fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
                                                window_size=max(100, sequence_length // 20),
                                                title=f"Motif Density - {sequence_name}")
                     st.pyplot(fig5)
                     plt.close(fig5)
+                    
+                    # Circos plot (only one - the main one)
+                    st.markdown("##### Circos Density Plot")
+                    fig_circos = plot_circos_motif_density(filtered_motifs, sequence_length,
+                                                          title=f"Circos Density - {sequence_name}")
+                    st.pyplot(fig_circos)
+                    plt.close(fig_circos)
+                    
                 except Exception as e:
-                    st.error(f"Error generating coverage map: {e}")
+                    st.error(f"Error generating coverage plots: {e}")
             
-            with viz_tabs[2]:  # Statistics  
-                st.subheader("📊 Statistical Analysis")
+            with viz_tabs[2]:  # Statistics (includes Cluster/Hybrid info)
+                st.markdown("##### Statistical Analysis")
                 
-                # Tabs for different statistical analyses
-                stat_tabs = st.tabs(["📏 Density Metrics", "✨ Enrichment Analysis", "📈 Distributions"])
-                
-                with stat_tabs[0]:  # Density Metrics
-                    st.markdown("### Density Calculations")
-                    st.markdown("""
-                    <div style='background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; border-radius: 5px; margin: 10px 0;'>
-                    <p><b>Genomic Density (σ_G):</b> Percentage of sequence covered by motifs</p>
-                    <p><b>Positional Density (λ):</b> Number of motifs per unit length (kbp or Mbp)</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                # Density Metrics section
+                st.markdown("###### Density Metrics")
+                try:
+                    genomic_density = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
+                    positional_density_kbp = calculate_positional_density(filtered_motifs, sequence_length, unit='kbp', by_class=True)
+                    positional_density_mbp = calculate_positional_density(filtered_motifs, sequence_length, unit='Mbp', by_class=True)
                     
-                    try:
-                        # Calculate density metrics
-                        genomic_density = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
-                        positional_density_kbp = calculate_positional_density(filtered_motifs, sequence_length, unit='kbp', by_class=True)
-                        positional_density_mbp = calculate_positional_density(filtered_motifs, sequence_length, unit='Mbp', by_class=True)
-                        
-                        # Display overall metrics
-                        st.markdown("#### Overall Metrics")
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Genomic Density", f"{genomic_density.get('Overall', 0):.4f}%")
-                        with col2:
-                            st.metric("Density (motifs/kbp)", f"{positional_density_kbp.get('Overall', 0):.2f}")
-                        with col3:
-                            st.metric("Density (motifs/Mbp)", f"{positional_density_mbp.get('Overall', 0):.2f}")
-                        
-                        # Display per-class density table
-                        st.markdown("#### Density by Motif Class")
-                        density_data = []
-                        for class_name in sorted([k for k in genomic_density.keys() if k != 'Overall']):
-                            density_data.append({
-                                'Motif Class': class_name,
-                                'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
-                                'Motifs per kbp': f"{positional_density_kbp.get(class_name, 0):.2f}",
-                                'Motifs per Mbp': f"{positional_density_mbp.get(class_name, 0):.2f}"
-                            })
-                        
-                        if density_data:
-                            density_df = pd.DataFrame(density_data)
-                            st.dataframe(density_df, use_container_width=True, height=300)
-                        
-                        # Visualize density comparison
-                        st.markdown("#### Density Visualization")
-                        fig_density = plot_density_comparison(genomic_density, positional_density_kbp,
-                                                              title="Motif Density Analysis")
-                        st.pyplot(fig_density)
-                        plt.close(fig_density)
-                        
-                    except Exception as e:
-                        st.error(f"Error calculating density metrics: {e}")
-                        import traceback
-                        st.error(traceback.format_exc())
-                
-                with stat_tabs[1]:  # Enrichment Analysis
-                    st.markdown("### Enrichment Analysis")
-                    st.markdown("""
-                    <div style='background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; border-radius: 5px; margin: 10px 0;'>
-                    <p><b>Fold Enrichment:</b> Ratio of observed motif density to background (shuffled sequences)</p>
-                    <p><b>P-value:</b> Statistical significance (proportion of shuffled sequences with equal or higher density)</p>
-                    <p><b>Method:</b> 100 iterations of sequence shuffling to generate background distribution</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Option to run enrichment analysis
-                    if st.button("🔬 Run Enrichment Analysis (100 shuffles)", key="run_enrichment"):
-                        with st.spinner("Performing enrichment analysis... This may take a few minutes."):
-                            progress_bar = st.progress(0)
-                            status_text = st.empty()
-                            
-                            def progress_callback(current, total):
-                                progress = current / total
-                                progress_bar.progress(progress)
-                                status_text.text(f"Processing shuffle {current}/{total}...")
-                            
-                            try:
-                                enrichment_results = calculate_enrichment_with_shuffling(
-                                    filtered_motifs, 
-                                    st.session_state.seqs[seq_idx],
-                                    n_shuffles=100,
-                                    by_class=True,
-                                    progress_callback=progress_callback
-                                )
-                                
-                                # Store results in session state
-                                st.session_state.enrichment_results = enrichment_results
-                                progress_bar.empty()
-                                status_text.empty()
-                                st.success("✅ Enrichment analysis completed!")
-                                
-                            except Exception as e:
-                                st.error(f"Error during enrichment analysis: {e}")
-                                import traceback
-                                st.error(traceback.format_exc())
-                    
-                    # Display enrichment results if available
-                    if hasattr(st.session_state, 'enrichment_results') and st.session_state.enrichment_results:
-                        enrichment_results = st.session_state.enrichment_results
-                        
-                        st.markdown("#### Enrichment Results")
-                        
-                        # Create summary table
-                        enrich_data = []
-                        for class_name in sorted([k for k in enrichment_results.keys() if k != 'Overall']):
-                            result = enrichment_results[class_name]
-                            fe = result.get('fold_enrichment', 0)
-                            fe_str = f"{fe:.2f}" if fe != 'Inf' else 'Inf'
-                            p_val = result.get('p_value', 1.0)
-                            sig = '***' if p_val < 0.001 else '**' if p_val < 0.01 else '*' if p_val < 0.05 else 'ns'
-                            
-                            enrich_data.append({
-                                'Motif Class': class_name,
-                                'Count': result.get('observed_count', 0),
-                                'Observed Density (%)': f"{result.get('observed_density', 0):.4f}",
-                                'Background Mean (%)': f"{result.get('background_mean', 0):.4f}",
-                                'Fold Enrichment': fe_str,
-                                'P-value': f"{p_val:.4f}",
-                                'Significance': sig
-                            })
-                        
-                        if enrich_data:
-                            enrich_df = pd.DataFrame(enrich_data)
-                            st.dataframe(enrich_df, use_container_width=True, height=300)
-                            
-                            st.markdown("""
-                            <div style='background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 0.9em;'>
-                            <b>Significance levels:</b> *** p < 0.001, ** p < 0.01, * p < 0.05, ns = not significant
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        # Visualizations
-                        st.markdown("#### Enrichment Visualizations")
-                        
-                        try:
-                            fig_enrich = plot_enrichment_analysis(enrichment_results,
-                                                                 title="Motif Enrichment Analysis")
-                            st.pyplot(fig_enrich)
-                            plt.close(fig_enrich)
-                            
-                            # Summary table visualization
-                            fig_table = plot_enrichment_summary_table(enrichment_results,
-                                                                     title="Enrichment Summary Statistics")
-                            if fig_table:
-                                st.pyplot(fig_table)
-                                plt.close(fig_table)
-                        except Exception as e:
-                            st.error(f"Error generating enrichment plots: {e}")
-                    else:
-                        st.info("👆 Click the button above to run enrichment analysis")
-                
-                with stat_tabs[2]:  # Distributions
-                    st.markdown("### Distribution Analysis")
-                    try:
-                        # Length distribution by class - violin plot for better distribution visualization
-                        st.markdown("**Motif Length Distribution by Class**")
-                        fig6 = plot_length_distribution(filtered_motifs, by_class=True, 
-                                                       title="Length Distribution by Motif Class") 
-                        st.pyplot(fig6)
-                        plt.close(fig6)
-                        
-                        # Score distribution by class - box plot for score comparison
-                        st.markdown("**Motif Score Distribution by Class**")
-                        fig7 = plot_score_distribution(filtered_motifs, by_class=True,
-                                                      title="Score Distribution by Motif Class")
-                        st.pyplot(fig7)
-                        plt.close(fig7)
-                    except Exception as e:
-                        st.error(f"Error generating distribution plots: {e}")
-            
-            with viz_tabs[3]:  # Cluster/Hybrid
-                st.subheader("🔗 Hybrid and Cluster Motifs")
-                
-                if not hybrid_cluster_motifs:
-                    st.info("No Hybrid or Cluster motifs detected for this sequence.")
-                else:
-                    st.markdown(f"""
-                    <div style='background: #f0f8ff; border-left: 4px solid #1e88e5; padding: 15px; border-radius: 5px; margin: 10px 0;'>
-                    <h4 style='margin-top: 0; color: #1565c0;'>About Hybrid and Cluster Motifs</h4>
-                    <p><b>Hybrid Motifs:</b> Regions where different non-B DNA classes overlap (30-70% overlap between classes).</p>
-                    <p><b>Cluster Motifs:</b> High-density regions containing multiple non-B DNA motifs from different classes.</p>
-                    <p>These motifs represent complex genomic regions with potential biological significance.</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    # Create DataFrame for hybrid/cluster motifs
-                    hc_df = pd.DataFrame(hybrid_cluster_motifs)
-                    
-                    # Summary statistics
+                    # Overall metrics in compact layout
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        hybrid_count = len([m for m in hybrid_cluster_motifs if m.get('Class') == 'Hybrid'])
-                        st.metric("Hybrid Motifs", hybrid_count)
+                        st.metric("Genomic Density", f"{genomic_density.get('Overall', 0):.4f}%")
                     with col2:
-                        cluster_count = len([m for m in hybrid_cluster_motifs if m.get('Class') == 'Non-B_DNA_Clusters'])
-                        st.metric("Cluster Motifs", cluster_count)
+                        st.metric("Motifs/kbp", f"{positional_density_kbp.get('Overall', 0):.2f}")
                     with col3:
-                        avg_length = int(hc_df['Length'].mean()) if 'Length' in hc_df.columns else 0
-                        st.metric("Avg Length (bp)", avg_length)
+                        st.metric("Motifs/Mbp", f"{positional_density_mbp.get('Overall', 0):.2f}")
                     
-                    # Detailed table
-                    st.markdown("### 📋 Detailed Cluster/Hybrid Table")
-                    display_cols = ['Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
-                    if 'Component_Classes' in hc_df.columns:
-                        display_cols.append('Component_Classes')
-                    if 'Motif_Count' in hc_df.columns:
-                        display_cols.append('Motif_Count')
-                    if 'Class_Diversity' in hc_df.columns:
-                        display_cols.append('Class_Diversity')
+                    # Per-class density table
+                    density_data = []
+                    for class_name in sorted([k for k in genomic_density.keys() if k != 'Overall']):
+                        density_data.append({
+                            'Motif Class': class_name,
+                            'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
+                            'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}",
+                            'Motifs/Mbp': f"{positional_density_mbp.get(class_name, 0):.2f}"
+                        })
                     
-                    # Filter to only show available columns
-                    available_display_cols = [col for col in display_cols if col in hc_df.columns]
-                    display_hc_df = hc_df[available_display_cols].copy()
-                    display_hc_df.columns = [col.replace('_', ' ') for col in display_hc_df.columns]
-                    st.dataframe(display_hc_df, use_container_width=True, height=300)
+                    if density_data:
+                        density_df = pd.DataFrame(density_data)
+                        st.dataframe(density_df, use_container_width=True, height=200)
                     
-                    # Visualizations for hybrid/cluster
-                    st.markdown("### 📊 Visualizations")
+                    fig_density = plot_density_comparison(genomic_density, positional_density_kbp,
+                                                          title="Motif Density Analysis")
+                    st.pyplot(fig_density)
+                    plt.close(fig_density)
                     
-                    viz_col1, viz_col2 = st.columns(2)
+                except Exception as e:
+                    st.error(f"Error calculating density metrics: {e}")
+                
+                # Length/Score distributions
+                st.markdown("###### Distributions")
+                try:
+                    fig6 = plot_length_distribution(filtered_motifs, by_class=True, 
+                                                   title="Length Distribution by Motif Class") 
+                    st.pyplot(fig6)
+                    plt.close(fig6)
                     
-                    with viz_col1:
-                        # Position map
-                        st.markdown("**Position Map**")
-                        fig, ax = plt.subplots(figsize=(10, 4))
+                    fig7 = plot_score_distribution(filtered_motifs, by_class=True,
+                                                  title="Score Distribution by Motif Class (1-3 Scale)")
+                    st.pyplot(fig7)
+                    plt.close(fig7)
+                except Exception as e:
+                    st.error(f"Error generating distribution plots: {e}")
+                
+            with viz_tabs[3]:  # Dedicated Cluster/Hybrid Tab
+                st.markdown("##### Hybrid & Cluster Motif Analysis")
+                
+                if hybrid_cluster_motifs:
+                    # Separate hybrid and cluster motifs
+                    hybrid_only = [m for m in hybrid_cluster_motifs if m.get('Class') == 'Hybrid']
+                    cluster_only = [m for m in hybrid_cluster_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
+                    
+                    hc_df = pd.DataFrame(hybrid_cluster_motifs)
+                    
+                    # Summary metrics with detailed breakdown
+                    st.markdown(f"""
+                    <div style='background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); 
+                                border-radius: 16px; padding: 2rem; margin: 1rem 0; color: white;
+                                box-shadow: 0 8px 24px rgba(156, 39, 176, 0.25);'>
+                        <h3 style='margin: 0 0 1.5rem 0; color: white; text-align: center; font-size: 1.5rem; font-weight: 700;'>
+                            🔗 Hybrid & Cluster Motif Summary
+                        </h3>
+                        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+                                    gap: 1.5rem; margin-top: 1rem;'>
+                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                                    {len(hybrid_only)}
+                                </h2>
+                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                    Hybrid Motifs
+                                </p>
+                            </div>
+                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                                    {len(cluster_only)}
+                                </h2>
+                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                    DNA Clusters
+                                </p>
+                            </div>
+                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                                    {int(hc_df['Length'].mean()) if 'Length' in hc_df.columns else 0}
+                                </h2>
+                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                    Avg Length (bp)
+                                </p>
+                            </div>
+                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
+                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
+                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                                    {len(hybrid_cluster_motifs)}
+                                </h2>
+                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                    Total
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Create sub-tabs for hybrid and cluster motifs
+                    hc_subtabs = st.tabs(["All", "Hybrid Motifs", "Cluster Motifs"])
+                    
+                    with hc_subtabs[0]:  # All motifs
+                        st.markdown("##### All Hybrid & Cluster Motifs")
+                        display_cols = ['Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
+                        available_display_cols = [col for col in display_cols if col in hc_df.columns]
+                        display_hc_df = hc_df[available_display_cols].copy()
+                        display_hc_df.columns = [col.replace('_', ' ') for col in display_hc_df.columns]
+                        st.dataframe(display_hc_df, use_container_width=True, height=300)
+                        
+                        # Position map for all hybrid/cluster motifs (with height cap to prevent excessive memory usage)
+                        fig_height = min(20, max(4, len(hybrid_cluster_motifs) * 0.3))
+                        fig, ax = plt.subplots(figsize=(12, fig_height))
                         colors_map = {'Hybrid': '#ff6b6b', 'Non-B_DNA_Clusters': '#4ecdc4'}
                         for i, motif in enumerate(hybrid_cluster_motifs):
                             color = colors_map.get(motif.get('Class'), '#95a5a6')
                             ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
-                                   height=0.8, color=color, alpha=0.7, label=motif.get('Class'))
-                        ax.set_xlabel("Sequence Position (bp)")
+                                   height=0.8, color=color, alpha=0.7, edgecolor='black', linewidth=0.5)
+                        ax.set_xlabel("Position (bp)")
                         ax.set_ylabel("Motif Index")
-                        ax.set_title("Hybrid/Cluster Position Map")
-                        # Remove duplicate labels
-                        handles, labels = ax.get_legend_handles_labels()
-                        by_label = dict(zip(labels, handles))
-                        ax.legend(by_label.values(), by_label.keys())
+                        ax.set_title("Hybrid & Cluster Position Map")
+                        handles = [plt.Rectangle((0,0),1,1, color=c, alpha=0.7) for c in colors_map.values()]
+                        ax.legend(handles, list(colors_map.keys()), loc='upper right')
+                        ax.grid(axis='x', alpha=0.3)
                         plt.tight_layout()
                         st.pyplot(fig)
                         plt.close(fig)
                     
-                    with viz_col2:
-                        # Raw score distribution (no normalized scores as per requirements)
-                        st.markdown("**Raw Score Distribution**")
-                        fig, ax = plt.subplots(figsize=(10, 4))
-                        hybrid_scores = [m.get('Score', 0) for m in hybrid_cluster_motifs if m.get('Class') == 'Hybrid']
-                        cluster_scores = [m.get('Score', 0) for m in hybrid_cluster_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
-                        
-                        if hybrid_scores:
-                            ax.hist(hybrid_scores, bins=10, alpha=0.6, color='#ff6b6b', label='Hybrid')
-                        if cluster_scores:
-                            ax.hist(cluster_scores, bins=10, alpha=0.6, color='#4ecdc4', label='Cluster')
-                        
-                        ax.set_xlabel("Raw Score")
-                        ax.set_ylabel("Frequency")
-                        ax.set_title("Raw Score Distribution")
-                        ax.legend()
-                        plt.tight_layout()
-                        st.pyplot(fig)
-                        plt.close(fig)
+                    with hc_subtabs[1]:  # Hybrid motifs only
+                        st.markdown("##### Hybrid Motifs (Overlapping Different Classes)")
+                        if hybrid_only:
+                            hybrid_df = pd.DataFrame(hybrid_only)
+                            
+                            # Show component classes information
+                            st.info(f"🔗 **Hybrid motifs** are regions where different Non-B DNA motif classes overlap. Found {len(hybrid_only)} hybrid regions.")
+                            
+                            # Extended columns for hybrid motifs
+                            extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Component_Classes']
+                            available_cols = [col for col in extended_cols if col in hybrid_df.columns]
+                            display_df = hybrid_df[available_cols].copy()
+                            display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
+                            st.dataframe(display_df, use_container_width=True, height=300)
+                            
+                            # Hybrid motif position visualization (with height cap)
+                            fig_height = min(15, max(3, len(hybrid_only) * 0.4))
+                            fig, ax = plt.subplots(figsize=(12, fig_height))
+                            for i, motif in enumerate(hybrid_only):
+                                ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
+                                       height=0.8, color='#ff6b6b', alpha=0.7, edgecolor='#c0392b', linewidth=1)
+                                # Add label with component classes
+                                subclass = motif.get('Subclass', '')
+                                label_text = f" {subclass[:30]}{'...' if len(subclass) > 30 else ''}" if subclass else ""
+                                ax.text(motif['Start'], i, label_text, va='center', fontsize=8)
+                            ax.set_xlabel("Position (bp)")
+                            ax.set_ylabel("Hybrid Index")
+                            ax.set_title("Hybrid Motif Positions (Overlapping Classes)")
+                            ax.grid(axis='x', alpha=0.3)
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                            plt.close(fig)
+                        else:
+                            st.info("No hybrid motifs detected in this sequence.")
+                    
+                    with hc_subtabs[2]:  # Cluster motifs only
+                        st.markdown("##### Non-B DNA Clusters (High-Density Regions)")
+                        if cluster_only:
+                            cluster_df = pd.DataFrame(cluster_only)
+                            
+                            # Show cluster information
+                            st.info(f"📊 **DNA Clusters** are high-density regions with multiple Non-B DNA motif classes. Found {len(cluster_only)} cluster regions.")
+                            
+                            # Extended columns for cluster motifs
+                            extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Motif_Count', 'Class_Diversity']
+                            available_cols = [col for col in extended_cols if col in cluster_df.columns]
+                            display_df = cluster_df[available_cols].copy()
+                            display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
+                            st.dataframe(display_df, use_container_width=True, height=300)
+                            
+                            # Cluster position visualization with diversity color coding (with height cap)
+                            fig_height = min(15, max(3, len(cluster_only) * 0.4))
+                            fig, ax = plt.subplots(figsize=(12, fig_height))
+                            for i, motif in enumerate(cluster_only):
+                                diversity = motif.get('Class_Diversity', 2)
+                                # Color intensity based on diversity
+                                alpha = min(0.4 + diversity * 0.1, 0.9)
+                                ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
+                                       height=0.8, color='#4ecdc4', alpha=alpha, edgecolor='#16a085', linewidth=1)
+                                # Add label with motif count
+                                motif_count = motif.get('Motif_Count', 0)
+                                ax.text(motif['End'], i, f" {motif_count} motifs", va='center', fontsize=8)
+                            ax.set_xlabel("Position (bp)")
+                            ax.set_ylabel("Cluster Index")
+                            ax.set_title("Non-B DNA Cluster Positions (Color intensity = Class diversity)")
+                            ax.grid(axis='x', alpha=0.3)
+                            plt.tight_layout()
+                            st.pyplot(fig)
+                            plt.close(fig)
+                        else:
+                            st.info("No DNA clusters detected in this sequence.")
+                else:
+                    st.info("ℹ️ No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in close proximity.")
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
@@ -2965,223 +2576,450 @@ with tab_pages["Download"]:
 
 # ---------- DISEASE ANALYSIS ----------
 with tab_pages["Disease Analysis"]:
-    st.header("🧬 Sequence Analysis - Disease Risk Assessment")
+    st.header("🧬 Disease-Associated Non-B DNA Analysis")
     
-    # Show input data analysis if available
-    if st.session_state.results:
-        # Collect all motifs from input data
-        input_motifs = []
-        for i, motifs in enumerate(st.session_state.results):
-            for m in motifs:
-                m_copy = m.copy()
-                m_copy['Sequence_Name'] = st.session_state.names[i]
-                input_motifs.append(m_copy)
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+                border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
+                border-left: 5px solid #ff9800; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);'>
+        <h3 style='margin-top: 0; color: #e65100;'>🔬 Understanding Non-B DNA in Human Disease</h3>
+        <p style='color: #bf360c; font-size: 1.05rem; line-height: 1.8;'>
+            Non-B DNA structures play crucial roles in <b>genetic instability</b>, <b>gene regulation</b>, 
+            and <b>disease pathogenesis</b>. These alternative DNA conformations are associated with 
+            cancer, neurological disorders, and repeat expansion diseases.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Disease categories
+    disease_tabs = st.tabs(["📊 Overview", "🧠 Neurological Disorders", "🎗️ Cancer", "🔬 Repeat Expansion", "📚 References"])
+    
+    with disease_tabs[0]:  # Overview
+        st.subheader("Non-B DNA Structures and Disease Mechanisms")
         
-        if input_motifs:
-            # Count disease-relevant motifs
-            disease_classes = ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA', 'R-Loop']
-            disease_counts = {cls: 0 for cls in disease_classes}
-            for m in input_motifs:
-                cls = m.get('Class', 'Unknown')
-                if cls in disease_counts:
-                    disease_counts[cls] += 1
+        # Show input data analysis if available
+        if st.session_state.results:
+            st.markdown("### 📊 Your Sequence Analysis - Disease Risk Assessment")
             
-            total_disease_relevant = sum(disease_counts.values())
-            total_motifs = len(input_motifs)
+            # Collect all motifs from input data
+            input_motifs = []
+            for i, motifs in enumerate(st.session_state.results):
+                for m in motifs:
+                    m_copy = m.copy()
+                    m_copy['Sequence_Name'] = st.session_state.names[i]
+                    input_motifs.append(m_copy)
             
-            # Modern header card with disease summary
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%); 
-                        border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;
-                        box-shadow: 0 12px 40px rgba(26, 35, 126, 0.35);
-                        position: relative; overflow: hidden;'>
-                <div style='position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; 
-                            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-                            border-radius: 50%;'></div>
-                <div style='position: relative; z-index: 1;'>
-                    <h2 style='margin: 0 0 0.5rem 0; color: #ffffff; font-size: 1.8rem; font-weight: 800;
-                               text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>
-                        🧬 Disease Risk Assessment Report
-                    </h2>
-                    <p style='color: rgba(255,255,255,0.85); font-size: 1.1rem; margin-bottom: 1.5rem;'>
-                        Comprehensive analysis of disease-associated Non-B DNA structures in your sequences
+            if input_motifs:
+                # Count disease-relevant motifs
+                disease_classes = ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA', 'R-Loop']
+                disease_counts = {cls: 0 for cls in disease_classes}
+                for m in input_motifs:
+                    cls = m.get('Class', 'Unknown')
+                    if cls in disease_counts:
+                        disease_counts[cls] += 1
+                
+                total_disease_relevant = sum(disease_counts.values())
+                
+                st.markdown(f"""
+                <div style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+                            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+                            border-left: 4px solid #4caf50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);'>
+                    <h4 style='margin-top: 0; color: #2e7d32;'>🧬 Your Sequence Contains {total_disease_relevant} Disease-Relevant Non-B DNA Motifs</h4>
+                    <p style='color: #1b5e20; margin-bottom: 0;'>
+                        These motifs are associated with genetic instability, repeat expansion disorders, and cancer.
                     </p>
-                    <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;'>
-                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
-                                    border-radius: 12px; padding: 1.2rem; text-align: center;
-                                    border: 1px solid rgba(255,255,255,0.2);'>
-                            <p style='color: #ffd54f; font-size: 2.2rem; font-weight: 800; margin: 0;
-                                      text-shadow: 0 0 20px rgba(255,213,79,0.5);'>{total_disease_relevant}</p>
-                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
-                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
-                                Disease-Relevant Motifs</p>
-                        </div>
-                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
-                                    border-radius: 12px; padding: 1.2rem; text-align: center;
-                                    border: 1px solid rgba(255,255,255,0.2);'>
-                            <p style='color: #81d4fa; font-size: 2.2rem; font-weight: 800; margin: 0;'>{total_motifs}</p>
-                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
-                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
-                                Total Motifs Analyzed</p>
-                        </div>
-                        <div style='background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
-                                    border-radius: 12px; padding: 1.2rem; text-align: center;
-                                    border: 1px solid rgba(255,255,255,0.2);'>
-                            <p style='color: #a5d6a7; font-size: 2.2rem; font-weight: 800; margin: 0;'>
-                                {len(st.session_state.seqs)}</p>
-                            <p style='color: rgba(255,255,255,0.9); font-size: 0.85rem; margin: 0.3rem 0 0 0;
-                                      font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;'>
-                                Sequences Scanned</p>
-                        </div>
-                    </div>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Disease-relevant motif breakdown with elegant cards
-            st.markdown("""
-            <h3 style='color: #1a237e; margin: 2rem 0 1.5rem 0; font-weight: 700;'>
-                🔬 Disease-Associated Motif Breakdown
-            </h3>
-            """, unsafe_allow_html=True)
-            
-            # Create 3x2 grid for disease motif cards
-            disease_info = {
-                'G-Quadruplex': {
-                    'icon': '🧬', 'color': '#e91e63', 'gradient': 'linear-gradient(135deg, #e91e63 0%, #c2185b 100%)',
-                    'diseases': 'Fragile X Syndrome, ALS/FTD, Multiple Cancers',
-                    'mechanism': 'Transcription blockage, replication stalling'
-                },
-                'Slipped_DNA': {
-                    'icon': '🔄', 'color': '#9c27b0', 'gradient': 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
-                    'diseases': "Huntington's Disease, Myotonic Dystrophy",
-                    'mechanism': 'Repeat expansion, trinucleotide instability'
-                },
-                'Cruciform': {
-                    'icon': '✚', 'color': '#673ab7', 'gradient': 'linear-gradient(135deg, #673ab7 0%, #512da8 100%)',
-                    'diseases': 'Chromosomal Translocations, Lymphomas',
-                    'mechanism': 'Double-strand breaks, aberrant recombination'
-                },
-                'Triplex': {
-                    'icon': '🔺', 'color': '#3f51b5', 'gradient': 'linear-gradient(135deg, #3f51b5 0%, #303f9f 100%)',
-                    'diseases': "Friedreich's Ataxia, Werner Syndrome",
-                    'mechanism': 'Transcription inhibition, replication blocks'
-                },
-                'Z-DNA': {
-                    'icon': '⚡', 'color': '#2196f3', 'gradient': 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
-                    'diseases': 'Autoimmune Disorders, Systemic Lupus',
-                    'mechanism': 'Immune activation, gene regulation'
-                },
-                'R-Loop': {
-                    'icon': '🔗', 'color': '#00bcd4', 'gradient': 'linear-gradient(135deg, #00bcd4 0%, #0097a7 100%)',
-                    'diseases': 'Neurodegeneration, Genome Instability',
-                    'mechanism': 'Replication-transcription conflicts'
-                }
-            }
-            
-            col1, col2, col3 = st.columns(3)
-            cols = [col1, col2, col3]
-            
-            # Risk level thresholds for disease association assessment
-            DISEASE_RISK_HIGH_THRESHOLD = 5  # More than 5 motifs = High Risk
-            DISEASE_TEXT_TRUNCATE_LENGTH = 50  # Max characters for disease text display
-            
-            for idx, (cls, info) in enumerate(disease_info.items()):
-                with cols[idx % 3]:
-                    count = disease_counts.get(cls, 0)
-                    risk_level = "High" if count > DISEASE_RISK_HIGH_THRESHOLD else "Moderate" if count > 0 else "Low"
-                    risk_color = "#f44336" if risk_level == "High" else "#ff9800" if risk_level == "Moderate" else "#4caf50"
-                    
-                    # Truncate disease text for display
-                    disease_text = info["diseases"][:DISEASE_TEXT_TRUNCATE_LENGTH]
-                    disease_ellipsis = '...' if len(info["diseases"]) > DISEASE_TEXT_TRUNCATE_LENGTH else ''
-                    
-                    st.markdown(f"""
-                    <div style='background: {info["gradient"]}; border-radius: 16px; padding: 1.5rem;
-                                margin-bottom: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-                                transition: transform 0.3s ease, box-shadow 0.3s ease;'>
-                        <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;'>
-                            <span style='font-size: 1.8rem;'>{info["icon"]}</span>
-                            <span style='background: {risk_color}; color: white; padding: 0.3rem 0.8rem;
-                                        border-radius: 20px; font-size: 0.75rem; font-weight: 700;
-                                        text-transform: uppercase;'>{risk_level} Risk</span>
-                        </div>
-                        <h4 style='color: white; margin: 0 0 0.3rem 0; font-size: 1.1rem; font-weight: 700;'>
-                            {cls.replace("_", " ")}</h4>
-                        <p style='color: rgba(255,255,255,0.95); font-size: 2rem; font-weight: 800; margin: 0.5rem 0;
-                                  text-shadow: 0 2px 4px rgba(0,0,0,0.2);'>{count} <span style='font-size: 1rem;
-                                  font-weight: 500;'>motifs</span></p>
-                        <p style='color: rgba(255,255,255,0.85); font-size: 0.8rem; margin: 0.5rem 0 0 0;
-                                  line-height: 1.4;'>
-                            <strong>Associated:</strong> {disease_text}{disease_ellipsis}
-                        </p>
-                    </div>
-                    """, unsafe_allow_html=True)
-            
-            # Detailed motifs table section
-            st.markdown("""
-            <h3 style='color: #1a237e; margin: 2rem 0 1rem 0; font-weight: 700;'>
-                📋 Detailed Disease-Relevant Motifs
-            </h3>
-            """, unsafe_allow_html=True)
-            
-            # Filter only disease-relevant motifs
-            disease_relevant_motifs = [m for m in input_motifs if m.get('Class') in disease_classes]
-            
-            if disease_relevant_motifs:
-                dr_df = pd.DataFrame(disease_relevant_motifs)
-                display_cols = ['Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
-                available_cols = [c for c in display_cols if c in dr_df.columns]
+                """, unsafe_allow_html=True)
                 
-                # Add disease association column
-                dr_df['Disease_Association'] = dr_df['Class'].map({
-                    'G-Quadruplex': 'Fragile X, ALS/FTD, Cancer',
-                    'Slipped_DNA': "Huntington's, Myotonic Dystrophy",
-                    'Cruciform': 'Chromosomal translocations',
-                    'Triplex': "Friedreich's Ataxia",
-                    'Z-DNA': 'Autoimmune disorders',
-                    'R-Loop': 'Neurodegeneration'
-                })
+                # Display summary metrics
+                col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+                with col_m1:
+                    st.metric("G-Quadruplex", disease_counts.get('G-Quadruplex', 0), 
+                             help="Associated with Fragile X, ALS/FTD, Cancer")
+                with col_m2:
+                    st.metric("Slipped DNA", disease_counts.get('Slipped_DNA', 0),
+                             help="Associated with Huntington's, Myotonic Dystrophy")
+                with col_m3:
+                    st.metric("Cruciform", disease_counts.get('Cruciform', 0),
+                             help="Associated with chromosomal translocations")
+                with col_m4:
+                    st.metric("Triplex/Z-DNA", disease_counts.get('Triplex', 0) + disease_counts.get('Z-DNA', 0),
+                             help="Associated with Friedreich's Ataxia, autoimmune disorders")
                 
-                if 'Disease_Association' in dr_df.columns:
-                    available_cols.append('Disease_Association')
-                
-                st.dataframe(dr_df[available_cols], use_container_width=True, height=350)
-                st.caption(f"Showing {len(disease_relevant_motifs)} disease-relevant motifs from your analysis")
-            else:
-                st.info("No disease-relevant motifs found in the analyzed sequences.")
-                
+                st.markdown("---")
         else:
-            st.info("Analysis complete but no motifs were detected. Try analyzing a different sequence.")
-    else:
-        # Show placeholder when no results available
+            st.info("💡 **Tip**: Upload and analyze sequences in the 'Analysis' tab to see disease-relevant motifs from your data.")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            ### Key Disease Associations
+            
+            Non-B DNA structures are intimately linked to human diseases through several mechanisms:
+            
+            1. **Genetic Instability** - Alternative structures impede DNA replication and trigger error-prone repair
+            2. **Repeat Expansions** - G-rich sequences form G-quadruplexes leading to repeat instability
+            3. **Transcriptional Regulation** - Z-DNA and G4s affect gene expression in disease contexts
+            4. **Epigenetic Changes** - Non-B structures influence chromatin architecture and DNA methylation
+            
+            ### Therapeutic Implications
+            
+            These structures represent potential **therapeutic targets** for:
+            - **Cancer**: G4-stabilizing ligands can inhibit oncogene expression
+            - **Viral Infections**: Targeting viral G-quadruplexes for antiviral therapy
+            - **Neurodegeneration**: Modulating repeat expansion structures
+            """)
+        
+        with col2:
+            st.markdown("""
+            ### Disease-Structure Correlation
+            
+            | Non-B DNA Type | Associated Diseases |
+            |----------------|---------------------|
+            | **G-Quadruplex** | Fragile X, ALS/FTD, Cancer |
+            | **Cruciform** | Chromosomal translocations |
+            | **Z-DNA** | Autoimmune disorders, Cancer |
+            | **Triplex** | Friedreich's Ataxia |
+            | **Slipped DNA** | Huntington's, Myotonic Dystrophy |
+            | **R-Loop** | Genome instability, Neurodegeneration |
+            
+            ### Key References
+            
+            - Zhao et al. (2010) *Cell. Mol. Life Sci.* - Genetic instability
+            - Sinden (1994) *DNA Structure and Function* - Foundational work
+            - Bacolla & Wells (2009) *Mol. Carcinog.* - Cancer associations
+            """)
+    
+    with disease_tabs[1]:  # Neurological Disorders
+        st.subheader("🧠 Neurological Disorders and Non-B DNA")
+        
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%); 
-                    border-radius: 20px; padding: 3rem; text-align: center;
-                    border: 2px dashed #bdbdbd; margin: 2rem 0;'>
-            <div style='font-size: 4rem; margin-bottom: 1rem;'>🧬</div>
-            <h3 style='color: #424242; margin: 0 0 1rem 0;'>No Analysis Results Available</h3>
-            <p style='color: #757575; font-size: 1.1rem; max-width: 500px; margin: 0 auto 1.5rem auto;'>
-                Upload and analyze DNA sequences in the <strong>'Upload & Analyze'</strong> tab 
-                to see disease-relevant Non-B DNA motifs from your data.
+        <div style='background: #e8f5e9; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+                    border-left: 4px solid #4caf50;'>
+            <h4 style='color: #2e7d32; margin-top: 0;'>Repeat Expansion Neurological Diseases</h4>
+            <p style='color: #1b5e20;'>
+                Many neurological disorders are caused by <b>nucleotide repeat expansions</b> that form 
+                non-B DNA structures. These structures interfere with replication, transcription, and 
+                translation, leading to neurodegeneration.
             </p>
-            <div style='display: inline-flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;'>
-                <span style='background: #e3f2fd; color: #1565c0; padding: 0.5rem 1rem; 
-                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>G-Quadruplex</span>
-                <span style='background: #fce4ec; color: #c2185b; padding: 0.5rem 1rem; 
-                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Cruciform</span>
-                <span style='background: #e8f5e9; color: #2e7d32; padding: 0.5rem 1rem; 
-                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Triplex</span>
-                <span style='background: #fff3e0; color: #ef6c00; padding: 0.5rem 1rem; 
-                            border-radius: 20px; font-size: 0.85rem; font-weight: 600;'>Z-DNA</span>
-            </div>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Create a detailed disease table
+        neuro_diseases = pd.DataFrame({
+            'Disease': [
+                'Fragile X Syndrome (FXS)',
+                'Huntington\'s Disease (HD)',
+                'Myotonic Dystrophy Type 1 (DM1)',
+                'Friedreich\'s Ataxia (FRDA)',
+                'Spinocerebellar Ataxias (SCA)',
+                'ALS/FTD (C9orf72)',
+                'X-linked Dystonia Parkinsonism'
+            ],
+            'Gene': ['FMR1', 'HTT', 'DMPK', 'FXN', 'Various', 'C9orf72', 'TAF1'],
+            'Repeat': ['CGG', 'CAG', 'CTG', 'GAA', 'CAG/CTG', 'GGGGCC', 'SVA insertion'],
+            'Non-B Structure': [
+                'G-Quadruplex, Hairpin',
+                'Hairpin, Slipped DNA',
+                'Hairpin, Slipped DNA',
+                'Triplex (H-DNA)',
+                'Hairpin, Slipped DNA',
+                'G-Quadruplex, R-loop',
+                'G-Quadruplex'
+            ],
+            'Pathogenic Threshold': [
+                '>200 repeats',
+                '>36 repeats',
+                '>50 repeats',
+                '>66 repeats',
+                'Varies by SCA type',
+                '>30 repeats',
+                'SVA expansion'
+            ],
+            'Mechanism': [
+                'Gene silencing via methylation',
+                'Toxic polyglutamine protein',
+                'RNA toxicity, splicing defects',
+                'Transcription blockage',
+                'Protein aggregation',
+                'RNA foci, dipeptide repeats',
+                'Aberrant gene expression'
+            ]
+        })
+        
+        st.dataframe(neuro_diseases, use_container_width=True, height=300)
+        
+        st.markdown("""
+        ### Key Molecular Mechanisms
+        
+        1. **G-Quadruplex Formation in FXS**: CGG repeats in FMR1 form stable G4 structures, 
+           leading to gene silencing through DNA methylation and heterochromatin formation.
+           
+        2. **RNA Toxicity in ALS/FTD**: GGGGCC repeats in C9orf72 form G-quadruplexes in both 
+           DNA and RNA, creating toxic RNA foci that sequester RNA-binding proteins.
+           
+        3. **Triplex Formation in FRDA**: GAA repeats form intramolecular triplex (H-DNA) 
+           structures that block transcription elongation.
+        
+        ### Clinical Relevance
+        
+        - **Diagnostic Markers**: Repeat length testing is used for diagnosis
+        - **Therapeutic Targets**: G4-stabilizing/destabilizing agents under investigation
+        - **Gene Therapy**: Approaches targeting expanded repeats in development
+        """)
+    
+    with disease_tabs[2]:  # Cancer
+        st.subheader("🎗️ Cancer and Non-B DNA Structures")
+        
+        st.markdown("""
+        <div style='background: #fce4ec; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+                    border-left: 4px solid #e91e63;'>
+            <h4 style='color: #c2185b; margin-top: 0;'>Genomic Instability in Cancer</h4>
+            <p style='color: #880e4f;'>
+                Non-B DNA structures are enriched at <b>chromosomal breakpoints</b> and 
+                <b>mutation hotspots</b> in cancer genomes. They contribute to genomic instability 
+                through replication fork stalling, double-strand breaks, and error-prone repair.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            ### G-Quadruplexes in Oncogenes
+            
+            G4 structures are found in promoter regions of many oncogenes:
+            
+            | Gene | Cancer Type | G4 Function |
+            |------|-------------|-------------|
+            | **MYC** | Multiple cancers | Transcription repression |
+            | **KRAS** | Pancreatic, Colorectal | Expression regulation |
+            | **BCL2** | Lymphoma | Apoptosis regulation |
+            | **VEGF** | Solid tumors | Angiogenesis control |
+            | **hTERT** | Multiple cancers | Telomerase regulation |
+            
+            ### Therapeutic Targeting
+            
+            - **G4 Ligands**: Small molecules that stabilize G4s to downregulate oncogenes
+            - **PARP Inhibitors**: Target non-B DNA-associated DNA damage repair
+            - **Topoisomerase Inhibitors**: Exploit non-B DNA regions
+            """)
+        
+        with col2:
+            st.markdown("""
+            ### Chromosomal Translocation Hotspots
+            
+            Non-B DNA structures mark translocation breakpoints:
+            
+            - **BCL2-IGH**: t(14;18) in follicular lymphoma
+            - **MYC-IGH**: t(8;14) in Burkitt lymphoma
+            - **BCR-ABL**: t(9;22) Philadelphia chromosome
+            
+            ### Mechanisms of Instability
+            
+            1. **Replication Fork Stalling**: Non-B structures block polymerase progression
+            2. **Double-Strand Breaks**: Structure-induced breaks lead to translocations
+            3. **Error-Prone Repair**: Unusual structures processed by error-prone pathways
+            4. **Chromatin Accessibility**: Z-DNA and G4s affect epigenetic regulation
+            
+            ### Biomarker Potential
+            
+            Non-B DNA density may serve as a biomarker for:
+            - Genomic instability assessment
+            - Cancer susceptibility regions
+            - Drug response prediction
+            """)
+    
+    with disease_tabs[3]:  # Repeat Expansion
+        st.subheader("🔬 Repeat Expansion Disorders")
+        
+        st.markdown("""
+        <div style='background: #e3f2fd; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+                    border-left: 4px solid #2196f3;'>
+            <h4 style='color: #1565c0; margin-top: 0;'>Molecular Basis of Repeat Expansion</h4>
+            <p style='color: #0d47a1;'>
+                Repeat expansion disorders result from unstable DNA repeats that grow larger across 
+                generations. The propensity to form non-B DNA structures (hairpins, G4s, triplexes) 
+                is central to repeat instability and disease progression.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        ### Types of Pathogenic Repeats
+        
+        | Repeat Type | Structure Formed | Example Diseases |
+        |-------------|------------------|------------------|
+        | **CAG/CTG** | Hairpins, Slipped DNA | Huntington's, DM1, SCAs |
+        | **CGG/CCG** | G-Quadruplex, Hairpins | Fragile X, FXTAS |
+        | **GAA/TTC** | Triplex (H-DNA) | Friedreich's Ataxia |
+        | **GGGGCC** | G-Quadruplex, R-loops | ALS/FTD |
+        | **ATTCT** | Unusual structures | SCA10 |
+        | **CCTG** | Hairpins | DM2 |
+        
+        ### Instability Mechanisms
+        
+        1. **Replication Slippage**: DNA polymerase slips on repetitive sequences
+        2. **Structure-Induced Breaks**: Non-B DNA triggers repair-associated expansion
+        3. **Transcription-Coupled Instability**: R-loops and G4s during transcription
+        4. **Mismatch Repair Involvement**: MSH2/MSH3 recognize and process repeat structures
+        
+        ### Therapeutic Approaches
+        
+        - **Antisense Oligonucleotides (ASOs)**: Target expanded repeat RNAs
+        - **Small Molecules**: Bind and stabilize/destabilize specific structures
+        - **CRISPR-Based Editing**: Excise expanded repeats
+        - **Gene Therapy**: Replace or silence affected genes
+        """)
+        
+        # Interactive element: Show detected motifs that may be disease-relevant
+        if st.session_state.results:
+            st.markdown("### 🔍 Disease-Relevant Motifs in Your Sequences")
+            
+            all_motifs = []
+            for i, motifs in enumerate(st.session_state.results):
+                for m in motifs:
+                    m['Sequence_Name'] = st.session_state.names[i]
+                    all_motifs.append(m)
+            
+            if all_motifs:
+                # Filter for disease-relevant motif types
+                disease_relevant = [m for m in all_motifs if m.get('Class') in 
+                                   ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA']]
+                
+                if disease_relevant:
+                    st.success(f"Found {len(disease_relevant)} potentially disease-relevant motifs in your sequences")
+                    
+                    # Group by class
+                    class_counts = Counter([m.get('Class', 'Unknown') for m in disease_relevant])
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("G-Quadruplex", class_counts.get('G-Quadruplex', 0), 
+                                 help="Associated with Fragile X, ALS/FTD, Cancer")
+                    with col2:
+                        st.metric("Slipped DNA", class_counts.get('Slipped_DNA', 0),
+                                 help="Associated with Huntington's, Myotonic Dystrophy")
+                    with col3:
+                        st.metric("Cruciform", class_counts.get('Cruciform', 0),
+                                 help="Associated with chromosomal translocations")
+                    
+                    # Display table of disease-relevant motifs
+                    dr_df = pd.DataFrame(disease_relevant)
+                    display_cols = ['Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
+                    available_cols = [c for c in display_cols if c in dr_df.columns]
+                    st.dataframe(dr_df[available_cols].head(20), use_container_width=True)
+                else:
+                    st.info("No disease-relevant Non-B DNA motifs found in your sequences.")
+            else:
+                st.info("Run analysis first to see disease-relevant motifs in your sequences.")
+        else:
+            st.info("Upload and analyze sequences to identify disease-relevant Non-B DNA motifs.")
+    
+    with disease_tabs[4]:  # References
+        st.subheader("📚 Key References and Literature")
+        
+        st.markdown("""
+        ### Foundational Reviews
+        
+        1. **Zhao J, Bacolla A, Wang G, Vasquez KM** (2010). Non-B DNA structure-induced genetic 
+           instability and evolution. *Cellular and Molecular Life Sciences*, 67(1), 43-62.
+           [DOI: 10.1007/s00018-009-0131-2](https://doi.org/10.1007/s00018-009-0131-2)
+        
+        2. **Khristich AN, Mirkin SM** (2020). On the wrong DNA track: Molecular mechanisms of 
+           repeat-mediated genome instability. *Journal of Biological Chemistry*, 295(13), 4134-4170.
+           [DOI: 10.1074/jbc.REV119.007678](https://doi.org/10.1074/jbc.REV119.007678)
+        
+        3. **Spiegel J, Adhikari S, Balasubramanian S** (2020). The Structure and Function of 
+           DNA G-Quadruplexes. *Trends in Chemistry*, 2(2), 123-136.
+           [DOI: 10.1016/j.trechm.2019.07.002](https://doi.org/10.1016/j.trechm.2019.07.002)
+        
+        ### Neurological Disorders
+        
+        4. **Paulson H** (2018). Repeat expansion diseases. *Handbook of Clinical Neurology*, 
+           147, 105-123. [DOI: 10.1016/B978-0-444-63233-3.00009-9](https://doi.org/10.1016/B978-0-444-63233-3.00009-9)
+        
+        5. **Malik I, Kelley CP, Wang ET, Todd PK** (2021). Molecular mechanisms underlying 
+           nucleotide repeat expansion disorders. *Nature Reviews Molecular Cell Biology*, 22(9), 589-607.
+           [DOI: 10.1038/s41580-021-00382-6](https://doi.org/10.1038/s41580-021-00382-6)
+        
+        6. **Sznajder ŁJ, Swanson MS** (2019). Short Tandem Repeat Expansions and RNA-Mediated 
+           Pathogenesis in Myotonic Dystrophy. *International Journal of Molecular Sciences*, 20(13), 3365.
+           [DOI: 10.3390/ijms20133365](https://doi.org/10.3390/ijms20133365)
+        
+        ### Cancer and Genomic Instability
+        
+        7. **Bacolla A, Tainer JA, Vasquez KM, Cooper DN** (2016). Translocation and deletion 
+           breakpoints in cancer genomes are associated with potential non-B DNA-forming sequences. 
+           *Nucleic Acids Research*, 44(12), 5673-5688.
+           [DOI: 10.1093/nar/gkw261](https://doi.org/10.1093/nar/gkw261)
+        
+        8. **Hänsel-Hertsch R, Di Antonio M, Balasubramanian S** (2017). DNA G-quadruplexes in 
+           the human genome: detection, functions and therapeutic potential. *Nature Reviews 
+           Molecular Cell Biology*, 18(5), 279-284.
+           [DOI: 10.1038/nrm.2017.3](https://doi.org/10.1038/nrm.2017.3)
+        
+        ### Therapeutic Targeting
+        
+        9. **Neidle S** (2017). Quadruplex Nucleic Acids as Targets for Anticancer Therapeutics. 
+           *Nature Reviews Chemistry*, 1, 0041.
+           [DOI: 10.1038/s41570-017-0041](https://doi.org/10.1038/s41570-017-0041)
+        
+        10. **Ruggiero E, Richter SN** (2018). G-quadruplexes and G-quadruplex ligands: targets 
+            and tools in antiviral therapy. *Nucleic Acids Research*, 46(7), 3270-3283.
+            [DOI: 10.1093/nar/gky187](https://doi.org/10.1093/nar/gky187)
+        
+        ### Databases and Resources
+        
+        - **Non-B DB v2.0**: Database of predicted non-B DNA-forming motifs 
+          [https://nonb-abcc.ncifcrf.gov/](https://nonb-abcc.ncifcrf.gov/)
+        
+        - **G4-seq Database**: Experimental G-quadruplex sequencing data
+          [https://www.ebi.ac.uk/](https://www.ebi.ac.uk/)
+        
+        - **RepeatMasker**: Repeat annotation and detection
+          [https://www.repeatmasker.org/](https://www.repeatmasker.org/)
+        """)
 
 
 # ---------- DOCUMENTATION ----------
 with tab_pages["Documentation"]:
     st.header("Scientific Documentation & References")
+    
+    # Motif detection parameters
+    st.markdown("""
+    <div style='background:#e3f2fd; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial; margin-bottom:20px;'>
+    <b>🔧 Motif Detection Parameters:</b><br><br>
+    <table style='width:100%; border-collapse: collapse;'>
+        <tr style='background:#1976d2; color:white;'>
+            <th style='padding:10px; text-align:left;'>Motif Type</th>
+            <th style='padding:10px; text-align:left;'>Arm/Unit Length</th>
+            <th style='padding:10px; text-align:left;'>Spacer/Loop</th>
+            <th style='padding:10px; text-align:left;'>Additional Requirements</th>
+        </tr>
+        <tr style='background:#f5f5f5;'>
+            <td style='padding:10px;'><b>Cruciform DNA</b></td>
+            <td style='padding:10px;'>10–100 nt</td>
+            <td style='padding:10px;'>0–3 nt</td>
+            <td style='padding:10px;'>Reverse complement arms</td>
+        </tr>
+        <tr>
+            <td style='padding:10px;'><b>Slipped DNA</b></td>
+            <td style='padding:10px;'>10–50 nt repeat</td>
+            <td style='padding:10px;'>0 nt (adjacent)</td>
+            <td style='padding:10px;'>Direct repeat units</td>
+        </tr>
+        <tr style='background:#f5f5f5;'>
+            <td style='padding:10px;'><b>Triplex DNA</b></td>
+            <td style='padding:10px;'>10–100 nt mirrored</td>
+            <td style='padding:10px;'>0–8 nt</td>
+            <td style='padding:10px;'>≥90% Purine or Pyrimidine</td>
+        </tr>
+    </table>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Motif classes documentation
     st.markdown("""
@@ -3191,10 +3029,10 @@ with tab_pages["Documentation"]:
         <li><b>Curved DNA</b>: Identifies phased poly(A) or poly(T) tracts using regex and spacing rules, reflecting intrinsic curvature. Scoring is based on tract length/grouping.</li>
         <li><b>Z-DNA</b>: Detects alternating purine-pyrimidine patterns, GC-rich segments. Uses windowed scoring; regex finds dinucleotide repeats.</li>
         <li><b>eGZ-motif (Extruded-G Z-DNA)</b>: Searches for long (CGG)<sub>n</sub> runs via regex. Scored by repeat count.</li>
-        <li><b>Slipped DNA</b>: Recognizes direct/tandem repeats by repeat-unit matching and regex. Scoring by length and unit copies.</li>
+        <li><b>Slipped DNA</b>: Recognizes direct/tandem repeats (10–50 nt repeat unit, 0 nt spacer) by repeat-unit matching. Scoring by length and unit copies.</li>
         <li><b>R-Loop</b>: Finds G-rich regions for stable RNA-DNA hybrids; RLFS model and regex. Thermodynamic scoring for hybrid stability.</li>
-        <li><b>Cruciform</b>: Finds palindromic inverted repeats with spacers, regex and reverse complement. Scoring by arm length and A/T content.</li>
-        <li><b>Triplex DNA / Mirror Repeat</b>: Detects purine/pyrimidine mirror repeats/triplex motifs. Regex identifies units; scoring by composition/purity.</li>
+        <li><b>Cruciform</b>: Finds palindromic inverted repeats (10–100 nt arms, 0–3 nt spacer) using reverse complement matching. Scoring by arm length and A/T content.</li>
+        <li><b>Triplex DNA / Mirror Repeat</b>: Detects purine/pyrimidine mirror repeats (10–100 nt arms, 0–8 nt spacer, ≥90% purine or pyrimidine). Scoring by composition/purity.</li>
         <li><b>Sticky DNA</b>: Searches extended GAA/TTC repeats. Scoring by repeat count.</li>
         <li><b>G-Triplex</b>: Finds three consecutive guanine runs by regex and loop length. Scoring by G-run sum and loop penalty.</li>
         <li><b>G4 (G-Quadruplex) and Variants</b>: Detects canonical/variant G4 motifs by G-run/loop regex. G4Hunter scoring for content/structure.</li>

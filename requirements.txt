@@ -18,8 +18,8 @@ plotly>=5.17.0
 # Bioinformatics
 biopython>=1.79
 
-# Performance (optional - requires system libraries not available on Streamlit Cloud)
-# hyperscan>=0.7.0  # Commented out: requires libhyperscan system library
+# Performance (optional but recommended)
+hyperscan>=0.7.0
 
 # Data Export
 openpyxl>=3.0.0

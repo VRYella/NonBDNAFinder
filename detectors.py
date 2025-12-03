@@ -1029,86 +1029,12 @@ class ZDNADetector(BaseMotifDetector):
         """
         Keep compatibility with framework: return a representative pattern entry.
         The actual matching uses the TENMER_SCORE table inside calculate_score/annotate_sequence.
-        Also includes eGZ (Extruded-G Z-DNA) patterns for GGC/GCC/CGG/CCG repeats.
         """
         return {
             "z_dna_10mers": [
                 (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
-            ],
-            "egz_dna": [
-                # eGZ (Extruded-G Z-DNA): Core units GGC/GCC/CGG/CCG, minimum 3 repeats, minimum 10bp total
-                (r'(?:GGC){3,}', 'EGZ_GGC', 'eGZ GGC repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) GGC repeat', 'Ho 1986'),
-                (r'(?:GCC){3,}', 'EGZ_GCC', 'eGZ GCC repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) GCC repeat', 'Ho 1986'),
-                (r'(?:CGG){3,}', 'EGZ_CGG', 'eGZ CGG repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) CGG repeat', 'Ho 1986'),
-                (r'(?:CCG){3,}', 'EGZ_CCG', 'eGZ CCG repeat', 'eGZ', 10, 'egz_score', 0.9, 'eGZ (Extruded-G Z-DNA) CCG repeat', 'Ho 1986'),
             ]
         }
-    
-    # Class-level compiled patterns for eGZ detection (avoid recompilation on each call)
-    _EGZ_PATTERNS = [
-        (re.compile(r'(?:GGC){3,}', re.ASCII), 'GGC', 3),
-        (re.compile(r'(?:GCC){3,}', re.ASCII), 'GCC', 3),
-        (re.compile(r'(?:CGG){3,}', re.ASCII), 'CGG', 3),
-        (re.compile(r'(?:CCG){3,}', re.ASCII), 'CCG', 3),
-    ]
-    
-    def _find_egz_motifs(self, sequence: str) -> List[Dict[str, Any]]:
-        """
-        Find eGZ (Extruded-G Z-DNA) motifs in the sequence.
-        
-        eGZ criteria:
-        - Core units: GGC / GCC / CGG / CCG
-        - Minimum repeats: ≥ 3
-        - Minimum total motif length: ≥ 10 bp
-        
-        Returns list of eGZ motif dictionaries.
-        """
-        seq = sequence.upper()
-        egz_motifs = []
-        used_positions = set()
-        
-        for pattern, unit_type, unit_length in self._EGZ_PATTERNS:
-            for match in pattern.finditer(seq):
-                start_pos = match.start()
-                end_pos = match.end()
-                motif_seq = seq[start_pos:end_pos]
-                length = end_pos - start_pos
-                
-                # Verify minimum length ≥ 10 bp
-                if length < 10:
-                    continue
-                
-                # Check for overlap with already detected motifs
-                motif_positions = set(range(start_pos, end_pos))
-                if motif_positions & used_positions:
-                    continue
-                
-                # Mark positions as used
-                used_positions.update(motif_positions)
-                
-                # Calculate number of repeat units based on actual unit length
-                num_repeats = length // unit_length
-                
-                # Calculate GC content
-                gc_content = (motif_seq.count('G') + motif_seq.count('C')) / length * 100 if length > 0 else 0
-                
-                # Score based on repeat count and length
-                score = min(0.5 + (num_repeats * 0.05) + (length / 100), 0.99)
-                
-                egz_motifs.append({
-                    'start': start_pos,
-                    'end': end_pos,
-                    'length': length,
-                    'sequence': motif_seq,
-                    'score': round(score, 3),
-                    'unit_type': unit_type,
-                    'num_repeats': num_repeats,
-                    'gc_content': round(gc_content, 2)
-                })
-        
-        # Sort by start position
-        egz_motifs.sort(key=lambda x: x['start'])
-        return egz_motifs
 
     # -------------------------
     # Public API
@@ -1184,10 +1110,6 @@ class ZDNADetector(BaseMotifDetector):
         """
         Override base method to use sophisticated Z-DNA detection with component details.
         
-        Detects two types of Z-DNA related structures:
-        1. Classic Z-DNA: Using 10-mer scoring table (Ho et al. 1986)
-        2. eGZ (Extruded-G Z-DNA): GGC/GCC/CGG/CCG repeats (≥3 repeats, ≥10bp total)
-        
         IMPORTANT: This method ALWAYS outputs merged regions, not individual 10-mers.
         All overlapping/adjacent 10-mer matches are merged into contiguous regions
         via annotate_sequence(), ensuring no duplicate or split reporting.
@@ -1199,10 +1121,6 @@ class ZDNADetector(BaseMotifDetector):
         sequence = sequence.upper().strip()
         motifs = []
         
-        # Track used positions to avoid overlap between Z-DNA and eGZ
-        used_positions = set()
-        
-        # 1. Detect classic Z-DNA using 10-mer scoring table
         # Use the annotation method to find Z-DNA regions.
         # This GUARANTEES that overlapping/adjacent 10-mer matches are merged.
         annotations = self.annotate_sequence(sequence)
@@ -1213,9 +1131,6 @@ class ZDNADetector(BaseMotifDetector):
                 start_pos = region['start']
                 end_pos = region['end']
                 motif_seq = sequence[start_pos:end_pos]
-                
-                # Mark positions as used
-                used_positions.update(range(start_pos, end_pos))
                 
                 # Extract CG/AT dinucleotides (characteristic of Z-DNA)
                 cg_count = motif_seq.count('CG') + motif_seq.count('GC')
@@ -1250,43 +1165,6 @@ class ZDNADetector(BaseMotifDetector):
                     'Alternating_AT_Regions': alternating_at,
                     'GC_Content': round(gc_content, 2)
                 })
-        
-        # 2. Detect eGZ (Extruded-G Z-DNA) motifs
-        # eGZ criteria: Core units GGC/GCC/CGG/CCG, ≥3 repeats, ≥10bp total
-        egz_results = self._find_egz_motifs(sequence)
-        
-        for i, egz in enumerate(egz_results):
-            start_pos = egz['start']
-            end_pos = egz['end']
-            
-            # Skip if overlapping with already detected Z-DNA regions
-            egz_positions = set(range(start_pos, end_pos))
-            if egz_positions & used_positions:
-                continue
-            
-            used_positions.update(egz_positions)
-            
-            motifs.append({
-                'ID': f"{sequence_name}_EGZ_{start_pos+1}",
-                'Sequence_Name': sequence_name,
-                'Class': self.get_motif_class_name(),
-                'Subclass': 'eGZ',
-                'Start': start_pos + 1,  # 1-based coordinates
-                'End': end_pos,
-                'Length': egz['length'],
-                'Sequence': egz['sequence'],
-                'Score': egz['score'],
-                'Strand': '+',
-                'Method': 'eGZ_detection',
-                'Pattern_ID': f'EGZ_{egz["unit_type"]}_{i+1}',
-                # Component details
-                'Unit_Type': egz['unit_type'],
-                'Num_Repeats': egz['num_repeats'],
-                'GC_Content': egz['gc_content']
-            })
-        
-        # Sort by start position
-        motifs.sort(key=lambda x: x['Start'])
         
         return motifs
 
@@ -2017,7 +1895,14 @@ class SlippedDNADetector(BaseMotifDetector):
     # | Spacer_Length | int   | Length of spacer (direct only)   |
     # | GC_Unit       | float | GC% of repeat unit               |
     # | Score         | float | Instability score (0-1)          |
+    
+    # Configuration - Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
     """
+    
+    # Slipped DNA parameters
+    MIN_UNIT = 10   # Minimum repeat unit length
+    MAX_UNIT = 50   # Maximum repeat unit length
+    MAX_SPACER = 0  # No spacer for slipped DNA
 
     def get_motif_class_name(self) -> str:
         return "Slipped_DNA"
@@ -2033,70 +1918,66 @@ class SlippedDNADetector(BaseMotifDetector):
     def find_direct_repeats_fast(self, seq: str, used: List[bool]) -> List[Dict[str, Any]]:
         """
         Fast algorithmic detection of direct repeats without catastrophic backtracking.
-        Scans for unit 10-30 bp (limited for performance), spacer ≤10 bp.
+        Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt.
         """
         regions = []
         n = len(seq)
         
         # PERFORMANCE: Adaptive parameters based on sequence length
-        if n > 100000:
-            max_unit = min(20, n // 3)  # Reduced unit size
-            step_size = max(5, n // 20000)
-            max_spacer = 5  # Reduced spacer size
-        elif n > 50000:
-            max_unit = min(25, n // 3)
-            step_size = 4
-            max_spacer = 8
-        elif n >= 10000:
-            max_unit = min(30, n // 3)
-            step_size = 3
-            max_spacer = 10
-        else:
-            max_unit = min(30, n // 3)
-            step_size = 1
-            max_spacer = 10
+        # Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
+        max_spacer = self.MAX_SPACER  # No spacer for slipped DNA
         
-        for unit_len in range(10, max_unit + 1):
+        if n > 100000:
+            max_unit = min(self.MAX_UNIT, n // 3)  # Limited to MAX_UNIT (50 bp) as per spec
+            step_size = max(5, n // 20000)
+        elif n > 50000:
+            max_unit = min(self.MAX_UNIT, n // 3)
+            step_size = 4
+        elif n >= 10000:
+            max_unit = min(self.MAX_UNIT, n // 3)
+            step_size = 3
+        else:
+            max_unit = min(self.MAX_UNIT, n // 3)
+            step_size = 1
+        
+        for unit_len in range(self.MIN_UNIT, max_unit + 1):
             for i in range(0, n - 2 * unit_len, step_size):
                 unit = seq[i:i + unit_len]
                 if 'N' in unit:
                     continue
                     
-                # Check for repeat with 0 to max_spacer bp spacer
-                for spacer_len in range(max_spacer + 1):
-                    j = i + unit_len + spacer_len
-                    if j + unit_len > n:
-                        break
+                # Check for repeat with 0 bp spacer (adjacent repeats only)
+                j = i + unit_len  # No spacer
+                if j + unit_len > n:
+                    continue
+                
+                if seq[j:j + unit_len] == unit:
+                    start = i
+                    end = j + unit_len
                     
-                    if seq[j:j + unit_len] == unit:
-                        start = i
-                        end = j + unit_len
-                        
-                        # Check if already used
-                        if any(used[start:end]):
-                            continue
-                        
-                        # Mark as used
-                        for k in range(start, end):
-                            used[k] = True
-                        
-                        regions.append({
-                            'class_name': 'Direct_Repeat',
-                            'pattern_id': 'SLP_DIR_1',
-                            'start': start,
-                            'end': end,
-                            'length': end - start,
-                            'score': min(unit_len / 30.0, 0.95),  # Simple fast score
-                            'matched_seq': seq[start:end],
-                            'details': {
-                                'unit_length': unit_len,
-                                'spacer_length': spacer_len,
-                                'repeat_type': f'Direct repeat ({unit_len} bp unit, {spacer_len} bp spacer)',
-                                'source': 'Wells 2005'
-                            }
-                        })
-                        # Found a match, skip to next position
-                        break
+                    # Check if already used
+                    if any(used[start:end]):
+                        continue
+                    
+                    # Mark as used
+                    for k in range(start, end):
+                        used[k] = True
+                    
+                    regions.append({
+                        'class_name': 'Direct_Repeat',
+                        'pattern_id': 'SLP_DIR_1',
+                        'start': start,
+                        'end': end,
+                        'length': end - start,
+                        'score': min(unit_len / 50.0, 0.95),  # Score based on 50 bp max
+                        'matched_seq': seq[start:end],
+                        'details': {
+                            'unit_length': unit_len,
+                            'spacer_length': 0,
+                            'repeat_type': f'Direct repeat ({unit_len} bp unit, 0 bp spacer)',
+                            'source': 'Wells 2005'
+                        }
+                    })
         
         return regions
 
@@ -2106,8 +1987,8 @@ class SlippedDNADetector(BaseMotifDetector):
 
         # Use optimized repeat_scanner if available
         if _find_strs_optimized and _find_direct_repeats_optimized:
-            # STRs (unit 1–9 bp, minimum total length ≥20bp)
-            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=20)
+            # STRs (unit 1–9 bp)
+            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=10)
             for str_rec in str_results:
                 regions.append({
                     'class_name': 'STR',
@@ -2134,8 +2015,10 @@ class SlippedDNADetector(BaseMotifDetector):
                     }
                 })
 
-            # Direct repeats
-            direct_results = _find_direct_repeats_optimized(seq, min_unit=10, max_unit=300, max_spacer=10)
+            # Direct repeats - Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
+            direct_results = _find_direct_repeats_optimized(seq, min_unit=self.MIN_UNIT, 
+                                                            max_unit=self.MAX_UNIT, 
+                                                            max_spacer=self.MAX_SPACER)
             for dr_rec in direct_results:
                 regions.append({
                     'class_name': 'Direct_Repeat',
@@ -2164,12 +2047,12 @@ class SlippedDNADetector(BaseMotifDetector):
             used = [False] * len(seq)
             pat_groups = self.get_patterns()
 
-            # STRs (unit 1–9 bp, minimum total length ≥20bp) - fallback regex
+            # STRs (unit 1–9 bp) - fallback regex
             for k in range(1, 10):
                 regex = rf"((?:[ATGC]{{{k}}}){{3,}})"
                 for m in re.finditer(regex, seq):
                     s, e = m.span()
-                    if (e - s) < 20 or any(used[s:e]):
+                    if (e - s) < 10 or any(used[s:e]):
                         continue
                     for i in range(s, e):
                         used[i] = True
@@ -2368,21 +2251,28 @@ class CruciformDetector(BaseMotifDetector):
             ]
         }
 
-    # Configuration
-    MIN_ARM = 6
-    MAX_LOOP = 100
+    # Configuration - Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
+    MIN_ARM = 10
+    MAX_ARM = 100  # Maximum arm length constraint
+    MAX_LOOP = 3
     MAX_MISMATCHES = 0
 
     def find_inverted_repeats(self, sequence: str, min_arm: int = None,
-                              max_loop: int = None, max_mismatches: int = None) -> List[Dict[str, Any]]:
+                              max_arm: int = None, max_loop: int = None, 
+                              max_mismatches: int = None) -> List[Dict[str, Any]]:
         """
         Find inverted repeats (cruciform precursors) using optimized k-mer indexing.
         Falls back to slower exhaustive search only if mismatch tolerance needed.
+        
+        Parameters updated for:
+        - Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
         """
         seq = sequence.upper()
         
         if min_arm is None:
             min_arm = self.MIN_ARM
+        if max_arm is None:
+            max_arm = self.MAX_ARM
         if max_loop is None:
             max_loop = self.MAX_LOOP
         if max_mismatches is None:
@@ -2394,8 +2284,12 @@ class CruciformDetector(BaseMotifDetector):
         if _find_inverted_repeats_optimized is not None and max_mismatches == 0:
             results = _find_inverted_repeats_optimized(seq, min_arm=min_arm, max_loop=max_loop)
             
-            # Convert to internal format
+            # Convert to internal format, filtering by max_arm
             for rec in results:
+                # Filter by max arm length constraint
+                if rec['Arm_Length'] > max_arm:
+                    continue
+                    
                 match_fraction = 1.0
                 score = self._score_arm_loop(rec['Arm_Length'], rec['Loop'], match_fraction)
                 hits.append({
@@ -2414,13 +2308,13 @@ class CruciformDetector(BaseMotifDetector):
                 })
         else:
             # Fallback for mismatch tolerance or when optimized scanner unavailable
-            hits = self._find_inverted_repeats_fallback(seq, min_arm, max_loop, max_mismatches)
+            hits = self._find_inverted_repeats_fallback(seq, min_arm, max_arm, max_loop, max_mismatches)
         
         # Sort by descending score, then position
         hits.sort(key=lambda h: (-h['score'], h['left_start'], -h['arm_len']))
         return hits
     
-    def _find_inverted_repeats_fallback(self, seq: str, min_arm: int, 
+    def _find_inverted_repeats_fallback(self, seq: str, min_arm: int, max_arm: int,
                                         max_loop: int, max_mismatches: int) -> List[Dict[str, Any]]:
         """Fallback implementation for when mismatch tolerance is needed or optimized scanner unavailable"""
         def revcomp(s: str) -> str:
@@ -2440,7 +2334,7 @@ class CruciformDetector(BaseMotifDetector):
                 window_end = min(window_start + window_size, n)
                 window_seq = seq[window_start:window_end]
                 window_hits = self._find_inverted_repeats_in_window(
-                    window_seq, min_arm, max_loop, max_mismatches, revcomp
+                    window_seq, min_arm, max_arm, max_loop, max_mismatches, revcomp
                 )
                 for hit in window_hits:
                     hit['left_start'] += window_start
@@ -2452,11 +2346,11 @@ class CruciformDetector(BaseMotifDetector):
                     break
             hits = self._deduplicate_hits(hits)
         else:
-            hits = self._find_inverted_repeats_in_window(seq, min_arm, max_loop, max_mismatches, revcomp)
+            hits = self._find_inverted_repeats_in_window(seq, min_arm, max_arm, max_loop, max_mismatches, revcomp)
         
         return hits
     
-    def _find_inverted_repeats_in_window(self, seq: str, min_arm: int, 
+    def _find_inverted_repeats_in_window(self, seq: str, min_arm: int, max_arm: int,
                                          max_loop: int, max_mismatches: int, revcomp_fn=None) -> List[Dict[str, Any]]:
         """Core inverted repeat detection in a single window"""
         if revcomp_fn is None:
@@ -2475,10 +2369,10 @@ class CruciformDetector(BaseMotifDetector):
         # Limit total iterations
         max_iterations = 10000
         iteration_count = 0
-        MAX_ARM = 100  # Maximum arm length for computational feasibility
 
         for left_start in range(0, n - 2 * min_arm, step):
-            max_possible_arm = min(MAX_ARM, (n - left_start) // 2)
+            # Use the max_arm parameter instead of hardcoded value
+            max_possible_arm = min(max_arm, (n - left_start) // 2)
             
             # Search from larger arm lengths first (better quality)
             for arm_len in range(max_possible_arm, min_arm - 1, -1):
@@ -2579,6 +2473,7 @@ class CruciformDetector(BaseMotifDetector):
         seq = sequence.upper()
         hits = self.find_inverted_repeats(seq,
                                          min_arm=self.MIN_ARM,
+                                         max_arm=self.MAX_ARM,
                                          max_loop=self.MAX_LOOP,
                                          max_mismatches=self.MAX_MISMATCHES)
         # Sum of hit scores (reflects number + quality)
@@ -2593,6 +2488,7 @@ class CruciformDetector(BaseMotifDetector):
         seq = sequence.upper()
         hits = self.find_inverted_repeats(seq,
                                          min_arm=self.MIN_ARM,
+                                         max_arm=self.MAX_ARM,
                                          max_loop=self.MAX_LOOP,
                                          max_mismatches=self.MAX_MISMATCHES)
         if max_hits and len(hits) > max_hits:
@@ -2612,6 +2508,7 @@ class CruciformDetector(BaseMotifDetector):
         seq = sequence.upper()
         hits = self.find_inverted_repeats(seq,
                                          min_arm=self.MIN_ARM,
+                                         max_arm=self.MAX_ARM,
                                          max_loop=self.MAX_LOOP,
                                          max_mismatches=self.MAX_MISMATCHES)
         if not hits:
@@ -2661,6 +2558,7 @@ class CruciformDetector(BaseMotifDetector):
         # Use the find_inverted_repeats method which has the sophisticated logic
         inverted_repeats = self.find_inverted_repeats(sequence, 
                                                      min_arm=self.MIN_ARM,
+                                                     max_arm=self.MAX_ARM,
                                                      max_loop=self.MAX_LOOP,
                                                      max_mismatches=self.MAX_MISMATCHES)
         
@@ -3195,7 +3093,15 @@ class TriplexDetector(BaseMotifDetector):
     # | Arm_Length  | int   | Length of mirror arm             |
     # | Loop_Length | int   | Length of loop (mirror only)     |
     # | Score       | float | Formation potential (0-1)        |
+    
+    # Configuration - Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt, 90% purine or pyrimidine
     """
+    
+    # Triplex DNA parameters
+    MIN_ARM = 10
+    MAX_ARM = 100  # Maximum arm length
+    MAX_LOOP = 8   # Maximum spacer/loop length
+    PURINE_PYRIMIDINE_THRESHOLD = 0.9  # 90% purine or pyrimidine content required
 
     def get_motif_class_name(self) -> str:
         return "Triplex"
@@ -3219,13 +3125,20 @@ class TriplexDetector(BaseMotifDetector):
         patterns = self.get_patterns()['triplex_forming_sequences']
 
         # Use optimized scanner if available
+        # Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt, and 90% Purine or Pyrimidine
         if _find_mirror_repeats_optimized is not None:
-            mirror_results = _find_mirror_repeats_optimized(seq, min_arm=10, max_loop=100, 
-                                                            purine_pyrimidine_threshold=0.9)
+            mirror_results = _find_mirror_repeats_optimized(seq, min_arm=self.MIN_ARM, 
+                                                            max_loop=self.MAX_LOOP, 
+                                                            purine_pyrimidine_threshold=self.PURINE_PYRIMIDINE_THRESHOLD)
             
             # Only keep those that pass the triplex threshold (>90% purine or pyrimidine)
+            # Also filter by max arm length (100 nt)
             for mr_rec in mirror_results:
                 if mr_rec.get('Is_Triplex', False):
+                    # Filter by max arm length
+                    if mr_rec.get('Arm_Length', 0) > self.MAX_ARM:
+                        continue
+                        
                     s = mr_rec['Start'] - 1  # Convert to 0-based
                     e = mr_rec['End']
                     
@@ -3238,7 +3151,7 @@ class TriplexDetector(BaseMotifDetector):
                     # Determine if purine or pyrimidine
                     pur_frac = mr_rec['Purine_Fraction']
                     pyr_frac = mr_rec['Pyrimidine_Fraction']
-                    if pur_frac >= 0.9:
+                    if pur_frac >= self.PURINE_PYRIMIDINE_THRESHOLD:
                         subtype = 'Homopurine mirror repeat'
                         pid = 'TRX_MR_PU'
                     else:
@@ -3268,8 +3181,9 @@ class TriplexDetector(BaseMotifDetector):
                     })
         else:
             # Fallback to regex-based detection for mirror repeats
-            # Homopurine mirror repeat
-            pat_pu = r'((?:[GA]{1,}){10,})([ATGC]{1,100})((?:[GA]{1,}){10,})'
+            # Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt
+            # Homopurine mirror repeat - match 10-100 consecutive purine nucleotides
+            pat_pu = rf'([GA]{{{self.MIN_ARM},{self.MAX_ARM}}})([ATGC]{{0,{self.MAX_LOOP}}})([GA]{{{self.MIN_ARM},{self.MAX_ARM}}})'
             for m in re.finditer(pat_pu, seq):
                 s, e = m.span()
                 if any(used[s:e]):
@@ -3277,10 +3191,15 @@ class TriplexDetector(BaseMotifDetector):
                 arm1 = m.group(1)
                 arm2 = m.group(3)
                 loop = m.group(2)
-                if len(arm1) < 10 or len(arm2) < 10 or len(loop) > 100:
+                # Apply length constraints
+                if len(arm1) < self.MIN_ARM or len(arm1) > self.MAX_ARM:
+                    continue
+                if len(arm2) < self.MIN_ARM or len(arm2) > self.MAX_ARM:
+                    continue
+                if len(loop) > self.MAX_LOOP:
                     continue
                 pur_ct = sum(1 for b in arm1+arm2 if b in 'AG') / max(1, len(arm1+arm2))
-                if pur_ct <= 0.9:
+                if pur_ct < self.PURINE_PYRIMIDINE_THRESHOLD:
                     continue
                 for i in range(s, e):
                     used[i] = True
@@ -3299,8 +3218,8 @@ class TriplexDetector(BaseMotifDetector):
                     }
                 })
             
-            # Homopyrimidine mirror repeat
-            pat_py = r'((?:[CT]{1,}){10,})([ATGC]{1,100})((?:[CT]{1,}){10,})'
+            # Homopyrimidine mirror repeat - match 10-100 consecutive pyrimidine nucleotides
+            pat_py = rf'([CT]{{{self.MIN_ARM},{self.MAX_ARM}}})([ATGC]{{0,{self.MAX_LOOP}}})([CT]{{{self.MIN_ARM},{self.MAX_ARM}}})'
             for m in re.finditer(pat_py, seq):
                 s, e = m.span()
                 if any(used[s:e]):
@@ -3308,10 +3227,15 @@ class TriplexDetector(BaseMotifDetector):
                 arm1 = m.group(1)
                 arm2 = m.group(3)
                 loop = m.group(2)
-                if len(arm1) < 10 or len(arm2) < 10 or len(loop) > 100:
+                # Apply length constraints
+                if len(arm1) < self.MIN_ARM or len(arm1) > self.MAX_ARM:
+                    continue
+                if len(arm2) < self.MIN_ARM or len(arm2) > self.MAX_ARM:
+                    continue
+                if len(loop) > self.MAX_LOOP:
                     continue
                 pyr_ct = sum(1 for b in arm1+arm2 if b in 'CT') / max(1, len(arm1+arm2))
-                if pyr_ct <= 0.9:
+                if pyr_ct < self.PURINE_PYRIMIDINE_THRESHOLD:
                     continue
                 for i in range(s, e):
                     used[i] = True
