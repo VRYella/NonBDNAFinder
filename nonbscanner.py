@@ -67,8 +67,11 @@ import os
 import re
 import math
 import warnings
-from typing import List, Dict, Any, Optional, Union, Tuple
+import time
+import threading
+from typing import List, Dict, Any, Optional, Union, Tuple, Callable
 from collections import defaultdict, Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
 warnings.filterwarnings("ignore")
@@ -106,10 +109,89 @@ __version__ = "2024.1"
 __author__ = "Dr. Venkata Rajesh Yella"
 
 # =============================================================================
-# CACHED SCANNER SINGLETON
+# CHUNKING CONFIGURATION
 # =============================================================================
 
-import threading
+# Threshold for automatic chunking (sequences larger than this are chunked)
+CHUNK_THRESHOLD = 10000  # 10,000 bp
+
+# Default chunk size for processing large sequences
+DEFAULT_CHUNK_SIZE = 5000  # 5,000 bp
+
+# Default overlap between chunks to avoid missing motifs at boundaries
+DEFAULT_CHUNK_OVERLAP = 500  # 500 bp
+
+# =============================================================================
+# DETECTOR TIMING TRACKING
+# =============================================================================
+
+# Module-level storage for detector timings (thread-local for safety)
+_DETECTOR_TIMINGS = {}
+_TIMINGS_LOCK = threading.Lock()
+
+# Human-readable display names for detectors
+DETECTOR_DISPLAY_NAMES = {
+    'curved_dna': 'Curved DNA',
+    'slipped_dna': 'Slipped DNA',
+    'cruciform': 'Cruciform',
+    'r_loop': 'R-Loop',
+    'triplex': 'Triplex',
+    'g_quadruplex': 'G-Quadruplex',
+    'i_motif': 'i-Motif',
+    'z_dna': 'Z-DNA',
+    'a_philic': 'A-philic DNA'
+}
+
+
+def get_last_detector_timings() -> Dict[str, float]:
+    """
+    Get timing information from the last sequence analysis.
+    
+    Returns:
+        Dictionary mapping detector names to elapsed time in seconds
+    
+    Example:
+        >>> motifs = analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test")
+        >>> timings = get_last_detector_timings()
+        >>> for name, elapsed in timings.items():
+        ...     print(f"{name}: {elapsed:.3f}s")
+    """
+    with _TIMINGS_LOCK:
+        return dict(_DETECTOR_TIMINGS)
+
+
+def get_detector_display_names() -> Dict[str, str]:
+    """
+    Get human-readable display names for all detectors.
+    
+    Returns:
+        Dictionary mapping internal detector names to display names
+    
+    Example:
+        >>> names = get_detector_display_names()
+        >>> names['g_quadruplex']
+        'G-Quadruplex'
+    """
+    return dict(DETECTOR_DISPLAY_NAMES)
+
+
+def _update_detector_timing(detector_name: str, elapsed: float) -> None:
+    """Update the timing for a specific detector (internal use)."""
+    global _DETECTOR_TIMINGS
+    with _TIMINGS_LOCK:
+        _DETECTOR_TIMINGS[detector_name] = elapsed
+
+
+def _reset_detector_timings() -> None:
+    """Reset all detector timings (internal use)."""
+    global _DETECTOR_TIMINGS
+    with _TIMINGS_LOCK:
+        _DETECTOR_TIMINGS = {}
+
+
+# =============================================================================
+# CACHED SCANNER SINGLETON
+# =============================================================================
 
 # Module-level cache for scanner instance (avoids re-initializing detectors)
 _CACHED_SCANNER = None
@@ -163,7 +245,8 @@ class NonBScanner:
                 'a_philic': APhilicDetector()
             }
     
-    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence") -> List[Dict[str, Any]]:
+    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence",
+                        detector_callback: Optional[Callable[[str, int, int, float], None]] = None) -> List[Dict[str, Any]]:
         """
         Detect all Non-B DNA motifs in a sequence with high performance.
         
@@ -193,6 +276,8 @@ class NonBScanner:
         Args:
             sequence: DNA sequence to analyze (ATGC characters)
             sequence_name: Identifier for the sequence
+            detector_callback: Optional callback function called after each detector completes.
+                              Signature: callback(detector_name, completed, total, elapsed_time)
             
         Returns:
             List of motif dictionaries sorted by genomic position
@@ -217,12 +302,27 @@ class NonBScanner:
             raise ValueError(f"Invalid sequence: {msg}")
         
         all_motifs = []
+        total_detectors = len(self.detectors)
+        
+        # Reset detector timings
+        _reset_detector_timings()
         
         # Run all detectors
-        for detector_name, detector in self.detectors.items():
+        for idx, (detector_name, detector) in enumerate(self.detectors.items()):
             try:
+                start_time = time.time()
                 motifs = detector.detect_motifs(sequence, sequence_name)
+                elapsed = time.time() - start_time
+                
+                # Track timing
+                _update_detector_timing(detector_name, elapsed)
+                
                 all_motifs.extend(motifs)
+                
+                # Call callback if provided
+                if detector_callback is not None:
+                    detector_callback(detector_name, idx + 1, total_detectors, elapsed)
+                    
             except Exception as e:
                 warnings.warn(f"Error in {detector_name} detector: {e}")
                 continue
@@ -486,7 +586,12 @@ class NonBScanner:
 # =============================================================================
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence", 
-                    use_fast_mode: bool = False) -> List[Dict[str, Any]]:
+                    use_fast_mode: bool = False,
+                    use_chunking: bool = None,
+                    chunk_size: int = None,
+                    chunk_overlap: int = None,
+                    progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None,
+                    use_parallel_chunks: bool = True) -> List[Dict[str, Any]]:
     """
     Analyze a single DNA sequence for all Non-B DNA motifs (high-performance API).
     
@@ -522,6 +627,13 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         sequence: DNA sequence (ATGC characters, case-insensitive)
         sequence_name: Identifier for the sequence
         use_fast_mode: Enable parallel processing for ~9x wall-clock speedup (9 parallel threads)
+        use_chunking: Enable chunking for large sequences. If None, auto-enable for sequences 
+                      larger than CHUNK_THRESHOLD (10,000 bp). Set to True/False to override.
+        chunk_size: Size of each chunk in bp (default: DEFAULT_CHUNK_SIZE = 5000)
+        chunk_overlap: Overlap between chunks to avoid missing boundary motifs (default: 500)
+        progress_callback: Callback function called after each chunk is processed.
+                          Signature: callback(chunk_num, total_chunks, bp_processed, elapsed, throughput)
+        use_parallel_chunks: Enable parallel processing of chunks (default: True)
         
     Returns:
         List of motif dictionaries sorted by genomic position
@@ -543,20 +655,197 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         >>> motifs = nbs.analyze_sequence("GGGTTAGGGTTAGGG", "test")
         >>> # Fast mode (parallel, all 9 detectors run simultaneously - 9x faster)
         >>> motifs_fast = nbs.analyze_sequence("GGGTTAGGGTTAGGG", "test", use_fast_mode=True)
+        >>> # Chunked mode for large sequences with progress tracking
+        >>> def progress(chunk, total, bp, elapsed=None, throughput=None):
+        ...     print(f"Chunk {chunk}/{total}: {bp} bp processed")
+        >>> motifs = nbs.analyze_sequence(large_seq, "test", use_chunking=True, 
+        ...                                chunk_size=5000, progress_callback=progress)
         >>> for m in motifs:
         ...     print(f"{m['Class']}: {m['Start']}-{m['End']}, score={m['Score']}")
     """
-    if use_fast_mode:
-        # Use parallel processing for 9x speedup
-        try:
-            from parallel_scanner import analyze_sequence_parallel
-            return analyze_sequence_parallel(sequence, sequence_name, use_parallel=True)
-        except ImportError:
-            warnings.warn("Fast mode not available (parallel_scanner module not found), falling back to standard mode")
+    seq_len = len(sequence)
     
-    # Standard mode (sequential) - use cached scanner for better performance
+    # Set default values
+    if chunk_size is None:
+        chunk_size = DEFAULT_CHUNK_SIZE
+    if chunk_overlap is None:
+        chunk_overlap = DEFAULT_CHUNK_OVERLAP
+    
+    # Auto-enable chunking for large sequences if not explicitly set
+    if use_chunking is None:
+        use_chunking = seq_len > CHUNK_THRESHOLD
+    
+    # If chunking is disabled or sequence is small enough, use standard processing
+    if not use_chunking or seq_len <= chunk_size:
+        if use_fast_mode:
+            # Use parallel processing for 9x speedup
+            try:
+                from parallel_scanner import analyze_sequence_parallel
+                return analyze_sequence_parallel(sequence, sequence_name, use_parallel=True)
+            except ImportError:
+                warnings.warn("Fast mode not available (parallel_scanner module not found), falling back to standard mode")
+        
+        # Standard mode (sequential) - use cached scanner for better performance
+        scanner = _get_cached_scanner()
+        return scanner.analyze_sequence(sequence, sequence_name)
+    
+    # Chunked processing for large sequences
+    return _analyze_sequence_chunked(
+        sequence, sequence_name, chunk_size, chunk_overlap, 
+        progress_callback, use_parallel_chunks
+    )
+
+
+def _analyze_sequence_chunked(sequence: str, sequence_name: str,
+                               chunk_size: int, chunk_overlap: int,
+                               progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None,
+                               use_parallel_chunks: bool = True) -> List[Dict[str, Any]]:
+    """
+    Analyze a large sequence by processing it in chunks.
+    
+    This function divides the sequence into overlapping chunks, analyzes each chunk,
+    and then merges the results while removing duplicate motifs from overlap regions.
+    
+    Args:
+        sequence: DNA sequence to analyze
+        sequence_name: Identifier for the sequence
+        chunk_size: Size of each chunk in bp
+        chunk_overlap: Overlap between chunks
+        progress_callback: Optional callback for progress tracking
+        use_parallel_chunks: Enable parallel chunk processing
+        
+    Returns:
+        List of deduplicated motif dictionaries sorted by position
+    """
+    seq_len = len(sequence)
     scanner = _get_cached_scanner()
-    return scanner.analyze_sequence(sequence, sequence_name)
+    
+    # Calculate chunks
+    chunks = []
+    start = 0
+    while start < seq_len:
+        end = min(start + chunk_size, seq_len)
+        chunks.append((start, end))
+        if end >= seq_len:
+            break
+        # Move to next chunk with overlap
+        start = end - chunk_overlap
+    
+    total_chunks = len(chunks)
+    all_motifs = []
+    start_time = time.time()
+    bp_processed = 0
+    
+    # Process chunks (parallel or sequential)
+    if use_parallel_chunks and total_chunks > 1:
+        # Parallel chunk processing using ThreadPoolExecutor
+        max_workers = min(total_chunks, os.cpu_count() or 4)
+        
+        def process_chunk(chunk_info):
+            chunk_idx, (chunk_start, chunk_end) = chunk_info
+            chunk_seq = sequence[chunk_start:chunk_end]
+            chunk_name = f"{sequence_name}_chunk{chunk_idx}"
+            
+            # Analyze chunk
+            chunk_motifs = scanner.analyze_sequence(chunk_seq, chunk_name)
+            
+            # Adjust motif positions to full sequence coordinates
+            for motif in chunk_motifs:
+                motif['Start'] = motif['Start'] + chunk_start
+                motif['End'] = motif['End'] + chunk_start
+                motif['ID'] = motif['ID'].replace(chunk_name, sequence_name)
+                motif['Sequence_Name'] = sequence_name
+            
+            return chunk_idx, chunk_end - chunk_start, chunk_motifs
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(process_chunk, (i, chunk)): i 
+                      for i, chunk in enumerate(chunks)}
+            
+            results_by_idx = {}
+            for future in as_completed(futures):
+                chunk_idx, chunk_len, chunk_motifs = future.result()
+                results_by_idx[chunk_idx] = chunk_motifs
+                bp_processed += chunk_len
+                
+                # Call progress callback
+                if progress_callback is not None:
+                    elapsed = time.time() - start_time
+                    throughput = bp_processed / elapsed if elapsed > 0 else 0
+                    progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, throughput)
+            
+            # Collect results in order
+            for i in range(total_chunks):
+                all_motifs.extend(results_by_idx.get(i, []))
+    else:
+        # Sequential chunk processing
+        for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
+            chunk_seq = sequence[chunk_start:chunk_end]
+            chunk_name = f"{sequence_name}_chunk{chunk_idx}"
+            
+            # Analyze chunk
+            chunk_motifs = scanner.analyze_sequence(chunk_seq, chunk_name)
+            
+            # Adjust motif positions to full sequence coordinates
+            for motif in chunk_motifs:
+                motif['Start'] = motif['Start'] + chunk_start
+                motif['End'] = motif['End'] + chunk_start
+                motif['ID'] = motif['ID'].replace(chunk_name, sequence_name)
+                motif['Sequence_Name'] = sequence_name
+            
+            all_motifs.extend(chunk_motifs)
+            bp_processed += chunk_end - chunk_start
+            
+            # Call progress callback
+            if progress_callback is not None:
+                elapsed = time.time() - start_time
+                throughput = bp_processed / elapsed if elapsed > 0 else 0
+                progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, throughput)
+    
+    # Remove duplicate motifs from overlap regions
+    deduplicated_motifs = _deduplicate_motifs(all_motifs)
+    
+    # Sort by position
+    deduplicated_motifs.sort(key=lambda x: x.get('Start', 0))
+    
+    return deduplicated_motifs
+
+
+def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Remove duplicate motifs that may appear from overlapping chunk regions.
+    
+    Duplicates are identified by having the same Class, Start, End, and similar sequences.
+    When duplicates are found, the one with the higher score is kept.
+    """
+    if not motifs:
+        return motifs
+    
+    # Sort by class, start, end, and score (descending)
+    sorted_motifs = sorted(motifs, key=lambda x: (
+        x.get('Class', ''),
+        x.get('Start', 0),
+        x.get('End', 0),
+        -x.get('Score', 0)
+    ))
+    
+    deduplicated = []
+    seen = set()
+    
+    for motif in sorted_motifs:
+        # Create a key for duplicate detection
+        key = (
+            motif.get('Class', ''),
+            motif.get('Subclass', ''),
+            motif.get('Start', 0),
+            motif.get('End', 0)
+        )
+        
+        if key not in seen:
+            seen.add(key)
+            deduplicated.append(motif)
+    
+    return deduplicated
 
 
 def analyze_fasta(fasta_content: str) -> Dict[str, List[Dict[str, Any]]]:
