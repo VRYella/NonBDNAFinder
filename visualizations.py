@@ -54,9 +54,6 @@ from collections import Counter, defaultdict
 import warnings
 warnings.filterwarnings("ignore")
 
-# Advanced visualizations feature disabled (removed from codebase for simplification)
-ADVANCED_VIZ_AVAILABLE = False
-
 # Try to import plotly for interactive plots
 try:
     import plotly.graph_objects as go
@@ -67,74 +64,150 @@ except ImportError:
     PLOTLY_AVAILABLE = False
 
 # =============================================================================
-# STYLING & CONFIGURATION
+# NATURE-LEVEL PUBLICATION STYLING & CONFIGURATION
 # =============================================================================
+# Following Nature Methods/Nature Genetics style guidelines:
+# - Sans-serif fonts (Arial/Helvetica preferred)
+# - High DPI (300+ for print)
+# - Clean, minimal design with proper spacing
+# - Colorblind-friendly palettes
 
-# Scientific color palette for motif classes
+# Default DPI for publication quality (Nature requires 300 DPI minimum)
+PUBLICATION_DPI = 300
+
+# Nature-level color palette for motif classes (colorblind-friendly)
+# Based on Wong, B. (2011) Nature Methods colorblind-safe palette
+# Each motif class has a unique color for distinguishability
 MOTIF_CLASS_COLORS = {
-    'Curved_DNA': '#E91E63',          # Material Pink - vibrant and scientific
-    'Slipped_DNA': '#FF9800',         # Material Orange - warm and visible
-    'Cruciform': '#2196F3',           # Material Blue - professional
-    'R-Loop': '#4CAF50',              # Material Green - natural
-    'Triplex': '#9C27B0',             # Material Purple - elegant
-    'G-Quadruplex': '#FFC107',        # Material Amber - distinctive
-    'i-Motif': '#FF5722',             # Material Deep Orange - bold
-    'Z-DNA': '#673AB7',               # Material Deep Purple - sophisticated
-    'A-philic_DNA': '#00BCD4',        # Material Cyan - fresh and modern
-    'Hybrid': '#9E9E9E',              # Material Gray - neutral
-    'Non-B_DNA_Clusters': '#607D8B'   # Material Blue Gray - professional
+    'Curved_DNA': '#CC79A7',          # Reddish Purple
+    'Slipped_DNA': '#E69F00',         # Orange
+    'Cruciform': '#56B4E9',           # Sky Blue
+    'R-Loop': '#009E73',              # Bluish Green
+    'Triplex': '#F0E442',             # Yellow
+    'G-Quadruplex': '#0072B2',        # Blue
+    'i-Motif': '#D55E00',             # Vermillion
+    'Z-DNA': '#882255',               # Wine (distinct from Curved_DNA)
+    'A-philic_DNA': '#44AA99',        # Teal (distinct from Cruciform)
+    'Hybrid': '#999999',              # Gray - neutral
+    'Non-B_DNA_Clusters': '#666666'   # Dark Gray - professional
 }
 
-# Enhanced scientific styling configuration for publication-quality plots
-plt.rcParams.update({
+# Nature-level scientific styling configuration for publication-quality plots
+# Reference: Nature author guidelines for figure preparation
+_NATURE_STYLE_PARAMS = {
+    # Typography - Arial/Helvetica as per Nature guidelines
     'font.family': 'sans-serif',
-    'font.sans-serif': ['DejaVu Sans', 'Arial', 'Helvetica'],
-    'font.size': 11,
-    'axes.titlesize': 14,
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.size': 8,  # Nature recommends 5-7pt, we use 8pt for readability
+    
+    # Title and labels
+    'axes.titlesize': 9,
     'axes.titleweight': 'bold',
-    'axes.labelsize': 12,
-    'axes.labelweight': 'semibold',
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'legend.fontsize': 10,
-    'legend.frameon': True,
-    'legend.framealpha': 0.95,
-    'legend.edgecolor': '#E3F2FD',
-    'figure.titlesize': 16,
+    'axes.labelsize': 8,
+    'axes.labelweight': 'normal',
+    
+    # Tick labels
+    'xtick.labelsize': 7,
+    'ytick.labelsize': 7,
+    'xtick.major.size': 3,
+    'ytick.major.size': 3,
+    'xtick.major.width': 0.8,
+    'ytick.major.width': 0.8,
+    
+    # Legend
+    'legend.fontsize': 7,
+    'legend.frameon': False,
+    'legend.borderpad': 0.4,
+    
+    # Figure
+    'figure.titlesize': 10,
     'figure.titleweight': 'bold',
-    'axes.grid': True,
-    'grid.alpha': 0.25,
-    'grid.linestyle': '--',
-    'grid.linewidth': 0.6,
+    'figure.dpi': PUBLICATION_DPI,
+    'figure.facecolor': 'white',
+    'savefig.dpi': PUBLICATION_DPI,
+    'savefig.format': 'pdf',  # Vector format for publication
+    'savefig.bbox': 'tight',
+    'savefig.pad_inches': 0.05,
+    
+    # Axes - minimal, clean design
+    'axes.grid': False,  # Nature typically uses minimal grids
     'axes.spines.top': False,
     'axes.spines.right': False,
     'axes.spines.left': True,
     'axes.spines.bottom': True,
-    'axes.linewidth': 1.2,
-    'axes.edgecolor': '#0D47A1',
-    'figure.facecolor': 'white',
-    'axes.facecolor': '#FAFBFC',
-})
+    'axes.linewidth': 0.8,
+    'axes.edgecolor': 'black',
+    'axes.facecolor': 'white',
+    
+    # Lines
+    'lines.linewidth': 1.0,
+    'lines.markersize': 4,
+    
+    # PDF/SVG output
+    'pdf.fonttype': 42,  # TrueType for editability
+    'ps.fonttype': 42,
+}
+
+# Apply Nature-level styling at module load
+plt.rcParams.update(_NATURE_STYLE_PARAMS)
 
 # Constants for enrichment analysis visualization
 INFINITE_FOLD_ENRICHMENT_CAP = 100  # Cap for infinite fold enrichment values in plots
 
-def set_scientific_style():
-    """Apply scientific publication-ready styling"""
-    sns.set_style("whitegrid")
-    sns.set_palette("husl")
+# Figure size constants (in inches) following Nature guidelines
+# Nature column widths: single=89mm(3.5in), 1.5=120mm(4.7in), double=183mm(7.2in)
+FIGURE_SIZES = {
+    'single_column': (3.5, 2.8),      # Single column
+    'one_and_half': (4.7, 3.5),       # 1.5 column
+    'double_column': (7.2, 4.5),      # Double column
+    'square': (3.5, 3.5),             # Square figure
+    'wide': (7.2, 3.0),               # Wide panoramic
+}
+
+
+def set_scientific_style(style: str = 'nature'):
+    """
+    Apply scientific publication-ready styling.
+    
+    Args:
+        style: Style preset ('nature', 'default', 'presentation')
+               - 'nature': Nature/Science journal style (default)
+               - 'default': Standard seaborn whitegrid
+               - 'presentation': Larger fonts for presentations
+    """
+    if style == 'nature':
+        plt.rcParams.update(_NATURE_STYLE_PARAMS)
+        sns.set_style("white")
+        sns.set_context("paper")
+    elif style == 'presentation':
+        plt.rcParams.update(_NATURE_STYLE_PARAMS)
+        plt.rcParams.update({
+            'font.size': 12,
+            'axes.titlesize': 14,
+            'axes.labelsize': 12,
+            'xtick.labelsize': 11,
+            'ytick.labelsize': 11,
+            'legend.fontsize': 10,
+        })
+        sns.set_style("whitegrid")
+        sns.set_context("talk")
+    else:
+        sns.set_style("whitegrid")
+        sns.set_palette("husl")
 
 # =============================================================================
-# DISTRIBUTION PLOTS
+# DISTRIBUTION PLOTS (Nature-Level Quality)
 # =============================================================================
 
 def plot_motif_distribution(motifs: List[Dict[str, Any]], 
                            by: str = 'Class',
                            title: Optional[str] = None,
-                           figsize: Tuple[int, int] = (10, 6)) -> plt.Figure:
+                           figsize: Tuple[float, float] = None,
+                           style: str = 'nature') -> plt.Figure:
     """
     Plot distribution of motifs by class or subclass.
     
+    Publication-quality bar chart following Nature Methods guidelines.
     Shows all classes/subclasses even when count is 0, ensuring comprehensive
     visualization of both detected and undetected motif types.
     
@@ -142,12 +215,17 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         motifs: List of motif dictionaries.
         by: Group by 'Class' or 'Subclass'.
         title: Custom plot title.
-        figsize: Figure size (width, height).
+        figsize: Figure size (width, height) in inches. Uses Nature standard if None.
+        style: Style preset ('nature', 'default', 'presentation').
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready at 300 DPI)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    # Use Nature-appropriate figure size
+    if figsize is None:
+        figsize = FIGURE_SIZES['double_column'] if by == 'Subclass' else FIGURE_SIZES['one_and_half']
     
     # Define ALL expected classes and subclasses (always show these)
     ALL_CLASSES = [
@@ -180,7 +258,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Get counts (0 if not present)
     values = [counts.get(cat, 0) for cat in categories]
     
-    # Get colors
+    # Get colors (colorblind-friendly)
     if by == 'Class':
         colors = [MOTIF_CLASS_COLORS.get(cat, '#808080') for cat in categories]
     else:
@@ -201,51 +279,69 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         }
         colors = [MOTIF_CLASS_COLORS.get(subclass_to_class.get(cat, ''), '#808080') for cat in categories]
     
-    # Create plot
-    fig, ax = plt.subplots(figsize=figsize)
+    # Create figure with high DPI
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    bars = ax.bar(range(len(categories)), values, color=colors, alpha=0.8, edgecolor='black', linewidth=0.5)
+    # Create bars with Nature-style aesthetics
+    bars = ax.bar(range(len(categories)), values, color=colors, 
+                  edgecolor='black', linewidth=0.5, width=0.8)
     
-    # Customize plot
-    ax.set_xlabel(f'Motif {by}', fontsize=11, fontweight='bold')
-    ax.set_ylabel('Count', fontsize=11, fontweight='bold')
-    ax.set_title(title or f'Distribution of Motifs by {by}', fontsize=13, fontweight='bold')
+    # Customize axes (Nature style - minimal, clean)
+    ax.set_xlabel(f'Motif {by}', fontweight='normal')
+    ax.set_ylabel('Count', fontweight='normal')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
     ax.set_xticks(range(len(categories)))
     
-    # Adjust label rotation
+    # Adjust label rotation (Nature style - 45° for readability)
     if len(categories) > 10:
-        ax.set_xticklabels(categories, rotation=60, ha='right', fontsize=8)
+        ax.set_xticklabels(categories, rotation=45, ha='right')
     else:
-        ax.set_xticklabels(categories, rotation=45, ha='right', fontsize=9)
+        ax.set_xticklabels(categories, rotation=45, ha='right')
     
-    # Add count labels on bars
+    # Add count labels on bars (small font, positioned above)
     if len(categories) <= 20:
         max_val = max(values) if max(values) > 0 else 1
         for bar, count in zip(bars, values):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.01,
-                    str(count), ha='center', va='bottom', fontweight='bold', fontsize=9)
+            if count > 0:  # Only label non-zero bars
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.02,
+                        str(count), ha='center', va='bottom', fontsize=6)
+    
+    # Remove top/right spines (Nature style)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     
     plt.tight_layout()
     return fig
 
+
 def plot_class_subclass_sunburst(motifs: List[Dict[str, Any]], 
-                                 title: str = "Motif Class-Subclass Distribution") -> Union[plt.Figure, Any]:
+                                 title: str = "Motif Class-Subclass Distribution",
+                                 figsize: Tuple[float, float] = None) -> Union[plt.Figure, Any]:
     """
-    Create sunburst plot showing class-subclass hierarchy
+    Create sunburst plot showing class-subclass hierarchy.
+    
+    Publication-quality hierarchical visualization.
     
     Args:
         motifs: List of motif dictionaries
         title: Plot title
+        figsize: Figure size (width, height) in inches
         
     Returns:
         Plotly figure if available, otherwise matplotlib figure
     """
+    if figsize is None:
+        figsize = FIGURE_SIZES['square']
+        
     if not motifs:
-        fig, ax = plt.subplots(figsize=(8, 8))
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title)
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
     if not PLOTLY_AVAILABLE:
@@ -293,32 +389,42 @@ def plot_class_subclass_sunburst(motifs: List[Dict[str, Any]],
         parents=parents,
         values=values,
         branchvalues="total",
-        marker=dict(colors=colors, line=dict(color="#FFFFFF", width=2)),
+        marker=dict(colors=colors, line=dict(color="#FFFFFF", width=1)),
         hovertemplate='<b>%{label}</b><br>Count: %{value}<extra></extra>',
     ))
     
+    # Publication-quality layout
     fig.update_layout(
-        title=title,
-        font_size=10,
-        width=600,
-        height=600
+        title=dict(text=title, font=dict(size=10, family='Arial')),
+        font=dict(size=8, family='Arial'),
+        width=int(figsize[0] * 100),
+        height=int(figsize[1] * 100),
+        margin=dict(t=30, l=10, r=10, b=10)
     )
     
     return fig
 
+
 def plot_nested_pie_chart(motifs: List[Dict[str, Any]], 
-                         title: str = "Motif Distribution") -> plt.Figure:
+                         title: str = "Motif Distribution",
+                         figsize: Tuple[float, float] = None) -> plt.Figure:
     """
-    Create nested donut chart with improved text placement to avoid overlaps
+    Create nested donut chart with improved text placement.
+    
+    Publication-quality hierarchical pie chart following Nature guidelines.
     
     Args:
         motifs: List of motif dictionaries
         title: Plot title
+        figsize: Figure size (width, height) in inches
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style('nature')
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['square']
     
     # Count by class and subclass
     class_counts = Counter(m.get('Class', 'Unknown') for m in motifs)
@@ -329,26 +435,26 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         subclass_name = motif.get('Subclass', 'Unknown')
         class_subclass_counts[class_name][subclass_name] += 1
     
-    fig, ax = plt.subplots(figsize=(12, 10))
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Inner donut (classes)
     class_names = list(class_counts.keys())
     class_values = list(class_counts.values())
     class_colors = [MOTIF_CLASS_COLORS.get(name, '#808080') for name in class_names]
     
-    # Create inner donut with better spacing
+    # Create inner donut with Nature-style clean design
     wedges1, texts1, autotexts1 = ax.pie(
         class_values, 
         labels=class_names,
         colors=class_colors,
         radius=0.65,
-        autopct=lambda pct: f'{pct:.1f}%' if pct > 5 else '',  # Only show % if > 5%
+        autopct=lambda pct: f'{pct:.0f}%' if pct > 5 else '',
         pctdistance=0.80,
         startangle=90,
-        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=2)  # Donut style
+        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1)
     )
     
-    # Outer donut (subclasses) with improved text placement
+    # Outer donut (subclasses)
     all_subclass_counts = []
     all_subclass_colors = []
     all_subclass_labels = []
@@ -359,14 +465,13 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         
         for subclass_name, count in subclass_dict.items():
             all_subclass_counts.append(count)
-            # Truncate long subclass names to avoid overlap
-            label = subclass_name if len(subclass_name) <= 15 else subclass_name[:12] + '...'
+            # Truncate long names for clean appearance
+            label = subclass_name if len(subclass_name) <= 12 else subclass_name[:10] + '…'
             all_subclass_labels.append(label)
-            # Create lighter shades for subclasses
             all_subclass_colors.append(base_color)
     
-    # Only show subclass labels if we have room (< 25 subclasses)
-    if len(all_subclass_labels) > 25:
+    # Hide labels if too many subclasses (Nature style - clean)
+    if len(all_subclass_labels) > 15:
         all_subclass_labels = ['' for _ in all_subclass_labels]
     
     wedges2, texts2 = ax.pie(
@@ -374,57 +479,66 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         labels=all_subclass_labels,
         colors=all_subclass_colors,
         radius=1.0,
-        labeldistance=1.15,
+        labeldistance=1.1,
         startangle=90,
-        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1.5),  # Donut style
-        textprops={'fontsize': 7}
+        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8),
+        textprops={'fontsize': 6}
     )
     
-    ax.set_title(title, fontsize=16, pad=20, fontweight='bold')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
     
-    # Improve text positioning to avoid overlap
+    # Style text with Nature-appropriate sizes
     for text in texts1:
-        text.set_fontsize(9)
-        text.set_fontweight('bold')
+        text.set_fontsize(7)
     
     for text in texts2:
-        text.set_fontsize(7)
+        text.set_fontsize(6)
     
     # Style percentage labels
     for autotext in autotexts1:
-        autotext.set_fontsize(9)
-        autotext.set_fontweight('bold')
+        autotext.set_fontsize(6)
         autotext.set_color('white')
     
     return fig
 
+
 # =============================================================================
-# COVERAGE & POSITIONAL PLOTS
+# COVERAGE & POSITIONAL PLOTS (Nature-Level Quality)
 # =============================================================================
 
 def plot_coverage_map(motifs: List[Dict[str, Any]], 
                      sequence_length: int,
                      title: Optional[str] = None,
-                     figsize: Tuple[int, int] = (12, 8)) -> plt.Figure:
+                     figsize: Tuple[float, float] = None,
+                     style: str = 'nature') -> plt.Figure:
     """
-    Plot motif coverage map showing positions along sequence
+    Plot motif coverage map showing positions along sequence.
+    
+    Publication-quality genomic track visualization.
     
     Args:
         motifs: List of motif dictionaries
         sequence_length: Length of the analyzed sequence
         title: Custom plot title
-        figsize: Figure size (width, height)
+        figsize: Figure size (width, height) in inches
+        style: Style preset ('nature', 'default', 'presentation')
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
     
     if not motifs:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Motif Coverage Map')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
     # Group motifs by class
@@ -433,8 +547,8 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
         class_name = motif.get('Class', 'Unknown')
         class_motifs[class_name].append(motif)
     
-    # Create figure
-    fig, ax = plt.subplots(figsize=figsize)
+    # Create figure with high DPI
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     y_pos = 0
     class_positions = {}
@@ -448,66 +562,72 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
             end = motif.get('End', start + 1)
             length = end - start
             
-            # Draw motif as rectangle
+            # Draw motif as rectangle (Nature style - clean edges)
             rect = patches.Rectangle(
-                (start, y_pos - 0.4), length, 0.8,
-                facecolor=color, edgecolor='black', alpha=0.7, linewidth=0.5
+                (start, y_pos - 0.35), length, 0.7,
+                facecolor=color, edgecolor='black', linewidth=0.3
             )
             ax.add_patch(rect)
-            
-            # Add subclass label if space allows
-            if length > sequence_length * 0.02:  # Only label if wide enough
-                subclass = motif.get('Subclass', '')
-                ax.text(start + length/2, y_pos, subclass, 
-                       ha='center', va='center', fontsize=8, 
-                       rotation=0 if length > sequence_length * 0.1 else 90)
         
         y_pos += 1
     
-    # Customize plot
+    # Customize axes (Nature style)
     ax.set_xlim(0, sequence_length)
     ax.set_ylim(-0.5, len(class_motifs) - 0.5)
-    ax.set_xlabel('Sequence Position (bp)')
+    ax.set_xlabel('Position (bp)')
     ax.set_ylabel('Motif Class')
-    ax.set_title(title or f'Motif Coverage Map ({sequence_length} bp)')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
     
     # Set y-axis labels
     ax.set_yticks(list(class_positions.values()))
     ax.set_yticklabels(list(class_positions.keys()))
     
-    # Add sequence ruler
-    ruler_ticks = np.arange(0, sequence_length + 1, max(1, sequence_length // 10))
-    ax.set_xticks(ruler_ticks)
-    ax.set_xticklabels([f'{int(x):,}' for x in ruler_ticks])
+    # Clean x-axis ticks
+    ax.ticklabel_format(style='sci', axis='x', scilimits=(3, 3))
+    
+    # Remove top/right spines
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     
     plt.tight_layout()
     return fig
+
 
 def plot_density_heatmap(motifs: List[Dict[str, Any]], 
                         sequence_length: int,
                         window_size: int = 1000,
                         title: Optional[str] = None,
-                        figsize: Tuple[int, int] = (12, 6)) -> plt.Figure:
+                        figsize: Tuple[float, float] = None,
+                        style: str = 'nature') -> plt.Figure:
     """
-    Plot motif density heatmap along sequence
+    Plot motif density heatmap along sequence.
+    
+    Publication-quality density visualization.
     
     Args:
         motifs: List of motif dictionaries
         sequence_length: Length of the analyzed sequence
         window_size: Window size for density calculation
         title: Custom plot title
-        figsize: Figure size (width, height)
+        figsize: Figure size (width, height) in inches
+        style: Style preset
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
     
     if not motifs:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Motif Density Heatmap')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
     # Calculate windows
@@ -539,61 +659,75 @@ def plot_density_heatmap(motifs: List[Dict[str, Any]],
             
             density_matrix[i, j] = count
     
-    # Create heatmap
-    fig, ax = plt.subplots(figsize=figsize)
+    # Create heatmap with publication quality
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    im = ax.imshow(density_matrix, cmap='YlOrRd', aspect='auto', interpolation='nearest')
+    # Use colorblind-friendly colormap
+    im = ax.imshow(density_matrix, cmap='viridis', aspect='auto', interpolation='nearest')
     
-    # Customize plot
-    ax.set_xlabel(f'Sequence Position (windows of {window_size:,} bp)')
+    # Customize axes (Nature style)
+    ax.set_xlabel(f'Position (kb)')
     ax.set_ylabel('Motif Class')
-    ax.set_title(title or f'Motif Density Heatmap (Window size: {window_size:,} bp)')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
     
     # Set ticks and labels
     ax.set_yticks(range(len(classes)))
     ax.set_yticklabels(classes)
     
-    x_ticks = np.arange(0, num_windows, max(1, num_windows // 10))
+    # Clean x-axis with kb units
+    x_ticks = np.arange(0, num_windows, max(1, num_windows // 5))
     ax.set_xticks(x_ticks)
-    ax.set_xticklabels([f'{int(windows[i]):,}' for i in x_ticks])
+    ax.set_xticklabels([f'{int(windows[i]/1000)}' for i in x_ticks])
     
-    # Add colorbar
-    cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('Motif Count')
+    # Add colorbar with proper label
+    cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+    cbar.set_label('Count', fontsize=7)
+    cbar.ax.tick_params(labelsize=6)
     
     plt.tight_layout()
     return fig
 
+
 # =============================================================================
-# STATISTICAL PLOTS
+# STATISTICAL PLOTS (Nature-Level Quality)
 # =============================================================================
 
 def plot_score_distribution(motifs: List[Dict[str, Any]], 
                            by_class: bool = True,
                            title: Optional[str] = None,
-                           figsize: Tuple[int, int] = (10, 6)) -> plt.Figure:
+                           figsize: Tuple[float, float] = None,
+                           style: str = 'nature') -> plt.Figure:
     """
-    Plot distribution of motif scores
+    Plot distribution of motif scores.
+    
+    Publication-quality box plot visualization.
     
     Args:
         motifs: List of motif dictionaries
         by_class: Whether to separate by motif class
         title: Custom plot title
-        figsize: Figure size (width, height)
+        figsize: Figure size (width, height) in inches
+        style: Style preset
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['one_and_half']
     
     if not motifs:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Score Distribution')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
-    # Extract scores (use Score field, fallback to Normalized_Score for backward compatibility)
+    # Extract scores
     scores_data = []
     for motif in motifs:
         score = motif.get('Score', motif.get('Normalized_Score'))
@@ -607,56 +741,76 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
                 scores_data.append(score)
     
     if not scores_data:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No score data available', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Score Distribution')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     if by_class and isinstance(scores_data[0], dict):
         # Create DataFrame for seaborn
         df = pd.DataFrame(scores_data)
         
-        # Box plot by class
-        sns.boxplot(data=df, x='Class', y='Score', ax=ax, palette='Set2')
+        # Box plot by class (Nature style - clean, minimal)
+        colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
+        sns.boxplot(data=df, x='Class', y='Score', ax=ax, palette=colors,
+                   linewidth=0.8, fliersize=2)
         ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-        ax.set_ylabel('Normalized Score')
+        ax.set_ylabel('Score')
         ax.set_xlabel('Motif Class')
     else:
         # Simple histogram
-        ax.hist(scores_data, bins=20, alpha=0.7, edgecolor='black')
-        ax.set_xlabel('Normalized Score')
+        ax.hist(scores_data, bins=20, edgecolor='black', linewidth=0.5, color='#56B4E9')
+        ax.set_xlabel('Score')
         ax.set_ylabel('Frequency')
     
-    ax.set_title(title or 'Motif Score Distribution (Normalized)')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
+    
+    # Remove top/right spines
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
     plt.tight_layout()
     return fig
+
 
 def plot_length_distribution(motifs: List[Dict[str, Any]], 
                            by_class: bool = True,
                            title: Optional[str] = None,
-                           figsize: Tuple[int, int] = (10, 6)) -> plt.Figure:
+                           figsize: Tuple[float, float] = None,
+                           style: str = 'nature') -> plt.Figure:
     """
-    Plot distribution of motif lengths
+    Plot distribution of motif lengths.
+    
+    Publication-quality violin plot visualization.
     
     Args:
         motifs: List of motif dictionaries
         by_class: Whether to separate by motif class
         title: Custom plot title
-        figsize: Figure size (width, height)
+        figsize: Figure size (width, height) in inches
+        style: Style preset
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['one_and_half']
     
     if not motifs:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Length Distribution')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
     # Extract lengths
@@ -673,54 +827,72 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
                 length_data.append(length)
     
     if not length_data:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No length data available', ha='center', va='center', 
-                transform=ax.transAxes, fontsize=14)
-        ax.set_title(title or 'Length Distribution')
+                transform=ax.transAxes)
+        ax.axis('off')
+        if title:
+            ax.set_title(title)
         return fig
     
-    fig, ax = plt.subplots(figsize=figsize)
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     if by_class and isinstance(length_data[0], dict):
         # Create DataFrame for seaborn
         df = pd.DataFrame(length_data)
         
-        # Violin plot by class
-        sns.violinplot(data=df, x='Class', y='Length', ax=ax, palette='Set3')
+        # Violin plot by class (Nature style - clean)
+        colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
+        sns.violinplot(data=df, x='Class', y='Length', ax=ax, palette=colors,
+                      linewidth=0.8, inner='box')
         ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-        ax.set_ylabel('Motif Length (bp)')
+        ax.set_ylabel('Length (bp)')
         ax.set_xlabel('Motif Class')
     else:
         # Simple histogram
-        ax.hist(length_data, bins=20, alpha=0.7, edgecolor='black')
-        ax.set_xlabel('Motif Length (bp)')
+        ax.hist(length_data, bins=20, edgecolor='black', linewidth=0.5, color='#009E73')
+        ax.set_xlabel('Length (bp)')
         ax.set_ylabel('Frequency')
     
-    ax.set_title(title or 'Motif Length Distribution')
+    if title:
+        ax.set_title(title, fontweight='bold', pad=10)
+    
+    # Remove top/right spines
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
     plt.tight_layout()
     return fig
 
+
 # =============================================================================
-# COMPARISON PLOTS
+# COMPARISON PLOTS (Nature-Level Quality)
 # =============================================================================
 
 def plot_class_comparison(results: Dict[str, List[Dict[str, Any]]], 
                          metric: str = 'count',
                          title: Optional[str] = None,
-                         figsize: Tuple[int, int] = (12, 8)) -> plt.Figure:
+                         figsize: Tuple[float, float] = None,
+                         style: str = 'nature') -> plt.Figure:
     """
-    Compare motif classes across multiple sequences/samples
+    Compare motif classes across multiple sequences/samples.
+    
+    Publication-quality heatmap comparison.
     
     Args:
         results: Dictionary of {sample_name: motifs_list}
         metric: Comparison metric ('count', 'coverage', 'density')
         title: Custom plot title
-        figsize: Figure size (width, height)
+        figsize: Figure size (width, height) in inches
+        style: Style preset
         
     Returns:
-        Matplotlib figure object
+        Matplotlib figure object (publication-ready)
     """
-    set_scientific_style()
+    set_scientific_style(style)
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['double_column']
     
     if not results:
         fig, ax = plt.subplots(figsize=figsize)
@@ -888,50 +1060,52 @@ def create_interactive_coverage_plot(motifs: List[Dict[str, Any]],
     return fig
 
 # =============================================================================
-# BATCH EXPORT FUNCTIONS
+# BATCH EXPORT FUNCTIONS (Publication-Ready)
 # =============================================================================
 
 def save_all_plots(motifs: List[Dict[str, Any]], 
                    sequence_length: int,
                    output_dir: str = "plots",
-                   file_format: str = "png",
-                   dpi: int = 300) -> Dict[str, str]:
+                   file_format: str = "pdf",
+                   dpi: int = 300,
+                   style: str = 'nature') -> Dict[str, str]:
     """
-    Generate and save all standard plots
+    Generate and save all standard plots in publication quality.
     
     Args:
         motifs: List of motif dictionaries
         sequence_length: Length of analyzed sequence
         output_dir: Output directory for plots
-        file_format: File format ('png', 'pdf', 'svg')
-        dpi: Resolution for raster formats
+        file_format: File format ('pdf', 'png', 'svg') - pdf recommended for publication
+        dpi: Resolution for raster formats (default 300 DPI for publication)
+        style: Style preset ('nature', 'default')
         
     Returns:
         Dictionary of {plot_name: file_path}
     """
     import os
     
+    # Apply style
+    set_scientific_style(style)
+    
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
     
     saved_files = {}
     
+    # Use publication DPI if not specified
+    if dpi < PUBLICATION_DPI:
+        dpi = PUBLICATION_DPI
+    
     # List of plots to generate (diverse, non-repetitive visualization types)
     plots_to_generate = [
-        ("motif_distribution_class", lambda: plot_motif_distribution(motifs, by='Class')),
-        ("coverage_map", lambda: plot_coverage_map(motifs, sequence_length)),
-        ("density_heatmap", lambda: plot_density_heatmap(motifs, sequence_length)),
-        ("score_distribution", lambda: plot_score_distribution(motifs, by_class=True)),
-        ("length_distribution", lambda: plot_length_distribution(motifs, by_class=True)),
+        ("motif_distribution_class", lambda: plot_motif_distribution(motifs, by='Class', style=style)),
+        ("coverage_map", lambda: plot_coverage_map(motifs, sequence_length, style=style)),
+        ("density_heatmap", lambda: plot_density_heatmap(motifs, sequence_length, style=style)),
+        ("score_distribution", lambda: plot_score_distribution(motifs, by_class=True, style=style)),
+        ("length_distribution", lambda: plot_length_distribution(motifs, by_class=True, style=style)),
         ("nested_donut_chart", lambda: plot_nested_pie_chart(motifs))
     ]
-    
-    # Add advanced visualizations if available
-    if ADVANCED_VIZ_AVAILABLE:
-        plots_to_generate.extend([
-            ("sunburst_hierarchy", lambda: plot_sunburst_treemap(motifs, plot_type='sunburst')),
-            ("score_violin_beeswarm", lambda: plot_score_violin_beeswarm(motifs))
-        ])
     
     for plot_name, plot_func in plots_to_generate:
         try:
@@ -940,13 +1114,25 @@ def save_all_plots(motifs: List[Dict[str, Any]],
             filepath = os.path.join(output_dir, filename)
             
             if hasattr(fig, 'savefig'):  # Matplotlib figure
-                fig.savefig(filepath, format=file_format, dpi=dpi, bbox_inches='tight')
+                # Publication-quality save options
+                fig.savefig(filepath, format=file_format, dpi=dpi, 
+                           bbox_inches='tight', pad_inches=0.05,
+                           facecolor='white', edgecolor='none')
                 plt.close(fig)
             else:  # Plotly figure
                 if file_format.lower() == 'png':
+                    fig.write_image(filepath, scale=2)  # Higher resolution
+                elif file_format.lower() in ('pdf', 'svg'):
                     fig.write_image(filepath)
                 elif file_format.lower() == 'html':
                     fig.write_html(filepath)
+                else:
+                    # Unsupported format - try default write_image
+                    print(f"⚠ Unsupported format '{file_format}' for Plotly, attempting save anyway")
+                    try:
+                        fig.write_image(filepath)
+                    except Exception as fmt_err:
+                        raise ValueError(f"Unsupported file format: {file_format}. Use 'png', 'pdf', 'svg', or 'html'.") from fmt_err
             
             saved_files[plot_name] = filepath
             print(f"✓ Saved {plot_name} to {filepath}")
