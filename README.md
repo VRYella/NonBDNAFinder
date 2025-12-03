@@ -76,11 +76,19 @@ NonBScanner/
 
 ## 📚 Documentation
 
-This README provides comprehensive documentation for using NonBScanner. The tool supports multiple interfaces:
-- Python API (see Quick Start below)
-- Web Interface (Streamlit app)
-- Jupyter Notebook (`NonBScanner_Local.ipynb`)
-- Shell Script (`generate_csv_output.sh`)
+This README provides a quick start guide for NonBScanner. For comprehensive documentation including:
+- **Flow diagrams** and architecture visualizations
+- **Complete parameter tables** for all API functions
+- **Pipeline flowcharts** showing analysis operations
+- **Performance benchmarks** and optimization tips
+
+See the full documentation: **[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
+
+Additional resources:
+- **[docs/perf_runbook.md](docs/perf_runbook.md)** - Performance optimization guide
+- **Python API** - See Quick Start below
+- **Web Interface** - Streamlit app (`app.py`)
+- **Jupyter Notebook** - `NonBScanner_Local.ipynb`
 
 ## 🚀 Quick Start
 
@@ -117,6 +125,20 @@ nbs.export_results(all_motifs, format='csv', filename='output.csv')
 detection_report = analyze_class_subclass_detection(all_motifs)
 report_text = print_detection_report(detection_report)
 print(report_text)
+```
+
+### Analysis with Progress Tracking
+```python
+import nonbscanner as nbs
+
+# Analyze with visual progress feedback
+motifs = nbs.analyze_with_progress(sequence, "my_sequence")
+
+# Get detailed progress information
+motifs, progress = nbs.analyze_with_progress(sequence, "my_sequence", 
+                                              return_progress=True)
+print(progress.format_detector_table())
+print(f"Throughput: {progress.get_throughput():,.0f} bp/s")
 ```
 
 ### Web Interface
