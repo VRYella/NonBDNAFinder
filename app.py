@@ -272,7 +272,7 @@ dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
 st.markdown(f"""
     <style>
     /* Import Google Fonts for professional scientific typography */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
     
     /* ============================================
        ENHANCED ANIMATIONS & KEYFRAMES
@@ -308,127 +308,148 @@ st.markdown(f"""
         to {{ opacity: 1; transform: translateX(0); }}
     }}
     
+    @keyframes gradient-shift {{
+        0% {{ background-position: 0% 50%; }}
+        50% {{ background-position: 100% 50%; }}
+        100% {{ background-position: 0% 50%; }}
+    }}
+    
     /* ============================================
-       SUBTLE BACKGROUND PATTERN WITH DNA MOTIF
+       ELEGANT BACKGROUND PATTERN WITH DNA MOTIF
        ============================================ */
     body, [data-testid="stAppViewContainer"], .main {{
         background: 
             {dna_pattern},
             linear-gradient(135deg, {current_theme['bg_light']} 0%, {'#1e293b' if is_dark_mode else '#e8f4fd'} 50%, {current_theme['bg_light']} 100%) !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+        font-family: 'Poppins', 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
         {'color: #e2e8f0 !important;' if is_dark_mode else ''}
     }}
     
     /* ============================================
-       TABS: Premium scientific design with animations
+       TABS: Modern elegant design with glass effect
        ============================================ */
     .stTabs [data-baseweb="tab-list"] {{
-        width: 98vw !important;
-        justify-content: stretch !important;
-        border-bottom: 3px solid {current_theme['primary']};
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(90deg, #ffffff 0%, {current_theme['bg_card']} 50%, #f8fbff 100%)"} !important;
-        box-shadow: 0 6px 16px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12);
-        margin-bottom: 1.5em;
-        border-radius: 12px 12px 0 0;
-        animation: fade-in 0.5s ease-out;
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        border-bottom: none !important;
+        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.85) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.9) 100%)"} !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        margin-bottom: 2em;
+        padding: 12px 16px !important;
+        border-radius: 20px !important;
+        animation: fade-in 0.6s ease-out;
     }}
+    
     .stTabs [data-baseweb="tab"] {{
-        font-size: 1.1rem !important;
+        font-size: 1.05rem !important;
         font-weight: 600 !important;
-        flex: 1 1 0%;
-        min-width: 0 !important;
-        padding: 16px 12px !important;
+        font-family: 'Poppins', 'Inter', sans-serif !important;
+        flex: 0 1 auto !important;
+        min-width: 120px !important;
+        padding: 14px 24px !important;
         text-align: center;
-        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
+        color: {'#94a3b8' if is_dark_mode else '#64748b'} !important;
         background: transparent !important;
-        border-right: 1px solid rgba({'255,255,255' if is_dark_mode else '0,0,0'},0.05) !important;
-        letter-spacing: 0.04em;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none !important;
+        border-radius: 14px !important;
+        letter-spacing: 0.02em;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        overflow: hidden;
     }}
-    .stTabs [data-baseweb="tab"]::after {{
+    
+    .stTabs [data-baseweb="tab"]::before {{
         content: '';
         position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0%;
-        height: 4px;
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(-50%);
-        border-radius: 4px 4px 0 0;
+        inset: 0;
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        border-radius: 14px;
+        z-index: -1;
     }}
+    
     .stTabs [data-baseweb="tab"]:hover {{
-        background: {'linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%)' if is_dark_mode else f"linear-gradient(180deg, rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.05) 0%, rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) 100%)"} !important;
         color: {current_theme['primary']} !important;
         transform: translateY(-2px);
+        background: {'rgba(255, 255, 255, 0.05)' if is_dark_mode else f"rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.08)"} !important;
     }}
-    .stTabs [data-baseweb="tab"]:hover::after {{
-        width: 60%;
-    }}
+    
     .stTabs [aria-selected="true"] {{
-        color: {current_theme['primary']} !important;
-        background: {'linear-gradient(180deg, #334155 0%, #1e293b 100%)' if is_dark_mode else f"linear-gradient(180deg, #ffffff 0%, {current_theme['bg_card']} 100%)"} !important;
-        box-shadow: 0 -4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15), inset 0 -3px 0 0 {current_theme['primary']};
+        color: white !important;
         font-weight: 700 !important;
         transform: translateY(-2px);
+        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        box-shadow: 0 6px 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35), 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.2) !important;
     }}
-    .stTabs [aria-selected="true"]::after {{
-        width: 100%;
-        height: 5px;
-    }}
-    .stTabs [data-baseweb="tab"]:last-child {{
-        border-right: none !important;
+    
+    .stTabs [aria-selected="true"]::before {{
+        opacity: 1;
     }}
     
     /* ============================================
-       HEADINGS: Enhanced typography with animations
+       HEADINGS: Modern typography with gradients
        ============================================ */
     h1, h2, h3, h4 {{
-        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        font-family: 'Poppins', 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
         color: {current_theme['primary']} !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.02em;
-        margin-top: 1.3em;
-        margin-bottom: 0.8em;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        font-weight: 700 !important;
+        letter-spacing: -0.01em;
+        margin-top: 1.2em;
+        margin-bottom: 0.7em;
         animation: fade-in 0.4s ease-out;
     }}
     h1 {{ 
-        font-size: 2.6rem !important; 
-        font-weight: 900 !important;
+        font-size: 2.8rem !important; 
+        font-weight: 800 !important;
         background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
+        background-size: 200% 200%;
+        animation: gradient-shift 4s ease infinite, fade-in 0.5s ease-out;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.02em;
     }}
     h2 {{ 
-        font-size: 1.8rem !important; 
+        font-size: 1.9rem !important; 
         color: {current_theme['primary']} !important; 
-        font-weight: 800 !important;
-        border-bottom: 3px solid {current_theme['bg_card']};
-        padding-bottom: 0.5rem;
+        font-weight: 700 !important;
+        border-bottom: none !important;
+        padding-bottom: 0.4rem;
+        position: relative;
+    }}
+    h2::after {{
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['accent']} 100%);
+        border-radius: 2px;
     }}
     h3 {{ 
-        font-size: 1.4rem !important; 
+        font-size: 1.5rem !important; 
         color: {current_theme['secondary']} !important; 
-        font-weight: 800 !important;
+        font-weight: 600 !important;
     }}
     h4 {{ 
-        font-size: 1.2rem !important; 
+        font-size: 1.25rem !important; 
         color: {current_theme['secondary']} !important; 
-        font-weight: 700 !important;
+        font-weight: 600 !important;
     }}
     
-    /* Body text: Scientific readability with optimal contrast */
+    /* Body text: Modern readability with elegant contrast */
     .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 1.05rem !important;
-        font-family: 'Source Sans Pro', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        line-height: 1.75 !important;
+        font-size: 1.02rem !important;
+        font-family: 'Poppins', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+        line-height: 1.7 !important;
         color: {current_theme['text']} !important;
-        margin-bottom: 0.75em !important;
-        font-weight: 500;
+        margin-bottom: 0.6em !important;
+        font-weight: 400;
     }}
     
     /* Input fields: Premium scientific design with elegant borders */
@@ -1199,7 +1220,6 @@ PAGES = {
     "Upload & Analyze": "Sequence Upload and Motif Analysis",
     "Results": "Analysis Results and Visualization",
     "Download": "Export Data",
-    "Disease Analysis": "Disease-Associated Non-B DNA",
     "Documentation": "Scientific Documentation & References"
 }
 
@@ -1438,9 +1458,10 @@ with tab_pages["Upload & Analyze"]:
                 "eGZ-motif": "CGG repeat region",
                 "AC-motif": "A-rich/C-rich consensus region"
             }
-            with st.expander("Motif Example Queries"):
+            with st.popover("📋 View Example Queries", use_container_width=True):
+                st.markdown("**Motif Example Queries:**")
                 for motif, example in motif_examples.items():
-                    st.write(f"**{motif}**: `{example}`")
+                    st.markdown(f"• **{motif}**: `{example}`")
             query = st.text_input("Enter query (accession, gene, etc.):")
             rettype = st.radio("Return Format", ["fasta", "gb"], horizontal=True)
             retmax = st.number_input("Max Records", min_value=1, max_value=20, value=3)
@@ -1496,15 +1517,25 @@ with tab_pages["Upload & Analyze"]:
             quality_check = st.checkbox("Quality Validation", value=True, 
                                       help="Validate detected motifs")
         
-        # Advanced options (collapsible)
-        with st.expander("Advanced Options"):
-            show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
-                                             help="Display detailed progress for each processing chunk (useful for large sequences)")
-            use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
-                                              help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
-            
-            if use_parallel_scanner:
-                st.info("ℹ️ Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
+        # Advanced options using toggle + container for cleaner UI
+        show_advanced = st.toggle("⚙️ Show Advanced Options", value=False, help="Toggle advanced analysis options")
+        
+        if show_advanced:
+            with st.container(border=True):
+                st.markdown("##### Advanced Configuration")
+                col_adv1, col_adv2 = st.columns(2)
+                with col_adv1:
+                    show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
+                                                     help="Display detailed progress for each processing chunk (useful for large sequences)")
+                with col_adv2:
+                    use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
+                                                      help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
+                
+                if use_parallel_scanner:
+                    st.info("ℹ️ Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
+        else:
+            show_chunk_progress = False
+            use_parallel_scanner = False
         
         # Hardcoded default overlap handling: always remove overlaps within subclasses
         nonoverlap = True
@@ -2573,416 +2604,6 @@ with tab_pages["Download"]:
                 'sequence_name': st.session_state.names[i],
                 'motifs': motifs
             })
-
-
-# ---------- DISEASE ANALYSIS ----------
-with tab_pages["Disease Analysis"]:
-    st.header("🧬 Disease-Associated Non-B DNA Analysis")
-    
-    st.markdown("""
-    <div style='background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
-                border-radius: 16px; padding: 2rem; margin-bottom: 2rem;
-                border-left: 5px solid #ff9800; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);'>
-        <h3 style='margin-top: 0; color: #e65100;'>🔬 Understanding Non-B DNA in Human Disease</h3>
-        <p style='color: #bf360c; font-size: 1.05rem; line-height: 1.8;'>
-            Non-B DNA structures play crucial roles in <b>genetic instability</b>, <b>gene regulation</b>, 
-            and <b>disease pathogenesis</b>. These alternative DNA conformations are associated with 
-            cancer, neurological disorders, and repeat expansion diseases.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Disease categories
-    disease_tabs = st.tabs(["📊 Overview", "🧠 Neurological Disorders", "🎗️ Cancer", "🔬 Repeat Expansion", "📚 References"])
-    
-    with disease_tabs[0]:  # Overview
-        st.subheader("Non-B DNA Structures and Disease Mechanisms")
-        
-        # Show input data analysis if available
-        if st.session_state.results:
-            st.markdown("### 📊 Your Sequence Analysis - Disease Risk Assessment")
-            
-            # Collect all motifs from input data
-            input_motifs = []
-            for i, motifs in enumerate(st.session_state.results):
-                for m in motifs:
-                    m_copy = m.copy()
-                    m_copy['Sequence_Name'] = st.session_state.names[i]
-                    input_motifs.append(m_copy)
-            
-            if input_motifs:
-                # Count disease-relevant motifs
-                disease_classes = ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA', 'R-Loop']
-                disease_counts = {cls: 0 for cls in disease_classes}
-                for m in input_motifs:
-                    cls = m.get('Class', 'Unknown')
-                    if cls in disease_counts:
-                        disease_counts[cls] += 1
-                
-                total_disease_relevant = sum(disease_counts.values())
-                
-                st.markdown(f"""
-                <div style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-                            border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                            border-left: 4px solid #4caf50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);'>
-                    <h4 style='margin-top: 0; color: #2e7d32;'>🧬 Your Sequence Contains {total_disease_relevant} Disease-Relevant Non-B DNA Motifs</h4>
-                    <p style='color: #1b5e20; margin-bottom: 0;'>
-                        These motifs are associated with genetic instability, repeat expansion disorders, and cancer.
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Display summary metrics
-                col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-                with col_m1:
-                    st.metric("G-Quadruplex", disease_counts.get('G-Quadruplex', 0), 
-                             help="Associated with Fragile X, ALS/FTD, Cancer")
-                with col_m2:
-                    st.metric("Slipped DNA", disease_counts.get('Slipped_DNA', 0),
-                             help="Associated with Huntington's, Myotonic Dystrophy")
-                with col_m3:
-                    st.metric("Cruciform", disease_counts.get('Cruciform', 0),
-                             help="Associated with chromosomal translocations")
-                with col_m4:
-                    st.metric("Triplex/Z-DNA", disease_counts.get('Triplex', 0) + disease_counts.get('Z-DNA', 0),
-                             help="Associated with Friedreich's Ataxia, autoimmune disorders")
-                
-                st.markdown("---")
-        else:
-            st.info("💡 **Tip**: Upload and analyze sequences in the 'Analysis' tab to see disease-relevant motifs from your data.")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            ### Key Disease Associations
-            
-            Non-B DNA structures are intimately linked to human diseases through several mechanisms:
-            
-            1. **Genetic Instability** - Alternative structures impede DNA replication and trigger error-prone repair
-            2. **Repeat Expansions** - G-rich sequences form G-quadruplexes leading to repeat instability
-            3. **Transcriptional Regulation** - Z-DNA and G4s affect gene expression in disease contexts
-            4. **Epigenetic Changes** - Non-B structures influence chromatin architecture and DNA methylation
-            
-            ### Therapeutic Implications
-            
-            These structures represent potential **therapeutic targets** for:
-            - **Cancer**: G4-stabilizing ligands can inhibit oncogene expression
-            - **Viral Infections**: Targeting viral G-quadruplexes for antiviral therapy
-            - **Neurodegeneration**: Modulating repeat expansion structures
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### Disease-Structure Correlation
-            
-            | Non-B DNA Type | Associated Diseases |
-            |----------------|---------------------|
-            | **G-Quadruplex** | Fragile X, ALS/FTD, Cancer |
-            | **Cruciform** | Chromosomal translocations |
-            | **Z-DNA** | Autoimmune disorders, Cancer |
-            | **Triplex** | Friedreich's Ataxia |
-            | **Slipped DNA** | Huntington's, Myotonic Dystrophy |
-            | **R-Loop** | Genome instability, Neurodegeneration |
-            
-            ### Key References
-            
-            - Zhao et al. (2010) *Cell. Mol. Life Sci.* - Genetic instability
-            - Sinden (1994) *DNA Structure and Function* - Foundational work
-            - Bacolla & Wells (2009) *Mol. Carcinog.* - Cancer associations
-            """)
-    
-    with disease_tabs[1]:  # Neurological Disorders
-        st.subheader("🧠 Neurological Disorders and Non-B DNA")
-        
-        st.markdown("""
-        <div style='background: #e8f5e9; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #4caf50;'>
-            <h4 style='color: #2e7d32; margin-top: 0;'>Repeat Expansion Neurological Diseases</h4>
-            <p style='color: #1b5e20;'>
-                Many neurological disorders are caused by <b>nucleotide repeat expansions</b> that form 
-                non-B DNA structures. These structures interfere with replication, transcription, and 
-                translation, leading to neurodegeneration.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Create a detailed disease table
-        neuro_diseases = pd.DataFrame({
-            'Disease': [
-                'Fragile X Syndrome (FXS)',
-                'Huntington\'s Disease (HD)',
-                'Myotonic Dystrophy Type 1 (DM1)',
-                'Friedreich\'s Ataxia (FRDA)',
-                'Spinocerebellar Ataxias (SCA)',
-                'ALS/FTD (C9orf72)',
-                'X-linked Dystonia Parkinsonism'
-            ],
-            'Gene': ['FMR1', 'HTT', 'DMPK', 'FXN', 'Various', 'C9orf72', 'TAF1'],
-            'Repeat': ['CGG', 'CAG', 'CTG', 'GAA', 'CAG/CTG', 'GGGGCC', 'SVA insertion'],
-            'Non-B Structure': [
-                'G-Quadruplex, Hairpin',
-                'Hairpin, Slipped DNA',
-                'Hairpin, Slipped DNA',
-                'Triplex (H-DNA)',
-                'Hairpin, Slipped DNA',
-                'G-Quadruplex, R-loop',
-                'G-Quadruplex'
-            ],
-            'Pathogenic Threshold': [
-                '>200 repeats',
-                '>36 repeats',
-                '>50 repeats',
-                '>66 repeats',
-                'Varies by SCA type',
-                '>30 repeats',
-                'SVA expansion'
-            ],
-            'Mechanism': [
-                'Gene silencing via methylation',
-                'Toxic polyglutamine protein',
-                'RNA toxicity, splicing defects',
-                'Transcription blockage',
-                'Protein aggregation',
-                'RNA foci, dipeptide repeats',
-                'Aberrant gene expression'
-            ]
-        })
-        
-        st.dataframe(neuro_diseases, use_container_width=True, height=300)
-        
-        st.markdown("""
-        ### Key Molecular Mechanisms
-        
-        1. **G-Quadruplex Formation in FXS**: CGG repeats in FMR1 form stable G4 structures, 
-           leading to gene silencing through DNA methylation and heterochromatin formation.
-           
-        2. **RNA Toxicity in ALS/FTD**: GGGGCC repeats in C9orf72 form G-quadruplexes in both 
-           DNA and RNA, creating toxic RNA foci that sequester RNA-binding proteins.
-           
-        3. **Triplex Formation in FRDA**: GAA repeats form intramolecular triplex (H-DNA) 
-           structures that block transcription elongation.
-        
-        ### Clinical Relevance
-        
-        - **Diagnostic Markers**: Repeat length testing is used for diagnosis
-        - **Therapeutic Targets**: G4-stabilizing/destabilizing agents under investigation
-        - **Gene Therapy**: Approaches targeting expanded repeats in development
-        """)
-    
-    with disease_tabs[2]:  # Cancer
-        st.subheader("🎗️ Cancer and Non-B DNA Structures")
-        
-        st.markdown("""
-        <div style='background: #fce4ec; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #e91e63;'>
-            <h4 style='color: #c2185b; margin-top: 0;'>Genomic Instability in Cancer</h4>
-            <p style='color: #880e4f;'>
-                Non-B DNA structures are enriched at <b>chromosomal breakpoints</b> and 
-                <b>mutation hotspots</b> in cancer genomes. They contribute to genomic instability 
-                through replication fork stalling, double-strand breaks, and error-prone repair.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            ### G-Quadruplexes in Oncogenes
-            
-            G4 structures are found in promoter regions of many oncogenes:
-            
-            | Gene | Cancer Type | G4 Function |
-            |------|-------------|-------------|
-            | **MYC** | Multiple cancers | Transcription repression |
-            | **KRAS** | Pancreatic, Colorectal | Expression regulation |
-            | **BCL2** | Lymphoma | Apoptosis regulation |
-            | **VEGF** | Solid tumors | Angiogenesis control |
-            | **hTERT** | Multiple cancers | Telomerase regulation |
-            
-            ### Therapeutic Targeting
-            
-            - **G4 Ligands**: Small molecules that stabilize G4s to downregulate oncogenes
-            - **PARP Inhibitors**: Target non-B DNA-associated DNA damage repair
-            - **Topoisomerase Inhibitors**: Exploit non-B DNA regions
-            """)
-        
-        with col2:
-            st.markdown("""
-            ### Chromosomal Translocation Hotspots
-            
-            Non-B DNA structures mark translocation breakpoints:
-            
-            - **BCL2-IGH**: t(14;18) in follicular lymphoma
-            - **MYC-IGH**: t(8;14) in Burkitt lymphoma
-            - **BCR-ABL**: t(9;22) Philadelphia chromosome
-            
-            ### Mechanisms of Instability
-            
-            1. **Replication Fork Stalling**: Non-B structures block polymerase progression
-            2. **Double-Strand Breaks**: Structure-induced breaks lead to translocations
-            3. **Error-Prone Repair**: Unusual structures processed by error-prone pathways
-            4. **Chromatin Accessibility**: Z-DNA and G4s affect epigenetic regulation
-            
-            ### Biomarker Potential
-            
-            Non-B DNA density may serve as a biomarker for:
-            - Genomic instability assessment
-            - Cancer susceptibility regions
-            - Drug response prediction
-            """)
-    
-    with disease_tabs[3]:  # Repeat Expansion
-        st.subheader("🔬 Repeat Expansion Disorders")
-        
-        st.markdown("""
-        <div style='background: #e3f2fd; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-                    border-left: 4px solid #2196f3;'>
-            <h4 style='color: #1565c0; margin-top: 0;'>Molecular Basis of Repeat Expansion</h4>
-            <p style='color: #0d47a1;'>
-                Repeat expansion disorders result from unstable DNA repeats that grow larger across 
-                generations. The propensity to form non-B DNA structures (hairpins, G4s, triplexes) 
-                is central to repeat instability and disease progression.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        ### Types of Pathogenic Repeats
-        
-        | Repeat Type | Structure Formed | Example Diseases |
-        |-------------|------------------|------------------|
-        | **CAG/CTG** | Hairpins, Slipped DNA | Huntington's, DM1, SCAs |
-        | **CGG/CCG** | G-Quadruplex, Hairpins | Fragile X, FXTAS |
-        | **GAA/TTC** | Triplex (H-DNA) | Friedreich's Ataxia |
-        | **GGGGCC** | G-Quadruplex, R-loops | ALS/FTD |
-        | **ATTCT** | Unusual structures | SCA10 |
-        | **CCTG** | Hairpins | DM2 |
-        
-        ### Instability Mechanisms
-        
-        1. **Replication Slippage**: DNA polymerase slips on repetitive sequences
-        2. **Structure-Induced Breaks**: Non-B DNA triggers repair-associated expansion
-        3. **Transcription-Coupled Instability**: R-loops and G4s during transcription
-        4. **Mismatch Repair Involvement**: MSH2/MSH3 recognize and process repeat structures
-        
-        ### Therapeutic Approaches
-        
-        - **Antisense Oligonucleotides (ASOs)**: Target expanded repeat RNAs
-        - **Small Molecules**: Bind and stabilize/destabilize specific structures
-        - **CRISPR-Based Editing**: Excise expanded repeats
-        - **Gene Therapy**: Replace or silence affected genes
-        """)
-        
-        # Interactive element: Show detected motifs that may be disease-relevant
-        if st.session_state.results:
-            st.markdown("### 🔍 Disease-Relevant Motifs in Your Sequences")
-            
-            all_motifs = []
-            for i, motifs in enumerate(st.session_state.results):
-                for m in motifs:
-                    m['Sequence_Name'] = st.session_state.names[i]
-                    all_motifs.append(m)
-            
-            if all_motifs:
-                # Filter for disease-relevant motif types
-                disease_relevant = [m for m in all_motifs if m.get('Class') in 
-                                   ['G-Quadruplex', 'Slipped_DNA', 'Cruciform', 'Triplex', 'Z-DNA']]
-                
-                if disease_relevant:
-                    st.success(f"Found {len(disease_relevant)} potentially disease-relevant motifs in your sequences")
-                    
-                    # Group by class
-                    class_counts = Counter([m.get('Class', 'Unknown') for m in disease_relevant])
-                    
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("G-Quadruplex", class_counts.get('G-Quadruplex', 0), 
-                                 help="Associated with Fragile X, ALS/FTD, Cancer")
-                    with col2:
-                        st.metric("Slipped DNA", class_counts.get('Slipped_DNA', 0),
-                                 help="Associated with Huntington's, Myotonic Dystrophy")
-                    with col3:
-                        st.metric("Cruciform", class_counts.get('Cruciform', 0),
-                                 help="Associated with chromosomal translocations")
-                    
-                    # Display table of disease-relevant motifs
-                    dr_df = pd.DataFrame(disease_relevant)
-                    display_cols = ['Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
-                    available_cols = [c for c in display_cols if c in dr_df.columns]
-                    st.dataframe(dr_df[available_cols].head(20), use_container_width=True)
-                else:
-                    st.info("No disease-relevant Non-B DNA motifs found in your sequences.")
-            else:
-                st.info("Run analysis first to see disease-relevant motifs in your sequences.")
-        else:
-            st.info("Upload and analyze sequences to identify disease-relevant Non-B DNA motifs.")
-    
-    with disease_tabs[4]:  # References
-        st.subheader("📚 Key References and Literature")
-        
-        st.markdown("""
-        ### Foundational Reviews
-        
-        1. **Zhao J, Bacolla A, Wang G, Vasquez KM** (2010). Non-B DNA structure-induced genetic 
-           instability and evolution. *Cellular and Molecular Life Sciences*, 67(1), 43-62.
-           [DOI: 10.1007/s00018-009-0131-2](https://doi.org/10.1007/s00018-009-0131-2)
-        
-        2. **Khristich AN, Mirkin SM** (2020). On the wrong DNA track: Molecular mechanisms of 
-           repeat-mediated genome instability. *Journal of Biological Chemistry*, 295(13), 4134-4170.
-           [DOI: 10.1074/jbc.REV119.007678](https://doi.org/10.1074/jbc.REV119.007678)
-        
-        3. **Spiegel J, Adhikari S, Balasubramanian S** (2020). The Structure and Function of 
-           DNA G-Quadruplexes. *Trends in Chemistry*, 2(2), 123-136.
-           [DOI: 10.1016/j.trechm.2019.07.002](https://doi.org/10.1016/j.trechm.2019.07.002)
-        
-        ### Neurological Disorders
-        
-        4. **Paulson H** (2018). Repeat expansion diseases. *Handbook of Clinical Neurology*, 
-           147, 105-123. [DOI: 10.1016/B978-0-444-63233-3.00009-9](https://doi.org/10.1016/B978-0-444-63233-3.00009-9)
-        
-        5. **Malik I, Kelley CP, Wang ET, Todd PK** (2021). Molecular mechanisms underlying 
-           nucleotide repeat expansion disorders. *Nature Reviews Molecular Cell Biology*, 22(9), 589-607.
-           [DOI: 10.1038/s41580-021-00382-6](https://doi.org/10.1038/s41580-021-00382-6)
-        
-        6. **Sznajder ŁJ, Swanson MS** (2019). Short Tandem Repeat Expansions and RNA-Mediated 
-           Pathogenesis in Myotonic Dystrophy. *International Journal of Molecular Sciences*, 20(13), 3365.
-           [DOI: 10.3390/ijms20133365](https://doi.org/10.3390/ijms20133365)
-        
-        ### Cancer and Genomic Instability
-        
-        7. **Bacolla A, Tainer JA, Vasquez KM, Cooper DN** (2016). Translocation and deletion 
-           breakpoints in cancer genomes are associated with potential non-B DNA-forming sequences. 
-           *Nucleic Acids Research*, 44(12), 5673-5688.
-           [DOI: 10.1093/nar/gkw261](https://doi.org/10.1093/nar/gkw261)
-        
-        8. **Hänsel-Hertsch R, Di Antonio M, Balasubramanian S** (2017). DNA G-quadruplexes in 
-           the human genome: detection, functions and therapeutic potential. *Nature Reviews 
-           Molecular Cell Biology*, 18(5), 279-284.
-           [DOI: 10.1038/nrm.2017.3](https://doi.org/10.1038/nrm.2017.3)
-        
-        ### Therapeutic Targeting
-        
-        9. **Neidle S** (2017). Quadruplex Nucleic Acids as Targets for Anticancer Therapeutics. 
-           *Nature Reviews Chemistry*, 1, 0041.
-           [DOI: 10.1038/s41570-017-0041](https://doi.org/10.1038/s41570-017-0041)
-        
-        10. **Ruggiero E, Richter SN** (2018). G-quadruplexes and G-quadruplex ligands: targets 
-            and tools in antiviral therapy. *Nucleic Acids Research*, 46(7), 3270-3283.
-            [DOI: 10.1093/nar/gky187](https://doi.org/10.1093/nar/gky187)
-        
-        ### Databases and Resources
-        
-        - **Non-B DB v2.0**: Database of predicted non-B DNA-forming motifs 
-          [https://nonb-abcc.ncifcrf.gov/](https://nonb-abcc.ncifcrf.gov/)
-        
-        - **G4-seq Database**: Experimental G-quadruplex sequencing data
-          [https://www.ebi.ac.uk/](https://www.ebi.ac.uk/)
-        
-        - **RepeatMasker**: Repeat annotation and detection
-          [https://www.repeatmasker.org/](https://www.repeatmasker.org/)
-        """)
 
 
 # ---------- DOCUMENTATION ----------
