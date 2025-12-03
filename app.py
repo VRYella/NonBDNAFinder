@@ -1190,6 +1190,12 @@ st.markdown(f"""
         text-align: center;
     }}
     
+    .progress-panel__title--large {{
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }}
+    
     .progress-panel__status {{
         margin: 0 0 1rem 0;
         text-align: center;
@@ -2188,7 +2194,7 @@ with tab_pages["Results"]:
             # Enhanced summary card with modern research-quality styling
             st.markdown(f"""
             <div class='progress-panel progress-panel--results'>
-                <h3 class='progress-panel__title' style='font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;'>
+                <h3 class='progress-panel__title progress-panel__title--large'>
                     🧬 NBDScanner Analysis Results
                 </h3>
                 <div class='stats-grid stats-grid--extra-wide'>
@@ -2447,7 +2453,7 @@ with tab_pages["Results"]:
                     # Summary metrics with detailed breakdown
                     st.markdown(f"""
                     <div class='progress-panel progress-panel--hybrid'>
-                        <h3 class='progress-panel__title' style='font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem;'>
+                        <h3 class='progress-panel__title progress-panel__title--large'>
                             🔗 Hybrid & Cluster Motif Summary
                         </h3>
                         <div class='stats-grid stats-grid--extra-wide'>
