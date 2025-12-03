@@ -67,8 +67,11 @@ import os
 import re
 import math
 import warnings
-from typing import List, Dict, Any, Optional, Union, Tuple
+import time
+import threading
+from typing import List, Dict, Any, Optional, Union, Tuple, Callable
 from collections import defaultdict, Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
 warnings.filterwarnings("ignore")
@@ -121,9 +124,6 @@ DEFAULT_CHUNK_OVERLAP = 500  # 500 bp
 # =============================================================================
 # DETECTOR TIMING TRACKING
 # =============================================================================
-
-import time
-import threading
 
 # Module-level storage for detector timings (thread-local for safety)
 _DETECTOR_TIMINGS = {}
@@ -246,7 +246,7 @@ class NonBScanner:
             }
     
     def analyze_sequence(self, sequence: str, sequence_name: str = "sequence",
-                        detector_callback: Optional[callable] = None) -> List[Dict[str, Any]]:
+                        detector_callback: Optional[Callable[[str, int, int, float], None]] = None) -> List[Dict[str, Any]]:
         """
         Detect all Non-B DNA motifs in a sequence with high performance.
         
@@ -590,7 +590,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
                     use_chunking: bool = None,
                     chunk_size: int = None,
                     chunk_overlap: int = None,
-                    progress_callback: callable = None,
+                    progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None,
                     use_parallel_chunks: bool = True) -> List[Dict[str, Any]]:
     """
     Analyze a single DNA sequence for all Non-B DNA motifs (high-performance API).
@@ -698,7 +698,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
 
 def _analyze_sequence_chunked(sequence: str, sequence_name: str,
                                chunk_size: int, chunk_overlap: int,
-                               progress_callback: callable = None,
+                               progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None,
                                use_parallel_chunks: bool = True) -> List[Dict[str, Any]]:
     """
     Analyze a large sequence by processing it in chunks.
@@ -739,9 +739,6 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
     # Process chunks (parallel or sequential)
     if use_parallel_chunks and total_chunks > 1:
         # Parallel chunk processing using ThreadPoolExecutor
-        from concurrent.futures import ThreadPoolExecutor, as_completed
-        import os
-        
         max_workers = min(total_chunks, os.cpu_count() or 4)
         
         def process_chunk(chunk_info):
