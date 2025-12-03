@@ -143,6 +143,296 @@ DETECTOR_DISPLAY_NAMES = {
 }
 
 
+# =============================================================================
+# ANALYSIS PROGRESS TRACKING
+# =============================================================================
+
+class AnalysisProgress:
+    """
+    Enhanced progress tracking for Non-B DNA analysis.
+    
+    Provides real-time progress updates with visual indicators,
+    timing information, and stage-by-stage tracking.
+    
+    Pipeline Stages:
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  Stage 1: INPUT       → Parse and validate input sequences             │
+    │  Stage 2: DETECTION   → Run 9 specialized motif detectors              │
+    │  Stage 3: PROCESSING  → Overlap removal, hybrid/cluster detection      │
+    │  Stage 4: OUTPUT      → Score normalization and result formatting      │
+    └─────────────────────────────────────────────────────────────────────────┘
+    
+    Example:
+        >>> progress = AnalysisProgress(sequence_length=10000)
+        >>> progress.start_stage('DETECTION')
+        >>> progress.update_detector('curved_dna', completed=True, motifs=5, elapsed=0.12)
+        >>> progress.get_summary()
+    """
+    
+    # Pipeline stages with descriptions
+    STAGES = {
+        'INPUT': {
+            'name': 'Input Parsing',
+            'description': 'Parse FASTA and validate sequences',
+            'icon': '📥'
+        },
+        'DETECTION': {
+            'name': 'Motif Detection',
+            'description': 'Run 9 specialized detectors',
+            'icon': '🔍'
+        },
+        'PROCESSING': {
+            'name': 'Post-Processing',
+            'description': 'Overlap removal, hybrid/cluster detection',
+            'icon': '⚙️'
+        },
+        'OUTPUT': {
+            'name': 'Output Generation',
+            'description': 'Score normalization and formatting',
+            'icon': '📤'
+        }
+    }
+    
+    def __init__(self, sequence_length: int = 0, sequence_name: str = "sequence"):
+        """
+        Initialize progress tracker.
+        
+        Args:
+            sequence_length: Length of sequence being analyzed
+            sequence_name: Name/identifier of the sequence
+        """
+        self.sequence_length = sequence_length
+        self.sequence_name = sequence_name
+        self.start_time = time.time()
+        self.current_stage = None
+        self.stage_times = {}
+        
+        # Detector tracking
+        self.detector_status = {}
+        for name in DETECTOR_DISPLAY_NAMES:
+            self.detector_status[name] = {
+                'status': 'pending',  # pending, running, complete, error
+                'elapsed': 0.0,
+                'motifs': 0,
+                'speed': 0.0
+            }
+        
+        # Overall statistics
+        self.total_motifs = 0
+        self.total_bp_processed = 0
+        self.errors = []
+    
+    def start_stage(self, stage: str) -> None:
+        """Start a new pipeline stage."""
+        if stage in self.STAGES:
+            self.current_stage = stage
+            self.stage_times[stage] = {'start': time.time(), 'end': None}
+    
+    def end_stage(self, stage: str) -> None:
+        """End a pipeline stage."""
+        if stage in self.stage_times:
+            self.stage_times[stage]['end'] = time.time()
+    
+    def update_detector(self, detector_name: str, completed: bool = False, 
+                       motifs: int = 0, elapsed: float = 0.0, 
+                       error: Optional[str] = None) -> None:
+        """
+        Update detector status.
+        
+        Args:
+            detector_name: Internal detector name (e.g., 'curved_dna')
+            completed: Whether detector has finished
+            motifs: Number of motifs found
+            elapsed: Time elapsed in seconds
+            error: Error message if detector failed
+        """
+        if detector_name in self.detector_status:
+            if error:
+                self.detector_status[detector_name]['status'] = 'error'
+                self.errors.append(f"{detector_name}: {error}")
+            elif completed:
+                self.detector_status[detector_name]['status'] = 'complete'
+                self.detector_status[detector_name]['elapsed'] = elapsed
+                self.detector_status[detector_name]['motifs'] = motifs
+                if elapsed > 0:
+                    self.detector_status[detector_name]['speed'] = self.sequence_length / elapsed
+                self.total_motifs += motifs
+            else:
+                self.detector_status[detector_name]['status'] = 'running'
+    
+    def get_progress_percentage(self) -> float:
+        """Get overall progress as percentage (0-100)."""
+        completed = sum(1 for d in self.detector_status.values() 
+                       if d['status'] in ('complete', 'error'))
+        return (completed / len(self.detector_status)) * 100
+    
+    def get_elapsed_time(self) -> float:
+        """Get total elapsed time in seconds."""
+        return time.time() - self.start_time
+    
+    def get_throughput(self) -> float:
+        """Get current processing throughput in bp/s."""
+        elapsed = self.get_elapsed_time()
+        if elapsed > 0:
+            return self.sequence_length / elapsed
+        return 0.0
+    
+    def get_summary(self) -> Dict[str, Any]:
+        """
+        Get comprehensive progress summary.
+        
+        Returns:
+            Dictionary with progress information including:
+            - percentage: Overall completion percentage
+            - elapsed: Total elapsed time
+            - throughput: Processing speed in bp/s
+            - detectors: Status of each detector
+            - stages: Status of each pipeline stage
+            - motifs: Total motifs found
+        """
+        return {
+            'sequence_name': self.sequence_name,
+            'sequence_length': self.sequence_length,
+            'percentage': self.get_progress_percentage(),
+            'elapsed': self.get_elapsed_time(),
+            'throughput': self.get_throughput(),
+            'current_stage': self.current_stage,
+            'detectors': self.detector_status.copy(),
+            'total_motifs': self.total_motifs,
+            'errors': self.errors.copy()
+        }
+    
+    def format_progress_bar(self, width: int = 50) -> str:
+        """
+        Generate ASCII progress bar.
+        
+        Args:
+            width: Width of progress bar in characters
+            
+        Returns:
+            Formatted progress bar string
+        """
+        pct = self.get_progress_percentage()
+        filled = int((pct / 100) * width)
+        bar = '█' * filled + '░' * (width - filled)
+        return f"[{bar}] {pct:.1f}%"
+    
+    def format_detector_table(self) -> str:
+        """
+        Generate formatted table of detector status.
+        
+        Returns:
+            ASCII table showing detector progress
+        """
+        lines = []
+        lines.append("┌─────────────────┬───────────┬─────────┬────────┬─────────────┐")
+        lines.append("│ Detector        │ Status    │ Time    │ Motifs │ Speed (bp/s)│")
+        lines.append("├─────────────────┼───────────┼─────────┼────────┼─────────────┤")
+        
+        for name, display_name in DETECTOR_DISPLAY_NAMES.items():
+            status = self.detector_status[name]
+            
+            # Status icon
+            if status['status'] == 'complete':
+                icon = '✓'
+                status_text = 'Complete'
+            elif status['status'] == 'running':
+                icon = '►'
+                status_text = 'Running'
+            elif status['status'] == 'error':
+                icon = '✗'
+                status_text = 'Error'
+            else:
+                icon = '○'
+                status_text = 'Pending'
+            
+            # Format values
+            time_str = f"{status['elapsed']:.3f}s" if status['elapsed'] > 0 else '-'
+            motifs_str = str(status['motifs']) if status['status'] == 'complete' else '-'
+            speed_str = f"{status['speed']:,.0f}" if status['speed'] > 0 else '-'
+            
+            lines.append(f"│ {icon} {display_name:<14}│ {status_text:<9} │ {time_str:>7} │ {motifs_str:>6} │ {speed_str:>11} │")
+        
+        lines.append("└─────────────────┴───────────┴─────────┴────────┴─────────────┘")
+        return '\n'.join(lines)
+    
+    def format_pipeline_status(self) -> str:
+        """
+        Generate pipeline stage visualization.
+        
+        Returns:
+            ASCII visualization of pipeline stages
+        """
+        lines = []
+        lines.append("Pipeline Status:")
+        lines.append("════════════════")
+        
+        for stage_id, stage_info in self.STAGES.items():
+            if stage_id in self.stage_times:
+                if self.stage_times[stage_id]['end']:
+                    elapsed = self.stage_times[stage_id]['end'] - self.stage_times[stage_id]['start']
+                    status = f"✓ Complete ({elapsed:.2f}s)"
+                else:
+                    status = "► Running..."
+            elif self.current_stage == stage_id:
+                status = "► Running..."
+            else:
+                status = "○ Pending"
+            
+            lines.append(f"  {stage_info['icon']} {stage_info['name']}: {status}")
+        
+        return '\n'.join(lines)
+
+
+def create_progress_callback(progress: AnalysisProgress) -> Callable:
+    """
+    Create a detector callback that updates an AnalysisProgress instance.
+    
+    Args:
+        progress: AnalysisProgress instance to update
+        
+    Returns:
+        Callback function compatible with NonBScanner.analyze_sequence()
+    """
+    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int = 0):
+        progress.update_detector(detector_name, completed=True, 
+                                motifs=motif_count, elapsed=elapsed)
+    return callback
+
+
+def create_enhanced_progress_callback(
+    progress: AnalysisProgress,
+    print_updates: bool = False,
+    on_detector_complete: Optional[Callable] = None
+) -> Callable:
+    """
+    Create an enhanced detector callback with optional console output.
+    
+    Args:
+        progress: AnalysisProgress instance to update
+        print_updates: Whether to print progress to console
+        on_detector_complete: Optional callback for detector completion
+        
+    Returns:
+        Callback function compatible with NonBScanner.analyze_sequence()
+    """
+    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int = 0):
+        progress.update_detector(detector_name, completed=True, 
+                                motifs=motif_count, elapsed=elapsed)
+        
+        if print_updates:
+            display_name = DETECTOR_DISPLAY_NAMES.get(detector_name, detector_name)
+            pct = (completed / total) * 100
+            print(f"\r  {progress.format_progress_bar(40)} | {display_name}: {elapsed:.3f}s ({motif_count} motifs)", end='')
+            if completed == total:
+                print()  # Newline after final detector
+        
+        if on_detector_complete:
+            on_detector_complete(detector_name, completed, total, elapsed, motif_count)
+    
+    return callback
+
+
 def get_last_detector_timings() -> Dict[str, float]:
     """
     Get timing information from the last sequence analysis.
@@ -246,17 +536,22 @@ class NonBScanner:
             }
     
     def analyze_sequence(self, sequence: str, sequence_name: str = "sequence",
-                        detector_callback: Optional[Callable[[str, int, int, float], None]] = None) -> List[Dict[str, Any]]:
+                        detector_callback: Optional[Callable[[str, int, int, float, int], None]] = None) -> List[Dict[str, Any]]:
         """
         Detect all Non-B DNA motifs in a sequence with high performance.
         
-        # Analysis Process:
-        # | Step | Action                                    | Performance  |
-        # |------|-------------------------------------------|--------------|
-        # | 1    | Validate sequence (ACGT check)            | O(n)         |
-        # | 2    | Run 9 specialized detectors in parallel   | O(n) each    |
-        # | 3    | Merge results                             | O(m log m)   |
-        # | 4    | Sort by position                          | O(m log m)   |
+        # Analysis Pipeline - Sequence of Operations:
+        # ┌──────────────────────────────────────────────────────────────────────┐
+        # │ Step │ Operation                     │ Complexity │ Description      │
+        # ├──────┼───────────────────────────────┼────────────┼──────────────────┤
+        # │  1   │ Sequence Validation           │ O(n)       │ ACGT check       │
+        # │  2   │ Detector Loop (9 detectors)   │ O(n) each  │ Motif detection  │
+        # │  3   │ Overlap Removal               │ O(m log m) │ Deduplicate      │
+        # │  4   │ Hybrid Detection              │ O(m²)      │ Multi-class      │
+        # │  5   │ Cluster Detection             │ O(m)       │ High-density     │
+        # │  6   │ Score Normalization           │ O(m)       │ 1-3 scale        │
+        # │  7   │ Position Sorting              │ O(m log m) │ Final ordering   │
+        # └──────┴───────────────────────────────┴────────────┴──────────────────┘
         
         # Output Motif Fields:
         # | Field         | Type  | Description                       |
@@ -269,15 +564,20 @@ class NonBScanner:
         # | End           | int   | End position (inclusive)          |
         # | Length        | int   | Motif length in bp                |
         # | Sequence      | str   | Actual DNA sequence               |
-        # | Score         | float | Detection confidence (0-1)        |
+        # | Score         | float | Detection confidence (1-3 scale)  |
         # | Strand        | str   | '+' or '-'                        |
         # | Method        | str   | Detection method used             |
         
         Args:
             sequence: DNA sequence to analyze (ATGC characters)
             sequence_name: Identifier for the sequence
-            detector_callback: Optional callback function called after each detector completes.
-                              Signature: callback(detector_name, completed, total, elapsed_time)
+            detector_callback: Optional callback function called after each detector.
+                              Signature: callback(detector_name, completed, total, elapsed, motif_count)
+                              - detector_name: Internal detector name (e.g., 'curved_dna')
+                              - completed: Number of detectors completed (1 to 9)
+                              - total: Total number of detectors (9)
+                              - elapsed: Time for this detector in seconds
+                              - motif_count: Number of motifs found by this detector
             
         Returns:
             List of motif dictionaries sorted by genomic position
@@ -289,10 +589,14 @@ class NonBScanner:
             
         Example:
             >>> scanner = NonBScanner()
-            >>> motifs = scanner.analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test")
+            >>> 
+            >>> # With progress tracking
+            >>> def on_detector(name, done, total, elapsed, motifs):
+            ...     print(f"{name}: {motifs} motifs in {elapsed:.3f}s ({done}/{total})")
+            >>> 
+            >>> motifs = scanner.analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test", 
+            ...                                   detector_callback=on_detector)
             >>> print(f"Found {len(motifs)} motifs")
-            >>> for m in motifs:
-            ...     print(f"{m['Class']} at {m['Start']}-{m['End']}")
         """
         sequence = sequence.upper().strip()
         
@@ -313,18 +617,22 @@ class NonBScanner:
                 start_time = time.time()
                 motifs = detector.detect_motifs(sequence, sequence_name)
                 elapsed = time.time() - start_time
+                motif_count = len(motifs)
                 
                 # Track timing
                 _update_detector_timing(detector_name, elapsed)
                 
                 all_motifs.extend(motifs)
                 
-                # Call callback if provided
+                # Call callback if provided (with motif count)
                 if detector_callback is not None:
-                    detector_callback(detector_name, idx + 1, total_detectors, elapsed)
+                    detector_callback(detector_name, idx + 1, total_detectors, elapsed, motif_count)
                     
             except Exception as e:
                 warnings.warn(f"Error in {detector_name} detector: {e}")
+                # Call callback with error (0 motifs)
+                if detector_callback is not None:
+                    detector_callback(detector_name, idx + 1, total_detectors, 0.0, 0)
                 continue
         
         # Remove overlaps within same class
@@ -974,6 +1282,171 @@ def export_results(motifs: List[Dict[str, Any]], format: str = 'csv',
         return export_to_excel(motifs, filename)
     else:
         raise ValueError(f"Unsupported format: {format}. Use 'csv', 'bed', 'json', or 'excel'")
+
+
+def analyze_with_progress(sequence: str, sequence_name: str = "sequence",
+                         print_progress: bool = True,
+                         return_progress: bool = False) -> Union[List[Dict[str, Any]], Tuple[List[Dict[str, Any]], AnalysisProgress]]:
+    """
+    Analyze a DNA sequence with enhanced progress tracking and visual feedback.
+    
+    This is a convenience function that wraps analyze_sequence with full
+    progress tracking using the AnalysisProgress class.
+    
+    # Analysis Pipeline Visualization:
+    # ┌──────────────────────────────────────────────────────────────────────────┐
+    # │                      NON-B DNA ANALYSIS PIPELINE                         │
+    # ├──────────────────────────────────────────────────────────────────────────┤
+    # │                                                                          │
+    # │  📥 INPUT                                                                │
+    # │    └─► Parse sequence, validate ATGC characters                          │
+    # │                          │                                               │
+    # │                          ▼                                               │
+    # │  🔍 DETECTION (9 parallel detectors)                                     │
+    # │    ├─► Curved DNA     ├─► Slipped DNA   ├─► Cruciform                    │
+    # │    ├─► R-Loop         ├─► Triplex       ├─► G-Quadruplex                 │
+    # │    ├─► i-Motif        ├─► Z-DNA         └─► A-philic DNA                 │
+    # │                          │                                               │
+    # │                          ▼                                               │
+    # │  ⚙️ POST-PROCESSING                                                      │
+    # │    ├─► Remove overlapping motifs                                         │
+    # │    ├─► Detect hybrid regions (multi-class overlap)                       │
+    # │    └─► Detect clusters (high-density regions)                            │
+    # │                          │                                               │
+    # │                          ▼                                               │
+    # │  📤 OUTPUT                                                               │
+    # │    ├─► Normalize scores (1-3 scale)                                      │
+    # │    └─► Sort by genomic position                                          │
+    # │                                                                          │
+    # └──────────────────────────────────────────────────────────────────────────┘
+    
+    Args:
+        sequence: DNA sequence to analyze (ATGC characters)
+        sequence_name: Identifier for the sequence
+        print_progress: Whether to print progress to console (default: True)
+        return_progress: Whether to also return the AnalysisProgress object
+        
+    Returns:
+        If return_progress=False: List of motif dictionaries
+        If return_progress=True: Tuple of (motifs, AnalysisProgress)
+        
+    Example:
+        >>> import nonbscanner as nbs
+        >>> 
+        >>> # Simple usage with console output
+        >>> motifs = nbs.analyze_with_progress("GGGTTAGGGTTAGGGTTAGGG", "test")
+        >>> 
+        >>> # Get progress object for detailed analysis
+        >>> motifs, progress = nbs.analyze_with_progress(sequence, "seq1", 
+        ...                                               return_progress=True)
+        >>> print(progress.format_detector_table())
+        >>> print(f"Total time: {progress.get_elapsed_time():.2f}s")
+    """
+    # Initialize progress tracker
+    progress = AnalysisProgress(
+        sequence_length=len(sequence),
+        sequence_name=sequence_name
+    )
+    
+    if print_progress:
+        print(f"\n{'='*70}")
+        print(f"NonBScanner - Non-B DNA Motif Detection")
+        print(f"{'='*70}")
+        print(f"Sequence: {sequence_name} ({len(sequence):,} bp)")
+        print(f"\nAnalysis Progress:")
+    
+    # Create callback
+    callback = create_enhanced_progress_callback(
+        progress, 
+        print_updates=print_progress
+    )
+    
+    # Run analysis
+    progress.start_stage('DETECTION')
+    scanner = _get_cached_scanner()
+    motifs = scanner.analyze_sequence(sequence, sequence_name, detector_callback=callback)
+    progress.end_stage('DETECTION')
+    
+    if print_progress:
+        print(f"\n{progress.format_detector_table()}")
+        print(f"\nSummary:")
+        print(f"  Total motifs: {len(motifs)}")
+        print(f"  Elapsed time: {progress.get_elapsed_time():.2f}s")
+        print(f"  Throughput: {progress.get_throughput():,.0f} bp/s")
+        print(f"{'='*70}\n")
+    
+    if return_progress:
+        return motifs, progress
+    return motifs
+
+
+def get_pipeline_info() -> Dict[str, Any]:
+    """
+    Get detailed information about the analysis pipeline.
+    
+    Returns a dictionary describing all stages and operations
+    in the NonBScanner analysis pipeline.
+    
+    Returns:
+        Dictionary with pipeline stage information:
+        - stages: List of pipeline stages
+        - detectors: List of detector information
+        - operations: Detailed operation descriptions
+        
+    Example:
+        >>> info = get_pipeline_info()
+        >>> for stage in info['stages']:
+        ...     print(f"{stage['icon']} {stage['name']}: {stage['description']}")
+    """
+    return {
+        'stages': [
+            {
+                'id': 'INPUT',
+                'name': 'Input Parsing',
+                'icon': '📥',
+                'description': 'Parse FASTA format and validate DNA sequences',
+                'complexity': 'O(n)',
+                'operations': ['Parse FASTA headers', 'Extract sequences', 'Validate ATGC characters']
+            },
+            {
+                'id': 'DETECTION',
+                'name': 'Motif Detection',
+                'icon': '🔍',
+                'description': 'Run 9 specialized detectors to find Non-B DNA motifs',
+                'complexity': 'O(n) per detector',
+                'operations': ['Run parallel detectors', 'Pattern matching', 'Score calculation']
+            },
+            {
+                'id': 'PROCESSING',
+                'name': 'Post-Processing',
+                'icon': '⚙️',
+                'description': 'Process and refine detected motifs',
+                'complexity': 'O(m log m) to O(m²)',
+                'operations': ['Remove overlapping motifs', 'Detect hybrid regions', 'Identify clusters']
+            },
+            {
+                'id': 'OUTPUT',
+                'name': 'Output Generation',
+                'icon': '📤',
+                'description': 'Normalize scores and format results',
+                'complexity': 'O(m)',
+                'operations': ['Normalize scores to 1-3 scale', 'Sort by position', 'Generate output']
+            }
+        ],
+        'detectors': [
+            {'name': 'Curved DNA', 'method': 'A-tract phasing', 'subclasses': 2},
+            {'name': 'Slipped DNA', 'method': 'K-mer indexing', 'subclasses': 2},
+            {'name': 'Cruciform', 'method': 'Inverted repeat detection', 'subclasses': 1},
+            {'name': 'R-Loop', 'method': 'QmRLFS algorithm', 'subclasses': 3},
+            {'name': 'Triplex', 'method': 'Mirror repeat + purine runs', 'subclasses': 2},
+            {'name': 'G-Quadruplex', 'method': 'G4Hunter + patterns', 'subclasses': 7},
+            {'name': 'i-Motif', 'method': 'C-run patterns', 'subclasses': 3},
+            {'name': 'Z-DNA', 'method': 'CG/CA repeat scoring', 'subclasses': 2},
+            {'name': 'A-philic DNA', 'method': '10-mer patterns', 'subclasses': 1}
+        ],
+        'total_detectors': 9,
+        'total_subclasses': 23
+    }
 
 
 # =============================================================================
