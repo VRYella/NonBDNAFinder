@@ -629,7 +629,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         use_fast_mode: Enable parallel processing for ~9x wall-clock speedup (9 parallel threads)
         use_chunking: Enable chunking for large sequences. If None, auto-enable for sequences 
                       larger than CHUNK_THRESHOLD (10,000 bp). Set to True/False to override.
-        chunk_size: Size of each chunk in bp (default: DEFAULT_CHUNK_SIZE = 5000)
+        chunk_size: Size of each chunk in bp (default: DEFAULT_CHUNK_SIZE = 10000)
         chunk_overlap: Overlap between chunks to avoid missing boundary motifs (default: 500)
         progress_callback: Callback function called after each chunk is processed.
                           Signature: callback(chunk_num, total_chunks, bp_processed, elapsed, throughput)
@@ -659,7 +659,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         >>> def progress(chunk, total, bp, elapsed=None, throughput=None):
         ...     print(f"Chunk {chunk}/{total}: {bp} bp processed")
         >>> motifs = nbs.analyze_sequence(large_seq, "test", use_chunking=True, 
-        ...                                chunk_size=5000, progress_callback=progress)
+        ...                                progress_callback=progress)
         >>> for m in motifs:
         ...     print(f"{m['Class']}: {m['Start']}-{m['End']}, score={m['Score']}")
     """
