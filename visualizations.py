@@ -77,16 +77,17 @@ PUBLICATION_DPI = 300
 
 # Nature-level color palette for motif classes (colorblind-friendly)
 # Based on Wong, B. (2011) Nature Methods colorblind-safe palette
+# Each motif class has a unique color for distinguishability
 MOTIF_CLASS_COLORS = {
-    'Curved_DNA': '#CC79A7',          # Reddish Purple - distinctive
-    'Slipped_DNA': '#E69F00',         # Orange - visible
-    'Cruciform': '#56B4E9',           # Sky Blue - accessible
-    'R-Loop': '#009E73',              # Bluish Green - natural
-    'Triplex': '#F0E442',             # Yellow - bright
-    'G-Quadruplex': '#0072B2',        # Blue - professional
-    'i-Motif': '#D55E00',             # Vermillion - bold
-    'Z-DNA': '#CC79A7',               # Reddish Purple - elegant
-    'A-philic_DNA': '#56B4E9',        # Sky Blue - fresh
+    'Curved_DNA': '#CC79A7',          # Reddish Purple
+    'Slipped_DNA': '#E69F00',         # Orange
+    'Cruciform': '#56B4E9',           # Sky Blue
+    'R-Loop': '#009E73',              # Bluish Green
+    'Triplex': '#F0E442',             # Yellow
+    'G-Quadruplex': '#0072B2',        # Blue
+    'i-Motif': '#D55E00',             # Vermillion
+    'Z-DNA': '#882255',               # Wine (distinct from Curved_DNA)
+    'A-philic_DNA': '#44AA99',        # Teal (distinct from Cruciform)
     'Hybrid': '#999999',              # Gray - neutral
     'Non-B_DNA_Clusters': '#666666'   # Dark Gray - professional
 }
@@ -1125,6 +1126,13 @@ def save_all_plots(motifs: List[Dict[str, Any]],
                     fig.write_image(filepath)
                 elif file_format.lower() == 'html':
                     fig.write_html(filepath)
+                else:
+                    # Unsupported format - try default write_image
+                    print(f"⚠ Unsupported format '{file_format}' for Plotly, attempting save anyway")
+                    try:
+                        fig.write_image(filepath)
+                    except Exception as fmt_err:
+                        raise ValueError(f"Unsupported file format: {file_format}. Use 'png', 'pdf', 'svg', or 'html'.") from fmt_err
             
             saved_files[plot_name] = filepath
             print(f"✓ Saved {plot_name} to {filepath}")
