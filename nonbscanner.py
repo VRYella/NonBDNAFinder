@@ -116,7 +116,7 @@ __author__ = "Dr. Venkata Rajesh Yella"
 CHUNK_THRESHOLD = 10000  # 10,000 bp
 
 # Default chunk size for processing large sequences
-DEFAULT_CHUNK_SIZE = 5000  # 5,000 bp
+DEFAULT_CHUNK_SIZE = 10000  # 10,000 bp (as per notebook specification)
 
 # Default overlap between chunks to avoid missing motifs at boundaries
 DEFAULT_CHUNK_OVERLAP = 500  # 500 bp
