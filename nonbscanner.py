@@ -69,7 +69,7 @@ import math
 import warnings
 import time
 import threading
-from typing import List, Dict, Any, Optional, Union, Tuple, Callable
+from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
@@ -394,7 +394,7 @@ def create_progress_callback(progress: AnalysisProgress) -> Callable:
     Returns:
         Callback function compatible with NonBScanner.analyze_sequence()
     """
-    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int = 0):
+    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int):
         progress.update_detector(detector_name, completed=True, 
                                 motifs=motif_count, elapsed=elapsed)
     return callback
@@ -416,7 +416,7 @@ def create_enhanced_progress_callback(
     Returns:
         Callback function compatible with NonBScanner.analyze_sequence()
     """
-    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int = 0):
+    def callback(detector_name: str, completed: int, total: int, elapsed: float, motif_count: int):
         progress.update_detector(detector_name, completed=True, 
                                 motifs=motif_count, elapsed=elapsed)
         
@@ -536,7 +536,7 @@ class NonBScanner:
             }
     
     def analyze_sequence(self, sequence: str, sequence_name: str = "sequence",
-                        detector_callback: Optional[Callable[[str, int, int, float, int], None]] = None) -> List[Dict[str, Any]]:
+                        progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None) -> List[Dict[str, Any]]:
         """
         Detect all Non-B DNA motifs in a sequence with high performance.
         
@@ -571,13 +571,15 @@ class NonBScanner:
         Args:
             sequence: DNA sequence to analyze (ATGC characters)
             sequence_name: Identifier for the sequence
-            detector_callback: Optional callback function called after each detector.
-                              Signature: callback(detector_name, completed, total, elapsed, motif_count)
-                              - detector_name: Internal detector name (e.g., 'curved_dna')
-                              - completed: Number of detectors completed (1 to 9)
-                              - total: Total number of detectors (9)
-                              - elapsed: Time for this detector in seconds
-                              - motif_count: Number of motifs found by this detector
+            progress_callback: Optional callback function called after each detector completes.
+                              Signature: callback(detector_name: str, completed: int, total: int, 
+                                                  elapsed: float, motif_count: int) -> None
+                              Parameters:
+                              - detector_name (str): Internal detector name (e.g., 'curved_dna')
+                              - completed (int): Number of detectors completed (1 to 9)
+                              - total (int): Total number of detectors (9)
+                              - elapsed (float): Time for this detector in seconds
+                              - motif_count (int): Number of motifs found by this detector
             
         Returns:
             List of motif dictionaries sorted by genomic position
@@ -591,11 +593,11 @@ class NonBScanner:
             >>> scanner = NonBScanner()
             >>> 
             >>> # With progress tracking
-            >>> def on_detector(name, done, total, elapsed, motifs):
+            >>> def on_progress(name: str, done: int, total: int, elapsed: float, motifs: int):
             ...     print(f"{name}: {motifs} motifs in {elapsed:.3f}s ({done}/{total})")
             >>> 
             >>> motifs = scanner.analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test", 
-            ...                                   detector_callback=on_detector)
+            ...                                   progress_callback=on_progress)
             >>> print(f"Found {len(motifs)} motifs")
         """
         sequence = sequence.upper().strip()
@@ -625,14 +627,14 @@ class NonBScanner:
                 all_motifs.extend(motifs)
                 
                 # Call callback if provided (with motif count)
-                if detector_callback is not None:
-                    detector_callback(detector_name, idx + 1, total_detectors, elapsed, motif_count)
+                if progress_callback is not None:
+                    progress_callback(detector_name, idx + 1, total_detectors, elapsed, motif_count)
                     
             except Exception as e:
                 warnings.warn(f"Error in {detector_name} detector: {e}")
                 # Call callback with error (0 motifs)
-                if detector_callback is not None:
-                    detector_callback(detector_name, idx + 1, total_detectors, 0.0, 0)
+                if progress_callback is not None:
+                    progress_callback(detector_name, idx + 1, total_detectors, 0.0, 0)
                 continue
         
         # Remove overlaps within same class
@@ -1284,6 +1286,24 @@ def export_results(motifs: List[Dict[str, Any]], format: str = 'csv',
         raise ValueError(f"Unsupported format: {format}. Use 'csv', 'bed', 'json', or 'excel'")
 
 
+# Type-safe overloads for analyze_with_progress
+@overload
+def analyze_with_progress(
+    sequence: str, 
+    sequence_name: str = ...,
+    print_progress: bool = ...,
+    return_progress: Literal[False] = ...
+) -> List[Dict[str, Any]]: ...
+
+@overload
+def analyze_with_progress(
+    sequence: str, 
+    sequence_name: str = ...,
+    print_progress: bool = ...,
+    return_progress: Literal[True] = ...
+) -> Tuple[List[Dict[str, Any]], AnalysisProgress]: ...
+
+
 def analyze_with_progress(sequence: str, sequence_name: str = "sequence",
                          print_progress: bool = True,
                          return_progress: bool = False) -> Union[List[Dict[str, Any]], Tuple[List[Dict[str, Any]], AnalysisProgress]]:
@@ -1364,7 +1384,7 @@ def analyze_with_progress(sequence: str, sequence_name: str = "sequence",
     # Run analysis
     progress.start_stage('DETECTION')
     scanner = _get_cached_scanner()
-    motifs = scanner.analyze_sequence(sequence, sequence_name, detector_callback=callback)
+    motifs = scanner.analyze_sequence(sequence, sequence_name, progress_callback=callback)
     progress.end_stage('DETECTION')
     
     if print_progress:
