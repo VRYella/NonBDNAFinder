@@ -213,39 +213,52 @@ def get_dna_pattern_svg(stroke_color: str) -> str:
     """Generate subtle DNA helix SVG pattern for background."""
     return f"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23{stroke_color}' stroke-width='0.5' opacity='0.3'%3E%3Cpath d='M10 10 Q 30 0, 50 10 T 90 10'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Ccircle cx='50' cy='10' r='2'/%3E%3C/g%3E%3C/svg%3E\")"
 
-# Color theme palettes for scientific styling
+# Color theme palettes for scientific styling - Soothing UI Theme
+# Using CSS variables approach with soft, modern colors optimized for readability
 COLOR_THEMES = {
     'scientific_blue': {
-        'primary': '#0d47a1',
-        'secondary': '#1976d2',
-        'accent': '#42a5f5',
-        'bg_light': '#f5f9ff',
-        'bg_card': '#e3f2fd',
-        'text': '#1e293b'
+        'primary': '#5B8DEF',        # Soft blue - soothing primary
+        'secondary': '#7BA3F7',      # Lighter blue - softer secondary
+        'accent': '#A8C5FF',         # Very soft blue accent
+        'bg_light': '#F8FAFC',       # Very light gray-blue background
+        'bg_card': '#EEF2FF',        # Soft indigo-tinted card background
+        'text': '#374151',           # Softer dark gray for text
+        'tab_bg': '#F1F5F9',         # Light slate for tab bar
+        'tab_active': '#5B8DEF',     # Active tab color
+        'shadow': 'rgba(91, 141, 239, 0.15)'  # Soft shadow color
     },
     'nature_green': {
-        'primary': '#1b5e20',
-        'secondary': '#388e3c',
-        'accent': '#66bb6a',
-        'bg_light': '#f1f8e9',
-        'bg_card': '#dcedc8',
-        'text': '#1e293b'
+        'primary': '#6DBB7A',        # Soft green
+        'secondary': '#8FD19C',      # Lighter green
+        'accent': '#B8E5C0',         # Very soft green accent
+        'bg_light': '#F7FBF8',       # Very light green background
+        'bg_card': '#E8F5E9',        # Soft green card background
+        'text': '#374151',
+        'tab_bg': '#F0F9F1',
+        'tab_active': '#6DBB7A',
+        'shadow': 'rgba(109, 187, 122, 0.15)'
     },
     'genomic_purple': {
-        'primary': '#4a148c',
-        'secondary': '#7b1fa2',
-        'accent': '#ba68c8',
-        'bg_light': '#f3e5f5',
-        'bg_card': '#e1bee7',
-        'text': '#1e293b'
+        'primary': '#9B8FD9',        # Soft purple
+        'secondary': '#B3A9E5',      # Lighter purple
+        'accent': '#D4CFF0',         # Very soft purple accent
+        'bg_light': '#FAF9FD',       # Very light purple background
+        'bg_card': '#EDE7F6',        # Soft purple card background
+        'text': '#374151',
+        'tab_bg': '#F5F3FA',
+        'tab_active': '#9B8FD9',
+        'shadow': 'rgba(155, 143, 217, 0.15)'
     },
     'clinical_teal': {
-        'primary': '#006064',
-        'secondary': '#00838f',
-        'accent': '#26c6da',
-        'bg_light': '#e0f7fa',
-        'bg_card': '#b2ebf2',
-        'text': '#1e293b'
+        'primary': '#5BBFB4',        # Soft teal
+        'secondary': '#7CCFC6',      # Lighter teal
+        'accent': '#A8E4DE',         # Very soft teal accent
+        'bg_light': '#F6FBFB',       # Very light teal background
+        'bg_card': '#E0F2F1',        # Soft teal card background
+        'text': '#374151',
+        'tab_bg': '#EBF7F6',
+        'tab_active': '#5BBFB4',
+        'shadow': 'rgba(91, 191, 180, 0.15)'
     }
 }
 
@@ -254,17 +267,27 @@ current_theme = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['sci
 is_dark_mode = st.session_state.theme_mode == 'dark'
 is_compact = st.session_state.table_density == 'compact'
 
-# Dark mode color overrides
+# Dark mode color overrides - Soothing dark palette
 if is_dark_mode:
+    # Use the primary color from the base theme for consistency
+    base_primary = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])['primary']
     current_theme = {
         **current_theme,
-        'bg_light': '#0f172a',
-        'bg_card': '#1e293b',
-        'text': '#e2e8f0'
+        'bg_light': '#1A1F2E',        # Soft dark blue-gray
+        'bg_card': '#252B3B',          # Slightly lighter dark
+        'text': '#E5E7EB',             # Softer white for dark mode
+        'tab_bg': '#1F2937',           # Dark slate for tab bar
+        'tab_active': current_theme.get('primary', base_primary),
+        'shadow': 'rgba(0, 0, 0, 0.25)'
     }
 
 # Pre-calculate RGB values for all theme colors (performance optimization)
-rgb = {key: hex_to_rgb(value) for key, value in current_theme.items()}
+rgb = {key: hex_to_rgb(value) if key not in ['shadow'] else (0, 0, 0) for key, value in current_theme.items()}
+
+# Additional color calculations for new soothing theme
+tab_bg_color = current_theme.get('tab_bg', current_theme['bg_card'])
+tab_active_color = current_theme.get('tab_active', current_theme['primary'])
+shadow_color = current_theme.get('shadow', f"rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15)")
 
 # Generate SVG pattern based on theme
 dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
@@ -315,110 +338,127 @@ st.markdown(f"""
     }}
     
     /* ============================================
-       ELEGANT BACKGROUND PATTERN WITH DNA MOTIF
+       CSS CUSTOM PROPERTIES (Variables) for Soothing Theme
+       ============================================ */
+    :root {{
+        --primary-color: {current_theme['primary']};
+        --secondary-color: {current_theme['secondary']};
+        --accent-color: {current_theme['accent']};
+        --bg-light: {current_theme['bg_light']};
+        --bg-card: {current_theme['bg_card']};
+        --text-color: {current_theme['text']};
+        --tab-bg: {tab_bg_color};
+        --tab-active: {tab_active_color};
+        --shadow-color: {shadow_color};
+        --font-primary: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --border-radius-sm: 8px;
+        --border-radius-md: 12px;
+        --border-radius-lg: 16px;
+        --border-radius-pill: 50px;
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }}
+    
+    /* ============================================
+       ELEGANT BACKGROUND - Soothing Light Theme
        ============================================ */
     body, [data-testid="stAppViewContainer"], .main {{
         background: 
             {dna_pattern},
-            linear-gradient(135deg, {current_theme['bg_light']} 0%, {'#1e293b' if is_dark_mode else '#e8f4fd'} 50%, {current_theme['bg_light']} 100%) !important;
-        font-family: 'Poppins', 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
-        {'color: #e2e8f0 !important;' if is_dark_mode else ''}
+            linear-gradient(180deg, {current_theme['bg_light']} 0%, {'#252B3B' if is_dark_mode else '#EEF2FF'} 100%) !important;
+        font-family: var(--font-primary) !important;
+        color: var(--text-color) !important;
     }}
     
     /* ============================================
-       TABS: Modern elegant design with glass effect
+       FULL-WIDTH TABS: Flex-based Equal Distribution
+       Pills-style active state with gradient fill
        ============================================ */
     .stTabs [data-baseweb="tab-list"] {{
+        display: flex !important;
         width: 100% !important;
-        justify-content: center !important;
-        gap: 8px !important;
+        justify-content: stretch !important;
+        gap: 6px !important;
         border-bottom: none !important;
-        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.85) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.9) 100%)"} !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-        margin-bottom: 2em;
-        padding: 12px 16px !important;
-        border-radius: 20px !important;
-        animation: fade-in 0.6s ease-out;
+        background: {tab_bg_color} !important;
+        box-shadow: 0 2px 12px {shadow_color}, inset 0 1px 0 {'rgba(255, 255, 255, 0.1)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
+        margin-bottom: 1.5em;
+        padding: 8px 10px !important;
+        border-radius: var(--border-radius-lg) !important;
+        animation: fade-in 0.5s ease-out;
     }}
     
+    /* Each tab takes equal width (flex: 1) for full-width distribution */
     .stTabs [data-baseweb="tab"] {{
-        font-size: 1.05rem !important;
-        font-weight: 600 !important;
-        font-family: 'Poppins', 'Inter', sans-serif !important;
-        flex: 0 1 auto !important;
-        min-width: 120px !important;
-        padding: 14px 24px !important;
-        text-align: center;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        font-family: var(--font-primary) !important;
+        padding: 12px 16px !important;
+        text-align: center !important;
         color: {'#94a3b8' if is_dark_mode else '#64748b'} !important;
         background: transparent !important;
         border: none !important;
-        border-radius: 14px !important;
-        letter-spacing: 0.02em;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: var(--border-radius-pill) !important;
+        letter-spacing: 0.01em;
+        transition: var(--transition-smooth);
         position: relative;
+        cursor: pointer;
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
     }}
     
-    .stTabs [data-baseweb="tab"]::before {{
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        border-radius: 14px;
-        z-index: -1;
-    }}
-    
+    /* Tab hover state - subtle highlight */
     .stTabs [data-baseweb="tab"]:hover {{
-        color: {current_theme['primary']} !important;
-        transform: translateY(-2px);
-        background: {'rgba(255, 255, 255, 0.05)' if is_dark_mode else f"rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.08)"} !important;
+        color: var(--primary-color) !important;
+        background: {'rgba(255, 255, 255, 0.1)' if is_dark_mode else 'rgba(255, 255, 255, 0.7)'} !important;
     }}
     
+    /* Active tab - Pill-shaped with gradient fill and subtle elevation */
     .stTabs [aria-selected="true"] {{
-        color: white !important;
-        font-weight: 700 !important;
-        transform: translateY(-2px);
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        box-shadow: 0 6px 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35), 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.2) !important;
+        color: {'#FFFFFF' if is_dark_mode else '#FFFFFF'} !important;
+        font-weight: 600 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        box-shadow: 0 4px 12px {shadow_color}, 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-1px);
     }}
     
-    .stTabs [aria-selected="true"]::before {{
-        opacity: 1;
+    /* Remove the default tab underline indicator */
+    .stTabs [data-baseweb="tab-highlight"] {{
+        display: none !important;
+    }}
+    
+    .stTabs [data-baseweb="tab-border"] {{
+        display: none !important;
     }}
     
     /* ============================================
-       HEADINGS: Modern typography with gradients
+       HEADINGS: Modern Inter typography
        ============================================ */
     h1, h2, h3, h4 {{
-        font-family: 'Poppins', 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        color: {current_theme['primary']} !important;
+        font-family: var(--font-primary) !important;
+        color: var(--primary-color) !important;
         font-weight: 700 !important;
-        letter-spacing: -0.01em;
-        margin-top: 1.2em;
-        margin-bottom: 0.7em;
+        letter-spacing: -0.02em;
+        margin-top: 1em;
+        margin-bottom: 0.6em;
         animation: fade-in 0.4s ease-out;
     }}
     h1 {{ 
-        font-size: 2.8rem !important; 
-        font-weight: 800 !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
-        background-size: 200% 200%;
-        animation: gradient-shift 4s ease infinite, fade-in 0.5s ease-out;
+        font-size: 2.4rem !important; 
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: -0.02em;
     }}
     h2 {{ 
-        font-size: 1.9rem !important; 
-        color: {current_theme['primary']} !important; 
-        font-weight: 700 !important;
+        font-size: 1.75rem !important; 
+        color: var(--primary-color) !important; 
+        font-weight: 600 !important;
         border-bottom: none !important;
-        padding-bottom: 0.4rem;
+        padding-bottom: 0.3rem;
         position: relative;
     }}
     h2::after {{
@@ -426,346 +466,308 @@ st.markdown(f"""
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 60px;
-        height: 4px;
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['accent']} 100%);
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
         border-radius: 2px;
     }}
     h3 {{ 
-        font-size: 1.5rem !important; 
-        color: {current_theme['secondary']} !important; 
+        font-size: 1.35rem !important; 
+        color: var(--secondary-color) !important; 
         font-weight: 600 !important;
     }}
     h4 {{ 
-        font-size: 1.25rem !important; 
-        color: {current_theme['secondary']} !important; 
-        font-weight: 600 !important;
+        font-size: 1.15rem !important; 
+        color: var(--secondary-color) !important; 
+        font-weight: 500 !important;
     }}
     
-    /* Body text: Modern readability with elegant contrast */
+    /* Body text: Modern Inter font for readability */
     .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 1.02rem !important;
-        font-family: 'Poppins', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        line-height: 1.7 !important;
-        color: {current_theme['text']} !important;
-        margin-bottom: 0.6em !important;
+        font-size: 0.95rem !important;
+        font-family: var(--font-primary) !important;
+        line-height: 1.65 !important;
+        color: var(--text-color) !important;
+        margin-bottom: 0.5em !important;
         font-weight: 400;
     }}
     
-    /* Input fields: Premium scientific design with elegant borders */
+    /* Input fields: Clean design with soft borders */
     input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
     .stMultiSelect>div>div>div, .stRadio>div>div>label>div {{
-        font-size: 1.0rem !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
-        border-radius: 10px !important;
-        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
-        background: {'#1e293b' if is_dark_mode else '#ffffff'} !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        font-size: 0.95rem !important;
+        font-family: var(--font-primary) !important;
+        border-radius: var(--border-radius-md) !important;
+        border: 1.5px solid {'#475569' if is_dark_mode else '#E2E8F0'} !important;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        transition: var(--transition-smooth);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }}
     input:focus, .stTextInput>div>div>input:focus {{
-        border-color: {current_theme['secondary']} !important;
-        box-shadow: 0 0 0 4px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.12), 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08) !important;
-        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
-        transform: translateY(-1px);
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px {shadow_color}, 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        background: {'#252B3B' if is_dark_mode else '#FEFEFF'} !important;
     }}
     
     /* ============================================
-       BUTTONS: Enhanced with click animations
+       BUTTONS: Soft gradient with subtle shadow
        ============================================ */
     .stButton>button {{
-        font-size: 1.05rem !important;
-        font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif !important;
-        padding: 0.75em 1.8em !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
-        color: #fff !important;
-        border-radius: 12px !important;
+        font-size: 0.95rem !important;
+        font-family: var(--font-primary) !important;
+        padding: 0.65em 1.5em !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: #FFFFFF !important;
+        border-radius: var(--border-radius-md) !important;
         border: none !important;
-        font-weight: 600 !important;
-        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35), 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.2);
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        letter-spacing: 0.03em;
-        position: relative;
-        overflow: hidden;
-    }}
-    .stButton>button::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.5s;
-    }}
-    .stButton>button:hover::before {{
-        left: 100%;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px {shadow_color};
+        transition: var(--transition-smooth);
+        letter-spacing: 0.02em;
     }}
     .stButton>button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.45), 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
-        transform: translateY(-3px) scale(1.02);
+        background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+        box-shadow: 0 6px 16px {shadow_color};
+        transform: translateY(-2px);
     }}
     .stButton>button:active {{
-        transform: translateY(-1px) scale(0.97);
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
-        animation: scale-click 0.15s ease;
+        transform: translateY(0);
+        box-shadow: 0 2px 8px {shadow_color};
     }}
     
     /* ============================================
-       DATAFRAMES: Enhanced with compact/relaxed mode
+       DATAFRAMES: Clean design with soft shadows
        ============================================ */
     .stDataFrame, .stTable {{
-        font-size: {'0.88rem' if is_compact else '0.96rem'} !important;
-        font-family: 'IBM Plex Sans', 'Inter', 'Segoe UI', system-ui, sans-serif !important;
-        line-height: {'1.4' if is_compact else '1.65'} !important;
-        border-radius: 12px !important;
+        font-size: {'0.88rem' if is_compact else '0.92rem'} !important;
+        font-family: var(--font-primary) !important;
+        line-height: {'1.4' if is_compact else '1.6'} !important;
+        border-radius: var(--border-radius-md) !important;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.08), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
-        border: 1px solid {current_theme['bg_card']} !important;
+        box-shadow: 0 2px 8px {shadow_color} !important;
+        border: 1px solid var(--bg-card) !important;
         animation: fade-in 0.4s ease-out;
     }}
     .stDataFrame thead tr th {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
-        font-weight: 700 !important;
-        padding: {'0.6rem' if is_compact else '1rem'} !important;
-        font-size: {'0.85rem' if is_compact else '0.98rem'} !important;
-        letter-spacing: 0.02em;
+        font-weight: 600 !important;
+        padding: {'0.5rem' if is_compact else '0.8rem'} !important;
+        font-size: {'0.82rem' if is_compact else '0.88rem'} !important;
+        letter-spacing: 0.01em;
         text-transform: uppercase;
-        border-bottom: 3px solid {current_theme['primary']} !important;
+        border-bottom: 2px solid var(--primary-color) !important;
     }}
     .stDataFrame tbody tr {{
-        transition: all 0.25s ease;
-        border-bottom: 1px solid {current_theme['bg_card']} !important;
+        transition: var(--transition-smooth);
+        border-bottom: 1px solid var(--bg-card) !important;
     }}
     .stDataFrame tbody tr:hover {{
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, #f0f7ff 0%, {current_theme['bg_card']} 100%)"} !important;
-        transform: scale(1.005);
-        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.1);
+        background: {'#2D3748' if is_dark_mode else '#F7FAFC'} !important;
     }}
     .stDataFrame tbody tr td {{
-        padding: {'0.5rem' if is_compact else '0.85rem'} !important;
-        color: {current_theme['text']} !important;
+        padding: {'0.4rem' if is_compact else '0.7rem'} !important;
+        color: var(--text-color) !important;
     }}
     
     /* Highlight alternate rows */
     .stDataFrame tbody tr:nth-child(odd) {{
-        background: {'rgba(30, 41, 59, 0.3)' if is_dark_mode else 'rgba(227, 242, 253, 0.3)'} !important;
+        background: {'rgba(45, 55, 72, 0.3)' if is_dark_mode else 'rgba(238, 242, 255, 0.5)'} !important;
     }}
     
-    /* Tab content spacing */
+    /* Tab content - Clean content card section */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 2.5rem !important;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        padding-bottom: 2rem !important;
-        animation: fade-in 0.4s ease-out;
+        padding-top: 1.5rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-bottom: 1.5rem !important;
+        animation: fade-in 0.3s ease-out;
+        background: {'#1A1F2E' if is_dark_mode else '#FFFFFF'} !important;
+        border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
+        box-shadow: 0 4px 16px {shadow_color} !important;
+        margin-top: -8px;
     }}
     
     /* ============================================
-       GLASSMORPHISM CARDS: For summary displays
+       CONTENT CARDS: Soft shadows and rounded corners
        ============================================ */
-    .analysis-summary-card, .glassmorphism-card {{
-        margin: 1.5rem 0 !important;
-        padding: 2rem !important;
-        background: {'rgba(30, 41, 59, 0.8)' if is_dark_mode else 'rgba(255, 255, 255, 0.85)'} !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border-radius: 16px !important;
-        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.12) !important;
-        border: 1px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else f"rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15)"} !important;
-        animation: fade-in 0.5s ease-out;
-        transition: all 0.3s ease;
+    .analysis-summary-card, .glassmorphism-card, .content-card {{
+        margin: 1rem 0 !important;
+        padding: 1.5rem !important;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        border-radius: var(--border-radius-lg) !important;
+        box-shadow: 0 2px 12px {shadow_color} !important;
+        border: 1px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        animation: fade-in 0.4s ease-out;
+        transition: var(--transition-smooth);
     }}
-    .analysis-summary-card:hover, .glassmorphism-card:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.18) !important;
+    .analysis-summary-card:hover, .glassmorphism-card:hover, .content-card:hover {{
+        box-shadow: 0 4px 20px {shadow_color} !important;
     }}
     
-    /* Select boxes and multiselect: Premium dropdown design */
+    /* Select boxes and multiselect: Clean dropdown design */
     .stSelectbox > div > div > div, .stMultiSelect > div > div > div {{
-        min-height: 3.5rem !important;
-        padding: 1rem 1.2rem !important;
-        line-height: 1.65 !important;
-        border-radius: 12px !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
-        border: 2px solid {'#475569' if is_dark_mode else '#e1e8ed'} !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s ease;
+        min-height: 2.8rem !important;
+        padding: 0.7rem 1rem !important;
+        line-height: 1.5 !important;
+        border-radius: var(--border-radius-md) !important;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        border: 1.5px solid {'#475569' if is_dark_mode else '#E2E8F0'} !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: var(--transition-smooth);
     }}
     .stSelectbox > div > div > div:hover, .stMultiSelect > div > div > div:hover {{
-        border-color: {current_theme['accent']} !important;
-        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.12);
-        transform: translateY(-1px);
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 2px 8px {shadow_color};
     }}
     
-    /* Enhanced input field spacing with elegant styling */
+    /* Enhanced input field spacing */
     .stTextInput > div > div > input, .stTextArea textarea {{
-        padding: 1rem 1.3rem !important;
-        min-height: 3.5rem !important;
-        line-height: 1.6 !important;
-        border-radius: 12px !important;
-        font-size: 1.02rem !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
+        padding: 0.7rem 1rem !important;
+        min-height: 2.8rem !important;
+        line-height: 1.5 !important;
+        border-radius: var(--border-radius-md) !important;
+        font-size: 0.95rem !important;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
     }}
     .stTextArea textarea {{
-        min-height: 120px !important;
+        min-height: 100px !important;
     }}
     
-    /* Number input styling with scientific precision */
+    /* Number input styling */
     .stNumberInput > div > div > input {{
-        padding: 1rem 1.3rem !important;
-        min-height: 3.5rem !important;
-        border-radius: 12px !important;
-        font-size: 1.02rem !important;
-        font-weight: 600;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"} !important;
+        padding: 0.7rem 1rem !important;
+        min-height: 2.8rem !important;
+        border-radius: var(--border-radius-md) !important;
+        font-size: 0.95rem !important;
+        font-weight: 500;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
     }}
     
-    /* Radio buttons: Enhanced with elegant hover states and borders */
+    /* Radio buttons: Clean styling */
     .stRadio > div {{
-        gap: 0.4rem !important;
+        gap: 0.3rem !important;
     }}
     .stRadio > div > div > label {{
-        margin-bottom: 0.7rem !important;
-        padding: 0.65rem 1rem !important;
-        border-radius: 10px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 2px solid transparent;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        margin-bottom: 0.5rem !important;
+        padding: 0.5rem 0.8rem !important;
+        border-radius: var(--border-radius-sm) !important;
+        transition: var(--transition-smooth);
+        border: 1.5px solid transparent;
+        background: {'#252B3B' if is_dark_mode else '#F8FAFC'};
         cursor: pointer;
     }}
     .stRadio > div > div > label:hover {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-color: {current_theme['bg_card']} !important;
-        transform: translateX(4px);
-        box-shadow: 0 4px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
+        background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
+        border-color: {current_theme['accent']} !important;
     }}
     .stRadio > div > div > label[data-checked="true"] {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
-        border-color: {current_theme['secondary']} !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
+        background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
+        border-color: {current_theme['primary']} !important;
+        font-weight: 500 !important;
     }}
     /* Radio button circles */
     .stRadio > div > div > label > div:first-child {{
         border-width: 2px !important;
         border-color: {current_theme['accent']} !important;
-        width: 22px !important;
-        height: 22px !important;
+        width: 18px !important;
+        height: 18px !important;
     }}
     .stRadio > div > div > label[data-checked="true"] > div:first-child {{
-        border-color: {current_theme['primary']} !important;
-        background-color: {current_theme['primary']} !important;
+        border-color: var(--primary-color) !important;
+        background-color: var(--primary-color) !important;
     }}
     
-    /* Number input styling */
-    .stNumberInput > div > div > input {{
-        padding: 0.85rem 1.1rem !important;
-        min-height: 3rem !important;
-        border-radius: 8px !important;
-    }}
-    
-    /* Info boxes and alerts: Scientific notification design */
+    /* Info boxes and alerts: Clean notification design */
     .stAlert {{
-        border-radius: 12px !important;
-        border-left: 5px solid {current_theme['secondary']} !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-        background: {'linear-gradient(90deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(90deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        padding: 1.2rem !important;
-        font-weight: 500;
+        border-radius: var(--border-radius-md) !important;
+        border-left: 4px solid var(--secondary-color) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+        background: {'#252B3B' if is_dark_mode else '#F8FAFC'} !important;
+        padding: 1rem !important;
+        font-weight: 400;
     }}
     .stAlert[data-baseweb="notification"] {{
-        border-left-color: {current_theme['primary']} !important;
+        border-left-color: var(--primary-color) !important;
     }}
     .stSuccess {{
-        border-left-color: #2e7d32 !important;
-        background: {'linear-gradient(90deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
+        border-left-color: #6DBB7A !important;
+        background: {'#1E3A29' if is_dark_mode else '#E8F5E9'} !important;
     }}
     .stWarning {{
-        border-left-color: #f57c00 !important;
-        background: {'linear-gradient(90deg, #3a2e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #fff3e0 0%, #fff8f1 100%)'} !important;
+        border-left-color: #F59E0B !important;
+        background: {'#3A2E1E' if is_dark_mode else '#FEF3C7'} !important;
     }}
     .stError {{
-        border-left-color: #c62828 !important;
-        background: {'linear-gradient(90deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(90deg, #ffebee 0%, #fff5f5 100%)'} !important;
+        border-left-color: #EF4444 !important;
+        background: {'#3A1E1E' if is_dark_mode else '#FEE2E2'} !important;
     }}
     
-    /* Progress bars: Elegant animated design */
+    /* Progress bars: Soft gradient design */
     .stProgress > div > div {{
-        background: linear-gradient(90deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%) !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
-        animation: shimmer 2s infinite;
-    }}
-    @keyframes shimmer {{
-        0% {{ background-position: -1000px 0; }}
-        100% {{ background-position: 1000px 0; }}
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        border-radius: var(--border-radius-pill) !important;
+        box-shadow: 0 1px 4px {shadow_color};
     }}
     .stProgress > div {{
-        border-radius: 12px !important;
-        background: {current_theme['bg_card']} !important;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-radius: var(--border-radius-pill) !important;
+        background: var(--bg-card) !important;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
     }}
     
-    /* File uploader: Premium drag-and-drop design */
+    /* File uploader: Clean drag-and-drop design */
     [data-testid="stFileUploader"] {{
-        border: 3px dashed {current_theme['accent']} !important;
-        border-radius: 16px !important;
-        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(51, 65, 85, 0.2) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.3) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.2) 100%)"} !important;
-        padding: 2.5rem !important;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1);
+        border: 2px dashed var(--accent-color) !important;
+        border-radius: var(--border-radius-lg) !important;
+        background: {'#1A1F2E' if is_dark_mode else '#F8FAFC'} !important;
+        padding: 2rem !important;
+        transition: var(--transition-smooth);
+        box-shadow: 0 2px 8px {shadow_color};
     }}
     [data-testid="stFileUploader"]:hover {{
-        border-color: {current_theme['primary']} !important;
-        background: {'linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(51, 65, 85, 0.4) 100%)' if is_dark_mode else f"linear-gradient(135deg, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.5) 0%, rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4) 100%)"} !important;
-        transform: scale(1.01);
-        box-shadow: 0 6px 20px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
+        border-color: var(--primary-color) !important;
+        background: {'#252B3B' if is_dark_mode else '#EEF2FF'} !important;
+        box-shadow: 0 4px 16px {shadow_color};
     }}
     [data-testid="stFileUploader"] section {{
         border: none !important;
     }}
     [data-testid="stFileUploader"] button {{
-        background: linear-gradient(135deg, {current_theme['secondary']} 0%, {current_theme['accent']} 100%) !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
         border: none !important;
-        border-radius: 10px !important;
-        padding: 0.6rem 1.5rem !important;
-        font-weight: 600 !important;
-        transition: all 0.3s ease;
+        border-radius: var(--border-radius-md) !important;
+        padding: 0.5rem 1.2rem !important;
+        font-weight: 500 !important;
+        transition: var(--transition-smooth);
     }}
     [data-testid="stFileUploader"] button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.3);
+        background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+        box-shadow: 0 4px 12px {shadow_color};
     }}
     
-    /* Checkboxes: Modern toggle-style design */
+    /* Checkboxes: Clean toggle-style design */
     .stCheckbox {{
-        padding: 0.5rem 0 !important;
+        padding: 0.3rem 0 !important;
     }}
     .stCheckbox > label {{
-        padding: 0.6rem 0.8rem !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease;
+        padding: 0.4rem 0.6rem !important;
+        border-radius: var(--border-radius-sm) !important;
+        transition: var(--transition-smooth);
         cursor: pointer;
-        background: {'linear-gradient(135deg, #1e293b 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, #ffffff 0%, {current_theme['bg_light']} 100%)"};
-        border: 2px solid transparent;
+        background: {'#252B3B' if is_dark_mode else '#F8FAFC'};
+        border: 1.5px solid transparent;
     }}
     .stCheckbox > label:hover {{
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-color: {current_theme['bg_card']} !important;
-        transform: translateX(3px);
+        background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
+        border-color: {current_theme['accent']} !important;
     }}
     .stCheckbox > label > div:first-child {{
         border-width: 2px !important;
         border-color: {current_theme['accent']} !important;
-        border-radius: 6px !important;
-        width: 22px !important;
-        height: 22px !important;
+        border-radius: 5px !important;
+        width: 18px !important;
+        height: 18px !important;
         transition: all 0.3s ease;
     }}
     .stCheckbox > label > div:first-child[data-checked="true"] {{
@@ -773,40 +775,39 @@ st.markdown(f"""
         border-color: {current_theme['primary']} !important;
     }}
     
-    /* Expander styling: Scientific accordion design with clean chevron */
+    /* Expander styling: Clean accordion design */
     .streamlit-expanderHeader {{
         border-radius: 12px !important;
-        background: {'linear-gradient(135deg, #334155 0%, #475569 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        font-weight: 700 !important;
-        padding: 1rem 1.5rem !important;
-        border: 2px solid {current_theme['bg_card']} !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 6px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.08);
+        background: {'#252B3B' if is_dark_mode else '#F8FAFC'} !important;
+        font-weight: 600 !important;
+        padding: 0.8rem 1.2rem !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 4px {shadow_color};
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
+        gap: 10px !important;
     }}
     .streamlit-expanderHeader:hover {{
-        background: {'linear-gradient(135deg, #475569 0%, #334155 100%)' if is_dark_mode else f"linear-gradient(135deg, {current_theme['bg_card']} 0%, {current_theme['bg_card']} 100%)"} !important;
-        border-color: {current_theme['secondary']} !important;
-        transform: translateX(4px);
-        box-shadow: 0 4px 12px rgba({rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]}, 0.15);
+        background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
+        border-color: {current_theme['accent']} !important;
+        box-shadow: 0 2px 8px {shadow_color};
     }}
     .streamlit-expanderContent {{
         border-radius: 0 0 12px 12px !important;
-        background: {'#1e293b' if is_dark_mode else '#fefeff'} !important;
-        border: 2px solid {current_theme['bg_card']} !important;
+        background: {'#1A1F2E' if is_dark_mode else '#FFFFFF'} !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
         border-top: none !important;
-        padding: 1.5rem !important;
+        padding: 1.2rem !important;
     }}
     
-    /* Clean chevron icon styling for expanders - replaces keyboard_arrow icons */
+    /* Clean chevron icon styling for expanders */
     .streamlit-expanderHeader svg {{
-        margin-right: 10px !important;
+        margin-right: 8px !important;
         flex-shrink: 0 !important;
-        width: 20px !important;
-        height: 20px !important;
-        color: {current_theme['primary']} !important;
+        width: 18px !important;
+        height: 18px !important;
+        color: var(--primary-color) !important;
         transition: transform 0.3s ease !important;
     }}
     
@@ -827,17 +828,17 @@ st.markdown(f"""
     }}
     .streamlit-expanderHeader span[class*="icon"]::before,
     .streamlit-expanderHeader [data-testid*="icon"]::before {{
-        font-size: 1.2rem !important;
+        font-size: 1rem !important;
     }}
     
-    /* Fix: keyboard_arrow_down icon text overlap with flex container and proper line-height */
+    /* Fix: keyboard_arrow_down icon text overlap */
     .streamlit-expanderHeader {{
         display: flex !important;
         align-items: center !important;
         line-height: 1.5 !important;
     }}
     
-    /* Ensure label text doesn't overlap with icon - enhanced flex solution */
+    /* Ensure label text doesn't overlap with icon */
     .streamlit-expanderHeader p,
     .streamlit-expanderHeader label,
     .streamlit-expanderHeader div,
@@ -899,172 +900,164 @@ st.markdown(f"""
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 24px !important;
-        min-width: 24px !important;
+        width: 20px !important;
+        min-width: 20px !important;
         overflow: hidden !important;
     }}
     
     /* ============================================
-       METRIC CARDS: Glassmorphism with animations
+       METRIC CARDS: Clean design with soft shadows
        ============================================ */
     [data-testid="stMetric"] {{
-        background: {'rgba(30, 41, 59, 0.7)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        padding: 1.5rem !important;
-        border-radius: 16px !important;
-        border: 2px solid {'rgba(148, 163, 184, 0.2)' if is_dark_mode else current_theme['bg_card']} !important;
-        box-shadow: 0 8px 32px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.1) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: fade-in 0.5s ease-out;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        padding: 1.2rem !important;
+        border-radius: var(--border-radius-lg) !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        box-shadow: 0 2px 8px {shadow_color} !important;
+        transition: var(--transition-smooth);
+        animation: fade-in 0.4s ease-out;
     }}
     [data-testid="stMetric"]:hover {{
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 40px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2) !important;
-        border-color: {current_theme['accent']} !important;
-        animation: pulse-glow 2s infinite;
+        box-shadow: 0 4px 16px {shadow_color} !important;
+        border-color: var(--accent-color) !important;
     }}
     [data-testid="stMetricValue"] {{
-        font-size: 2.2rem !important;
-        font-weight: 800 !important;
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }}
     [data-testid="stMetricLabel"] {{
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        color: {'#94a3b8' if is_dark_mode else '#455a64'} !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        color: {'#94a3b8' if is_dark_mode else '#64748B'} !important;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.03em;
     }}
     
     /* Spinner */
     .stSpinner > div {{
-        border-top-color: {current_theme['secondary']} !important;
+        border-top-color: var(--primary-color) !important;
     }}
     
-    /* Code blocks: Scientific monospace design */
+    /* Code blocks: Clean monospace design */
     .stCodeBlock {{
-        border-radius: 12px !important;
-        border: 2px solid {current_theme['bg_card']} !important;
-        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f8fbff 0%, {current_theme['bg_light']} 100%)"} !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        padding: 1rem !important;
+        border-radius: var(--border-radius-md) !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        background: {'#1A1F2E' if is_dark_mode else '#F8FAFC'} !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+        padding: 0.8rem !important;
     }}
     code {{
         font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
-        font-size: 0.92rem !important;
-        color: {current_theme['primary']} !important;
-        background: {'rgba(30, 41, 59, 0.4)' if is_dark_mode else f"rgba({rgb['bg_card'][0]}, {rgb['bg_card'][1]}, {rgb['bg_card'][2]}, 0.4)"} !important;
-        padding: 0.2rem 0.5rem !important;
-        border-radius: 6px !important;
+        font-size: 0.88rem !important;
+        color: var(--primary-color) !important;
+        background: {'rgba(37, 43, 59, 0.5)' if is_dark_mode else 'rgba(238, 242, 255, 0.6)'} !important;
+        padding: 0.15rem 0.4rem !important;
+        border-radius: 4px !important;
     }}
     
-    /* Sidebar styling for navigation */
+    /* Sidebar styling */
     [data-testid="stSidebar"] {{
-        background: {'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(180deg, {current_theme['bg_card']} 0%, {current_theme['bg_light']} 100%)"} !important;
-        border-right: 2px solid {'#334155' if is_dark_mode else current_theme['bg_card']} !important;
+        background: {'#1A1F2E' if is_dark_mode else '#F8FAFC'} !important;
+        border-right: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
     }}
     [data-testid="stSidebar"] .stMarkdown {{
-        color: {current_theme['primary']} !important;
+        color: var(--primary-color) !important;
     }}
     
-    /* Scrollbar styling: Elegant scientific design */
+    /* Scrollbar styling: Clean minimal design */
     ::-webkit-scrollbar {{
-        width: 12px;
-        height: 12px;
+        width: 8px;
+        height: 8px;
     }}
     ::-webkit-scrollbar-track {{
-        background: {'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' if is_dark_mode else f"linear-gradient(135deg, #f1f5f9 0%, {current_theme['bg_card']} 100%)"};
-        border-radius: 12px;
-        border: 1px solid {current_theme['bg_card']};
+        background: {'#1A1F2E' if is_dark_mode else '#F1F5F9'};
+        border-radius: var(--border-radius-pill);
     }}
     ::-webkit-scrollbar-thumb {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 50%, {current_theme['accent']} 100%);
-        border-radius: 12px;
-        border: 2px solid {'#1e293b' if is_dark_mode else '#f8fbff'};
-        box-shadow: 0 2px 6px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.2);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: var(--border-radius-pill);
+        border: 2px solid {'#1A1F2E' if is_dark_mode else '#F8FAFC'};
     }}
     ::-webkit-scrollbar-thumb:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%);
-        box-shadow: 0 3px 10px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.3);
+        background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
     }}
     
     /* Loading spinner */
     .stSpinner > div {{
-        border-top-color: {current_theme['primary']} !important;
-        border-right-color: {current_theme['secondary']} !important;
-        border-bottom-color: {current_theme['accent']} !important;
+        border-top-color: var(--primary-color) !important;
+        border-right-color: var(--secondary-color) !important;
+        border-bottom-color: var(--accent-color) !important;
     }}
     
-    /* Download buttons enhanced */
+    /* Download buttons - clean design */
     [data-testid="stDownloadButton"] button {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
-        border-radius: 12px !important;
-        padding: 0.7rem 1.6rem !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 12px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.25);
-        transition: all 0.3s ease;
+        border-radius: var(--border-radius-md) !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 500 !important;
+        box-shadow: 0 2px 8px {shadow_color};
+        transition: var(--transition-smooth);
     }}
     [data-testid="stDownloadButton"] button:hover {{
-        background: linear-gradient(135deg, {current_theme['primary']} 0%, {current_theme['secondary']} 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.35);
+        background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+        box-shadow: 0 4px 12px {shadow_color};
     }}
     
     /* Caption text styling */
     .caption, [data-testid="stCaptionContainer"] {{
-        color: {'#94a3b8' if is_dark_mode else '#607d8b'} !important;
-        font-size: 0.9rem !important;
+        color: {'#94a3b8' if is_dark_mode else '#64748B'} !important;
+        font-size: 0.85rem !important;
         font-style: italic;
     }}
     
     /* Success/Error message boxes */
     .element-container .stMarkdown .stSuccess {{
-        background: {'linear-gradient(135deg, #1e3a29 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%)'} !important;
-        border-left: 4px solid #2e7d32 !important;
-        border-radius: 10px !important;
-        padding: 1rem !important;
+        background: {'#1E3A29' if is_dark_mode else '#E8F5E9'} !important;
+        border-left: 3px solid #6DBB7A !important;
+        border-radius: var(--border-radius-md) !important;
+        padding: 0.8rem !important;
     }}
     .element-container .stMarkdown .stError {{
-        background: {'linear-gradient(135deg, #3a1e1e 0%, #1e293b 100%)' if is_dark_mode else 'linear-gradient(135deg, #ffebee 0%, #fff5f5 100%)'} !important;
-        border-left: 4px solid #c62828 !important;
-        border-radius: 10px !important;
-        padding: 1rem !important;
+        background: {'#3A1E1E' if is_dark_mode else '#FEE2E2'} !important;
+        border-left: 3px solid #EF4444 !important;
+        border-radius: var(--border-radius-md) !important;
+        padding: 0.8rem !important;
     }}
     
     /* Links styling */
     a {{
-        color: {current_theme['secondary']} !important;
+        color: var(--secondary-color) !important;
         text-decoration: none !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease;
+        font-weight: 500 !important;
+        transition: var(--transition-smooth);
     }}
     a:hover {{
-        color: {current_theme['primary']} !important;
+        color: var(--primary-color) !important;
         text-decoration: underline !important;
     }}
     
-    /* Tooltip improvements with advanced popovers */
+    /* Tooltip improvements */
     [data-testid="stTooltipIcon"] {{
-        color: {current_theme['accent']} !important;
+        color: var(--accent-color) !important;
         cursor: help;
-        transition: all 0.2s ease;
+        transition: var(--transition-smooth);
     }}
     [data-testid="stTooltipIcon"]:hover {{
-        transform: scale(1.2);
-        color: {current_theme['secondary']} !important;
+        transform: scale(1.1);
+        color: var(--secondary-color) !important;
     }}
     
     /* Enhanced hr separator */
     hr {{
         border: none !important;
-        height: 2px !important;
-        background: linear-gradient(90deg, transparent 0%, {current_theme['bg_card']} 50%, transparent 100%) !important;
-        margin: 2rem 0 !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent 0%, var(--bg-card) 50%, transparent 100%) !important;
+        margin: 1.5rem 0 !important;
     }}
     
     /* ============================================
@@ -1074,52 +1067,59 @@ st.markdown(f"""
         position: sticky;
         top: 0;
         z-index: 100;
-        background: {'rgba(15, 23, 42, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 1rem;
-        border-radius: 0 0 12px 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: {'rgba(26, 31, 46, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'};
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        padding: 0.8rem;
+        border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+        box-shadow: 0 2px 12px {shadow_color};
     }}
     
     /* ============================================
-       RESPONSIVE DESIGN FOR TABLETS & LAPTOPS
+       RESPONSIVE DESIGN - Consistent across screens
        ============================================ */
     @media screen and (max-width: 1200px) {{
         .stTabs [data-baseweb="tab"] {{
-            font-size: 0.95rem !important;
-            padding: 12px 8px !important;
+            font-size: 0.88rem !important;
+            padding: 10px 12px !important;
         }}
-        h1 {{ font-size: 2rem !important; }}
-        h2 {{ font-size: 1.5rem !important; }}
+        h1 {{ font-size: 1.8rem !important; }}
+        h2 {{ font-size: 1.4rem !important; }}
         [data-testid="stMetric"] {{
-            padding: 1rem !important;
-        }}
-        [data-testid="stMetricValue"] {{
-            font-size: 1.8rem !important;
-        }}
-    }}
-    
-    @media screen and (max-width: 768px) {{
-        .stTabs [data-baseweb="tab"] {{
-            font-size: 0.85rem !important;
-            padding: 10px 6px !important;
-        }}
-        h1 {{ font-size: 1.6rem !important; }}
-        h2 {{ font-size: 1.3rem !important; }}
-        h3 {{ font-size: 1.1rem !important; }}
-        .stDataFrame, .stTable {{
-            font-size: 0.85rem !important;
-        }}
-        [data-testid="stMetric"] {{
-            padding: 0.8rem !important;
+            padding: 0.9rem !important;
         }}
         [data-testid="stMetricValue"] {{
             font-size: 1.5rem !important;
         }}
+    }}
+    
+    @media screen and (max-width: 768px) {{
+        .stTabs [data-baseweb="tab-list"] {{
+            flex-wrap: wrap !important;
+            gap: 4px !important;
+            padding: 6px 8px !important;
+        }}
+        .stTabs [data-baseweb="tab"] {{
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+            flex: 1 1 auto !important;
+            min-width: 80px !important;
+        }}
+        h1 {{ font-size: 1.5rem !important; }}
+        h2 {{ font-size: 1.2rem !important; }}
+        h3 {{ font-size: 1rem !important; }}
+        .stDataFrame, .stTable {{
+            font-size: 0.82rem !important;
+        }}
+        [data-testid="stMetric"] {{
+            padding: 0.7rem !important;
+        }}
+        [data-testid="stMetricValue"] {{
+            font-size: 1.3rem !important;
+        }}
         .stButton>button {{
-            padding: 0.6em 1.2em !important;
-            font-size: 0.95rem !important;
+            padding: 0.5em 1em !important;
+            font-size: 0.88rem !important;
         }}
     }}
     
@@ -1127,146 +1127,147 @@ st.markdown(f"""
        MODERN ACCORDION STYLING
        ============================================ */
     details.streamlit-expander {{
-        border-radius: 12px !important;
+        border-radius: var(--border-radius-md) !important;
         overflow: hidden;
-        transition: all 0.3s ease;
-        margin-bottom: 0.8rem;
+        transition: var(--transition-smooth);
+        margin-bottom: 0.6rem;
     }}
     
     details.streamlit-expander[open] {{
-        box-shadow: 0 8px 24px rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15);
+        box-shadow: 0 4px 16px {shadow_color};
     }}
     
     /* ============================================
        HIGHLIGHT SELECTED ITEMS
        ============================================ */
     .highlighted-row {{
-        background: linear-gradient(90deg, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.2) 0%, rgba({rgb['accent'][0]}, {rgb['accent'][1]}, {rgb['accent'][2]}, 0.1) 100%) !important;
-        border-left: 4px solid {current_theme['accent']} !important;
+        background: {'rgba(91, 141, 239, 0.15)' if is_dark_mode else 'rgba(91, 141, 239, 0.1)'} !important;
+        border-left: 3px solid var(--accent-color) !important;
     }}
     
     /* ============================================
-       PROGRESS PANEL COMPONENTS
+       PROGRESS PANEL COMPONENTS - Updated for soothing theme
        ============================================ */
     .progress-panel {{
-        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 1.2rem;
         color: white;
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        box-shadow: 0 4px 16px {shadow_color};
         margin-bottom: 1rem;
     }}
     
     .progress-panel--success {{
-        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        background: linear-gradient(135deg, #6DBB7A 0%, #8FD19C 100%);
+        box-shadow: 0 4px 16px rgba(109, 187, 122, 0.3);
     }}
     
     .progress-panel--metrics {{
-        background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
-        box-shadow: 0 4px 16px rgba(13, 71, 161, 0.25);
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        box-shadow: 0 4px 16px {shadow_color};
+        margin-bottom: 1.5rem;
     }}
     
     .progress-panel--results {{
-        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-        border-radius: 16px;
-        padding: 2rem;
-        margin: 1.5rem 0;
-        box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 20px {shadow_color};
     }}
     
     .progress-panel--hybrid {{
-        background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
-        border-radius: 16px;
-        padding: 2rem;
+        background: linear-gradient(135deg, #9B8FD9 0%, #B3A9E5 100%);
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
         margin: 1rem 0;
-        box-shadow: 0 8px 24px rgba(156, 39, 176, 0.25);
+        box-shadow: 0 4px 20px rgba(155, 143, 217, 0.25);
     }}
     
     .progress-panel__title {{
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.8rem 0;
         color: white;
         text-align: center;
     }}
     
     .progress-panel__title--large {{
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.2rem;
     }}
     
     .progress-panel__status {{
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.8rem 0;
         text-align: center;
         opacity: 0.9;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }}
     
     .stats-grid {{
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
     }}
     
     .stats-grid--wide {{
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }}
     
     .stats-grid--extra-wide {{
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-top: 0.8rem;
     }}
     
     .stat-card {{
         text-align: center;
         background: rgba(255, 255, 255, 0.15);
-        padding: 0.8rem;
-        border-radius: 8px;
+        padding: 0.7rem;
+        border-radius: var(--border-radius-sm);
     }}
     
     .stat-card--large {{
-        padding: 1.2rem;
-        border-radius: 12px;
-        backdrop-filter: blur(10px);
+        padding: 1rem;
+        border-radius: var(--border-radius-md);
+        backdrop-filter: blur(8px);
     }}
     
     .stat-card__value {{
         margin: 0;
-        color: #FFD700;
-        font-size: 1.5rem;
+        color: #FFFFFF;
+        font-size: 1.3rem;
+        font-weight: 600;
     }}
     
     .stat-card__value--large {{
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
     }}
     
     .stat-card__label {{
-        margin: 0.3rem 0 0 0;
-        opacity: 0.9;
-        font-size: 0.8rem;
+        margin: 0.2rem 0 0 0;
+        opacity: 0.85;
+        font-size: 0.75rem;
     }}
     
     .stat-card__label--large {{
-        font-size: 0.95rem;
-        opacity: 0.95;
+        font-size: 0.85rem;
+        opacity: 0.9;
         font-weight: 500;
     }}
     
     .sequence-info {{
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        padding: 0.8rem;
-        margin-bottom: 1rem;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: var(--border-radius-sm);
+        padding: 0.6rem;
+        margin-bottom: 0.8rem;
     }}
     
     .sequence-info__text {{
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-align: center;
     }}
     
