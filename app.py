@@ -1909,7 +1909,12 @@ with tab_pages["Upload & Analyze"]:
                                 # Calculate estimated chunks for this sequence
                                 est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
                                 # Insert chunk info before the closing div
-                                timer_html = timer_html[:-6] + f"<p class='sequence-info__subtext'>📦 Estimated chunks: {est_chunks}</p></div>"
+                                # Strip whitespace first to properly find the closing </div> tag
+                                closing_tag = '</div>'
+                                timer_html_stripped = timer_html.rstrip()
+                                if timer_html_stripped.endswith(closing_tag):
+                                    timer_html = timer_html_stripped[:-len(closing_tag)] + f"<p class='sequence-info__subtext'>📦 Estimated chunks: {est_chunks}</p>{closing_tag}"
+                                # If the HTML doesn't end with expected tag, use original HTML unchanged
                             
                             timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
                             
