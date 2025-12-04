@@ -269,18 +269,20 @@ is_compact = st.session_state.table_density == 'compact'
 
 # Dark mode color overrides - Soothing dark palette
 if is_dark_mode:
+    # Use the primary color from the base theme for consistency
+    base_primary = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])['primary']
     current_theme = {
         **current_theme,
         'bg_light': '#1A1F2E',        # Soft dark blue-gray
         'bg_card': '#252B3B',          # Slightly lighter dark
         'text': '#E5E7EB',             # Softer white for dark mode
         'tab_bg': '#1F2937',           # Dark slate for tab bar
-        'tab_active': current_theme.get('primary', '#5B8DEF'),
+        'tab_active': current_theme.get('primary', base_primary),
         'shadow': 'rgba(0, 0, 0, 0.25)'
     }
 
 # Pre-calculate RGB values for all theme colors (performance optimization)
-rgb = {key: hex_to_rgb(value) if not key in ['shadow'] else (0, 0, 0) for key, value in current_theme.items()}
+rgb = {key: hex_to_rgb(value) if key not in ['shadow'] else (0, 0, 0) for key, value in current_theme.items()}
 
 # Additional color calculations for new soothing theme
 tab_bg_color = current_theme.get('tab_bg', current_theme['bg_card'])
@@ -378,7 +380,7 @@ st.markdown(f"""
         gap: 6px !important;
         border-bottom: none !important;
         background: {tab_bg_color} !important;
-        box-shadow: 0 2px 12px {shadow_color}, inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 2px 12px {shadow_color}, inset 0 1px 0 {'rgba(255, 255, 255, 0.1)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
         margin-bottom: 1.5em;
         padding: 8px 10px !important;
         border-radius: var(--border-radius-lg) !important;
@@ -415,7 +417,7 @@ st.markdown(f"""
     
     /* Active tab - Pill-shaped with gradient fill and subtle elevation */
     .stTabs [aria-selected="true"] {{
-        color: #FFFFFF !important;
+        color: {'#FFFFFF' if is_dark_mode else '#FFFFFF'} !important;
         font-weight: 600 !important;
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         box-shadow: 0 4px 12px {shadow_color}, 0 2px 4px rgba(0, 0, 0, 0.1) !important;
