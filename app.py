@@ -1146,6 +1146,182 @@ st.markdown(f"""
     }}
     
     /* ============================================
+       PROGRESS PANEL COMPONENTS
+       ============================================ */
+    .progress-panel {{
+        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        margin-bottom: 1rem;
+    }}
+    
+    .progress-panel--success {{
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }}
+    
+    .progress-panel--metrics {{
+        background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+        box-shadow: 0 4px 16px rgba(13, 71, 161, 0.25);
+        margin-bottom: 2rem;
+    }}
+    
+    .progress-panel--results {{
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);
+    }}
+    
+    .progress-panel--hybrid {{
+        background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 8px 24px rgba(156, 39, 176, 0.25);
+    }}
+    
+    .progress-panel__title {{
+        margin: 0 0 1rem 0;
+        color: white;
+        text-align: center;
+    }}
+    
+    .progress-panel__title--large {{
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }}
+    
+    .progress-panel__status {{
+        margin: 0 0 1rem 0;
+        text-align: center;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }}
+    
+    .stats-grid {{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }}
+    
+    .stats-grid--wide {{
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }}
+    
+    .stats-grid--extra-wide {{
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }}
+    
+    .stat-card {{
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.8rem;
+        border-radius: 8px;
+    }}
+    
+    .stat-card--large {{
+        padding: 1.2rem;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+    }}
+    
+    .stat-card__value {{
+        margin: 0;
+        color: #FFD700;
+        font-size: 1.5rem;
+    }}
+    
+    .stat-card__value--large {{
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }}
+    
+    .stat-card__label {{
+        margin: 0.3rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.8rem;
+    }}
+    
+    .stat-card__label--large {{
+        font-size: 0.95rem;
+        opacity: 0.95;
+        font-weight: 500;
+    }}
+    
+    .sequence-info {{
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+    }}
+    
+    .sequence-info__text {{
+        margin: 0;
+        font-size: 0.9rem;
+        text-align: center;
+    }}
+    
+    .sequence-info__subtext {{
+        margin: 0.3rem 0 0 0;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        text-align: center;
+    }}
+    
+    /* Pipeline/Detector Components */
+    .pipeline-panel {{
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #bdbdbd;
+    }}
+    
+    .pipeline-panel__title {{
+        margin: 0 0 0.8rem 0;
+        color: #424242;
+    }}
+    
+    .pipeline-grid {{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }}
+    
+    .detector-item {{
+        background: rgba(25, 118, 210, 0.1);
+        padding: 0.5rem;
+        border-radius: 6px;
+        border-left: 3px solid #1976d2;
+    }}
+    
+    .detector-item__name {{
+        font-weight: 600;
+    }}
+    
+    .detector-item__desc {{
+        font-size: 0.75rem;
+        color: #757575;
+    }}
+    
+    .pipeline-panel__footer {{
+        margin: 0.8rem 0 0 0;
+        font-size: 0.8rem;
+        color: #616161;
+        text-align: center;
+    }}
+    
+    /* ============================================
        PRINT STYLES FOR PUBLICATION
        ============================================ */
     @media print {{
@@ -1635,34 +1811,32 @@ with tab_pages["Upload & Analyze"]:
                     # Helper function to generate progress HTML template
                     def build_progress_html(elapsed, estimated_remaining, progress_display, 
                                             status_text, seq_info_html, detector_count):
-                        """Build the progress timer HTML with consistent styling."""
+                        """Build the progress timer HTML with consistent styling using CSS classes."""
                         return f"""
-                        <div style='background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%); 
-                                    border-radius: 12px; padding: 1.5rem; color: white;
-                                    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3); margin-bottom: 1rem;'>
-                            <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⏱️ NonBScanner Analysis Progress</h3>
-                            <p style='margin: 0 0 1rem 0; text-align: center; opacity: 0.9; font-size: 0.95rem;'>{status_text}</p>
+                        <div class='progress-panel'>
+                            <h3 class='progress-panel__title'>⏱️ NonBScanner Analysis Progress</h3>
+                            <p class='progress-panel__status'>{status_text}</p>
                             
-                            <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1rem;'>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{elapsed:.1f}s</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Elapsed Time</p>
+                            <div class='stats-grid'>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{elapsed:.1f}s</h2>
+                                    <p class='stat-card__label'>Elapsed Time</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{estimated_remaining:.1f}s</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Est. Remaining</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{estimated_remaining:.1f}s</h2>
+                                    <p class='stat-card__label'>Est. Remaining</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{progress_display}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Overall Progress</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{progress_display}</h2>
+                                    <p class='stat-card__label'>Overall Progress</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.5rem;'>{detector_count}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{detector_count}</h2>
+                                    <p class='stat-card__label'>Detector Processes</p>
                                 </div>
                             </div>
                             
-                            <div style='background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;'>
+                            <div class='sequence-info'>
                                 {seq_info_html}
                             </div>
                         </div>
@@ -1715,10 +1889,10 @@ with tab_pages["Upload & Analyze"]:
                             
                             # Build sequence info HTML
                             seq_info_html = f"""
-                                <p style='margin: 0; font-size: 0.9rem; text-align: center;'>
+                                <p class='sequence-info__text'>
                                     <strong>Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} ({len(seq):,} bp)
                                 </p>
-                                <p style='margin: 0.3rem 0 0 0; font-size: 0.85rem; opacity: 0.9; text-align: center;'>
+                                <p class='sequence-info__subtext'>
                                     Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
                                 </p>
                             """
@@ -1734,35 +1908,31 @@ with tab_pages["Upload & Analyze"]:
                                 # Calculate estimated chunks for this sequence
                                 est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
                                 # Insert chunk info before the closing div
-                                timer_html = timer_html[:-6] + f"<p style='margin: 0.5rem 0; opacity: 0.8; font-size: 0.9rem; text-align: center;'>📦 Estimated chunks: {est_chunks}</p></div>"
+                                timer_html = timer_html[:-6] + f"<p class='sequence-info__subtext'>📦 Estimated chunks: {est_chunks}</p></div>"
                             
                             timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
                             
                             # Show detailed progress panel with detector sequence
                             # The status_icon shows all detectors as "running" during analysis since they run in parallel
                             detailed_progress_html = f"""
-                            <div style='background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
-                                        border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
-                                        border: 1px solid #bdbdbd;'>
-                                <h4 style='margin: 0 0 0.8rem 0; color: #424242;'>📋 Analysis Pipeline - Sequence of Operations</h4>
-                                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.85rem;'>
+                            <div class='pipeline-panel'>
+                                <h4 class='pipeline-panel__title'>📋 Analysis Pipeline - Sequence of Operations</h4>
+                                <div class='pipeline-grid'>
                             """
                             
                             for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
                                 # All detectors run in parallel during analysis, so show as "running"
                                 status_icon = "🔄"
-                                bg_color = "rgba(25, 118, 210, 0.1)"
                                 detailed_progress_html += f"""
-                                    <div style='background: {bg_color}; padding: 0.5rem; border-radius: 6px; 
-                                                border-left: 3px solid #1976d2;'>
-                                        <span style='font-weight: 600;'>{status_icon} {j+1}. {detector_name}</span>
-                                        <br/><span style='font-size: 0.75rem; color: #757575;'>{detector_desc}</span>
+                                    <div class='detector-item'>
+                                        <span class='detector-item__name'>{status_icon} {j+1}. {detector_name}</span>
+                                        <br/><span class='detector-item__desc'>{detector_desc}</span>
                                     </div>
                                 """
                             
                             detailed_progress_html += """
                                 </div>
-                                <p style='margin: 0.8rem 0 0 0; font-size: 0.8rem; color: #616161; text-align: center;'>
+                                <p class='pipeline-panel__footer'>
                                     All 9 detectors run in parallel for each sequence, followed by hybrid/cluster detection
                                 </p>
                             </div>
@@ -1829,10 +1999,10 @@ with tab_pages["Upload & Analyze"]:
                             
                             # Build sequence completion info HTML
                             seq_complete_info_html = f"""
-                                <p style='margin: 0; font-size: 0.9rem; text-align: center;'>
+                                <p class='sequence-info__text'>
                                     <strong>Processed</strong>: {name} ({len(seq):,} bp) in {seq_time:.2f}s - {len(results)} motifs found
                                 </p>
-                                <p style='margin: 0.3rem 0 0 0; font-size: 0.85rem; opacity: 0.9; text-align: center;'>
+                                <p class='sequence-info__subtext'>
                                     Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp ({speed:,.0f} bp/s)
                                 </p>
                             """
@@ -1896,30 +2066,28 @@ with tab_pages["Upload & Analyze"]:
                         
                         # Show final success message with enhanced performance metrics
                         timer_placeholder.markdown(f"""
-                        <div style='background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); 
-                                    border-radius: 12px; padding: 1.5rem; color: white;
-                                    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); margin-bottom: 1rem;'>
-                            <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>✅ Analysis Complete!</h3>
-                            <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_time:.2f}s</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Total Time</p>
+                        <div class='progress-panel progress-panel--success'>
+                            <h3 class='progress-panel__title'>✅ Analysis Complete!</h3>
+                            <div class='stats-grid stats-grid--wide'>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{total_time:.2f}s</h2>
+                                    <p class='stat-card__label'>Total Time</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{total_bp_processed:,}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Base Pairs</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{total_bp_processed:,}</h2>
+                                    <p class='stat-card__label'>Base Pairs</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{overall_speed:,.0f}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>bp/second</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{overall_speed:,.0f}</h2>
+                                    <p class='stat-card__label'>bp/second</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{len(DETECTOR_PROCESSES)}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Detectors Run</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{len(DETECTOR_PROCESSES)}</h2>
+                                    <p class='stat-card__label'>Detectors Run</p>
                                 </div>
-                                <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                                    <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{sum(len(r) for r in all_results)}</h2>
-                                    <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.85rem;'>Motifs Found</p>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>{sum(len(r) for r in all_results)}</h2>
+                                    <p class='stat-card__label'>Motifs Found</p>
                                 </div>
                             </div>
                         </div>
@@ -1952,34 +2120,32 @@ with tab_pages["Results"]:
         if st.session_state.get('performance_metrics'):
             metrics = st.session_state.performance_metrics
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); 
-                        border-radius: 12px; padding: 1.5rem; color: white; margin-bottom: 2rem;
-                        box-shadow: 0 4px 16px rgba(13, 71, 161, 0.25);'>
-                <h3 style='margin: 0 0 1rem 0; color: white; text-align: center;'>⚡ Performance Metrics</h3>
-                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_time']:.2f}s</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Processing Time</p>
+            <div class='progress-panel progress-panel--metrics'>
+                <h3 class='progress-panel__title'>⚡ Performance Metrics</h3>
+                <div class='stats-grid stats-grid--wide'>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
+                        <p class='stat-card__label'>Processing Time</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_bp']:,}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Base Pairs</p>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics['total_bp']:,}</h2>
+                        <p class='stat-card__label'>Base Pairs</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['speed']:,.0f}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>bp/second</p>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics['speed']:,.0f}</h2>
+                        <p class='stat-card__label'>bp/second</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics.get('detector_count', 9)}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Detector Processes</p>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics.get('detector_count', 9)}</h2>
+                        <p class='stat-card__label'>Detector Processes</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['sequences']}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Sequences</p>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics['sequences']}</h2>
+                        <p class='stat-card__label'>Sequences</p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 8px;'>
-                        <h2 style='margin: 0; color: #FFD700; font-size: 1.6rem;'>{metrics['total_motifs']}</h2>
-                        <p style='margin: 0.3rem 0 0 0; opacity: 0.9; font-size: 0.8rem;'>Total Motifs</p>
+                    <div class='stat-card'>
+                        <h2 class='stat-card__value'>{metrics['total_motifs']}</h2>
+                        <p class='stat-card__label'>Total Motifs</p>
                     </div>
                 </div>
             </div>
@@ -2027,47 +2193,40 @@ with tab_pages["Results"]:
             
             # Enhanced summary card with modern research-quality styling
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); 
-                        border-radius: 16px; padding: 2rem; margin: 1.5rem 0; color: white;
-                        box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);'>
-                <h3 style='margin: 0 0 1.5rem 0; color: white; text-align: center; font-size: 1.5rem; font-weight: 700;'>
+            <div class='progress-panel progress-panel--results'>
+                <h3 class='progress-panel__title progress-panel__title--large'>
                     🧬 NBDScanner Analysis Results
                 </h3>
-                <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-                            gap: 1.5rem; margin-top: 1rem;'>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                <div class='stats-grid stats-grid--extra-wide'>
+                    <div class='stat-card stat-card--large'>
+                        <h2 class='stat-card__value stat-card__value--large'>
                             {stats.get("Coverage%", 0):.2f}%
                         </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        <p class='stat-card__label stat-card__label--large'>
                             Sequence Coverage
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div class='stat-card stat-card--large'>
+                        <h2 class='stat-card__value stat-card__value--large'>
                             {stats.get("Density", 0):.2f}
                         </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        <p class='stat-card__label stat-card__label--large'>
                             Motif Density<br>(motifs/kb)
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div class='stat-card stat-card--large'>
+                        <h2 class='stat-card__value stat-card__value--large'>
                             {motif_count}
                         </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        <p class='stat-card__label stat-card__label--large'>
                             Total Motifs
                         </p>
                     </div>
-                    <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                        <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                    <div class='stat-card stat-card--large'>
+                        <h2 class='stat-card__value stat-card__value--large'>
                             {sequence_length:,}
                         </h2>
-                        <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                        <p class='stat-card__label stat-card__label--large'>
                             Sequence Length (bp)
                         </p>
                     </div>
@@ -2293,47 +2452,40 @@ with tab_pages["Results"]:
                     
                     # Summary metrics with detailed breakdown
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); 
-                                border-radius: 16px; padding: 2rem; margin: 1rem 0; color: white;
-                                box-shadow: 0 8px 24px rgba(156, 39, 176, 0.25);'>
-                        <h3 style='margin: 0 0 1.5rem 0; color: white; text-align: center; font-size: 1.5rem; font-weight: 700;'>
+                    <div class='progress-panel progress-panel--hybrid'>
+                        <h3 class='progress-panel__title progress-panel__title--large'>
                             🔗 Hybrid & Cluster Motif Summary
                         </h3>
-                        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-                                    gap: 1.5rem; margin-top: 1rem;'>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                        <div class='stats-grid stats-grid--extra-wide'>
+                            <div class='stat-card stat-card--large'>
+                                <h2 class='stat-card__value stat-card__value--large'>
                                     {len(hybrid_only)}
                                 </h2>
-                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                <p class='stat-card__label stat-card__label--large'>
                                     Hybrid Motifs
                                 </p>
                             </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                            <div class='stat-card stat-card--large'>
+                                <h2 class='stat-card__value stat-card__value--large'>
                                     {len(cluster_only)}
                                 </h2>
-                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                <p class='stat-card__label stat-card__label--large'>
                                     DNA Clusters
                                 </p>
                             </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                            <div class='stat-card stat-card--large'>
+                                <h2 class='stat-card__value stat-card__value--large'>
                                     {int(hc_df['Length'].mean()) if 'Length' in hc_df.columns else 0}
                                 </h2>
-                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                <p class='stat-card__label stat-card__label--large'>
                                     Avg Length (bp)
                                 </p>
                             </div>
-                            <div style='text-align: center; background: rgba(255,255,255,0.15); 
-                                        padding: 1.2rem; border-radius: 12px; backdrop-filter: blur(10px);'>
-                                <h2 style='margin: 0 0 0.5rem 0; color: #FFD700; font-size: 2.2rem; font-weight: 800;'>
+                            <div class='stat-card stat-card--large'>
+                                <h2 class='stat-card__value stat-card__value--large'>
                                     {len(hybrid_cluster_motifs)}
                                 </h2>
-                                <p style='margin: 0; font-size: 0.95rem; opacity: 0.95; font-weight: 500;'>
+                                <p class='stat-card__label stat-card__label--large'>
                                     Total
                                 </p>
                             </div>
