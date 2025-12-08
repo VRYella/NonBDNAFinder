@@ -194,6 +194,20 @@ def set_scientific_style(style: str = 'nature'):
         sns.set_palette("husl")
 
 # =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def _apply_nature_style(ax):
+    """Apply Nature journal style to matplotlib axis (remove top/right spines).
+    
+    | Parameter | Type | Description            |
+    |-----------|------|------------------------|
+    | ax        | Axes | Matplotlib axis object |
+    """
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+# =============================================================================
 # DISTRIBUTION PLOTS (Nature-Level Quality)
 # =============================================================================
 
@@ -307,9 +321,8 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
                 ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.02,
                         str(count), ha='center', va='bottom', fontsize=6)
     
-    # Remove top/right spines (Nature style)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # Apply Nature journal style
+    _apply_nature_style(ax)
     
     plt.tight_layout()
     return fig
@@ -632,9 +645,8 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
     # Clean x-axis ticks
     ax.ticklabel_format(style='sci', axis='x', scilimits=(3, 3))
     
-    # Remove top/right spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # Apply Nature journal style
+    _apply_nature_style(ax)
     
     plt.tight_layout()
     return fig
@@ -825,9 +837,8 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         display_title = title.replace('_', ' ')
         ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Remove top/right spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # Apply Nature journal style
+    _apply_nature_style(ax)
     
     plt.tight_layout()
     return fig
@@ -916,9 +927,8 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         display_title = title.replace('_', ' ')
         ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Remove top/right spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # Apply Nature journal style
+    _apply_nature_style(ax)
     
     plt.tight_layout()
     return fig
