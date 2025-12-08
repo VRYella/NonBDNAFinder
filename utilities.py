@@ -1451,6 +1451,119 @@ def parse_fasta(fasta_content: str) -> Dict[str, str]:
     
     return sequences
 
+def parse_fasta_chunked(file_object, chunk_size_mb: int = 5):
+    """
+    Memory-efficient FASTA parser using chunked reading for large files.
+    Yields (name, sequence) tuples one at a time to avoid loading entire file in memory.
+    
+    This version is optimized to use less memory than loading the entire file at once
+    by processing sequences one at a time and yielding them immediately.
+    
+    Args:
+        file_object: File-like object (from st.file_uploader or open())
+        chunk_size_mb: Size of read chunks in MB (default: 5MB - reduced for better memory)
+        
+    Yields:
+        Tuple of (sequence_name, sequence_string)
+    """
+    chunk_size = chunk_size_mb * 1024 * 1024  # Convert to bytes
+    current_name = None
+    current_seq_parts = []  # Use list to accumulate, join only when yielding
+    
+    # Read file in smaller chunks to avoid memory overflow
+    buffer = ""
+    while True:
+        chunk = file_object.read(chunk_size)
+        if not chunk:
+            break
+        
+        # Decode if bytes
+        if isinstance(chunk, bytes):
+            chunk = chunk.decode('utf-8', errors='ignore')
+        
+        buffer += chunk
+        lines = buffer.split('\n')
+        
+        # Keep the last incomplete line in buffer
+        buffer = lines[-1]
+        lines = lines[:-1]
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            if line.startswith('>'):
+                # Yield previous sequence
+                if current_name and current_seq_parts:
+                    # Join and yield, then clear parts to free memory immediately
+                    full_seq = ''.join(current_seq_parts)
+                    current_seq_parts.clear()  # Free memory immediately
+                    yield (current_name, full_seq)
+                    del full_seq  # Help garbage collector
+                
+                # Start new sequence
+                current_name = line[1:].strip()
+                if not current_name:
+                    current_name = f"sequence_{id(line)}"
+                current_seq_parts = []
+            else:
+                # Add to current sequence
+                current_seq_parts.append(line.upper())
+    
+    # Process remaining buffer
+    if buffer.strip() and not buffer.startswith('>'):
+        current_seq_parts.append(buffer.strip().upper())
+    
+    # Yield last sequence
+    if current_name and current_seq_parts:
+        full_seq = ''.join(current_seq_parts)
+        current_seq_parts.clear()
+        yield (current_name, full_seq)
+        del full_seq
+
+def get_file_preview(file_object, max_sequences: int = 3, max_preview_chars: int = 400):
+    """
+    Get a preview of FASTA file content without loading entire file.
+    
+    Args:
+        file_object: File-like object from st.file_uploader
+        max_sequences: Maximum number of sequences to preview (default: 3)
+        max_preview_chars: Maximum characters to show per sequence (default: 400)
+        
+    Returns:
+        Dict with keys: 'num_sequences', 'total_bp', 'previews' (list of dicts)
+    """
+    file_object.seek(0)  # Reset to beginning
+    
+    previews = []
+    total_bp = 0
+    num_sequences = 0
+    
+    for name, seq in parse_fasta_chunked(file_object):
+        num_sequences += 1
+        seq_len = len(seq)
+        total_bp += seq_len
+        
+        if len(previews) < max_sequences:
+            preview_seq = seq[:max_preview_chars]
+            if len(seq) > max_preview_chars:
+                preview_seq += "..."
+            
+            previews.append({
+                'name': name,
+                'length': seq_len,
+                'preview': preview_seq
+            })
+    
+    file_object.seek(0)  # Reset for subsequent use
+    
+    return {
+        'num_sequences': num_sequences,
+        'total_bp': total_bp,
+        'previews': previews
+    }
+
 def write_fasta(sequences: Dict[str, str], filename: str) -> bool:
     """
     Write sequences to FASTA format file
