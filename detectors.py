@@ -1868,7 +1868,7 @@ PERFORMANCE OPTIMIZATIONS:
 - Safe-guards to avoid explosion on highly-repetitive seeds
 
 Detects and annotates complete repeat regions, following:
-- STRs: Unit size 1–9 bp, ≥10 bp in span, non-overlapping, match full region
+- STRs: Unit size 1–9 bp, ≥20 bp in span, non-overlapping, match full region
 - Direct repeats: Unit length 10-300 bp, spacer <= 10 bp
 
 References:

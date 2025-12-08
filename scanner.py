@@ -34,7 +34,7 @@ Optimized genome-scale Python scanner for:
  - Direct repeats (unit length 10..300 bp, spacer <= 10 bp)
  - Inverted repeats (arm >= 6 bp, loop <= 100 bp)
  - Mirror repeats (arm >= 10 bp, loop <= 100 bp)
- - STRs (unit size 1..9 bp, total repeated length >= 10 bp)
+ - STRs (unit size 1..9 bp, total repeated length >= 20 bp)
 
 Design:
  - Seed-and-extend using k-mer indices (dict: kmer -> list(positions))
