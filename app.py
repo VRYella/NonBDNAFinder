@@ -120,7 +120,7 @@ def cache_hyperscan_database(_patterns: list = None):
 st.set_page_config(
     page_title="NBDScanner - Non-B DNA Motif Finder",
     layout="wide",
-    page_icon="🧬",
+    page_icon="",
     menu_items={'About': "NBDScanner | Developed by Dr. Venkata Rajesh Yella"}
 )
 
@@ -222,7 +222,7 @@ COLOR_THEMES = {
         'accent': '#A8C5FF',         # Very soft blue accent
         'bg_light': '#F8FAFC',       # Very light gray-blue background
         'bg_card': '#EEF2FF',        # Soft indigo-tinted card background
-        'text': '#374151',           # Softer dark gray for text
+        'text': '#1F2937',           # Darker gray for better readability
         'tab_bg': '#F1F5F9',         # Light slate for tab bar
         'tab_active': '#5B8DEF',     # Active tab color
         'shadow': 'rgba(91, 141, 239, 0.15)'  # Soft shadow color
@@ -233,7 +233,7 @@ COLOR_THEMES = {
         'accent': '#B8E5C0',         # Very soft green accent
         'bg_light': '#F7FBF8',       # Very light green background
         'bg_card': '#E8F5E9',        # Soft green card background
-        'text': '#374151',
+        'text': '#1F2937',           # Darker gray for better readability
         'tab_bg': '#F0F9F1',
         'tab_active': '#6DBB7A',
         'shadow': 'rgba(109, 187, 122, 0.15)'
@@ -244,7 +244,7 @@ COLOR_THEMES = {
         'accent': '#D4CFF0',         # Very soft purple accent
         'bg_light': '#FAF9FD',       # Very light purple background
         'bg_card': '#EDE7F6',        # Soft purple card background
-        'text': '#374151',
+        'text': '#1F2937',           # Darker gray for better readability
         'tab_bg': '#F5F3FA',
         'tab_active': '#9B8FD9',
         'shadow': 'rgba(155, 143, 217, 0.15)'
@@ -255,7 +255,7 @@ COLOR_THEMES = {
         'accent': '#A8E4DE',         # Very soft teal accent
         'bg_light': '#F6FBFB',       # Very light teal background
         'bg_card': '#E0F2F1',        # Soft teal card background
-        'text': '#374151',
+        'text': '#1F2937',           # Darker gray for better readability
         'tab_bg': '#EBF7F6',
         'tab_active': '#5BBFB4',
         'shadow': 'rgba(91, 191, 180, 0.15)'
@@ -391,12 +391,12 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab"] {{
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
         font-weight: 500 !important;
         font-family: var(--font-primary) !important;
         padding: 12px 16px !important;
         text-align: center !important;
-        color: {'#94a3b8' if is_dark_mode else '#64748b'} !important;
+        color: {'#475569' if is_dark_mode else '#334155'} !important;
         background: transparent !important;
         border: none !important;
         border-radius: var(--border-radius-pill) !important;
@@ -484,7 +484,7 @@ st.markdown(f"""
     
     /* Body text: Modern Inter font for readability */
     .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 0.95rem !important;
+        font-size: 1.0rem !important;
         font-family: var(--font-primary) !important;
         line-height: 1.65 !important;
         color: var(--text-color) !important;
@@ -495,7 +495,7 @@ st.markdown(f"""
     /* Input fields: Clean design with soft borders */
     input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
     .stMultiSelect>div>div>div, .stRadio>div>div>label>div {{
-        font-size: 0.95rem !important;
+        font-size: 1.0rem !important;
         font-family: var(--font-primary) !important;
         border-radius: var(--border-radius-md) !important;
         border: 1.5px solid {'#475569' if is_dark_mode else '#E2E8F0'} !important;
@@ -513,7 +513,7 @@ st.markdown(f"""
        BUTTONS: Soft gradient with subtle shadow
        ============================================ */
     .stButton>button {{
-        font-size: 0.95rem !important;
+        font-size: 1.0rem !important;
         font-family: var(--font-primary) !important;
         padding: 0.65em 1.5em !important;
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
@@ -1472,7 +1472,7 @@ with tab_pages["Home"]:
             st.markdown("""
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         border-radius: 15px; padding: 40px; text-align: center; color: white;'>
-                <h2 style='margin: 0; color: white;'>🧬</h2>
+                <h2 style='margin: 0; color: white;'>DNA</h2>
                 <h3 style='margin: 10px 0 0 0; color: white;'>NBD Finder</h3>
                 <p style='margin: 5px 0 0 0; color: #E8E8E8;'>Non-B DNA Detection</p>
             </div>
@@ -1516,7 +1516,7 @@ with tab_pages["Upload & Analyze"]:
     # Show unlimited processing info for web version
     st.info("""
     📏 **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
-    🔧 Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
+    Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
     """)
 
     st.markdown("---")
@@ -1552,7 +1552,7 @@ with tab_pages["Upload & Analyze"]:
                     seqs.append(cur_seq)
                     names.append(cur_name if cur_name else f"Seq{len(seqs)}")
                 if seqs:
-                    st.success(f"✅ Loaded {len(seqs)} sequences.")
+                    st.success(f"Loaded {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
                         st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
@@ -1580,7 +1580,7 @@ with tab_pages["Upload & Analyze"]:
                     seqs.append(cur_seq)
                     names.append(cur_name if cur_name else f"Seq{len(seqs)}")
                 if seqs:
-                    st.success(f"✅ Pasted {len(seqs)} sequences.")
+                    st.success(f"Pasted {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
                         st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
@@ -1593,16 +1593,16 @@ with tab_pages["Upload & Analyze"]:
         elif input_method == "🧪 Example Data":
             ex_type = st.radio("Example Type:", ["Single Example", "Multi-FASTA Example"], horizontal=True)
             if ex_type == "Single Example":
-                if st.button("🔬 Load Single Example"):
+                if st.button("Load Single Example"):
                     parsed_fasta = parse_fasta(EXAMPLE_FASTA)
                     seqs = list(parsed_fasta.values())
                     names = list(parsed_fasta.keys())
-                    st.success("✅ Single example sequence loaded.")
+                    st.success("Single example sequence loaded.")
                     stats = get_basic_stats(seqs[0])
                     st.code(EXAMPLE_FASTA, language="fasta")
                     st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
             else:
-                if st.button("🔬 Load Multi-FASTA Example"):
+                if st.button("Load Multi-FASTA Example"):
                     seqs, names = [], []
                     cur_seq, cur_name = "", ""
                     for line in EXAMPLE_MULTI_FASTA.splitlines():
@@ -1617,7 +1617,7 @@ with tab_pages["Upload & Analyze"]:
                     if cur_seq:
                         seqs.append(cur_seq)
                         names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                    st.success(f"✅ Multi-FASTA example loaded with {len(seqs)} sequences.")
+                    st.success(f"Multi-FASTA example loaded with {len(seqs)} sequences.")
                     for i, seq in enumerate(seqs[:3]):
                         stats = get_basic_stats(seq)
                         st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
@@ -1635,7 +1635,7 @@ with tab_pages["Upload & Analyze"]:
                 "eGZ-motif": "CGG repeat region",
                 "AC-motif": "A-rich/C-rich consensus region"
             }
-            with st.popover("📋 View Example Queries", use_container_width=True):
+            with st.popover("View Example Queries", use_container_width=True):
                 st.markdown("**Motif Example Queries:**")
                 for motif, example in motif_examples.items():
                     st.markdown(f"• **{motif}**: `{example}`")
@@ -1667,7 +1667,7 @@ with tab_pages["Upload & Analyze"]:
 
         # Sequence Preview lives under the input column for immediate feedback
         if st.session_state.get('seqs'):
-            st.markdown("### 📊 Sequence Preview")
+            st.markdown("### Sequence Preview")
             for i, seq in enumerate(st.session_state.seqs[:2]):
                 stats = get_basic_stats(seq)
                 st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
@@ -1680,10 +1680,10 @@ with tab_pages["Upload & Analyze"]:
         st.markdown("### 🚀 Analysis & Run")
         
         # Analysis controls simplified
-        st.markdown("### ⚙️ Analysis Options")
+        st.markdown("### Analysis Options")
         
         # Enable all classes by default in consolidated system
-        st.info("🔬 **NBDScanner detects all 11 motif classes with 22+ subclasses automatically**")
+        st.info("**NBDScanner detects all 11 motif classes with 22+ subclasses automatically**")
         
         # Simple options
         col1, col2 = st.columns(2)
@@ -1695,7 +1695,7 @@ with tab_pages["Upload & Analyze"]:
                                       help="Validate detected motifs")
         
         # Advanced options using toggle + container for cleaner UI
-        show_advanced = st.toggle("⚙️ Show Advanced Options", value=False, help="Toggle advanced analysis options")
+        show_advanced = st.toggle("Show Advanced Options", value=False, help="Toggle advanced analysis options")
         
         if show_advanced:
             with st.container(border=True):
@@ -1709,7 +1709,7 @@ with tab_pages["Upload & Analyze"]:
                                                       help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
                 
                 if use_parallel_scanner:
-                    st.info("ℹ️ Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
+                    st.info("Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
         else:
             show_chunk_progress = False
             use_parallel_scanner = False
@@ -1720,10 +1720,10 @@ with tab_pages["Upload & Analyze"]:
         
         
         # ========== RUN ANALYSIS BUTTON ========== 
-        if st.button("🔬 Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
+        if st.button("Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
             # Simplified validation
             if not st.session_state.seqs:
-                st.error("❌ Please upload or input sequences before running analysis.")
+                st.error("Please upload or input sequences before running analysis.")
                 st.session_state.analysis_status = "Error"
             else:
                 # =============================================================
@@ -1742,7 +1742,7 @@ with tab_pages["Upload & Analyze"]:
                 if sequences_over_limit:
                     limit_display = format_sequence_limit()
                     st.error(f"""
-                    ❌ **Sequence Length Limit Exceeded**
+                    **Sequence Length Limit Exceeded**
                     
                     The following sequence(s) exceed the maximum allowed length of **{limit_display}** for the web version:
                     """)
@@ -1750,7 +1750,7 @@ with tab_pages["Upload & Analyze"]:
                         st.error(f"• **{seq_name}**: {seq_len:,} nucleotides ({seq_len - MAX_SEQUENCE_LENGTH:,} over limit)")
                     
                     st.info("""
-                    💡 **For unlimited sequence analysis:**
+                    **For unlimited sequence analysis:**
                     
                     Use the **local Jupyter notebook version** (`NonBScanner_Local.ipynb`) which has no sequence length limits.
                     The local version is optimized for large genome-scale analysis on your own hardware.
@@ -1882,10 +1882,10 @@ with tab_pages["Upload & Analyze"]:
                             
                             # Determine status text based on progress state
                             if total_bp_processed == 0:
-                                status_text = "🔄 Starting analysis..."
+                                status_text = "Starting analysis..."
                                 progress_display = "Starting"
                             else:
-                                status_text = "🔄 Analysis in progress..."
+                                status_text = "Analysis in progress..."
                                 progress_display = f"{overall_percentage:.1f}%"
                             
                             # Build sequence info HTML
@@ -1922,13 +1922,13 @@ with tab_pages["Upload & Analyze"]:
                             # The status_icon shows all detectors as "running" during analysis since they run in parallel
                             detailed_progress_html = f"""
                             <div class='pipeline-panel'>
-                                <h4 class='pipeline-panel__title'>📋 Analysis Pipeline - Sequence of Operations</h4>
+                                <h4 class='pipeline-panel__title'>Analysis Pipeline - Sequence of Operations</h4>
                                 <div class='pipeline-grid'>
                             """
                             
                             for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
                                 # All detectors run in parallel during analysis, so show as "running"
-                                status_icon = "🔄"
+                                status_icon = ">"
                                 detailed_progress_html += f"""
                                     <div class='detector-item'>
                                         <span class='detector-item__name'>{status_icon} {j+1}. {detector_name}</span>
@@ -1960,7 +1960,7 @@ with tab_pages["Upload & Analyze"]:
                                         """Callback to update chunk progress"""
                                         if show_chunk_progress:
                                             chunk_percent = (current / total) * 100
-                                            chunk_progress_placeholder.info(f"🔄 Processing chunks: {current}/{total} ({chunk_percent:.1f}%)")
+                                            chunk_progress_placeholder.info(f"Processing chunks: {current}/{total} ({chunk_percent:.1f}%)")
                                     
                                     # Run parallel scanner
                                     scanner = ParallelScanner(seq, hs_db=None)
@@ -2016,7 +2016,7 @@ with tab_pages["Upload & Analyze"]:
                             # Update timer display with actual progress using helper function
                             updated_timer_html = build_progress_html(
                                 elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
-                                f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
+                                f"Sequence {i+1}/{len(st.session_state.seqs)} completed",
                                 seq_complete_info_html, len(DETECTOR_PROCESSES)
                             )
                             timer_placeholder.markdown(updated_timer_html, unsafe_allow_html=True)
@@ -2073,7 +2073,7 @@ with tab_pages["Upload & Analyze"]:
                         # Show final success message with enhanced performance metrics
                         timer_placeholder.markdown(f"""
                         <div class='progress-panel progress-panel--success'>
-                            <h3 class='progress-panel__title'>✅ Analysis Complete!</h3>
+                            <h3 class='progress-panel__title'>Analysis Complete!</h3>
                             <div class='stats-grid stats-grid--wide'>
                                 <div class='stat-card'>
                                     <h2 class='stat-card__value'>{total_time:.2f}s</h2>
@@ -2107,7 +2107,7 @@ with tab_pages["Upload & Analyze"]:
                         progress_placeholder.empty()
                         status_placeholder.empty()
                         detailed_progress_placeholder.empty()
-                        st.error(f"❌ Analysis failed: {str(e)}")
+                        st.error(f"Analysis failed: {str(e)}")
                         st.session_state.analysis_status = "Error"
 
         # Show quick summary table if available
@@ -2127,7 +2127,7 @@ with tab_pages["Results"]:
             metrics = st.session_state.performance_metrics
             st.markdown(f"""
             <div class='progress-panel progress-panel--metrics'>
-                <h3 class='progress-panel__title'>⚡ Performance Metrics</h3>
+                <h3 class='progress-panel__title'>Performance Metrics</h3>
                 <div class='stats-grid stats-grid--wide'>
                     <div class='stat-card'>
                         <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
@@ -2158,7 +2158,7 @@ with tab_pages["Results"]:
             """, unsafe_allow_html=True)
         
         # Enhanced summary display
-        st.markdown("### 📊 Analysis Summary")
+        st.markdown("### Analysis Summary")
         st.dataframe(st.session_state.summary_df, use_container_width=True)
         
         # Sequence selection for detailed analysis using pills for better UX
@@ -2201,7 +2201,7 @@ with tab_pages["Results"]:
             st.markdown(f"""
             <div class='progress-panel progress-panel--results'>
                 <h3 class='progress-panel__title progress-panel__title--large'>
-                    🧬 NBDScanner Analysis Results
+                    NBDScanner Analysis Results
                 </h3>
                 <div class='stats-grid stats-grid--extra-wide'>
                     <div class='stat-card stat-card--large'>
@@ -2242,7 +2242,7 @@ with tab_pages["Results"]:
             
             # Add info about hybrid/cluster motifs being shown separately
             if hybrid_cluster_count > 0:
-                st.info(f"ℹ️ {hybrid_cluster_count} Hybrid/Cluster motifs detected. View them in the 'Cluster/Hybrid' tab below.")
+                st.info(f"{hybrid_cluster_count} Hybrid/Cluster motifs detected. View them in the 'Cluster/Hybrid' tab below.")
             
             # Motif class distribution summary (no score visualization as per requirements)
             if filtered_motifs:
@@ -2460,7 +2460,7 @@ with tab_pages["Results"]:
                     st.markdown(f"""
                     <div class='progress-panel progress-panel--hybrid'>
                         <h3 class='progress-panel__title progress-panel__title--large'>
-                            🔗 Hybrid & Cluster Motif Summary
+                            Hybrid & Cluster Motif Summary
                         </h3>
                         <div class='stats-grid stats-grid--extra-wide'>
                             <div class='stat-card stat-card--large'>
@@ -2534,7 +2534,7 @@ with tab_pages["Results"]:
                             hybrid_df = pd.DataFrame(hybrid_only)
                             
                             # Show component classes information
-                            st.info(f"🔗 **Hybrid motifs** are regions where different Non-B DNA motif classes overlap. Found {len(hybrid_only)} hybrid regions.")
+                            st.info(f"**Hybrid motifs** are regions where different Non-B DNA motif classes overlap. Found {len(hybrid_only)} hybrid regions.")
                             
                             # Extended columns for hybrid motifs
                             extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Component_Classes']
@@ -2569,7 +2569,7 @@ with tab_pages["Results"]:
                             cluster_df = pd.DataFrame(cluster_only)
                             
                             # Show cluster information
-                            st.info(f"📊 **DNA Clusters** are high-density regions with multiple Non-B DNA motif classes. Found {len(cluster_only)} cluster regions.")
+                            st.info(f"**DNA Clusters** are high-density regions with multiple Non-B DNA motif classes. Found {len(cluster_only)} cluster regions.")
                             
                             # Extended columns for cluster motifs
                             extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Motif_Count', 'Class_Diversity']
@@ -2600,7 +2600,7 @@ with tab_pages["Results"]:
                         else:
                             st.info("No DNA clusters detected in this sequence.")
                 else:
-                    st.info("ℹ️ No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in close proximity.")
+                    st.info("No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in close proximity.")
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
@@ -2608,7 +2608,7 @@ with tab_pages["Download"]:
     if not st.session_state.results:
         st.info("No results available to download.")
     else:
-        st.markdown("### 📊 Export Options")
+        st.markdown("### Export Options")
         
         # Show analysis configuration used
         overlap_option_used = st.session_state.get('overlap_option_used', 'Remove overlaps within subclasses (default)')
@@ -2623,7 +2623,7 @@ with tab_pages["Download"]:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("**📊 Export Configuration**")
+            st.markdown("**Export Configuration**")
             
         with col2:
             include_sequences = st.checkbox("Include Full Sequences", value=True,
@@ -2646,21 +2646,21 @@ with tab_pages["Download"]:
         
         # Info about excluded motifs
         if hybrid_cluster_motifs_export:
-            st.info(f"ℹ️ {len(hybrid_cluster_motifs_export)} Hybrid/Cluster motifs are excluded from downloads. These are shown only in the Cluster/Hybrid visualization tab.")
+            st.info(f"{len(hybrid_cluster_motifs_export)} Hybrid/Cluster motifs are excluded from downloads. These are shown only in the Cluster/Hybrid visualization tab.")
         
         # Display preview
         if all_motifs:
             df_preview = export_results_to_dataframe(all_motifs).head(10)
-            st.markdown("### 👀 Export Preview")
+            st.markdown("### Export Preview")
             st.dataframe(df_preview, use_container_width=True)
             st.caption(f"Showing first 10 of {len(all_motifs)} total records (Hybrid/Cluster motifs excluded)")
         
         # Export buttons using consolidated functions
-        st.markdown("### 💾 Download Files")
+        st.markdown("### Download Files")
         
         # Add helpful info about Excel format
         st.info("""
-        💡 **Excel Format**: Downloads a multi-sheet workbook with:
+        **Excel Format**: Downloads a multi-sheet workbook with:
         • **Consolidated Sheet**: All non-overlapping motifs
         • **Class Sheets**: Separate sheets for each motif class (G-Quadruplex, Z-DNA, etc.)
         • **Subclass Sheets**: Detailed breakdown by subclass (when multiple subclasses exist)
@@ -2673,7 +2673,7 @@ with tab_pages["Download"]:
             if all_motifs:
                 csv_data = export_to_csv(all_motifs)
                 st.download_button(
-                    "📄 Download CSV", 
+                    "Download CSV", 
                     data=csv_data.encode('utf-8'), 
                     file_name="nbdscanner_results.csv", 
                     mime="text/csv",
@@ -2687,7 +2687,7 @@ with tab_pages["Download"]:
                 try:
                     excel_bytes = generate_excel_bytes(all_motifs)
                     st.download_button(
-                        "📊 Download Excel", 
+                        "Download Excel", 
                         data=excel_bytes, 
                         file_name="nbdscanner_results.xlsx", 
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -2702,7 +2702,7 @@ with tab_pages["Download"]:
             if all_motifs:
                 json_data = export_to_json(all_motifs, pretty=True)
                 st.download_button(
-                    "📋 Download JSON", 
+                    "Download JSON", 
                     data=json_data.encode('utf-8'), 
                     file_name="nbdscanner_results.json", 
                     mime="application/json",
@@ -2715,7 +2715,7 @@ with tab_pages["Download"]:
             if all_motifs and st.session_state.names:
                 bed_data = export_to_bed(all_motifs, st.session_state.names[0])
                 st.download_button(
-                    "🧬 Download BED", 
+                    "Download BED", 
                     data=bed_data.encode('utf-8'), 
                     file_name="nbdscanner_results.bed", 
                     mime="text/plain",
@@ -2724,7 +2724,7 @@ with tab_pages["Download"]:
                 )
         
         # Additional export options in a new row
-        st.markdown("### 🔧 Additional Exports")
+        st.markdown("### Additional Exports")
         col5, col6, col7, col8 = st.columns(4)
         
         with col5:
@@ -2747,7 +2747,7 @@ with tab_pages["Download"]:
                 }
                 config_json = json.dumps(config_summary, indent=2)
                 st.download_button(
-                    "⚙️ Download Config", 
+                    "Download Config", 
                     data=config_json, 
                     file_name="analysis_configuration.json", 
                     mime="application/json",
@@ -2771,7 +2771,7 @@ with tab_pages["Documentation"]:
     # Motif detection parameters
     st.markdown("""
     <div style='background:#e3f2fd; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial; margin-bottom:20px;'>
-    <b>🔧 Motif Detection Parameters:</b><br><br>
+    <b>Motif Detection Parameters:</b><br><br>
     <table style='width:100%; border-collapse: collapse;'>
         <tr style='background:#1976d2; color:white;'>
             <th style='padding:10px; text-align:left;'>Motif Type</th>
@@ -2842,7 +2842,7 @@ with tab_pages["Documentation"]:
     if CONFIG_AVAILABLE:
         st.markdown("""
         <div style='background:#f1f5f9; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial; margin-top:20px;'>
-        <b>📋 Scoring Configuration Details</b>
+        <b>Scoring Configuration Details</b>
         </div>
         """, unsafe_allow_html=True)
         
