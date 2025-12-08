@@ -1712,7 +1712,7 @@ with tab_pages["Home"]:
 with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
-    st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 200MB/file.")
+    st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
     
     # System Resource Monitor (collapsible for better UX)
     with st.expander("💻 System Resource Monitor", expanded=False):
@@ -1766,6 +1766,10 @@ with tab_pages["Upload & Analyze"]:
                 file_size_mb = fasta_file.size / (1024 * 1024)
                 st.info(f"📁 File: **{fasta_file.name}** | Size: **{file_size_mb:.2f} MB**")
                 
+                # Warn about large files and memory usage
+                if file_size_mb > 100:
+                    st.warning(f"⚠️ Large file detected ({file_size_mb:.2f} MB). Processing may take longer and use more memory.")
+                
                 # Memory-efficient processing with progress indicator
                 with st.spinner(f"Processing {fasta_file.name}..."):
                     # Get preview first (lightweight operation)
@@ -1783,10 +1787,35 @@ with tab_pages["Upload & Analyze"]:
                         st.caption(f"...and {preview_info['num_sequences']-3} more sequences.")
                     
                     # Now parse all sequences using chunked parsing for memory efficiency
+                    # Use progress bar for large files with many sequences
                     seqs, names = [], []
-                    for name, seq in parse_fasta_chunked(fasta_file):
-                        names.append(name)
-                        seqs.append(seq)
+                    
+                    if preview_info['num_sequences'] > 10:
+                        # Show progress bar for files with many sequences
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
+                            names.append(name)
+                            seqs.append(seq)
+                            
+                            # Update progress
+                            progress = (idx + 1) / preview_info['num_sequences']
+                            progress_bar.progress(progress)
+                            status_text.text(f"Loading sequence {idx + 1}/{preview_info['num_sequences']}: {name}")
+                            
+                            # Force garbage collection for very large sequences (>10MB each)
+                            if len(seq) > 10_000_000:
+                                import gc
+                                gc.collect()
+                        
+                        progress_bar.empty()
+                        status_text.empty()
+                    else:
+                        # Fast path for small files
+                        for name, seq in parse_fasta_chunked(fasta_file):
+                            names.append(name)
+                            seqs.append(seq)
                     
                     if not seqs:
                         st.warning("No sequences found in file.")

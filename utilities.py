@@ -1451,7 +1451,7 @@ def parse_fasta(fasta_content: str) -> Dict[str, str]:
     
     return sequences
 
-def parse_fasta_chunked(file_object, chunk_size_mb: int = 5):
+def parse_fasta_chunked(file_object, chunk_size_mb: int = 2):
     """
     Memory-efficient FASTA parser using chunked reading for large files.
     Yields (name, sequence) tuples one at a time to avoid loading entire file in memory.
@@ -1461,7 +1461,7 @@ def parse_fasta_chunked(file_object, chunk_size_mb: int = 5):
     
     Args:
         file_object: File-like object (from st.file_uploader or open())
-        chunk_size_mb: Size of read chunks in MB (default: 5MB - reduced for better memory)
+        chunk_size_mb: Size of read chunks in MB (default: 2MB - optimized for memory efficiency)
         
     Yields:
         Tuple of (sequence_name, sequence_string)
