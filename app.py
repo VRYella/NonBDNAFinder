@@ -160,6 +160,36 @@ def ensure_subclass(motif):
         return {'Subclass': 'Other', 'Motif': motif}
 
 
+# ---------- HELPER: Format time for display ----------
+def format_time(seconds):
+    """Format time in seconds to a human-readable string.
+    
+    Args:
+        seconds: Time in seconds (float or int)
+        
+    Returns:
+        Formatted string (e.g., "45.3s", "12m 30s", "2h 15m")
+    
+    Examples:
+        >>> format_time(45.3)
+        '45.3s'
+        >>> format_time(750)
+        '12m 30s'
+        >>> format_time(7800)
+        '2h 10m'
+    """
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    elif seconds < 3600:
+        mins = int(seconds // 60)
+        secs = int(seconds % 60)
+        return f"{mins}m {secs}s"
+    else:
+        hours = int(seconds // 3600)
+        mins = int((seconds % 3600) // 60)
+        return f"{hours}h {mins}m"
+
+
 # ---------- HELPER: Generate Excel data as bytes for download ----------
 def generate_excel_bytes(motifs):
     """
@@ -1827,27 +1857,6 @@ with tab_pages["Upload & Analyze"]:
         # Hardcoded default overlap handling: always remove overlaps within subclasses
         nonoverlap = True
         overlap_option = "Remove overlaps within subclasses"
-        
-        # Helper function for formatting time display
-        def format_time(seconds):
-            """Format time in seconds to a human-readable string.
-            
-            Args:
-                seconds: Time in seconds
-                
-            Returns:
-                Formatted string (e.g., "45.3s", "12m 30s", "2h 15m")
-            """
-            if seconds < 60:
-                return f"{seconds:.1f}s"
-            elif seconds < 3600:
-                mins = int(seconds // 60)
-                secs = int(seconds % 60)
-                return f"{mins}m {secs}s"
-            else:
-                hours = int(seconds // 3600)
-                mins = int((seconds % 3600) // 60)
-                return f"{hours}h {mins}m"
         
         # ========== RUN ANALYSIS BUTTON ========== 
         if st.button("Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
