@@ -477,8 +477,10 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         for subclass_name, count in subclass_dict.items():
             all_subclass_counts.append(count)
             # Truncate long names for clean appearance and replace underscores with spaces
+            # Use consistent truncation length (15 chars max, including ellipsis)
             display_name = subclass_name.replace('_', ' ')
-            label = display_name if len(display_name) <= 15 else display_name[:13] + '…'
+            MAX_LABEL_LENGTH = 15
+            label = display_name if len(display_name) <= MAX_LABEL_LENGTH else display_name[:MAX_LABEL_LENGTH-1] + '…'
             all_subclass_labels.append(label)
             all_subclass_colors.append(base_color)
     
@@ -496,7 +498,9 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         )
         
         # Add a legend for subclasses instead
-        # Create proper color-to-label mapping by tracking first occurrence
+        # Note: All subclasses of the same parent class share the same color by design.
+        # This ensures visual grouping in the nested donut chart.
+        # Track first occurrence of each unique label for the legend.
         seen_labels = {}
         legend_handles = []
         legend_labels = []

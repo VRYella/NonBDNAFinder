@@ -2611,12 +2611,12 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
             df[col] = 'NA'
     
     # Map existing fields to comprehensive column names if they differ
+    # Note: Removed 'Curvature_Score' mapping as Structural_Features is excluded
     column_mappings = {
         'Repeat_Units': 'Number_Of_Copies',
         'Tract_Type': 'Repeat_Type',
         'GC_Total': 'GC_Content',
         'Gc_Total': 'GC_Content',
-        'Curvature_Score': 'Structural_Features',
         'Spacer': 'Spacer_Length',
         'Spacer_Seq': 'Spacer_Sequence'
     }
