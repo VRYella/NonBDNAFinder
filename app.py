@@ -120,7 +120,7 @@ def cache_hyperscan_database(_patterns: list = None):
 st.set_page_config(
     page_title="NBDScanner - Non-B DNA Motif Finder",
     layout="wide",
-    page_icon="",
+    page_icon=None,
     menu_items={'About': "NBDScanner | Developed by Dr. Venkata Rajesh Yella"}
 )
 
@@ -1928,10 +1928,10 @@ with tab_pages["Upload & Analyze"]:
                             
                             for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
                                 # All detectors run in parallel during analysis, so show as "running"
-                                status_icon = ">"
+                                status_icon = "Running"
                                 detailed_progress_html += f"""
                                     <div class='detector-item'>
-                                        <span class='detector-item__name'>{status_icon} {j+1}. {detector_name}</span>
+                                        <span class='detector-item__name'>{status_icon}: {j+1}. {detector_name}</span>
                                         <br/><span class='detector-item__desc'>{detector_desc}</span>
                                     </div>
                                 """
