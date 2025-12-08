@@ -32,7 +32,7 @@ import os  # Added for image path checking
 import numpy as np
 # Import consolidated NBDScanner modules
 from utilities import (
-    parse_fasta, wrap, get_basic_stats, export_to_bed, export_to_csv,
+    parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
     export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density
 )
 from nonbscanner import (
@@ -107,6 +107,40 @@ def cache_hyperscan_database(_patterns: list = None):
     except Exception as e:
         st.warning(f"Hyperscan database compilation failed: {e}")
         return None
+
+
+@st.cache_data(show_spinner=False, max_entries=10, ttl=3600)
+def cache_analysis_results(sequence_hash: str, sequence: str, name: str):
+    """
+    Cache analysis results for sequences to avoid re-computation.
+    Uses sequence hash for efficient cache key lookup.
+    
+    Args:
+        sequence_hash: Hash of sequence for cache key
+        sequence: DNA sequence string
+        name: Sequence name
+        
+    Returns:
+        List of detected motifs
+    """
+    return analyze_sequence(sequence, name)
+
+
+@st.cache_data(show_spinner=False, max_entries=20, ttl=3600)
+def get_cached_stats(sequence: str, motifs_json: str):
+    """
+    Cache statistics calculation for sequences.
+    
+    Args:
+        sequence: DNA sequence
+        motifs_json: JSON string of motifs (for cache key)
+        
+    Returns:
+        Dictionary of sequence statistics
+    """
+    import json
+    motifs = json.loads(motifs_json) if motifs_json else []
+    return get_basic_stats(sequence, motifs)
 
 
 # ---------- PAGE CONFIG ----------
@@ -1669,31 +1703,34 @@ with tab_pages["Upload & Analyze"]:
         if input_method == "Upload FASTA File":
             fasta_file = st.file_uploader("Drag and drop FASTA/multi-FASTA file here", type=["fa", "fasta", "txt", "fna"])
             if fasta_file:
-                content = fasta_file.read().decode("utf-8")
-                seqs, names = [], []
-                cur_seq, cur_name = "", ""
-                for line in content.splitlines():
-                    if line.startswith(">"):
-                        if cur_seq:
-                            seqs.append(cur_seq)
-                            names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                        cur_name = line.strip().lstrip(">")
-                        cur_seq = ""
-                    else:
-                        cur_seq += line.strip()
-                if cur_seq:
-                    seqs.append(cur_seq)
-                    names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                if seqs:
-                    st.success(f"Loaded {len(seqs)} sequences.")
-                    for i, seq in enumerate(seqs[:3]):
-                        stats = get_basic_stats(seq)
-                        st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
+                # Show file info before processing
+                file_size_mb = fasta_file.size / (1024 * 1024)
+                st.info(f"📁 File: **{fasta_file.name}** | Size: **{file_size_mb:.2f} MB**")
+                
+                # Memory-efficient processing with progress indicator
+                with st.spinner(f"Processing {fasta_file.name}..."):
+                    # Get preview first (lightweight operation)
+                    preview_info = get_file_preview(fasta_file, max_sequences=3)
+                    
+                    st.success(f"✅ File contains **{preview_info['num_sequences']} sequences** totaling **{preview_info['total_bp']:,} bp**")
+                    
+                    # Show preview of first few sequences
+                    for prev in preview_info['previews']:
+                        st.markdown(f"**{prev['name']}**: <span style='color:#576574'>{prev['length']:,} bp</span>", unsafe_allow_html=True)
+                        stats = get_basic_stats(prev['preview'].replace('...', ''))  # Basic stats on preview
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
-                    if len(seqs) > 3:
-                        st.caption(f"...and {len(seqs)-3} more.")
-                else:
-                    st.warning("No sequences found.")
+                    
+                    if preview_info['num_sequences'] > 3:
+                        st.caption(f"...and {preview_info['num_sequences']-3} more sequences.")
+                    
+                    # Now parse all sequences using chunked parsing for memory efficiency
+                    seqs, names = [], []
+                    for name, seq in parse_fasta_chunked(fasta_file):
+                        names.append(name)
+                        seqs.append(seq)
+                    
+                    if not seqs:
+                        st.warning("No sequences found in file.")
 
         elif input_method == "Paste Sequence":
             seq_input = st.text_area("Paste single or multi-FASTA here:", height=150, placeholder="Paste your DNA sequence(s) here...")
@@ -2357,7 +2394,7 @@ with tab_pages["Results"]:
             if hybrid_cluster_count > 0:
                 st.info(f"{hybrid_cluster_count} Hybrid/Cluster motifs detected. View them in the 'Cluster/Hybrid' tab below.")
             
-            # Enhanced motif table with new columns
+            # Enhanced motif table with new columns and pagination for large datasets
             # Display table without header as per requirements
             
             # Column selection for display using pills for a more modern, visual approach
@@ -2378,15 +2415,42 @@ with tab_pages["Results"]:
             if display_columns is None:
                 display_columns = []
             
+            # Pagination for large datasets (improves performance)
+            ROWS_PER_PAGE = 100
+            total_rows = len(df)
+            
+            if total_rows > ROWS_PER_PAGE:
+                # Add pagination controls
+                col_pag1, col_pag2, col_pag3 = st.columns([2, 3, 2])
+                with col_pag2:
+                    max_pages = (total_rows + ROWS_PER_PAGE - 1) // ROWS_PER_PAGE
+                    page_num = st.number_input(
+                        f"Page (showing {ROWS_PER_PAGE} rows per page)",
+                        min_value=1,
+                        max_value=max_pages,
+                        value=1,
+                        step=1,
+                        help=f"Total: {total_rows} motifs across {max_pages} pages"
+                    )
+                    start_idx = (page_num - 1) * ROWS_PER_PAGE
+                    end_idx = min(start_idx + ROWS_PER_PAGE, total_rows)
+                    
+                    st.caption(f"Showing motifs {start_idx + 1} to {end_idx} of {total_rows}")
+                
+                # Slice dataframe for current page
+                df_page = df.iloc[start_idx:end_idx]
+            else:
+                df_page = df
+            
             if display_columns:
                 # Filter out sequence and sequence name columns for cleaner display
-                filtered_df = df[display_columns].copy()
+                filtered_df = df_page[display_columns].copy()
                 # Replace underscores with spaces in column names for display
                 filtered_df.columns = [col.replace('_', ' ') for col in filtered_df.columns]
                 st.dataframe(filtered_df, use_container_width=True, height=360)
             else:
                 # Replace underscores with spaces in column names for display
-                display_df = df.copy()
+                display_df = df_page.copy()
                 display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
                 st.dataframe(display_df, use_container_width=True, height=360)
             

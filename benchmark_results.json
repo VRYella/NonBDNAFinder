@@ -1,0 +1,92 @@
+{
+  "Small (10 sequences x 1kb)": {
+    "num_sequences": 10,
+    "sequence_length": 1000,
+    "total_size_mb": 0.011301040649414062,
+    "traditional_parse": {
+      "time": 8.0108642578125e-05,
+      "memory": 0.024547576904296875
+    },
+    "chunked_parse": {
+      "time": 8.7738037109375e-05,
+      "memory": 0.046410560607910156
+    },
+    "preview": {
+      "time": 0.00010371208190917969,
+      "memory": 0.03935432434082031
+    },
+    "improvements": {
+      "time_percent": -9.523809523809524,
+      "memory_percent": -89.06371406371406
+    }
+  },
+  "Medium (50 sequences x 5kb)": {
+    "num_sequences": 50,
+    "sequence_length": 5000,
+    "total_size_mb": 0.27779579162597656,
+    "traditional_parse": {
+      "time": 0.0005114078521728516,
+      "memory": 0.5655555725097656
+    },
+    "chunked_parse": {
+      "time": 0.0005133152008056641,
+      "memory": 1.114914894104004
+    },
+    "preview": {
+      "time": 0.0005567073822021484,
+      "memory": 0.8514137268066406
+    },
+    "improvements": {
+      "time_percent": -0.372960372960373,
+      "memory_percent": -97.13622291021672
+    }
+  },
+  "Large (100 sequences x 10kb)": {
+    "num_sequences": 100,
+    "sequence_length": 10000,
+    "total_size_mb": 1.1088285446166992,
+    "traditional_parse": {
+      "time": 0.0013396739959716797,
+      "memory": 2.237628936767578
+    },
+    "chunked_parse": {
+      "time": 0.0025374889373779297,
+      "memory": 4.442286491394043
+    },
+    "preview": {
+      "time": 0.002335786819458008,
+      "memory": 3.360218048095703
+    },
+    "improvements": {
+      "time_percent": -89.41092721124755,
+      "memory_percent": -98.526503586035
+    }
+  },
+  "Very Large (200 sequences x 20kb)": {
+    "num_sequences": 200,
+    "sequence_length": 20000,
+    "total_size_mb": 4.430285453796387,
+    "traditional_parse": {
+      "time": 0.005915641784667969,
+      "memory": 8.90032958984375
+    },
+    "chunked_parse": {
+      "time": 0.010531425476074219,
+      "memory": 17.734442710876465
+    },
+    "preview": {
+      "time": 0.0074574947357177734,
+      "memory": 13.355871200561523
+    },
+    "improvements": {
+      "time_percent": -78.02676124455908,
+      "memory_percent": -99.25602228386468
+    }
+  },
+  "analysis": {
+    "time": 6.43715763092041,
+    "memory": 6.411720275878906,
+    "motifs": 784,
+    "throughput_bps": 9010.187931611506
+  }
+}
