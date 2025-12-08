@@ -2558,17 +2558,26 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     
     Excludes detailed structural features as per user requirements.
     Only includes core motif identification and characterization fields.
+    
+    Excluded columns (as per requirements): Structural_Features, Strand, AT_Content, 
+    AT_Dinucleotides, A_Tract_Lengths, A_Tracts, Alternating_AT_Regions, 
+    Alternating_CG_Regions, CG_Dinucleotides, Center_Positions, Contributing_10mers,
+    GC_Left_Arm, GC_Loop, GC_Right_Arm, GC_Stems, GC_Total, Gc_Spacer, Gc_Total,
+    Gc_Unit, Left_Unit, Linker_Length, Loop_Lengths, Loops, Match_Fraction,
+    Mean_10mer_Score, Mismatches, Num_A_Tracts, Num_Loops, Num_Stems, Num_T_Tracts,
+    REZ_3G_Tracts, REZ_4G_Tracts, REZ_End, REZ_G_Percent, REZ_G_Total, REZ_Length,
+    REZ_Sequence, REZ_Start, RIZ_3G_Tracts, RIZ_4G_Tracts, RIZ_End, RIZ_G_Percent,
+    RIZ_G_Total, RIZ_Length, RIZ_Sequence, RIZ_Start, Raw_Score, Repeat_Unit,
+    Repeat_Units, Right_Unit, Spacer_Seq, Stem_Lengths, Stems, T_Tract_Lengths,
+    T_Tracts, Tract_Length, Tract_Type, Unit_A_Count, Unit_C_Count, Unit_G_Count,
+    Unit_T_Count.
     """
     if not motifs:
         return pd.DataFrame()
     
     df = pd.DataFrame(motifs)
     
-    # Essential column list (excluding detailed structural features)
-    # Removed: Structural_Features, Strand, AT_Content, AT_Dinucleotides, 
-    #          A_Tract_Lengths, A_Tracts, Alternating_AT_Regions, Alternating_CG_Regions,
-    #          CG_Dinucleotides, Center_Positions, Contributing_10mers, and many other
-    #          detailed structural metrics
+    # Essential column list (excluding detailed structural features listed above)
     comprehensive_columns = [
         'ID',
         'Sequence_Name',  # Sequence Name (or Accession)
