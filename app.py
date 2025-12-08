@@ -2007,6 +2007,17 @@ with tab_pages["Upload & Analyze"]:
                         
                         with progress_placeholder.container():
                             pbar = st.progress(0)
+                        
+                        # Show detailed progress panel with detector sequence (only once since it's static)
+                        # The status shows all detectors as "running" during analysis since they run in parallel
+                        with detailed_progress_placeholder.container():
+                            st.subheader("🔬 Analysis Pipeline")
+                            
+                            # Display detectors in a clean list format
+                            for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
+                                st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
+                            
+                            st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
                             
                         for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
                             progress = (i + 1) / len(st.session_state.seqs)
@@ -2047,18 +2058,6 @@ with tab_pages["Upload & Analyze"]:
                                 total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
                                 extra_info
                             )
-                            
-                            # Show detailed progress panel with detector sequence
-                            # The status shows all detectors as "running" during analysis since they run in parallel
-                            with detailed_progress_placeholder.container():
-                                st.subheader("🔬 Analysis Pipeline")
-                                
-                                # Display detectors in a clean list format
-                                for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                                    st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
-                                
-                                st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
-                            
                             
                             # Run the analysis - use parallel scanner for large sequences if enabled
                             seq_start = time.time()
