@@ -2178,7 +2178,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
         Success message string
     """
     try:
-        pass
+        import openpyxl
     except ImportError:
         raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
     

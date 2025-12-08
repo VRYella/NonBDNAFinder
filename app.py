@@ -55,6 +55,7 @@ except ImportError:
 
 # Try to import Hyperscan (optional for acceleration)
 try:
+    import hyperscan
     HYPERSCAN_AVAILABLE = True
 except ImportError:
     HYPERSCAN_AVAILABLE = False
