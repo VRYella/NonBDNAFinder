@@ -295,8 +295,8 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         ax.set_title(display_title, fontweight='bold', pad=10)
     ax.set_xticks(range(len(categories)))
     
-    # Adjust label rotation (Nature style - 45° for readability)
     # Replace underscores with spaces in category labels
+    # Apply 45° rotation for all categories (Nature style - consistent readability)
     display_categories = [cat.replace('_', ' ') for cat in categories]
     ax.set_xticklabels(display_categories, rotation=45, ha='right')
     
@@ -496,10 +496,19 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         )
         
         # Add a legend for subclasses instead
-        unique_subclasses = list(dict.fromkeys(all_subclass_labels))[:10]  # Limit to 10
-        legend_handles = [plt.Rectangle((0,0),1,1, fc=all_subclass_colors[i], ec='white', lw=0.5) 
-                         for i in range(min(10, len(all_subclass_labels)))]
-        ax.legend(legend_handles, unique_subclasses, loc='center left', bbox_to_anchor=(1, 0.5),
+        # Create proper color-to-label mapping by tracking first occurrence
+        seen_labels = {}
+        legend_handles = []
+        legend_labels = []
+        for i, (label, color) in enumerate(zip(all_subclass_labels, all_subclass_colors)):
+            if label not in seen_labels:
+                seen_labels[label] = color
+                legend_handles.append(plt.Rectangle((0,0),1,1, fc=color, ec='white', lw=0.5))
+                legend_labels.append(label)
+                if len(legend_labels) >= 10:  # Limit to 10
+                    break
+        
+        ax.legend(legend_handles, legend_labels, loc='center left', bbox_to_anchor=(1, 0.5),
                  fontsize=6, frameon=False, title='Top Subclasses')
     else:
         # For fewer subclasses, show labels with improved spacing
