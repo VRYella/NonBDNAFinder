@@ -1868,7 +1868,7 @@ PERFORMANCE OPTIMIZATIONS:
 - Safe-guards to avoid explosion on highly-repetitive seeds
 
 Detects and annotates complete repeat regions, following:
-- STRs: Unit size 1–9 bp, ≥10 bp in span, non-overlapping, match full region
+- STRs: Unit size 1–9 bp, ≥20 bp in span, non-overlapping, match full region
 - Direct repeats: Unit length 10-300 bp, spacer <= 10 bp
 
 References:
@@ -1988,7 +1988,7 @@ class SlippedDNADetector(BaseMotifDetector):
         # Use optimized repeat_scanner if available
         if _find_strs_optimized and _find_direct_repeats_optimized:
             # STRs (unit 1–9 bp)
-            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=10)
+            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=20)
             for str_rec in str_results:
                 regions.append({
                     'class_name': 'STR',
@@ -2052,7 +2052,7 @@ class SlippedDNADetector(BaseMotifDetector):
                 regex = rf"((?:[ATGC]{{{k}}}){{3,}})"
                 for m in re.finditer(regex, seq):
                     s, e = m.span()
-                    if (e - s) < 10 or any(used[s:e]):
+                    if (e - s) < 20 or any(used[s:e]):
                         continue
                     for i in range(s, e):
                         used[i] = True
