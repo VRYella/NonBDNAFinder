@@ -137,6 +137,7 @@ class BaseMotifDetector(ABC):
     @abstractmethod  
     def get_motif_class_name(self) -> str:
         """Return the motif class name (e.g., 'Curved_DNA', 'G_Quadruplex')"""
+        pass
     
     @abstractmethod
     def calculate_score(self, sequence: str, pattern_info: Tuple) -> float:
@@ -150,6 +151,7 @@ class BaseMotifDetector(ABC):
         Returns:
             Score value between 0.0 and 1.0
         """
+        pass
     
     def _compile_patterns(self) -> Dict[str, List[Tuple]]:
         """

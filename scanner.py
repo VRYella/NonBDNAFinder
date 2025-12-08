@@ -946,6 +946,7 @@ warnings.filterwarnings("ignore")
 
 # Try to import hyperscan for acceleration
 try:
+    import hyperscan
     HYPERSCAN_AVAILABLE = True
 except ImportError:
     HYPERSCAN_AVAILABLE = False
