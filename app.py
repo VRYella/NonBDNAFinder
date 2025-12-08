@@ -1828,6 +1828,26 @@ with tab_pages["Upload & Analyze"]:
         nonoverlap = True
         overlap_option = "Remove overlaps within subclasses"
         
+        # Helper function for formatting time display
+        def format_time(seconds):
+            """Format time in seconds to a human-readable string.
+            
+            Args:
+                seconds: Time in seconds
+                
+            Returns:
+                Formatted string (e.g., "45.3s", "12m 30s", "2h 15m")
+            """
+            if seconds < 60:
+                return f"{seconds:.1f}s"
+            elif seconds < 3600:
+                mins = int(seconds // 60)
+                secs = int(seconds % 60)
+                return f"{mins}m {secs}s"
+            else:
+                hours = int(seconds // 3600)
+                mins = int((seconds % 3600) // 60)
+                return f"{hours}h {mins}m"
         
         # ========== RUN ANALYSIS BUTTON ========== 
         if st.button("Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
@@ -1923,19 +1943,6 @@ with tab_pages["Upload & Analyze"]:
                     def build_progress_html(elapsed, estimated_remaining, progress_display, 
                                             status_text, seq_info_html, detector_count):
                         """Build the progress timer HTML with consistent styling using CSS classes."""
-                        # Format time display
-                        def format_time(seconds):
-                            if seconds < 60:
-                                return f"{seconds:.1f}s"
-                            elif seconds < 3600:
-                                mins = int(seconds // 60)
-                                secs = int(seconds % 60)
-                                return f"{mins}m {secs}s"
-                            else:
-                                hours = int(seconds // 3600)
-                                mins = int((seconds % 3600) // 60)
-                                return f"{hours}h {mins}m"
-                        
                         elapsed_str = format_time(elapsed)
                         remaining_str = format_time(estimated_remaining)
                         
