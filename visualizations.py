@@ -298,10 +298,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Adjust label rotation (Nature style - 45° for readability)
     # Replace underscores with spaces in category labels
     display_categories = [cat.replace('_', ' ') for cat in categories]
-    if len(categories) > 10:
-        ax.set_xticklabels(display_categories, rotation=45, ha='right')
-    else:
-        ax.set_xticklabels(display_categories, rotation=45, ha='right')
+    ax.set_xticklabels(display_categories, rotation=45, ha='right')
     
     # Add count labels on bars (small font, positioned above)
     if len(categories) <= 20:
@@ -2013,10 +2010,10 @@ def plot_circos_motif_density(motifs: List[Dict[str, Any]],
         
         # Plot bars for this ring
         heights = [n * ring_width * 0.9 for n in normalized]
+        # Replace underscores with spaces in legend label
+        display_name = class_name.replace('_', ' ')
         bars = ax.bar(theta, heights, width=width, bottom=ring_bottom,
                      color=color, alpha=0.7, edgecolor='white', linewidth=0.5,
-                     # Replace underscores with spaces in legend label
-                     display_name = class_name.replace('_', ' ')
                      label=f'{display_name} (max: {max_density:.1f}/kb)')
     
     # Add outer position ruler
