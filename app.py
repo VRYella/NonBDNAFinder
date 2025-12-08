@@ -2244,68 +2244,6 @@ with tab_pages["Results"]:
             if hybrid_cluster_count > 0:
                 st.info(f"{hybrid_cluster_count} Hybrid/Cluster motifs detected. View them in the 'Cluster/Hybrid' tab below.")
             
-            # Motif class distribution summary (no score visualization as per requirements)
-            if filtered_motifs:
-                # Display chart without header as per requirements
-                
-                # Motif class distribution - show all classes even if 0 (excluding Hybrid and Cluster)
-                motif_classes = [m.get('Class', 'Unknown') for m in filtered_motifs]
-                
-                # Initialize all classes with 0 counts (excluding Hybrid and Cluster)
-                filtered_order = [cls for cls in MOTIF_ORDER if cls not in ['Hybrid', 'Non-B DNA Clusters']]
-                all_class_counts = {cls: 0 for cls in filtered_order}
-                
-                # Update with actual counts
-                actual_counts = Counter(motif_classes)
-                all_class_counts.update(actual_counts)
-                
-                # Remove 'Unknown' if it exists and has 0 count
-                if 'Unknown' in all_class_counts and all_class_counts['Unknown'] == 0:
-                    del all_class_counts['Unknown']
-                
-                fig, ax = plt.subplots(figsize=(10, 6))
-                
-                # Create labels showing count and percentage
-                labels = []
-                values = list(all_class_counts.values())
-                total = sum(values) if sum(values) > 0 else 1  # Avoid division by zero
-                
-                for cls, count in all_class_counts.items():
-                    percentage = (count / total) * 100 if total > 0 else 0
-                    if count > 0:
-                        labels.append(f'{cls}\n({count}, {percentage:.1f}%)')
-                    else:
-                        labels.append(f'{cls}\n(0, 0.0%)')
-                
-                # Use colors from MOTIF_COLORS where available
-                colors = []
-                for cls in all_class_counts.keys():
-                    if cls in MOTIF_COLORS:
-                        colors.append(MOTIF_COLORS[cls])
-                    else:
-                        # Default colors for any missing classes
-                        default_colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', 
-                                        '#ff99cc', '#99ccff', '#ffccbb', '#ccffcc']
-                        colors.append(default_colors[len(colors) % len(default_colors)])
-                
-                # Create bar chart for class distribution
-                bars = ax.bar(range(len(all_class_counts)), values, color=colors)
-                ax.set_xlabel('Motif Classes')
-                ax.set_ylabel('Count')
-                ax.set_title('Motif Class Distribution (All Classes)')
-                ax.set_xticks(range(len(all_class_counts)))
-                ax.set_xticklabels(list(all_class_counts.keys()), rotation=45, ha='right')
-                
-                # Add count labels on bars
-                for bar, count in zip(bars, values):
-                    if count > 0:
-                        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1, 
-                               str(count), ha='center', va='bottom')
-                
-                plt.tight_layout()
-                st.pyplot(fig)
-                plt.close(fig)
-            
             # Enhanced motif table with new columns
             # Display table without header as per requirements
             
@@ -2401,13 +2339,11 @@ with tab_pages["Results"]:
                     positional_density_mbp = calculate_positional_density(filtered_motifs, sequence_length, unit='Mbp', by_class=True)
                     
                     # Overall metrics in compact layout
-                    col1, col2, col3 = st.columns(3)
+                    col1, col2 = st.columns(2)
                     with col1:
                         st.metric("Genomic Density", f"{genomic_density.get('Overall', 0):.4f}%")
                     with col2:
                         st.metric("Motifs/kbp", f"{positional_density_kbp.get('Overall', 0):.2f}")
-                    with col3:
-                        st.metric("Motifs/Mbp", f"{positional_density_mbp.get('Overall', 0):.2f}")
                     
                     # Per-class density table
                     density_data = []
@@ -2415,8 +2351,7 @@ with tab_pages["Results"]:
                         density_data.append({
                             'Motif Class': class_name,
                             'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
-                            'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}",
-                            'Motifs/Mbp': f"{positional_density_mbp.get(class_name, 0):.2f}"
+                            'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}"
                         })
                     
                     if density_data:

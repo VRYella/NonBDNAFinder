@@ -2554,13 +2554,21 @@ def merge_detector_results(detector_results: Dict[str, List[Dict[str, Any]]],
     return resolved
 
 def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
-    """Convert motif results to pandas DataFrame with comprehensive fields"""
+    """Convert motif results to pandas DataFrame with essential fields only.
+    
+    Excludes detailed structural features as per user requirements.
+    Only includes core motif identification and characterization fields.
+    """
     if not motifs:
         return pd.DataFrame()
     
     df = pd.DataFrame(motifs)
     
-    # Comprehensive column list based on user requirements
+    # Essential column list (excluding detailed structural features)
+    # Removed: Structural_Features, Strand, AT_Content, AT_Dinucleotides, 
+    #          A_Tract_Lengths, A_Tracts, Alternating_AT_Regions, Alternating_CG_Regions,
+    #          CG_Dinucleotides, Center_Positions, Contributing_10mers, and many other
+    #          detailed structural metrics
     comprehensive_columns = [
         'ID',
         'Sequence_Name',  # Sequence Name (or Accession)
@@ -2586,8 +2594,6 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
         'Spacer_Length',  # Spacer Length
         'Spacer_Sequence',  # Spacer Sequence
         'GC_Content',  # GC Content (%)
-        'Structural_Features',  # Structural Features (e.g., Tract Type, Curvature Score)
-        'Strand'  # Strand information
     ]
     
     # Ensure all comprehensive columns are present, fill missing with 'NA'
