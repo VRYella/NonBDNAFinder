@@ -29,6 +29,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import os  # Added for image path checking
+import sys  # Added for system info
+import psutil  # Added for memory monitoring
 import numpy as np
 # Import consolidated NBDScanner modules
 from utilities import (
@@ -141,6 +143,38 @@ def get_cached_stats(sequence: str, motifs_json: str):
     import json
     motifs = json.loads(motifs_json) if motifs_json else []
     return get_basic_stats(sequence, motifs)
+
+
+def get_system_info():
+    """
+    Get current system memory and resource information.
+    Uses psutil if available, otherwise provides basic info.
+    
+    Returns:
+        Dictionary with memory and system info
+    """
+    try:
+        # Get memory info
+        memory = psutil.virtual_memory()
+        
+        return {
+            'memory_total_mb': memory.total / (1024 * 1024),
+            'memory_used_mb': memory.used / (1024 * 1024),
+            'memory_available_mb': memory.available / (1024 * 1024),
+            'memory_percent': memory.percent,
+            'cpu_count': psutil.cpu_count(),
+            'available': True
+        }
+    except (ImportError, AttributeError):
+        # psutil not available or doesn't support this platform
+        return {
+            'memory_total_mb': 0,
+            'memory_used_mb': 0,
+            'memory_available_mb': 0,
+            'memory_percent': 0,
+            'cpu_count': 1,
+            'available': False
+        }
 
 
 # ---------- PAGE CONFIG ----------
@@ -1679,6 +1713,31 @@ with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 200MB/file.")
+    
+    # System Resource Monitor (collapsible for better UX)
+    with st.expander("💻 System Resource Monitor", expanded=False):
+        sys_info = get_system_info()
+        if sys_info['available']:
+            col_m1, col_m2, col_m3 = st.columns(3)
+            with col_m1:
+                st.metric("💾 Memory Usage", 
+                         f"{sys_info['memory_percent']:.1f}%",
+                         delta=f"{sys_info['memory_used_mb']/1024:.2f} GB used",
+                         help=f"Available: {sys_info['memory_available_mb']/1024:.2f} GB")
+            with col_m2:
+                st.metric("🖥️ Total Memory", 
+                         f"{sys_info['memory_total_mb']/1024:.2f} GB",
+                         help="Total system memory")
+            with col_m3:
+                st.metric("⚙️ CPU Cores", 
+                         f"{sys_info['cpu_count']}",
+                         help="Available CPU cores for parallel processing")
+            
+            # Memory usage bar
+            mem_color = "green" if sys_info['memory_percent'] < 70 else ("orange" if sys_info['memory_percent'] < 85 else "red")
+            st.progress(sys_info['memory_percent'] / 100, text=f"Memory: {sys_info['memory_percent']:.1f}% used")
+        else:
+            st.info("System monitoring not available on this platform")
     
     # Show unlimited processing info for web version
     st.info("""
