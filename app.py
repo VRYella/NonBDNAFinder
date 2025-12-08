@@ -1941,42 +1941,52 @@ with tab_pages["Upload & Analyze"]:
                     ESTIMATED_BP_PER_SECOND = 5800
                     CHUNK_SIZE_FOR_PARALLEL = 50000  # Chunk size for parallel processing display
                     
-                    # Helper function to generate progress HTML template
-                    def build_progress_html(elapsed, estimated_remaining, progress_display, 
-                                            status_text, seq_info_html, detector_count):
-                        """Build the progress timer HTML with consistent styling using CSS classes."""
-                        elapsed_str = format_time(elapsed)
-                        remaining_str = format_time(estimated_remaining)
+                    # Helper function to display progress using Streamlit native components
+                    def display_progress_panel(container, elapsed, estimated_remaining, progress_display, 
+                                             status_text, seq_name, seq_bp, seq_num, total_seqs, 
+                                             processed_bp, total_bp, detector_count, extra_info=""):
+                        """Display progress panel using Streamlit native components instead of HTML.
                         
-                        return f"""
-                        <div class='progress-panel'>
-                            <h3 class='progress-panel__title'>🧬 NonBScanner Analysis</h3>
-                            <p class='progress-panel__status'>{status_text}</p>
-                            
-                            <div class='stats-grid'>
-                                <div class='stat-card'>
-                                    <h2 class='stat-card__value'>⏱️ {elapsed_str}</h2>
-                                    <p class='stat-card__label'>Elapsed</p>
-                                </div>
-                                <div class='stat-card'>
-                                    <h2 class='stat-card__value'>⏳ {remaining_str}</h2>
-                                    <p class='stat-card__label'>Remaining</p>
-                                </div>
-                                <div class='stat-card'>
-                                    <h2 class='stat-card__value'>📊 {progress_display}</h2>
-                                    <p class='stat-card__label'>Progress</p>
-                                </div>
-                                <div class='stat-card'>
-                                    <h2 class='stat-card__value'>🔬 {detector_count}</h2>
-                                    <p class='stat-card__label'>Detectors</p>
-                                </div>
-                            </div>
-                            
-                            <div class='sequence-info'>
-                                {seq_info_html}
-                            </div>
-                        </div>
+                        Args:
+                            container: Streamlit container to display in
+                            elapsed: Elapsed time in seconds
+                            estimated_remaining: Estimated remaining time in seconds
+                            progress_display: Progress percentage or status string
+                            status_text: Status message
+                            seq_name: Current sequence name
+                            seq_bp: Current sequence length in bp
+                            seq_num: Current sequence number
+                            total_seqs: Total number of sequences
+                            processed_bp: Total bp processed so far
+                            total_bp: Total bp to process
+                            detector_count: Number of detectors
+                            extra_info: Extra information to display (e.g., speed, motifs)
                         """
+                        with container:
+                            st.subheader("🧬 NonBScanner Analysis")
+                            st.write(status_text)
+                            
+                            # Display metrics in 4 columns
+                            col1, col2, col3, col4 = st.columns(4)
+                            
+                            with col1:
+                                st.metric("⏱️ Elapsed", format_time(elapsed))
+                            
+                            with col2:
+                                st.metric("⏳ Remaining", format_time(estimated_remaining))
+                            
+                            with col3:
+                                st.metric("📊 Progress", progress_display)
+                            
+                            with col4:
+                                st.metric("🔬 Detectors", str(detector_count))
+                            
+                            # Sequence info
+                            st.write(f"**📄 Sequence {seq_num}/{total_seqs}**: {seq_name} *({seq_bp:,} bp)*")
+                            st.write(f"⚡ Processed: {processed_bp:,} / {total_bp:,} bp")
+                            
+                            if extra_info:
+                                st.write(extra_info)
                     
                     # Estimate processing time based on sequence length
                     def estimate_time(total_bp):
@@ -2023,61 +2033,32 @@ with tab_pages["Upload & Analyze"]:
                                 status_text = "Analysis in progress..."
                                 progress_display = f"{overall_percentage:.1f}%"
                             
-                            # Build sequence info HTML
-                            seq_info_html = f"""
-                                <p class='sequence-info__text'>
-                                    <strong>📄 Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} <em>({len(seq):,} bp)</em>
-                                </p>
-                                <p class='sequence-info__subtext'>
-                                    ⚡ Processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
-                                </p>
-                            """
-                            
-                            # Build timer HTML using helper function
-                            timer_html = build_progress_html(
-                                elapsed, estimated_remaining, progress_display,
-                                status_text, seq_info_html, len(DETECTOR_PROCESSES)
-                            )
-                            
-                            # Add chunk progress if enabled
+                            # Build extra info for chunk progress if enabled
+                            extra_info = ""
                             if show_chunk_progress and use_parallel_scanner:
-                                # Calculate estimated chunks for this sequence
                                 est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
-                                # Insert chunk info before the closing div
-                                # Strip whitespace first to properly find the closing </div> tag
-                                closing_tag = '</div>'
-                                timer_html_stripped = timer_html.rstrip()
-                                if timer_html_stripped.endswith(closing_tag):
-                                    timer_html = timer_html_stripped[:-len(closing_tag)] + f"<p class='sequence-info__subtext'>📦 Chunks: {est_chunks}</p>{closing_tag}"
-                                # If the HTML doesn't end with expected tag, use original HTML unchanged
+                                extra_info = f"📦 Chunks: {est_chunks}"
                             
-                            timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
+                            # Display progress using Streamlit native components
+                            display_progress_panel(
+                                timer_placeholder,
+                                elapsed, estimated_remaining, progress_display,
+                                status_text, name, len(seq), i+1, len(st.session_state.seqs),
+                                total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
+                                extra_info
+                            )
                             
                             # Show detailed progress panel with detector sequence
                             # The status shows all detectors as "running" during analysis since they run in parallel
-                            detailed_progress_html = f"""
-                            <div class='pipeline-panel'>
-                                <h4 class='pipeline-panel__title'>🔬 Analysis Pipeline</h4>
-                                <div class='pipeline-grid'>
-                            """
+                            with detailed_progress_placeholder.container():
+                                st.subheader("🔬 Analysis Pipeline")
+                                
+                                # Display detectors in a clean list format
+                                for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
+                                    st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
+                                
+                                st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
                             
-                            for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                                # All detectors run in parallel during analysis
-                                detailed_progress_html += f"""
-                                    <div class='detector-item detector-item--running'>
-                                        <span class='detector-item__name'>{j+1}. {detector_name}</span>
-                                        <br/><span class='detector-item__desc'>{detector_desc}</span>
-                                    </div>
-                                """
-                            
-                            detailed_progress_html += """
-                                </div>
-                                <p class='pipeline-panel__footer'>
-                                    ✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering
-                                </p>
-                            </div>
-                            """
-                            detailed_progress_placeholder.markdown(detailed_progress_html, unsafe_allow_html=True)
                             
                             # Run the analysis - use parallel scanner for large sequences if enabled
                             seq_start = time.time()
@@ -2137,23 +2118,18 @@ with tab_pages["Upload & Analyze"]:
                             # Calculate actual progress percentage
                             actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                             
-                            # Build sequence completion info HTML
-                            seq_complete_info_html = f"""
-                                <p class='sequence-info__text'>
-                                    <strong>✅ Completed</strong>: {name} <em>({len(seq):,} bp)</em> in {seq_time:.2f}s
-                                </p>
-                                <p class='sequence-info__subtext'>
-                                    ⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s
-                                </p>
-                            """
+                            # Build extra info for completion
+                            completion_info = f"⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s"
                             
-                            # Update timer display with actual progress using helper function
-                            updated_timer_html = build_progress_html(
+                            # Update timer display with actual progress using native components
+                            display_progress_panel(
+                                timer_placeholder,
                                 elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
                                 f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
-                                seq_complete_info_html, len(DETECTOR_PROCESSES)
+                                name, len(seq), i+1, len(st.session_state.seqs),
+                                total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
+                                completion_info
                             )
-                            timer_placeholder.markdown(updated_timer_html, unsafe_allow_html=True)
                             
                             with progress_placeholder.container():
                                 pbar.progress(progress, text=f"🔬 Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
