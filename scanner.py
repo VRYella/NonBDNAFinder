@@ -50,7 +50,6 @@ Requirements:
     (pure Python; no external C deps required)
 """
 
-import math
 from collections import defaultdict
 from typing import List, Dict, Tuple
 
@@ -525,9 +524,8 @@ TABULAR SUMMARY:
 import re
 import os
 import logging
-import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Union
 from collections import defaultdict, Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing as mp
@@ -938,9 +936,8 @@ Version: 2024.1
 """
 
 import re
-import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Tuple, Optional, Union
+from typing import List, Dict, Any, Tuple, Union
 from collections import defaultdict, Counter
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing as mp

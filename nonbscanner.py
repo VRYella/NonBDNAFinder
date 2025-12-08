@@ -64,13 +64,11 @@ EXAMPLE USAGE:
 """
 
 import os
-import re
-import math
 import warnings
 import time
 import threading
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
-from collections import defaultdict, Counter
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
@@ -98,10 +96,7 @@ from utilities import (
     export_to_bed,
     export_to_json,
     export_to_excel,
-    get_basic_stats,
     calculate_motif_statistics,
-    analyze_class_subclass_detection,
-    print_detection_report,
     normalize_motif_scores
 )
 

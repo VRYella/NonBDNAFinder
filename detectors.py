@@ -39,11 +39,8 @@ USAGE:
 """
 
 import re
-import math
-import numpy as np
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Tuple, Optional, Set
-from collections import defaultdict, Counter
+from typing import List, Dict, Any, Tuple, Optional
 
 # Import optimized scanner functions
 try:
@@ -136,7 +133,6 @@ class BaseMotifDetector(ABC):
         # | description | str   | Pattern description            |
         # | reference   | str   | Literature citation            |
         """
-        pass
     
     @abstractmethod  
     def get_motif_class_name(self) -> str:
@@ -560,7 +556,7 @@ class CurvedDNADetector(BaseMotifDetector):
         - If either forward strand or reverse complement has (maxATlen - maxTlen) >= minAT, we call it an A-tract.
         """
         seq = sequence.upper()
-        n = len(seq)
+        len(seq)
         if minAT is None:
             minAT = self.MIN_AT_TRACT
         if max_window is None:
@@ -602,7 +598,6 @@ class CurvedDNADetector(BaseMotifDetector):
                     # RC index i corresponds to original index: wstart + (window_len - 1 - i)
                     # maxATend_rc is index in window_rc (end position index)
                     # In C, they convert similarly; for simplicity compute center via rc mapping
-                    i_rc = maxATend_rc
                     # rc_end_original = wstart + (window_len - 1 - i_rc)
                     rc_end_original = wstart + (window_len - 1 - maxATend_rc)
                     chosen_center = rc_end_original - ((chosen_maxATlen - 1) / 2.0)
@@ -641,7 +636,6 @@ class CurvedDNADetector(BaseMotifDetector):
         maxATlen = 0
         maxTlen = 0
         maxATend = 0
-        maxTend = 0
         # we'll iterate from index 0..len(window_seq)-1
         L = len(window_seq)
         # to mimic C code scanning with lookbacks, we iterate straightforwardly
@@ -680,7 +674,6 @@ class CurvedDNADetector(BaseMotifDetector):
                 maxATend = i  # end index within window
             if Tlen > maxTlen:
                 maxTlen = Tlen
-                maxTend = i
         return int(maxATlen), int(maxATend), int(maxTlen)
 
     # -------------------------
@@ -2045,7 +2038,7 @@ class SlippedDNADetector(BaseMotifDetector):
         else:
             # Fallback to old implementation if imports fail
             used = [False] * len(seq)
-            pat_groups = self.get_patterns()
+            self.get_patterns()
 
             # STRs (unit 1–9 bp) - fallback regex
             for k in range(1, 10):
@@ -2638,7 +2631,6 @@ Based on Jenjaroenpun & Wongsurawat 2016.
 
 import re
 from typing import List, Dict, Any, Tuple, Optional
-from collections import defaultdict
 
 # Try to import hyperscan for performance
 try:

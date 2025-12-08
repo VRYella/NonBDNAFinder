@@ -302,7 +302,6 @@ API:
 """
 
 import os
-import pickle
 import logging
 import json
 
@@ -1214,6 +1213,7 @@ def run_pattern_tests() -> bool:
     
     # Test pattern matching
     all_patterns = PatternRegistry.get_all_patterns()
+    # Instantiate scoring system to validate initialization
     scoring = MotifScoring()
     
     test_results = {}
@@ -1400,7 +1400,7 @@ import csv
 import random
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from collections import Counter, defaultdict
 from io import StringIO
 import warnings
