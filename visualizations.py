@@ -787,7 +787,8 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
                 transform=ax.transAxes)
         ax.axis('off')
         if title:
-            ax.set_title(title)
+            display_title = title.replace('_', ' ')
+            ax.set_title(display_title)
         return fig
     
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -800,7 +801,9 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.boxplot(data=df, x='Class', y='Score', ax=ax, palette=colors,
                    linewidth=0.8, fliersize=2)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+        # Replace underscores with spaces in x-tick labels
+        ax.set_xticklabels([label.get_text().replace('_', ' ') for label in ax.get_xticklabels()], 
+                          rotation=45, ha='right')
         ax.set_ylabel('Score')
         ax.set_xlabel('Motif Class')
     else:
@@ -810,7 +813,9 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         ax.set_ylabel('Frequency')
     
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
     # Remove top/right spines
     ax.spines['top'].set_visible(False)
@@ -873,7 +878,8 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
                 transform=ax.transAxes)
         ax.axis('off')
         if title:
-            ax.set_title(title)
+            display_title = title.replace('_', ' ')
+            ax.set_title(display_title)
         return fig
     
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -886,7 +892,9 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.violinplot(data=df, x='Class', y='Length', ax=ax, palette=colors,
                       linewidth=0.8, inner='box')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+        # Replace underscores with spaces in x-tick labels
+        ax.set_xticklabels([label.get_text().replace('_', ' ') for label in ax.get_xticklabels()], 
+                          rotation=45, ha='right')
         ax.set_ylabel('Length (bp)')
         ax.set_xlabel('Motif Class')
     else:
@@ -896,7 +904,9 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         ax.set_ylabel('Frequency')
     
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
     # Remove top/right spines
     ax.spines['top'].set_visible(False)
@@ -2005,7 +2015,9 @@ def plot_circos_motif_density(motifs: List[Dict[str, Any]],
         heights = [n * ring_width * 0.9 for n in normalized]
         bars = ax.bar(theta, heights, width=width, bottom=ring_bottom,
                      color=color, alpha=0.7, edgecolor='white', linewidth=0.5,
-                     label=f'{class_name} (max: {max_density:.1f}/kb)')
+                     # Replace underscores with spaces in legend label
+                     display_name = class_name.replace('_', ' ')
+                     label=f'{display_name} (max: {max_density:.1f}/kb)')
     
     # Add outer position ruler
     outer_radius = inner_radius + len(classes) * ring_width + 0.05
@@ -2025,8 +2037,9 @@ def plot_circos_motif_density(motifs: List[Dict[str, Any]],
     ax.legend(loc='center', bbox_to_anchor=(0.5, 0.5), fontsize=8, 
              framealpha=0.9, ncol=1)
     
-    # Add title
-    fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+    # Add title (replace underscores with spaces)
+    display_title = title.replace('_', ' ')
+    fig.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
     
     # Add center statistics
     total_motifs = len([m for m in motifs if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES])
@@ -2092,18 +2105,20 @@ def plot_radial_class_density(motifs: List[Dict[str, Any]],
     bars = ax.bar(theta, densities, width=width, color=colors, alpha=0.8,
                  edgecolor='white', linewidth=2)
     
-    # Add class labels
+    # Add class labels (replace underscores with spaces)
     ax.set_xticks(theta)
-    ax.set_xticklabels(classes, fontsize=10, fontweight='bold')
+    display_classes = [cls.replace('_', ' ') for cls in classes]
+    ax.set_xticklabels(display_classes, fontsize=10, fontweight='bold')
     
     # Add value labels on bars
     for angle, density, bar in zip(theta, densities, bars):
         ax.text(angle, density + max(densities) * 0.05, f'{density:.1f}',
                ha='center', va='bottom', fontsize=9, fontweight='bold')
     
-    # Style
+    # Style (replace underscores with spaces in title)
     ax.set_ylabel('Density (motifs/kb)', labelpad=30, fontsize=11, fontweight='bold')
-    ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=20)
     
     plt.tight_layout()
     return fig
@@ -2181,15 +2196,17 @@ def plot_stacked_density_track(motifs: List[Dict[str, Any]],
     # Stack the densities
     colors = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
     
-    # Create arrays for stacking
+    # Create arrays for stacking (replace underscores with spaces in labels)
     density_arrays = [np.array(class_densities[c]) for c in classes]
+    display_classes = [cls.replace('_', ' ') for cls in classes]
     
-    ax.stackplot(positions, *density_arrays, labels=classes, colors=colors, alpha=0.8)
+    ax.stackplot(positions, *density_arrays, labels=display_classes, colors=colors, alpha=0.8)
     
-    # Styling
+    # Styling (replace underscores with spaces in title)
     ax.set_xlabel('Position (kb)', fontsize=12, fontweight='bold')
     ax.set_ylabel('Motif Count per Window', fontsize=12, fontweight='bold')
-    ax.set_title(title, fontsize=14, fontweight='bold')
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold')
     ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
     ax.grid(axis='y', alpha=0.3)
     
