@@ -290,14 +290,15 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     ax.set_xlabel(f'Motif {by}', fontweight='normal')
     ax.set_ylabel('Count', fontweight='normal')
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     ax.set_xticks(range(len(categories)))
     
-    # Adjust label rotation (Nature style - 45° for readability)
-    if len(categories) > 10:
-        ax.set_xticklabels(categories, rotation=45, ha='right')
-    else:
-        ax.set_xticklabels(categories, rotation=45, ha='right')
+    # Replace underscores with spaces in category labels
+    # Apply 45° rotation for all categories (Nature style - consistent readability)
+    display_categories = [cat.replace('_', ' ') for cat in categories]
+    ax.set_xticklabels(display_categories, rotation=45, ha='right')
     
     # Add count labels on bars (small font, positioned above)
     if len(categories) <= 20:
@@ -409,7 +410,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
                          title: str = "Motif Distribution",
                          figsize: Tuple[float, float] = None) -> plt.Figure:
     """
-    Create nested donut chart with improved text placement.
+    Create nested donut chart with improved text placement to avoid overlapping labels.
     
     Publication-quality hierarchical pie chart following Nature guidelines.
     
@@ -443,9 +444,10 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
     class_colors = [MOTIF_CLASS_COLORS.get(name, '#808080') for name in class_names]
     
     # Create inner donut with Nature-style clean design
+    # Use labels=None to manually place labels later for better control
     wedges1, texts1, autotexts1 = ax.pie(
         class_values, 
-        labels=class_names,
+        labels=None,  # We'll add labels manually
         colors=class_colors,
         radius=0.65,
         autopct=lambda pct: f'{pct:.0f}%' if pct > 5 else '',
@@ -453,6 +455,15 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         startangle=90,
         wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1)
     )
+    
+    # Manually add class labels with better positioning (replace underscores with spaces)
+    for i, (wedge, class_name) in enumerate(zip(wedges1, class_names)):
+        angle = (wedge.theta2 + wedge.theta1) / 2
+        x = 0.5 * np.cos(np.radians(angle))
+        y = 0.5 * np.sin(np.radians(angle))
+        # Replace underscores with spaces in labels
+        display_name = class_name.replace('_', ' ')
+        ax.text(x, y, display_name, ha='center', va='center', fontsize=7, fontweight='bold')
     
     # Outer donut (subclasses)
     all_subclass_counts = []
@@ -465,35 +476,69 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         
         for subclass_name, count in subclass_dict.items():
             all_subclass_counts.append(count)
-            # Truncate long names for clean appearance
-            label = subclass_name if len(subclass_name) <= 12 else subclass_name[:10] + '…'
+            # Truncate long names for clean appearance and replace underscores with spaces
+            # Use consistent truncation length (15 chars max, including ellipsis)
+            display_name = subclass_name.replace('_', ' ')
+            MAX_LABEL_LENGTH = 15
+            label = display_name if len(display_name) <= MAX_LABEL_LENGTH else display_name[:MAX_LABEL_LENGTH-1] + '…'
             all_subclass_labels.append(label)
             all_subclass_colors.append(base_color)
     
-    # Hide labels if too many subclasses (Nature style - clean)
-    if len(all_subclass_labels) > 15:
-        all_subclass_labels = ['' for _ in all_subclass_labels]
-    
-    wedges2, texts2 = ax.pie(
-        all_subclass_counts,
-        labels=all_subclass_labels,
-        colors=all_subclass_colors,
-        radius=1.0,
-        labeldistance=1.1,
-        startangle=90,
-        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8),
-        textprops={'fontsize': 6}
-    )
+    # Use smarter labeling strategy to avoid overlap
+    # For many subclasses, hide labels and rely on legend instead
+    if len(all_subclass_labels) > 10:
+        # Hide outer ring labels when there are too many
+        wedges2, texts2 = ax.pie(
+            all_subclass_counts,
+            labels=None,  # No labels for cleaner appearance
+            colors=all_subclass_colors,
+            radius=1.0,
+            startangle=90,
+            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8)
+        )
+        
+        # Add a legend for subclasses instead
+        # Note: All subclasses of the same parent class share the same color by design.
+        # This ensures visual grouping in the nested donut chart.
+        # Track first occurrence of each unique label for the legend.
+        seen_labels = {}
+        legend_handles = []
+        legend_labels = []
+        for i, (label, color) in enumerate(zip(all_subclass_labels, all_subclass_colors)):
+            if label not in seen_labels:
+                seen_labels[label] = color
+                legend_handles.append(plt.Rectangle((0,0),1,1, fc=color, ec='white', lw=0.5))
+                legend_labels.append(label)
+                if len(legend_labels) >= 10:  # Limit to 10
+                    break
+        
+        ax.legend(legend_handles, legend_labels, loc='center left', bbox_to_anchor=(1, 0.5),
+                 fontsize=6, frameon=False, title='Top Subclasses')
+    else:
+        # For fewer subclasses, show labels with improved spacing
+        wedges2, texts2 = ax.pie(
+            all_subclass_counts,
+            labels=all_subclass_labels,
+            colors=all_subclass_colors,
+            radius=1.0,
+            labeldistance=1.15,  # Push labels further out to avoid overlap
+            startangle=90,
+            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8),
+            textprops={'fontsize': 6}
+        )
+        
+        # Adjust label positions to avoid overlap
+        for text in texts2:
+            text.set_fontsize(6)
+            # Add slight rotation for better readability
+            angle = text.get_rotation()
+            if 90 < angle < 270:
+                text.set_rotation(angle - 180)
     
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
-    
-    # Style text with Nature-appropriate sizes
-    for text in texts1:
-        text.set_fontsize(7)
-    
-    for text in texts2:
-        text.set_fontsize(6)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
     # Style percentage labels
     for autotext in autotexts1:
@@ -577,11 +622,14 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
     ax.set_xlabel('Position (bp)')
     ax.set_ylabel('Motif Class')
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Set y-axis labels
+    # Set y-axis labels with underscores replaced by spaces
     ax.set_yticks(list(class_positions.values()))
-    ax.set_yticklabels(list(class_positions.keys()))
+    display_labels = [label.replace('_', ' ') for label in class_positions.keys()]
+    ax.set_yticklabels(display_labels)
     
     # Clean x-axis ticks
     ax.ticklabel_format(style='sci', axis='x', scilimits=(3, 3))
@@ -669,11 +717,14 @@ def plot_density_heatmap(motifs: List[Dict[str, Any]],
     ax.set_xlabel(f'Position (kb)')
     ax.set_ylabel('Motif Class')
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Set ticks and labels
+    # Set ticks and labels with underscores replaced by spaces
     ax.set_yticks(range(len(classes)))
-    ax.set_yticklabels(classes)
+    display_classes = [cls.replace('_', ' ') for cls in classes]
+    ax.set_yticklabels(display_classes)
     
     # Clean x-axis with kb units
     x_ticks = np.arange(0, num_windows, max(1, num_windows // 5))
@@ -746,7 +797,8 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
                 transform=ax.transAxes)
         ax.axis('off')
         if title:
-            ax.set_title(title)
+            display_title = title.replace('_', ' ')
+            ax.set_title(display_title)
         return fig
     
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -759,7 +811,9 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.boxplot(data=df, x='Class', y='Score', ax=ax, palette=colors,
                    linewidth=0.8, fliersize=2)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+        # Replace underscores with spaces in x-tick labels
+        ax.set_xticklabels([label.get_text().replace('_', ' ') for label in ax.get_xticklabels()], 
+                          rotation=45, ha='right')
         ax.set_ylabel('Score')
         ax.set_xlabel('Motif Class')
     else:
@@ -769,7 +823,9 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         ax.set_ylabel('Frequency')
     
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
     # Remove top/right spines
     ax.spines['top'].set_visible(False)
@@ -832,7 +888,8 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
                 transform=ax.transAxes)
         ax.axis('off')
         if title:
-            ax.set_title(title)
+            display_title = title.replace('_', ' ')
+            ax.set_title(display_title)
         return fig
     
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -845,7 +902,9 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.violinplot(data=df, x='Class', y='Length', ax=ax, palette=colors,
                       linewidth=0.8, inner='box')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+        # Replace underscores with spaces in x-tick labels
+        ax.set_xticklabels([label.get_text().replace('_', ' ') for label in ax.get_xticklabels()], 
+                          rotation=45, ha='right')
         ax.set_ylabel('Length (bp)')
         ax.set_xlabel('Motif Class')
     else:
@@ -855,7 +914,9 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         ax.set_ylabel('Frequency')
     
     if title:
-        ax.set_title(title, fontweight='bold', pad=10)
+        # Replace underscores with spaces in title
+        display_title = title.replace('_', ' ')
+        ax.set_title(display_title, fontweight='bold', pad=10)
     
     # Remove top/right spines
     ax.spines['top'].set_visible(False)
@@ -1962,9 +2023,11 @@ def plot_circos_motif_density(motifs: List[Dict[str, Any]],
         
         # Plot bars for this ring
         heights = [n * ring_width * 0.9 for n in normalized]
+        # Replace underscores with spaces in legend label
+        display_name = class_name.replace('_', ' ')
         bars = ax.bar(theta, heights, width=width, bottom=ring_bottom,
                      color=color, alpha=0.7, edgecolor='white', linewidth=0.5,
-                     label=f'{class_name} (max: {max_density:.1f}/kb)')
+                     label=f'{display_name} (max: {max_density:.1f}/kb)')
     
     # Add outer position ruler
     outer_radius = inner_radius + len(classes) * ring_width + 0.05
@@ -1984,8 +2047,9 @@ def plot_circos_motif_density(motifs: List[Dict[str, Any]],
     ax.legend(loc='center', bbox_to_anchor=(0.5, 0.5), fontsize=8, 
              framealpha=0.9, ncol=1)
     
-    # Add title
-    fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+    # Add title (replace underscores with spaces)
+    display_title = title.replace('_', ' ')
+    fig.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
     
     # Add center statistics
     total_motifs = len([m for m in motifs if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES])
@@ -2051,18 +2115,20 @@ def plot_radial_class_density(motifs: List[Dict[str, Any]],
     bars = ax.bar(theta, densities, width=width, color=colors, alpha=0.8,
                  edgecolor='white', linewidth=2)
     
-    # Add class labels
+    # Add class labels (replace underscores with spaces)
     ax.set_xticks(theta)
-    ax.set_xticklabels(classes, fontsize=10, fontweight='bold')
+    display_classes = [cls.replace('_', ' ') for cls in classes]
+    ax.set_xticklabels(display_classes, fontsize=10, fontweight='bold')
     
     # Add value labels on bars
     for angle, density, bar in zip(theta, densities, bars):
         ax.text(angle, density + max(densities) * 0.05, f'{density:.1f}',
                ha='center', va='bottom', fontsize=9, fontweight='bold')
     
-    # Style
+    # Style (replace underscores with spaces in title)
     ax.set_ylabel('Density (motifs/kb)', labelpad=30, fontsize=11, fontweight='bold')
-    ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=20)
     
     plt.tight_layout()
     return fig
@@ -2140,15 +2206,17 @@ def plot_stacked_density_track(motifs: List[Dict[str, Any]],
     # Stack the densities
     colors = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
     
-    # Create arrays for stacking
+    # Create arrays for stacking (replace underscores with spaces in labels)
     density_arrays = [np.array(class_densities[c]) for c in classes]
+    display_classes = [cls.replace('_', ' ') for cls in classes]
     
-    ax.stackplot(positions, *density_arrays, labels=classes, colors=colors, alpha=0.8)
+    ax.stackplot(positions, *density_arrays, labels=display_classes, colors=colors, alpha=0.8)
     
-    # Styling
+    # Styling (replace underscores with spaces in title)
     ax.set_xlabel('Position (kb)', fontsize=12, fontweight='bold')
     ax.set_ylabel('Motif Count per Window', fontsize=12, fontweight='bold')
-    ax.set_title(title, fontsize=14, fontweight='bold')
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold')
     ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
     ax.grid(axis='y', alpha=0.3)
     
