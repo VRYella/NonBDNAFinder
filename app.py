@@ -1498,7 +1498,7 @@ with tab_pages["Home"]:
             <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>10. Hybrid</b> <span style='color:#546e7a;'>(dynamic overlaps)</span></div>
             <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>11. Non-B DNA Clusters</b> <span style='color:#546e7a;'>(dynamic clusters)</span></div>
         </div>
-        <p style='margin-top:1.2rem; margin-bottom:0; color:#1976d2; font-weight:600;'>📤 Upload single or multi-FASTA files to begin analysis...</p>
+        <p style='margin-top:1.2rem; margin-bottom:0; color:#1976d2; font-weight:600;'>Upload single or multi-FASTA files to begin analysis...</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1515,7 +1515,7 @@ with tab_pages["Upload & Analyze"]:
     
     # Show unlimited processing info for web version
     st.info("""
-    📏 **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
+    **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
     Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
     """)
 
@@ -1526,14 +1526,14 @@ with tab_pages["Upload & Analyze"]:
 
     # ----- LEFT COLUMN: Input Method + Sequence Preview -----
     with col_left:
-        st.markdown("### 📁 Input Method")
+        st.markdown("### Input Method")
         input_method = st.radio("Choose your input method:",
-                                ["📂 Upload FASTA File", "✏️ Paste Sequence", "🧪 Example Data", "🌐 NCBI Fetch"],
+                                ["Upload FASTA File", "Paste Sequence", "Example Data", "NCBI Fetch"],
                                 horizontal=True)
 
         seqs, names = [], []
 
-        if input_method == "📂 Upload FASTA File":
+        if input_method == "Upload FASTA File":
             fasta_file = st.file_uploader("Drag and drop FASTA/multi-FASTA file here", type=["fa", "fasta", "txt", "fna"])
             if fasta_file:
                 content = fasta_file.read().decode("utf-8")
@@ -1562,7 +1562,7 @@ with tab_pages["Upload & Analyze"]:
                 else:
                     st.warning("No sequences found.")
 
-        elif input_method == "✏️ Paste Sequence":
+        elif input_method == "Paste Sequence":
             seq_input = st.text_area("Paste single or multi-FASTA here:", height=150, placeholder="Paste your DNA sequence(s) here...")
             if seq_input:
                 seqs, names = [], []
@@ -1590,7 +1590,7 @@ with tab_pages["Upload & Analyze"]:
                 else:
                     st.warning("No sequences found.")
 
-        elif input_method == "🧪 Example Data":
+        elif input_method == "Example Data":
             ex_type = st.radio("Example Type:", ["Single Example", "Multi-FASTA Example"], horizontal=True)
             if ex_type == "Single Example":
                 if st.button("Load Single Example"):
@@ -1624,7 +1624,7 @@ with tab_pages["Upload & Analyze"]:
                         st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
                     st.code(EXAMPLE_MULTI_FASTA, language="fasta")
 
-        elif input_method == "🌐 NCBI Fetch":
+        elif input_method == "NCBI Fetch":
             db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True,
                           help="Only nucleotide and gene databases are applicable for DNA motif analysis")
             query_type = st.radio("Query Type", ["Accession", "Gene Name", "Custom Query"], horizontal=True)
@@ -1677,7 +1677,7 @@ with tab_pages["Upload & Analyze"]:
 
     # ----- RIGHT COLUMN: Analysis Controls + Run Button + Summary Table -----
     with col_right:
-        st.markdown("### 🚀 Analysis & Run")
+        st.markdown("### Analysis & Run")
         
         # Analysis controls simplified
         st.markdown("### Analysis Options")
