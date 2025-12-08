@@ -2366,7 +2366,7 @@ with tab_pages["Results"]:
             available_columns = [col for col in available_columns if col != 'Normalized_Score']
             
             # Use pills for column selection - multi-selection mode for better UX
-            default_cols = [col for col in ['Class', 'Subclass', 'Start', 'End', 'Length', 'Score', 'GC Content'] if col in available_columns]
+            default_cols = [col for col in ['Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score'] if col in available_columns]
             display_columns = st.pills(
                 "Select columns to display:",
                 options=available_columns,
