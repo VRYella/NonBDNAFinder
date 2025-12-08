@@ -301,10 +301,12 @@ The notebook provides:
 ## 🧪 Example Analysis
 
 Use the web interface at `http://localhost:8501` to:
-- Upload FASTA sequences or paste sequence data
+- Upload FASTA sequences or paste sequence data (supports files up to **1GB**)
 - Analyze G-quadruplex, Z-DNA, R-loops, and other motifs
 - Visualize results with comprehensive charts
 - Export findings in BED, CSV, or JSON formats
+
+**Note**: The web interface now supports files up to 1GB with optimized memory-efficient processing. For large files (>100MB), processing may take several minutes depending on your system.
 
 ## 🔗 Hybrid and Cluster Motif Separation (NEW)
 
