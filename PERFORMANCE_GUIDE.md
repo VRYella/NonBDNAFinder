@@ -357,7 +357,7 @@ For issues related to performance optimizations:
 
 ## Changelog
 
-### Version 2024.1.3 (Current - December 2024)
+### Version 2024.1.3 (Current - December 2025)
 - **Major**: Increased maximum upload size from 200MB to 1GB
 - Added `.streamlit/config.toml` with optimized server settings
 - Reduced chunk size from 5MB to 2MB for better memory efficiency
@@ -379,5 +379,5 @@ For issues related to performance optimizations:
 
 ---
 
-**Last Updated**: December 2024
+**Last Updated**: December 2025
 **Author**: Dr. Venkata Rajesh Yella

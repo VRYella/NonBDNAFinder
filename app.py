@@ -32,6 +32,7 @@ import os  # Added for image path checking
 import sys  # Added for system info
 import psutil  # Added for memory monitoring
 import numpy as np
+import gc  # Added for memory management with large files
 # Import consolidated NBDScanner modules
 from utilities import (
     parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
@@ -1789,6 +1790,7 @@ with tab_pages["Upload & Analyze"]:
                     # Now parse all sequences using chunked parsing for memory efficiency
                     # Use progress bar for large files with many sequences
                     seqs, names = [], []
+                    has_large_sequences = False
                     
                     if preview_info['num_sequences'] > 10:
                         # Show progress bar for files with many sequences
@@ -1799,15 +1801,14 @@ with tab_pages["Upload & Analyze"]:
                             names.append(name)
                             seqs.append(seq)
                             
+                            # Track if we have very large sequences
+                            if len(seq) > 10_000_000:
+                                has_large_sequences = True
+                            
                             # Update progress
                             progress = (idx + 1) / preview_info['num_sequences']
                             progress_bar.progress(progress)
                             status_text.text(f"Loading sequence {idx + 1}/{preview_info['num_sequences']}: {name}")
-                            
-                            # Force garbage collection for very large sequences (>10MB each)
-                            if len(seq) > 10_000_000:
-                                import gc
-                                gc.collect()
                         
                         progress_bar.empty()
                         status_text.empty()
@@ -1816,6 +1817,14 @@ with tab_pages["Upload & Analyze"]:
                         for name, seq in parse_fasta_chunked(fasta_file):
                             names.append(name)
                             seqs.append(seq)
+                            
+                            # Track if we have very large sequences
+                            if len(seq) > 10_000_000:
+                                has_large_sequences = True
+                    
+                    # Force garbage collection after loading all sequences if we had large ones
+                    if has_large_sequences:
+                        gc.collect()
                     
                     if not seqs:
                         st.warning("No sequences found in file.")
