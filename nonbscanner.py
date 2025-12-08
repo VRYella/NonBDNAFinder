@@ -417,7 +417,7 @@ def create_enhanced_progress_callback(
         
         if print_updates:
             display_name = DETECTOR_DISPLAY_NAMES.get(detector_name, detector_name)
-            (completed / total) * 100
+            pct = (completed / total) * 100
             print(f"\r  {progress.format_progress_bar(40)} | {display_name}: {elapsed:.3f}s ({motif_count} motifs)", end='')
             if completed == total:
                 print()  # Newline after final detector

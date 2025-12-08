@@ -1213,7 +1213,8 @@ def run_pattern_tests() -> bool:
     
     # Test pattern matching
     all_patterns = PatternRegistry.get_all_patterns()
-    MotifScoring()
+    # Instantiate scoring system to validate initialization
+    scoring = MotifScoring()
     
     test_results = {}
     for motif_class, test_seq in test_sequences.items():
