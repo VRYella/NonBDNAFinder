@@ -1146,15 +1146,41 @@ st.markdown(f"""
     }}
     
     /* ============================================
-       PROGRESS PANEL COMPONENTS - Updated for soothing theme
+       PROGRESS PANEL COMPONENTS - Enhanced Professional Design
        ============================================ */
+    @keyframes pulse-dot {{
+        0%, 100% {{ opacity: 1; }}
+        50% {{ opacity: 0.3; }}
+    }}
+    
+    @keyframes progress-shimmer {{
+        0% {{ background-position: -200% center; }}
+        100% {{ background-position: 200% center; }}
+    }}
+    
     .progress-panel {{
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         border-radius: var(--border-radius-lg);
-        padding: 1.2rem;
+        padding: 1.5rem;
         color: white;
         box-shadow: 0 4px 16px {shadow_color};
         margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .progress-panel::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -200%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            transparent 100%);
+        animation: progress-shimmer 3s ease-in-out infinite;
     }}
     
     .progress-panel--success {{
@@ -1185,141 +1211,225 @@ st.markdown(f"""
     }}
     
     .progress-panel__title {{
-        margin: 0 0 0.8rem 0;
+        margin: 0 0 1rem 0;
         color: white;
         text-align: center;
+        font-size: 1.4rem;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }}
     
     .progress-panel__title--large {{
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
         margin-bottom: 1.2rem;
     }}
     
     .progress-panel__status {{
-        margin: 0 0 0.8rem 0;
+        margin: 0 0 1rem 0;
         text-align: center;
-        opacity: 0.9;
-        font-size: 0.9rem;
+        opacity: 0.95;
+        font-size: 1rem;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
     }}
     
     .stats-grid {{
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 0.8rem;
-        margin-bottom: 0.8rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
     }}
     
     .stats-grid--wide {{
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }}
     
     .stats-grid--extra-wide {{
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
         margin-top: 0.8rem;
     }}
     
     .stat-card {{
         text-align: center;
-        background: rgba(255, 255, 255, 0.15);
-        padding: 0.7rem;
-        border-radius: var(--border-radius-sm);
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: var(--border-radius-md);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }}
+    
+    .stat-card:hover {{
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }}
     
     .stat-card--large {{
-        padding: 1rem;
+        padding: 1.2rem;
         border-radius: var(--border-radius-md);
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(10px);
     }}
     
     .stat-card__value {{
         margin: 0;
         color: #FFFFFF;
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }}
     
     .stat-card__value--large {{
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.3rem;
     }}
     
     .stat-card__label {{
-        margin: 0.2rem 0 0 0;
-        opacity: 0.85;
-        font-size: 0.75rem;
+        margin: 0.4rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }}
     
     .stat-card__label--large {{
-        font-size: 0.85rem;
-        opacity: 0.9;
-        font-weight: 500;
+        font-size: 0.9rem;
+        opacity: 0.95;
+        font-weight: 600;
     }}
     
     .sequence-info {{
-        background: rgba(0, 0, 0, 0.15);
-        border-radius: var(--border-radius-sm);
-        padding: 0.6rem;
-        margin-bottom: 0.8rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: var(--border-radius-md);
+        padding: 1rem;
+        margin-bottom: 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        z-index: 1;
     }}
     
     .sequence-info__text {{
         margin: 0;
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         text-align: center;
+        font-weight: 500;
     }}
     
     .sequence-info__subtext {{
-        margin: 0.3rem 0 0 0;
-        font-size: 0.85rem;
+        margin: 0.5rem 0 0 0;
+        font-size: 0.9rem;
         opacity: 0.9;
         text-align: center;
     }}
     
-    /* Pipeline/Detector Components */
+    /* Pipeline/Detector Components - Enhanced Design */
     .pipeline-panel {{
-        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid #bdbdbd;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'};
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid {'#374151' if is_dark_mode else '#E5E7EB'};
+        box-shadow: 0 2px 8px {shadow_color};
     }}
     
     .pipeline-panel__title {{
-        margin: 0 0 0.8rem 0;
-        color: #424242;
+        margin: 0 0 1rem 0;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
     }}
     
     .pipeline-grid {{
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-        font-size: 0.85rem;
+        gap: 0.8rem;
+        font-size: 0.9rem;
     }}
     
     .detector-item {{
-        background: rgba(25, 118, 210, 0.1);
-        padding: 0.5rem;
-        border-radius: 6px;
-        border-left: 3px solid #1976d2;
+        background: {'rgba(91, 141, 239, 0.1)' if is_dark_mode else 'rgba(91, 141, 239, 0.05)'};
+        padding: 0.8rem;
+        border-radius: var(--border-radius-sm);
+        border-left: 3px solid var(--primary-color);
+        transition: all 0.3s ease;
+        position: relative;
+    }}
+    
+    .detector-item:hover {{
+        background: {'rgba(91, 141, 239, 0.15)' if is_dark_mode else 'rgba(91, 141, 239, 0.1)'};
+        transform: translateX(4px);
+    }}
+    
+    .detector-item--running {{
+        animation: pulse-glow 2s ease-in-out infinite;
+    }}
+    
+    .detector-item--running::before {{
+        content: '●';
+        position: absolute;
+        left: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4ecdc4;
+        font-size: 0.6rem;
+        animation: pulse-dot 1.5s ease-in-out infinite;
     }}
     
     .detector-item__name {{
         font-weight: 600;
+        color: var(--text-color);
+        margin-left: 1rem;
     }}
     
     .detector-item__desc {{
-        font-size: 0.75rem;
-        color: #757575;
+        font-size: 0.8rem;
+        color: {'#94a3b8' if is_dark_mode else '#64748B'};
+        margin-top: 0.2rem;
+        margin-left: 1rem;
     }}
     
     .pipeline-panel__footer {{
-        margin: 0.8rem 0 0 0;
-        font-size: 0.8rem;
-        color: #616161;
+        margin: 1rem 0 0 0;
+        font-size: 0.85rem;
+        color: {'#94a3b8' if is_dark_mode else '#64748B'};
         text-align: center;
+        padding-top: 1rem;
+        border-top: 1px solid {'#374151' if is_dark_mode else '#E5E7EB'};
+        font-style: italic;
+    }}
+    
+    /* Responsive adjustments for progress panels */
+    @media screen and (max-width: 768px) {{
+        .stats-grid {{
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }}
+        
+        .pipeline-grid {{
+            grid-template-columns: 1fr;
+            gap: 0.6rem;
+        }}
+        
+        .stat-card__value {{
+            font-size: 1.3rem;
+        }}
+        
+        .stat-card__label {{
+            font-size: 0.7rem;
+        }}
     }}
     
     /* ============================================
@@ -1813,27 +1923,43 @@ with tab_pages["Upload & Analyze"]:
                     def build_progress_html(elapsed, estimated_remaining, progress_display, 
                                             status_text, seq_info_html, detector_count):
                         """Build the progress timer HTML with consistent styling using CSS classes."""
+                        # Format time display
+                        def format_time(seconds):
+                            if seconds < 60:
+                                return f"{seconds:.1f}s"
+                            elif seconds < 3600:
+                                mins = int(seconds // 60)
+                                secs = int(seconds % 60)
+                                return f"{mins}m {secs}s"
+                            else:
+                                hours = int(seconds // 3600)
+                                mins = int((seconds % 3600) // 60)
+                                return f"{hours}h {mins}m"
+                        
+                        elapsed_str = format_time(elapsed)
+                        remaining_str = format_time(estimated_remaining)
+                        
                         return f"""
                         <div class='progress-panel'>
-                            <h3 class='progress-panel__title'>⏱️ NonBScanner Analysis Progress</h3>
+                            <h3 class='progress-panel__title'>🧬 NonBScanner Analysis</h3>
                             <p class='progress-panel__status'>{status_text}</p>
                             
                             <div class='stats-grid'>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{elapsed:.1f}s</h2>
-                                    <p class='stat-card__label'>Elapsed Time</p>
+                                    <h2 class='stat-card__value'>⏱️ {elapsed_str}</h2>
+                                    <p class='stat-card__label'>Elapsed</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{estimated_remaining:.1f}s</h2>
-                                    <p class='stat-card__label'>Est. Remaining</p>
+                                    <h2 class='stat-card__value'>⏳ {remaining_str}</h2>
+                                    <p class='stat-card__label'>Remaining</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{progress_display}</h2>
-                                    <p class='stat-card__label'>Overall Progress</p>
+                                    <h2 class='stat-card__value'>📊 {progress_display}</h2>
+                                    <p class='stat-card__label'>Progress</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{detector_count}</h2>
-                                    <p class='stat-card__label'>Detector Processes</p>
+                                    <h2 class='stat-card__value'>🔬 {detector_count}</h2>
+                                    <p class='stat-card__label'>Detectors</p>
                                 </div>
                             </div>
                             
@@ -1891,10 +2017,10 @@ with tab_pages["Upload & Analyze"]:
                             # Build sequence info HTML
                             seq_info_html = f"""
                                 <p class='sequence-info__text'>
-                                    <strong>Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} ({len(seq):,} bp)
+                                    <strong>📄 Sequence {i+1}/{len(st.session_state.seqs)}</strong>: {name} <em>({len(seq):,} bp)</em>
                                 </p>
                                 <p class='sequence-info__subtext'>
-                                    Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
+                                    ⚡ Processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp
                                 </p>
                             """
                             
@@ -1913,25 +2039,24 @@ with tab_pages["Upload & Analyze"]:
                                 closing_tag = '</div>'
                                 timer_html_stripped = timer_html.rstrip()
                                 if timer_html_stripped.endswith(closing_tag):
-                                    timer_html = timer_html_stripped[:-len(closing_tag)] + f"<p class='sequence-info__subtext'>📦 Estimated chunks: {est_chunks}</p>{closing_tag}"
+                                    timer_html = timer_html_stripped[:-len(closing_tag)] + f"<p class='sequence-info__subtext'>📦 Chunks: {est_chunks}</p>{closing_tag}"
                                 # If the HTML doesn't end with expected tag, use original HTML unchanged
                             
                             timer_placeholder.markdown(timer_html, unsafe_allow_html=True)
                             
                             # Show detailed progress panel with detector sequence
-                            # The status_icon shows all detectors as "running" during analysis since they run in parallel
+                            # The status shows all detectors as "running" during analysis since they run in parallel
                             detailed_progress_html = f"""
                             <div class='pipeline-panel'>
-                                <h4 class='pipeline-panel__title'>Analysis Pipeline - Sequence of Operations</h4>
+                                <h4 class='pipeline-panel__title'>🔬 Analysis Pipeline</h4>
                                 <div class='pipeline-grid'>
                             """
                             
                             for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                                # All detectors run in parallel during analysis, so show as "running"
-                                status_icon = "Running"
+                                # All detectors run in parallel during analysis
                                 detailed_progress_html += f"""
-                                    <div class='detector-item'>
-                                        <span class='detector-item__name'>{status_icon}: {j+1}. {detector_name}</span>
+                                    <div class='detector-item detector-item--running'>
+                                        <span class='detector-item__name'>{j+1}. {detector_name}</span>
                                         <br/><span class='detector-item__desc'>{detector_desc}</span>
                                     </div>
                                 """
@@ -1939,7 +2064,7 @@ with tab_pages["Upload & Analyze"]:
                             detailed_progress_html += """
                                 </div>
                                 <p class='pipeline-panel__footer'>
-                                    All 9 detectors run in parallel for each sequence, followed by hybrid/cluster detection
+                                    ✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering
                                 </p>
                             </div>
                             """
@@ -1960,7 +2085,7 @@ with tab_pages["Upload & Analyze"]:
                                         """Callback to update chunk progress"""
                                         if show_chunk_progress:
                                             chunk_percent = (current / total) * 100
-                                            chunk_progress_placeholder.info(f"Processing chunks: {current}/{total} ({chunk_percent:.1f}%)")
+                                            chunk_progress_placeholder.info(f"📦 Chunks: {current}/{total} ({chunk_percent:.1f}%)")
                                     
                                     # Run parallel scanner
                                     scanner = ParallelScanner(seq, hs_db=None)
@@ -1972,7 +2097,7 @@ with tab_pages["Upload & Analyze"]:
                                     
                                     # Clear chunk progress
                                     if show_chunk_progress:
-                                        chunk_progress_placeholder.success(f"✅ Chunk processing complete: {len(raw_motifs)} raw motifs found")
+                                        chunk_progress_placeholder.success(f"✅ Chunks complete: {len(raw_motifs)} motifs")
                                     
                                 except Exception as e:
                                     st.warning(f"Parallel scanner failed, falling back to standard: {e}")
@@ -2006,25 +2131,25 @@ with tab_pages["Upload & Analyze"]:
                             # Build sequence completion info HTML
                             seq_complete_info_html = f"""
                                 <p class='sequence-info__text'>
-                                    <strong>Processed</strong>: {name} ({len(seq):,} bp) in {seq_time:.2f}s - {len(results)} motifs found
+                                    <strong>✅ Completed</strong>: {name} <em>({len(seq):,} bp)</em> in {seq_time:.2f}s
                                 </p>
                                 <p class='sequence-info__subtext'>
-                                    Total processed: {total_bp_processed:,} / {total_bp_all_sequences:,} bp ({speed:,.0f} bp/s)
+                                    ⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s
                                 </p>
                             """
                             
                             # Update timer display with actual progress using helper function
                             updated_timer_html = build_progress_html(
                                 elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
-                                f"Sequence {i+1}/{len(st.session_state.seqs)} completed",
+                                f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
                                 seq_complete_info_html, len(DETECTOR_PROCESSES)
                             )
                             timer_placeholder.markdown(updated_timer_html, unsafe_allow_html=True)
                             
                             with progress_placeholder.container():
-                                pbar.progress(progress, text=f"Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
+                                pbar.progress(progress, text=f"🔬 Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
                             
-                            status_placeholder.info(f"✓ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) - {len(results)} motifs found")
+                            status_placeholder.success(f"✅ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) | 🎯 {len(results)} motifs")
                         
                         # Store results
                         st.session_state.results = all_results
@@ -2073,27 +2198,31 @@ with tab_pages["Upload & Analyze"]:
                         # Show final success message with enhanced performance metrics
                         timer_placeholder.markdown(f"""
                         <div class='progress-panel progress-panel--success'>
-                            <h3 class='progress-panel__title'>Analysis Complete!</h3>
+                            <h3 class='progress-panel__title'>🎉 Analysis Complete!</h3>
                             <div class='stats-grid stats-grid--wide'>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{total_time:.2f}s</h2>
+                                    <h2 class='stat-card__value'>⏱️ {total_time:.2f}s</h2>
                                     <p class='stat-card__label'>Total Time</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{total_bp_processed:,}</h2>
+                                    <h2 class='stat-card__value'>🧬 {total_bp_processed:,}</h2>
                                     <p class='stat-card__label'>Base Pairs</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{overall_speed:,.0f}</h2>
+                                    <h2 class='stat-card__value'>🚀 {overall_speed:,.0f}</h2>
                                     <p class='stat-card__label'>bp/second</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{len(DETECTOR_PROCESSES)}</h2>
-                                    <p class='stat-card__label'>Detectors Run</p>
+                                    <h2 class='stat-card__value'>🔬 {len(DETECTOR_PROCESSES)}</h2>
+                                    <p class='stat-card__label'>Detectors</p>
                                 </div>
                                 <div class='stat-card'>
-                                    <h2 class='stat-card__value'>{sum(len(r) for r in all_results)}</h2>
+                                    <h2 class='stat-card__value'>🎯 {sum(len(r) for r in all_results)}</h2>
                                     <p class='stat-card__label'>Motifs Found</p>
+                                </div>
+                                <div class='stat-card'>
+                                    <h2 class='stat-card__value'>📊 {len(st.session_state.seqs)}</h2>
+                                    <p class='stat-card__label'>Sequences</p>
                                 </div>
                             </div>
                         </div>
