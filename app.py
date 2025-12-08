@@ -28,29 +28,22 @@ ARCHITECTURE:
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import io
 import os  # Added for image path checking
 import numpy as np
-from collections import Counter
 # Import consolidated NBDScanner modules
 from utilities import (
-    canonicalize_motif, parse_fasta, gc_content, reverse_complement, wrap,
-    get_basic_stats, export_to_bed, export_to_csv, export_to_json,
-    validate_sequence, quality_check_motifs, export_to_excel,
-    calculate_genomic_density, calculate_positional_density,
-    calculate_enrichment_with_shuffling, calculate_enhanced_statistics
+    parse_fasta, wrap, get_basic_stats, export_to_bed, export_to_csv,
+    export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density
 )
 from nonbscanner import (
-    analyze_sequence, analyze_multiple_sequences,
-    get_motif_info as get_motif_classification_info
+    analyze_sequence, get_motif_info as get_motif_classification_info
 )
 from utilities import export_results_to_dataframe
 from visualizations import (
     plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
     plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
-    save_all_plots, MOTIF_CLASS_COLORS,
-    plot_density_comparison, plot_enrichment_analysis, plot_enrichment_summary_table,
-    plot_circos_motif_density, plot_radial_class_density, plot_stacked_density_track
+    MOTIF_CLASS_COLORS, plot_density_comparison,
+    plot_circos_motif_density
 )
 
 # Try to import Entrez for demo functionality
@@ -62,7 +55,6 @@ except ImportError:
 
 # Try to import Hyperscan (optional for acceleration)
 try:
-    import hyperscan
     HYPERSCAN_AVAILABLE = True
 except ImportError:
     HYPERSCAN_AVAILABLE = False

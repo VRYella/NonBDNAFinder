@@ -57,8 +57,6 @@ warnings.filterwarnings("ignore")
 # Try to import plotly for interactive plots
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
-    from plotly.subplots import make_subplots
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False

@@ -302,7 +302,6 @@ API:
 """
 
 import os
-import pickle
 import logging
 import json
 
@@ -1214,7 +1213,7 @@ def run_pattern_tests() -> bool:
     
     # Test pattern matching
     all_patterns = PatternRegistry.get_all_patterns()
-    scoring = MotifScoring()
+    MotifScoring()
     
     test_results = {}
     for motif_class, test_seq in test_sequences.items():
@@ -1400,7 +1399,7 @@ import csv
 import random
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 from collections import Counter, defaultdict
 from io import StringIO
 import warnings
@@ -2179,7 +2178,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
         Success message string
     """
     try:
-        import openpyxl
+        pass
     except ImportError:
         raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
     
