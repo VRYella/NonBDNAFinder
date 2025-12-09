@@ -200,10 +200,7 @@ st.set_page_config(
 # - CHUNK_THRESHOLD: 10,000 bp (sequences larger than this are chunked)
 # - DEFAULT_CHUNK_SIZE: 10,000 bp per chunk
 # - DEFAULT_CHUNK_OVERLAP: 500 bp overlap between chunks
-#
-# Setting MAX_SEQUENCE_LENGTH to a very large value to effectively disable the limit
-# while maintaining backward compatibility with any code that references it.
-MAX_SEQUENCE_LENGTH = 10_000_000_000  # 10 billion nucleotides (effectively unlimited)
+
 
 def format_sequence_limit():
     """Format the sequence limit for display - now shows 'unlimited' since limit is removed"""
@@ -311,15 +308,15 @@ def get_dna_pattern_svg(stroke_color: str) -> str:
 # Using CSS variables approach with soft, modern colors optimized for readability
 COLOR_THEMES = {
     'scientific_blue': {
-        'primary': '#5B8DEF',        # Soft blue - soothing primary
-        'secondary': '#7BA3F7',      # Lighter blue - softer secondary
-        'accent': '#A8C5FF',         # Very soft blue accent
-        'bg_light': '#F8FAFC',       # Very light gray-blue background
-        'bg_card': '#EEF2FF',        # Soft indigo-tinted card background
-        'text': '#1F2937',           # Darker gray for better readability
-        'tab_bg': '#F1F5F9',         # Light slate for tab bar
-        'tab_active': '#5B8DEF',     # Active tab color
-        'shadow': 'rgba(91, 141, 239, 0.15)'  # Soft shadow color
+         "primary":    "#4A90E2",   // Clean scientific blue (balanced, not too saturated)
+         "secondary":  "#6AA5F2",   // Lighter complementary blue
+         "accent":     "#AFCBFF",   // Subtle highlight blue for emphasis
+         "bg_light":   "#F7FAFC",   // Very soft cool white (best for reading)
+         "bg_card":    "#E8F0FF",   // Gentle blue-tinted card/panel background
+         "text":       "#1E252F",   // Deep neutral blue-gray (high readability)
+         "tab_bg":     "#EDF2F7",   // Cool scientific neutral
+         "tab_active": "#4A90E2",   // Matches primary for consistency
+         "shadow":     "rgba(74, 144, 226, 0.15)" // Soft blue shadow for depth
     },
     'nature_green': {
         'primary': '#6DBB7A',        # Soft green
