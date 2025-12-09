@@ -471,12 +471,12 @@ st.markdown(f"""
         display: flex !important;
         width: 100% !important;
         justify-content: stretch !important;
-        gap: 6px !important;
+        gap: 4px !important;
         border-bottom: none !important;
         background: {tab_bg_color} !important;
         box-shadow: 0 2px 12px {shadow_color}, inset 0 1px 0 {'rgba(255, 255, 255, 0.1)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
-        margin-bottom: 1.5em;
-        padding: 8px 10px !important;
+        margin-bottom: 1em;
+        padding: 6px 8px !important;
         border-radius: var(--border-radius-lg) !important;
         animation: fade-in 0.5s ease-out;
     }}
@@ -485,10 +485,10 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab"] {{
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        font-size: 1.05rem !important;
+        font-size: 0.95rem !important;
         font-weight: 500 !important;
         font-family: var(--font-primary) !important;
-        padding: 12px 16px !important;
+        padding: 8px 12px !important;
         text-align: center !important;
         color: {'#475569' if is_dark_mode else '#334155'} !important;
         background: transparent !important;
@@ -535,12 +535,12 @@ st.markdown(f"""
         color: var(--primary-color) !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
-        margin-top: 1em;
-        margin-bottom: 0.6em;
+        margin-top: 0.7em;
+        margin-bottom: 0.4em;
         animation: fade-in 0.4s ease-out;
     }}
     h1 {{ 
-        font-size: 2.4rem !important; 
+        font-size: 2rem !important; 
         font-weight: 700 !important;
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         -webkit-background-clip: text;
@@ -548,11 +548,11 @@ st.markdown(f"""
         background-clip: text;
     }}
     h2 {{ 
-        font-size: 1.75rem !important; 
+        font-size: 1.5rem !important; 
         color: var(--primary-color) !important; 
         font-weight: 600 !important;
         border-bottom: none !important;
-        padding-bottom: 0.3rem;
+        padding-bottom: 0.2rem;
         position: relative;
     }}
     h2::after {{
@@ -560,36 +560,36 @@ st.markdown(f"""
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 50px;
-        height: 3px;
+        width: 40px;
+        height: 2px;
         background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
         border-radius: 2px;
     }}
     h3 {{ 
-        font-size: 1.35rem !important; 
+        font-size: 1.2rem !important; 
         color: var(--secondary-color) !important; 
         font-weight: 600 !important;
     }}
     h4 {{ 
-        font-size: 1.15rem !important; 
+        font-size: 1.05rem !important; 
         color: var(--secondary-color) !important; 
         font-weight: 500 !important;
     }}
     
     /* Body text: Modern Inter font for readability */
     .stMarkdown, .markdown-text-container, .stText, p, span, label {{
-        font-size: 1.0rem !important;
+        font-size: 0.92rem !important;
         font-family: var(--font-primary) !important;
-        line-height: 1.65 !important;
+        line-height: 1.5 !important;
         color: var(--text-color) !important;
-        margin-bottom: 0.5em !important;
+        margin-bottom: 0.4em !important;
         font-weight: 400;
     }}
     
     /* Input fields: Clean design with soft borders */
     input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
     .stMultiSelect>div>div>div, .stRadio>div>div>label>div {{
-        font-size: 1.0rem !important;
+        font-size: 0.92rem !important;
         font-family: var(--font-primary) !important;
         border-radius: var(--border-radius-md) !important;
         border: 1.5px solid {'#475569' if is_dark_mode else '#E2E8F0'} !important;
@@ -607,9 +607,9 @@ st.markdown(f"""
        BUTTONS: Soft gradient with subtle shadow
        ============================================ */
     .stButton>button {{
-        font-size: 1.0rem !important;
+        font-size: 0.92rem !important;
         font-family: var(--font-primary) !important;
-        padding: 0.65em 1.5em !important;
+        padding: 0.5em 1.2em !important;
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: #FFFFFF !important;
         border-radius: var(--border-radius-md) !important;
@@ -671,10 +671,10 @@ st.markdown(f"""
     
     /* Tab content - Clean content card section */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 1.5rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 1rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        padding-bottom: 1rem !important;
         animation: fade-in 0.3s ease-out;
         background: {'#1A1F2E' if is_dark_mode else '#FFFFFF'} !important;
         border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
@@ -686,8 +686,8 @@ st.markdown(f"""
        CONTENT CARDS: Soft shadows and rounded corners
        ============================================ */
     .analysis-summary-card, .glassmorphism-card, .content-card {{
-        margin: 1rem 0 !important;
-        padding: 1.5rem !important;
+        margin: 0.8rem 0 !important;
+        padding: 1rem !important;
         background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
         border-radius: var(--border-radius-lg) !important;
         box-shadow: 0 2px 12px {shadow_color} !important;
@@ -814,7 +814,7 @@ st.markdown(f"""
         border: 2px dashed var(--accent-color) !important;
         border-radius: var(--border-radius-lg) !important;
         background: {'#1A1F2E' if is_dark_mode else '#F8FAFC'} !important;
-        padding: 2rem !important;
+        padding: 1.2rem !important;
         transition: var(--transition-smooth);
         box-shadow: 0 2px 8px {shadow_color};
     }}
@@ -871,16 +871,16 @@ st.markdown(f"""
     
     /* Expander styling: Clean accordion design */
     .streamlit-expanderHeader {{
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         background: {'#252B3B' if is_dark_mode else '#F8FAFC'} !important;
         font-weight: 600 !important;
-        padding: 0.8rem 1.2rem !important;
+        padding: 0.6rem 1rem !important;
         border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
         transition: all 0.3s ease;
         box-shadow: 0 1px 4px {shadow_color};
         display: flex !important;
         align-items: center !important;
-        gap: 10px !important;
+        gap: 8px !important;
     }}
     .streamlit-expanderHeader:hover {{
         background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
@@ -888,11 +888,11 @@ st.markdown(f"""
         box-shadow: 0 2px 8px {shadow_color};
     }}
     .streamlit-expanderContent {{
-        border-radius: 0 0 12px 12px !important;
+        border-radius: 0 0 10px 10px !important;
         background: {'#1A1F2E' if is_dark_mode else '#FFFFFF'} !important;
         border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
         border-top: none !important;
-        padding: 1.2rem !important;
+        padding: 0.8rem !important;
     }}
     
     /* Clean chevron icon styling for expanders */
@@ -1004,7 +1004,7 @@ st.markdown(f"""
        ============================================ */
     [data-testid="stMetric"] {{
         background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
-        padding: 1.2rem !important;
+        padding: 0.8rem !important;
         border-radius: var(--border-radius-lg) !important;
         border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
         box-shadow: 0 2px 8px {shadow_color} !important;
@@ -1016,7 +1016,7 @@ st.markdown(f"""
         border-color: var(--accent-color) !important;
     }}
     [data-testid="stMetricValue"] {{
-        font-size: 1.8rem !important;
+        font-size: 1.5rem !important;
         font-weight: 700 !important;
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         -webkit-background-clip: text;
@@ -1024,7 +1024,7 @@ st.markdown(f"""
         background-clip: text;
     }}
     [data-testid="stMetricLabel"] {{
-        font-size: 0.85rem !important;
+        font-size: 0.8rem !important;
         font-weight: 500 !important;
         color: {'#94a3b8' if is_dark_mode else '#64748B'} !important;
         text-transform: uppercase;
@@ -1255,10 +1255,10 @@ st.markdown(f"""
     .progress-panel {{
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         border-radius: var(--border-radius-lg);
-        padding: 1.5rem;
+        padding: 1rem;
         color: white;
         box-shadow: 0 4px 16px {shadow_color};
-        margin-bottom: 1rem;
+        margin-bottom: 0.8rem;
         position: relative;
         overflow: hidden;
     }}
@@ -1285,22 +1285,22 @@ st.markdown(f"""
     .progress-panel--metrics {{
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         box-shadow: 0 4px 16px {shadow_color};
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }}
     
     .progress-panel--results {{
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         border-radius: var(--border-radius-lg);
-        padding: 1.5rem;
-        margin: 1rem 0;
+        padding: 1rem;
+        margin: 0.8rem 0;
         box-shadow: 0 4px 20px {shadow_color};
     }}
     
     .progress-panel--hybrid {{
         background: linear-gradient(135deg, #9B8FD9 0%, #B3A9E5 100%);
         border-radius: var(--border-radius-lg);
-        padding: 1.5rem;
-        margin: 1rem 0;
+        padding: 1rem;
+        margin: 0.8rem 0;
         box-shadow: 0 4px 20px rgba(155, 143, 217, 0.25);
     }}
     
@@ -1308,27 +1308,27 @@ st.markdown(f"""
         margin: 0 0 1rem 0;
         color: white;
         text-align: center;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         font-weight: 700;
         position: relative;
         z-index: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }}
     
     .progress-panel__title--large {{
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
     }}
     
     .progress-panel__status {{
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.8rem 0;
         text-align: center;
         opacity: 0.95;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 500;
         position: relative;
         z-index: 1;
@@ -1337,26 +1337,26 @@ st.markdown(f"""
     .stats-grid {{
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1rem;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
         position: relative;
         z-index: 1;
     }}
     
     .stats-grid--wide {{
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }}
     
     .stats-grid--extra-wide {{
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 0.8rem;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.8rem;
+        margin-top: 0.6rem;
     }}
     
     .stat-card {{
         text-align: center;
         background: rgba(255, 255, 255, 0.2);
-        padding: 1rem;
+        padding: 0.7rem;
         border-radius: var(--border-radius-md);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1370,7 +1370,7 @@ st.markdown(f"""
     }}
     
     .stat-card--large {{
-        padding: 1.2rem;
+        padding: 0.9rem;
         border-radius: var(--border-radius-md);
         backdrop-filter: blur(10px);
     }}
@@ -1378,28 +1378,28 @@ st.markdown(f"""
     .stat-card__value {{
         margin: 0;
         color: #FFFFFF;
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 700;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }}
     
     .stat-card__value--large {{
-        font-size: 2rem;
+        font-size: 1.7rem;
         font-weight: 700;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.25rem;
     }}
     
     .stat-card__label {{
-        margin: 0.4rem 0 0 0;
+        margin: 0.3rem 0 0 0;
         opacity: 0.9;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }}
     
     .stat-card__label--large {{
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         opacity: 0.95;
         font-weight: 600;
     }}
@@ -1407,7 +1407,7 @@ st.markdown(f"""
     .sequence-info {{
         background: rgba(0, 0, 0, 0.2);
         border-radius: var(--border-radius-md);
-        padding: 1rem;
+        padding: 0.8rem;
         margin-bottom: 0;
         border: 1px solid rgba(255, 255, 255, 0.2);
         position: relative;
@@ -1416,14 +1416,14 @@ st.markdown(f"""
     
     .sequence-info__text {{
         margin: 0;
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         text-align: center;
         font-weight: 500;
     }}
     
     .sequence-info__subtext {{
-        margin: 0.5rem 0 0 0;
-        font-size: 0.9rem;
+        margin: 0.4rem 0 0 0;
+        font-size: 0.82rem;
         opacity: 0.9;
         text-align: center;
     }}
@@ -1432,16 +1432,16 @@ st.markdown(f"""
     .pipeline-panel {{
         background: {'#252B3B' if is_dark_mode else '#FFFFFF'};
         border-radius: var(--border-radius-lg);
-        padding: 1.5rem;
-        margin-top: 1rem;
+        padding: 1rem;
+        margin-top: 0.8rem;
         border: 1px solid {'#374151' if is_dark_mode else '#E5E7EB'};
         box-shadow: 0 2px 8px {shadow_color};
     }}
     
     .pipeline-panel__title {{
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.8rem 0;
         color: var(--primary-color);
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         text-align: center;
     }}
@@ -1449,13 +1449,13 @@ st.markdown(f"""
     .pipeline-grid {{
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.8rem;
-        font-size: 0.9rem;
+        gap: 0.6rem;
+        font-size: 0.85rem;
     }}
     
     .detector-item {{
         background: {'rgba(91, 141, 239, 0.1)' if is_dark_mode else 'rgba(91, 141, 239, 0.05)'};
-        padding: 0.8rem;
+        padding: 0.6rem;
         border-radius: var(--border-radius-sm);
         border-left: 3px solid var(--primary-color);
         transition: all 0.3s ease;
@@ -1485,22 +1485,22 @@ st.markdown(f"""
     .detector-item__name {{
         font-weight: 600;
         color: var(--text-color);
-        margin-left: 1rem;
+        margin-left: 0.8rem;
     }}
     
     .detector-item__desc {{
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: {'#94a3b8' if is_dark_mode else '#64748B'};
-        margin-top: 0.2rem;
-        margin-left: 1rem;
+        margin-top: 0.15rem;
+        margin-left: 0.8rem;
     }}
     
     .pipeline-panel__footer {{
-        margin: 1rem 0 0 0;
-        font-size: 0.85rem;
+        margin: 0.8rem 0 0 0;
+        font-size: 0.8rem;
         color: {'#94a3b8' if is_dark_mode else '#64748B'};
         text-align: center;
-        padding-top: 1rem;
+        padding-top: 0.8rem;
         border-top: 1px solid {'#374151' if is_dark_mode else '#E5E7EB'};
         font-style: italic;
     }}
@@ -1683,26 +1683,26 @@ with tab_pages["Home"]:
             """, unsafe_allow_html=True)
     with right:
         st.markdown("""
-        <div style='font-family: Inter, system-ui, sans-serif; font-size:1.05rem; color:#263238; 
-                    line-height:1.8; padding:2rem; background:white; border-radius:16px; 
-                    box-shadow:0 4px 16px rgba(0,0,0,0.08); border: 1px solid rgba(25, 118, 210, 0.1);'>
-        <p style='margin-top:0;'><b style='color:#0d47a1; font-size:1.15rem;'>Non-canonical DNA structures</b> play key roles in genome stability, regulation, and evolution.</p>
-        <p>This application detects and analyzes <b style='color:#1976d2;'>11 major classes with 22+ subclasses</b> of Non-B DNA motifs in any DNA sequence or multi-FASTA file.</p>
-        <p style='margin-bottom:0.8rem;'><b style='color:#0d47a1;'>Motif Classes (11 classes, 22+ subclasses):</b></p>
-        <div style='color:#37474f; font-size:0.98rem; line-height:1.9; padding-left:1rem;'>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>1. Curved DNA</b> <span style='color:#546e7a;'>(Global curvature, Local Curvature)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>2. Slipped DNA</b> <span style='color:#546e7a;'>(Direct Repeat, STR)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>3. Cruciform DNA</b> <span style='color:#546e7a;'>(Inverted Repeats)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>4. R-loop</b> <span style='color:#546e7a;'>(R-loop formation sites)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>5. Triplex</b> <span style='color:#546e7a;'>(Triplex, Sticky DNA)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>6. G-Quadruplex Family</b> <span style='color:#546e7a;'>(Multimeric G4, Canonical G4, Relaxed G4, Bulged G4, Bipartite G4, Imperfect G4, G-Triplex intermediate)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>7. i-Motif Family</b> <span style='color:#546e7a;'>(Canonical i-motif, Relaxed i-motif, AC-motif)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>8. Z-DNA</b> <span style='color:#546e7a;'>(Z-DNA, eGZ (Extruded-G) DNA)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>9. A-philic DNA</b> <span style='color:#546e7a;'>(A-philic DNA)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>10. Hybrid</b> <span style='color:#546e7a;'>(dynamic overlaps)</span></div>
-            <div style='margin-bottom:0.4rem;'><b style='color:#1976d2;'>11. Non-B DNA Clusters</b> <span style='color:#546e7a;'>(dynamic clusters)</span></div>
+        <div style='font-family: Inter, system-ui, sans-serif; font-size:0.95rem; color:#263238; 
+                    line-height:1.5; padding:1.2rem; background:white; border-radius:12px; 
+                    box-shadow:0 2px 8px rgba(0,0,0,0.06); border: 1px solid rgba(25, 118, 210, 0.1);'>
+        <p style='margin-top:0; margin-bottom:0.8rem;'><b style='color:#0d47a1;'>Non-canonical DNA structures</b> play key roles in genome stability, regulation, and evolution.</p>
+        <p style='margin-bottom:0.8rem;'>Detects and analyzes <b style='color:#1976d2;'>11 major classes with 22+ subclasses</b> of Non-B DNA motifs.</p>
+        <p style='margin-bottom:0.5rem;'><b style='color:#0d47a1;'>Motif Classes:</b></p>
+        <div style='color:#37474f; font-size:0.88rem; line-height:1.6; padding-left:0.8rem; column-count:2; column-gap:1rem;'>
+            <div style='margin-bottom:0.2rem;'><b>1.</b> Curved DNA</div>
+            <div style='margin-bottom:0.2rem;'><b>2.</b> Slipped DNA</div>
+            <div style='margin-bottom:0.2rem;'><b>3.</b> Cruciform DNA</div>
+            <div style='margin-bottom:0.2rem;'><b>4.</b> R-loop</div>
+            <div style='margin-bottom:0.2rem;'><b>5.</b> Triplex</div>
+            <div style='margin-bottom:0.2rem;'><b>6.</b> G-Quadruplex</div>
+            <div style='margin-bottom:0.2rem;'><b>7.</b> i-Motif</div>
+            <div style='margin-bottom:0.2rem;'><b>8.</b> Z-DNA</div>
+            <div style='margin-bottom:0.2rem;'><b>9.</b> A-philic DNA</div>
+            <div style='margin-bottom:0.2rem;'><b>10.</b> Hybrid</div>
+            <div style='margin-bottom:0.2rem;'><b>11.</b> Non-B DNA Clusters</div>
         </div>
-        <p style='margin-top:1.2rem; margin-bottom:0; color:#1976d2; font-weight:600;'>Upload single or multi-FASTA files to begin analysis...</p>
+        <p style='margin-top:0.8rem; margin-bottom:0; color:#1976d2; font-weight:500; font-size:0.9rem;'>Upload FASTA files to begin analysis</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1714,7 +1714,7 @@ with tab_pages["Home"]:
 
 with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
-    st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
+    st.markdown('<span style="font-family:Montserrat,Arial; font-size:0.95rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
 
     # ----- Input Method + Sequence Preview -----
