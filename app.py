@@ -1651,12 +1651,18 @@ st.markdown(f"""
         background-size: 120px 120px;
         pointer-events: none;
         z-index: 0;
-        animation: rotate-pattern 120s linear infinite;
+        animation: rotate-pattern 60s linear infinite;
+        will-change: transform;
     }}
     
     @keyframes rotate-pattern {{
         0% {{ transform: rotate(0deg); }}
         100% {{ transform: rotate(360deg); }}
+    }}
+    
+    /* Pause animation when tab is not active for performance optimization */
+    .stTabs [data-baseweb="tab-panel"]:not([aria-hidden="false"]) .stTabs [data-baseweb="tab-panel"]:nth-of-type(2)::before {{
+        animation-play-state: paused;
     }}
     
     .stTabs [data-baseweb="tab-panel"]:nth-of-type(2) > * {{
@@ -1803,8 +1809,8 @@ st.markdown(f"""
     .stTabs [data-baseweb="tab-panel"] .analysis-summary-card,
     .stTabs [data-baseweb="tab-panel"] .glassmorphism-card,
     .stTabs [data-baseweb="tab-panel"] .content-card {{
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         background: {'rgba(37, 43, 59, 0.85)' if is_dark_mode else 'rgba(255, 255, 255, 0.85)'} !important;
         box-shadow: 
             0 8px 32px 0 {'rgba(0, 0, 0, 0.37)' if is_dark_mode else 'rgba(31, 38, 135, 0.15)'},
@@ -1812,12 +1818,28 @@ st.markdown(f"""
         border: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark_mode else 'rgba(209, 213, 219, 0.5)'} !important;
     }}
     
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"] .analysis-summary-card,
+        .stTabs [data-baseweb="tab-panel"] .glassmorphism-card,
+        .stTabs [data-baseweb="tab-panel"] .content-card {{
+            background: {'rgba(37, 43, 59, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
+        }}
+    }}
+    
     /* Advanced glassmorphism effect for metrics in Results tab */
     .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) [data-testid="stMetric"] {{
         background: {'rgba(155, 143, 217, 0.12)' if is_dark_mode else 'rgba(155, 143, 217, 0.08)'} !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         border: 1px solid {'rgba(155, 143, 217, 0.2)' if is_dark_mode else 'rgba(155, 143, 217, 0.3)'} !important;
+    }}
+    
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) [data-testid="stMetric"] {{
+            background: {'rgba(155, 143, 217, 0.18)' if is_dark_mode else 'rgba(155, 143, 217, 0.15)'} !important;
+        }}
     }}
     
     /* Enhanced dataframes with subtle backgrounds */
@@ -1825,6 +1847,13 @@ st.markdown(f"""
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         background: {'rgba(26, 31, 46, 0.7)' if is_dark_mode else 'rgba(255, 255, 255, 0.9)'} !important;
+    }}
+    
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"] .stDataFrame {{
+            background: {'rgba(26, 31, 46, 0.9)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
+        }}
     }}
     
     </style>
