@@ -1707,36 +1707,51 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     if not classes:
         classes = list(genomic_density.keys())
     
+    # Sort classes alphabetically
+    classes = sorted(classes)
+    
     genomic_vals = [genomic_density.get(c, 0) for c in classes]
     positional_vals = [positional_density.get(c, 0) for c in classes]
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Genomic Density (Coverage %)
     colors1 = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
-    bars1 = ax1.barh(classes, genomic_vals, color=colors1, alpha=0.8, edgecolor='black', linewidth=0.5)
+    
+    # Replace underscores with spaces in labels
+    display_classes = [c.replace('_', ' ') for c in classes]
+    
+    bars1 = ax1.barh(display_classes, genomic_vals, color=colors1, alpha=0.8, 
+                     edgecolor='black', linewidth=0.5)
     ax1.set_xlabel('Genomic Density (Coverage %)', fontsize=11, fontweight='bold')
     ax1.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
     ax1.set_title('A. Genomic Density (σ_G)', fontsize=12, fontweight='bold', pad=10)
     
-    # Add value labels
+    # Add value labels with safe max calculation
+    max_genomic = max(genomic_vals) if genomic_vals and max(genomic_vals) > 0 else 1
     for i, (bar, val) in enumerate(zip(bars1, genomic_vals)):
         if val > 0:
-            ax1.text(val + max(genomic_vals) * 0.01, i, f'{val:.3f}%', 
+            ax1.text(val + max_genomic * 0.01, i, f'{val:.3f}%', 
                     va='center', fontsize=9, fontweight='bold')
     
     # Positional Density (Frequency)
     colors2 = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
-    bars2 = ax2.barh(classes, positional_vals, color=colors2, alpha=0.8, edgecolor='black', linewidth=0.5)
+    bars2 = ax2.barh(display_classes, positional_vals, color=colors2, alpha=0.8, 
+                     edgecolor='black', linewidth=0.5)
     ax2.set_xlabel('Positional Density (motifs/kbp)', fontsize=11, fontweight='bold')
     ax2.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
     ax2.set_title('B. Positional Density (λ)', fontsize=12, fontweight='bold', pad=10)
     
-    # Add value labels
+    # Add value labels with safe max calculation
+    max_positional = max(positional_vals) if positional_vals and max(positional_vals) > 0 else 1
     for i, (bar, val) in enumerate(zip(bars2, positional_vals)):
         if val > 0:
-            ax2.text(val + max(positional_vals) * 0.01, i, f'{val:.2f}', 
+            ax2.text(val + max_positional * 0.01, i, f'{val:.2f}', 
                     va='center', fontsize=9, fontweight='bold')
+    
+    # Apply Nature journal style
+    _apply_nature_style(ax1)
+    _apply_nature_style(ax2)
     
     plt.suptitle(title, fontsize=14, fontweight='bold', y=1.00)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
