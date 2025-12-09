@@ -268,7 +268,6 @@ def generate_excel_bytes(motifs):
         bytes: Excel file data as bytes
     """
     import tempfile
-    import os
     
     # Create a temporary file
     with tempfile.NamedTemporaryFile(mode='wb', suffix='.xlsx', delete=False) as tmp:
@@ -1710,7 +1709,7 @@ with tab_pages["Home"]:
                     break
             if not image_found:
                 raise FileNotFoundError("Image not found")
-        except:
+        except (FileNotFoundError, Exception):
             # If image doesn't exist, show placeholder
             st.markdown("""
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
