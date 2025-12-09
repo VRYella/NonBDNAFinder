@@ -117,6 +117,19 @@ DEFAULT_CHUNK_SIZE = 10000  # 10,000 bp (as per notebook specification)
 DEFAULT_CHUNK_OVERLAP = 500  # 500 bp
 
 # =============================================================================
+# HYBRID AND CLUSTER DETECTION PARAMETERS
+# =============================================================================
+
+# --- Stringent Hybrid Parameters ---
+HYBRID_MIN_OVERLAP = 0.50  # Minimum overlap ratio for hybrid detection (50%)
+HYBRID_MAX_OVERLAP = 0.99  # Maximum overlap ratio for hybrid detection (99%)
+
+# --- Stringent Cluster Parameters ---
+CLUSTER_WINDOW_SIZE = 300  # Sliding window size in bp for cluster detection
+CLUSTER_MIN_MOTIFS = 4     # Minimum number of motifs required in a cluster
+CLUSTER_MIN_CLASSES = 3    # Minimum number of different classes required in a cluster
+
+# =============================================================================
 # DETECTOR TIMING TRACKING
 # =============================================================================
 
@@ -760,7 +773,7 @@ class NonBScanner:
                 end2 = motif2.get('End', 0)
                 overlap = self._calculate_overlap(motif1, motif2)
                 
-                if 0.3 < overlap < 1.0:  # Partial overlap (30-99%)
+                if HYBRID_MIN_OVERLAP < overlap < HYBRID_MAX_OVERLAP:  # Partial overlap (50-99%)
                     start = min(start1, start2)
                     end = max(end1, end2)
                     
@@ -807,8 +820,9 @@ class NonBScanner:
             return []
         
         cluster_motifs = []
-        window_size = 500  # 500bp window
-        min_density = 3     # Minimum 3 motifs per window
+        window_size = CLUSTER_WINDOW_SIZE  # Window size in bp
+        min_density = CLUSTER_MIN_MOTIFS   # Minimum motifs per window
+        min_classes = CLUSTER_MIN_CLASSES  # Minimum classes required
         
         # Sort motifs by start position (O(n log n))
         sorted_motifs = sorted(motifs, key=lambda x: x.get('Start', 0))
@@ -837,7 +851,7 @@ class NonBScanner:
             if len(window_motifs) >= min_density:
                 # Get unique classes
                 classes = set(m.get('Class') for m in window_motifs)
-                if len(classes) >= 2:
+                if len(classes) >= min_classes:
                     actual_start = min(m.get('Start', 0) for m in window_motifs)
                     actual_end = max(m.get('End', 0) for m in window_motifs)
                     
