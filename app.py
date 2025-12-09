@@ -308,15 +308,15 @@ def get_dna_pattern_svg(stroke_color: str) -> str:
 # Using CSS variables approach with soft, modern colors optimized for readability
 COLOR_THEMES = {
     'scientific_blue': {
-         "primary":    "#4A90E2",   // Clean scientific blue (balanced, not too saturated)
-         "secondary":  "#6AA5F2",   // Lighter complementary blue
-         "accent":     "#AFCBFF",   // Subtle highlight blue for emphasis
-         "bg_light":   "#F7FAFC",   // Very soft cool white (best for reading)
-         "bg_card":    "#E8F0FF",   // Gentle blue-tinted card/panel background
-         "text":       "#1E252F",   // Deep neutral blue-gray (high readability)
-         "tab_bg":     "#EDF2F7",   // Cool scientific neutral
-         "tab_active": "#4A90E2",   // Matches primary for consistency
-         "shadow":     "rgba(74, 144, 226, 0.15)" // Soft blue shadow for depth
+         "primary":    "#4A90E2",   #// Clean scientific blue (balanced, not too saturated)
+         "secondary":  "#6AA5F2",   #// Lighter complementary blue
+         "accent":     "#AFCBFF",   #// Subtle highlight blue for emphasis
+         "bg_light":   "#F7FAFC",   #// Very soft cool white (best for reading)
+         "bg_card":    "#E8F0FF",   #// Gentle blue-tinted card/panel background
+         "text":       "#1E252F",   #// Deep neutral blue-gray (high readability)
+         "tab_bg":     "#EDF2F7",   #// Cool scientific neutral
+         "tab_active": "#4A90E2",   #// Matches primary for consistency
+         "shadow":     "rgba(74, 144, 226, 0.15)" #// Soft blue shadow for depth
     },
     'nature_green': {
         'primary': '#6DBB7A',        # Soft green
