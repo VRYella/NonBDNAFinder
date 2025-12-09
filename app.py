@@ -1579,6 +1579,283 @@ st.markdown(f"""
             border: 1px solid #ccc !important;
         }}
     }}
+    
+    /* ============================================
+       TAB-SPECIFIC BACKGROUNDS - UNIQUE HIGH-CONTRAST THEMES
+       Each tab has a distinct background with DNA-inspired patterns
+       for a highly advanced scientific visualization
+       ============================================ */
+    
+    /* Tab 1: Home - Elegant DNA Helix Gradient */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(1) {{
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(74, 144, 226, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(106, 165, 242, 0.08) 0%, transparent 50%),
+            linear-gradient(135deg, 
+                {'#1A1F2E' if is_dark_mode else '#FFFFFF'} 0%, 
+                {'#252B3B' if is_dark_mode else '#F0F4FF'} 50%, 
+                {'#1A1F2E' if is_dark_mode else '#E8F0FF'} 100%) !important;
+        background-size: cover !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(1)::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 35px, 
+                rgba(74, 144, 226, 0.02) 35px, 
+                rgba(74, 144, 226, 0.02) 70px);
+        pointer-events: none;
+        z-index: 0;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(1) > * {{
+        position: relative;
+        z-index: 1;
+    }}
+    
+    /* Tab 2: Upload & Analyze - Dynamic Nucleotide Pattern */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(2) {{
+        background: 
+            radial-gradient(circle at 10% 20%, rgba(109, 187, 122, 0.12) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(143, 209, 156, 0.12) 0%, transparent 40%),
+            linear-gradient(160deg, 
+                {'#1A1F2E' if is_dark_mode else '#FFFFFF'} 0%, 
+                {'#1E3A29' if is_dark_mode else '#F0FBF2'} 50%, 
+                {'#1A1F2E' if is_dark_mode else '#E8F5E9'} 100%) !important;
+        background-size: cover !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(2)::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-conic-gradient(from 0deg at 50% 50%, 
+                transparent 0deg, 
+                rgba(109, 187, 122, 0.03) 60deg, 
+                transparent 120deg);
+        background-size: 120px 120px;
+        pointer-events: none;
+        z-index: 0;
+        animation: rotate-pattern 60s linear infinite;
+        will-change: transform;
+    }}
+    
+    @keyframes rotate-pattern {{
+        0% {{ transform: rotate(0deg); }}
+        100% {{ transform: rotate(360deg); }}
+    }}
+    
+    /* Pause animation when tab is not active for performance optimization */
+    .stTabs [data-baseweb="tab-panel"]:not([aria-hidden="false"]) .stTabs [data-baseweb="tab-panel"]:nth-of-type(2)::before {{
+        animation-play-state: paused;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(2) > * {{
+        position: relative;
+        z-index: 1;
+    }}
+    
+    /* Tab 3: Results - Advanced Genomic Visualization */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) {{
+        background: 
+            radial-gradient(circle at 30% 40%, rgba(155, 143, 217, 0.15) 0%, transparent 45%),
+            radial-gradient(circle at 70% 60%, rgba(179, 169, 229, 0.15) 0%, transparent 45%),
+            linear-gradient(120deg, 
+                {'#1A1F2E' if is_dark_mode else '#FFFFFF'} 0%, 
+                {'#2A2340' if is_dark_mode else '#F7F4FF'} 50%, 
+                {'#1A1F2E' if is_dark_mode else '#EDE7F6'} 100%) !important;
+        background-size: cover !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(3)::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(0deg, 
+                transparent, 
+                transparent 40px, 
+                rgba(155, 143, 217, 0.025) 40px, 
+                rgba(155, 143, 217, 0.025) 80px),
+            repeating-linear-gradient(90deg, 
+                transparent, 
+                transparent 40px, 
+                rgba(179, 169, 229, 0.025) 40px, 
+                rgba(179, 169, 229, 0.025) 80px);
+        pointer-events: none;
+        z-index: 0;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) > * {{
+        position: relative;
+        z-index: 1;
+    }}
+    
+    /* Tab 4: Download - Professional Export Theme */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(4) {{
+        background: 
+            radial-gradient(circle at 25% 25%, rgba(91, 191, 180, 0.13) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(124, 207, 198, 0.13) 0%, transparent 50%),
+            linear-gradient(145deg, 
+                {'#1A1F2E' if is_dark_mode else '#FFFFFF'} 0%, 
+                {'#1F3A36' if is_dark_mode else '#F0FBFA'} 50%, 
+                {'#1A1F2E' if is_dark_mode else '#E0F2F1'} 100%) !important;
+        background-size: cover !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(4)::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(-45deg, 
+                transparent, 
+                transparent 45px, 
+                rgba(91, 191, 180, 0.03) 45px, 
+                rgba(91, 191, 180, 0.03) 90px);
+        pointer-events: none;
+        z-index: 0;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(4) > * {{
+        position: relative;
+        z-index: 1;
+    }}
+    
+    /* Tab 5: Documentation - Scholarly Research Theme */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(5) {{
+        background: 
+            radial-gradient(ellipse at 15% 35%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+            radial-gradient(ellipse at 85% 65%, rgba(251, 191, 36, 0.08) 0%, transparent 45%),
+            linear-gradient(170deg, 
+                {'#1A1F2E' if is_dark_mode else '#FFFFFF'} 0%, 
+                {'#2E2410' if is_dark_mode else '#FFFBEB'} 50%, 
+                {'#1A1F2E' if is_dark_mode else '#FEF3C7'} 100%) !important;
+        background-size: cover !important;
+        position: relative;
+        overflow: hidden;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(5)::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            repeating-linear-gradient(30deg, 
+                transparent, 
+                transparent 50px, 
+                rgba(245, 158, 11, 0.02) 50px, 
+                rgba(245, 158, 11, 0.02) 100px),
+            repeating-linear-gradient(-30deg, 
+                transparent, 
+                transparent 50px, 
+                rgba(251, 191, 36, 0.02) 50px, 
+                rgba(251, 191, 36, 0.02) 100px);
+        pointer-events: none;
+        z-index: 0;
+    }}
+    
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(5) > * {{
+        position: relative;
+        z-index: 1;
+    }}
+    
+    /* Enhanced visual feedback for active tab content */
+    .stTabs [data-baseweb="tab-panel"] {{
+        animation: tab-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid {'rgba(255, 255, 255, 0.1)' if is_dark_mode else 'rgba(0, 0, 0, 0.05)'} !important;
+    }}
+    
+    @keyframes tab-fade-in {{
+        from {{
+            opacity: 0;
+            transform: translateY(8px);
+        }}
+        to {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
+    }}
+    
+    /* Enhanced content cards with tab-specific styling */
+    .stTabs [data-baseweb="tab-panel"] .analysis-summary-card,
+    .stTabs [data-baseweb="tab-panel"] .glassmorphism-card,
+    .stTabs [data-baseweb="tab-panel"] .content-card {{
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: {'rgba(37, 43, 59, 0.85)' if is_dark_mode else 'rgba(255, 255, 255, 0.85)'} !important;
+        box-shadow: 
+            0 8px 32px 0 {'rgba(0, 0, 0, 0.37)' if is_dark_mode else 'rgba(31, 38, 135, 0.15)'},
+            inset 0 1px 0 0 {'rgba(255, 255, 255, 0.05)' if is_dark_mode else 'rgba(255, 255, 255, 0.8)'} !important;
+        border: 1px solid {'rgba(255, 255, 255, 0.08)' if is_dark_mode else 'rgba(209, 213, 219, 0.5)'} !important;
+    }}
+    
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"] .analysis-summary-card,
+        .stTabs [data-baseweb="tab-panel"] .glassmorphism-card,
+        .stTabs [data-baseweb="tab-panel"] .content-card {{
+            background: {'rgba(37, 43, 59, 0.95)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
+        }}
+    }}
+    
+    /* Advanced glassmorphism effect for metrics in Results tab */
+    .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) [data-testid="stMetric"] {{
+        background: {'rgba(155, 143, 217, 0.12)' if is_dark_mode else 'rgba(155, 143, 217, 0.08)'} !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid {'rgba(155, 143, 217, 0.2)' if is_dark_mode else 'rgba(155, 143, 217, 0.3)'} !important;
+    }}
+    
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"]:nth-of-type(3) [data-testid="stMetric"] {{
+            background: {'rgba(155, 143, 217, 0.18)' if is_dark_mode else 'rgba(155, 143, 217, 0.15)'} !important;
+        }}
+    }}
+    
+    /* Enhanced dataframes with subtle backgrounds */
+    .stTabs [data-baseweb="tab-panel"] .stDataFrame {{
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: {'rgba(26, 31, 46, 0.7)' if is_dark_mode else 'rgba(255, 255, 255, 0.9)'} !important;
+    }}
+    
+    /* Fallback for browsers without backdrop-filter support */
+    @supports not (backdrop-filter: blur(8px)) {{
+        .stTabs [data-baseweb="tab-panel"] .stDataFrame {{
+            background: {'rgba(26, 31, 46, 0.9)' if is_dark_mode else 'rgba(255, 255, 255, 0.95)'} !important;
+        }}
+    }}
+    
     </style>
 """, unsafe_allow_html=True)
 
