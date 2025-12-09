@@ -134,8 +134,8 @@
 │                                                                              │
 │  Parameter Name           │ Value  │ Unit │ Description                     │
 │ ──────────────────────────┼────────┼──────┼─────────────────────────────────│
-│  HYBRID_MIN_OVERLAP       │  0.3   │  %   │ Minimum overlap for hybrid (30%)│
-│  HYBRID_MAX_OVERLAP       │  1.0   │  %   │ Maximum overlap for hybrid (99%)│
+│  HYBRID_MIN_OVERLAP       │  0.3   │ratio │ Minimum overlap for hybrid (30%)│
+│  HYBRID_MAX_OVERLAP       │  0.99  │ratio │ Maximum overlap for hybrid (99%)│
 │  CLUSTER_WINDOW_SIZE      │  500   │  bp  │ Sliding window size for clusters│
 │  CLUSTER_MIN_MOTIFS       │    3   │ cnt  │ Minimum motifs to form cluster  │
 │  CLUSTER_MIN_CLASSES      │    2   │ cnt  │ Minimum classes for mixed type  │
@@ -287,13 +287,20 @@
 │ ──────┼────────────────────────┼────────────┼────────────────────────────────│
 │   6   │ Result Aggregation     │ O(m)       │ Collect all motif hits         │
 │   7   │ Overlap Removal        │ O(m log m) │ Remove redundant motifs        │
-│   8   │ Hybrid Detection       │ O(m²)      │ Find overlapping class pairs   │
-│   9   │ Cluster Detection      │ O(m)       │ Sliding window density scan    │
+│   8   │ Hybrid Detection       │ O(m log m) │ Find overlapping class pairs   │
+│   9   │ Cluster Detection      │ O(m log m) │ Sliding window density scan    │
 │  10   │ Score Normalization    │ O(m)       │ Scale scores to 1-3 range      │
 │  11   │ Position Sorting       │ O(m log m) │ Sort by genomic position       │
 │  12   │ Output Generation      │ O(m)       │ Format results for export      │
 │                                                                               │
 │  Legend: n = sequence length (bp), m = number of motifs detected             │
+│                                                                               │
+│  Note on Complexity:                                                          │
+│  • Hybrid detection uses sweep line algorithm: O(m log m) due to sorting     │
+│    and early termination (not naive O(m²) pairwise comparison)               │
+│  • Cluster detection uses sorted motifs with sliding window: O(m log m)      │
+│    due to initial sort, then linear scan with early termination              │
+│                                                                               │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1140,8 +1147,8 @@ def callback(
 │                                                                              │
 │  Category: Hybrid & Cluster Detection                                        │
 │ ──────────────────────────────────────────────────────────────────────────── │
-│  HYBRID_MIN_OVERLAP           │    0.3  │ %   │ Min overlap (30%)           │
-│  HYBRID_MAX_OVERLAP           │    1.0  │ %   │ Max overlap (99%)           │
+│  HYBRID_MIN_OVERLAP           │    0.3  │ratio│ Min overlap (30%)           │
+│  HYBRID_MAX_OVERLAP           │   0.99  │ratio│ Max overlap (99%)           │
 │  CLUSTER_WINDOW_SIZE          │    500  │ bp  │ Window size                 │
 │  CLUSTER_MIN_MOTIFS           │      3  │ cnt │ Min motifs in cluster       │
 │  CLUSTER_MIN_CLASSES          │      2  │ cnt │ Min classes for mixed       │
