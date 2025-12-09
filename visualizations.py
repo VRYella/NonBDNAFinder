@@ -2283,7 +2283,7 @@ def plot_density_comparison_by_subclass(genomic_density: Dict[str, float],
     positional_vals = [positional_density.get(c, 0) for c in subclasses]
     
     # Create figure with two subplots
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Genomic Density (Coverage %)
     y_pos = np.arange(len(subclasses))
