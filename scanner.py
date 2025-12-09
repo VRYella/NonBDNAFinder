@@ -773,7 +773,7 @@ class ModularMotifDetector:
             for motif2 in motifs[i+1:]:
                 if motif1.get('Class') != motif2.get('Class'):
                     overlap = self._calculate_overlap(motif1, motif2)
-                    if HYBRID_MIN_OVERLAP < overlap < HYBRID_MAX_OVERLAP:  # Partial overlap between different classes
+                    if HYBRID_MIN_OVERLAP < overlap < HYBRID_MAX_OVERLAP:  # 50-99% overlap between different classes
                         
                         # Create hybrid motif
                         start = min(motif1.get('Start', 0), motif2.get('Start', 0))
