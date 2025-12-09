@@ -2726,8 +2726,9 @@ with tab_pages["Results"]:
                     
                 except Exception as e:
                     st.error(f"Error calculating density metrics: {e}")
-                    import traceback
-                    st.error(traceback.format_exc())
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
                 
                 # Length/Score distributions
                 st.markdown("###### Distributions")
@@ -2782,8 +2783,9 @@ with tab_pages["Results"]:
                     
                 except Exception as e:
                     st.error(f"Error generating genome-wide plots: {e}")
-                    import traceback
-                    st.error(traceback.format_exc())
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
             
             with viz_tabs[4]:  # Advanced Visualizations
                 st.markdown("##### Advanced Statistical Visualizations")
@@ -2836,8 +2838,9 @@ with tab_pages["Results"]:
                     
                 except Exception as e:
                     st.error(f"Error generating advanced plots: {e}")
-                    import traceback
-                    st.error(traceback.format_exc())
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
                 
             with viz_tabs[5]:  # Dedicated Cluster/Hybrid Tab (was viz_tabs[3])
                 st.markdown("##### Hybrid & Cluster Motif Analysis")

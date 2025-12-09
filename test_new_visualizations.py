@@ -20,7 +20,22 @@ from visualizations import (
 set_scientific_style('nature')
 
 def generate_test_motifs(sequence_length=100000, n_motifs=500):
-    """Generate realistic test motif data for visualization testing"""
+    """
+    Generate realistic test motif data for visualization testing.
+    
+    Creates a synthetic dataset with a mix of regular motifs and cluster motifs
+    to simulate real Non-B DNA detection results.
+    
+    Args:
+        sequence_length (int): Length of the sequence in bp (default: 100,000)
+        n_motifs (int): Number of regular motifs to generate (default: 500)
+        
+    Returns:
+        list: List of motif dictionaries with Class, Subclass, Start, End, Length, Score keys
+        
+    Note:
+        Also generates 20 cluster motifs with Motif_Count and Class_Diversity attributes.
+    """
     motif_classes = [
         'G-Quadruplex', 'Z-DNA', 'Curved_DNA', 'i-Motif', 
         'Triplex', 'R-Loop', 'Cruciform', 'Slipped_DNA'
@@ -66,7 +81,22 @@ def generate_test_motifs(sequence_length=100000, n_motifs=500):
     return motifs
 
 def generate_test_sequence(length=100000):
-    """Generate a random DNA sequence with realistic GC content variation"""
+    """
+    Generate a random DNA sequence with realistic GC content variation.
+    
+    Creates a synthetic DNA sequence with oscillating GC content to simulate
+    natural genomic variation and test GC correlation analysis.
+    
+    Args:
+        length (int): Length of the sequence in bp (default: 100,000)
+        
+    Returns:
+        str: DNA sequence string containing A, T, G, C nucleotides
+        
+    Note:
+        GC content varies sinusoidally from 40% to 60% across the sequence
+        to create realistic local variation patterns.
+    """
     sequence = []
     for i in range(0, length, 1000):
         # Vary GC content in windows
