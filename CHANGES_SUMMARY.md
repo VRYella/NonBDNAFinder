@@ -205,8 +205,9 @@ New popover styling was added to match the existing theme:
 
 ## Compatibility
 
-- **Minimum Streamlit**: 1.26.0 (popover introduction)
-- **Current Requirement**: >= 1.28.0 ✅
+- **Minimum Streamlit for st.popover**: 1.26.0 (when popover was introduced)
+- **Application Requirement**: >= 1.28.0 (as specified in requirements.txt)
+- **Status**: ✅ Compatible - application already requires >= 1.28.0
 - **Breaking Changes**: None
 - **Dependencies**: No new dependencies
 

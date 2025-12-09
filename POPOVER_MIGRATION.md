@@ -91,8 +91,9 @@ New styles for popovers were added to match the existing theme:
 
 ## Compatibility
 
-- **Minimum Streamlit Version**: 1.26.0 (when `st.popover` was introduced)
-- **Current Requirement**: >= 1.28.0 (already met)
+- **Minimum Streamlit Version for st.popover**: 1.26.0 (when `st.popover` was introduced)
+- **Application Requirement**: >= 1.28.0 (as specified in requirements.txt)
+- **Status**: ✅ Compatible - application already requires >= 1.28.0
 - **Breaking Changes**: None - all functionality preserved
 
 ## Testing Checklist
