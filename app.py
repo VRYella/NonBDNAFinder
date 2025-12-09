@@ -1955,370 +1955,341 @@ with tab_pages["Upload & Analyze"]:
             st.error("Please upload or input sequences before running analysis.")
             st.session_state.analysis_status = "Error"
         else:
-            # =============================================================
-            # SEQUENCE LENGTH VALIDATION FOR SERVER/STREAMLIT VERSION
-            # =============================================================
-            # Check if any sequence exceeds the maximum allowed length
-            sequences_over_limit = []
-            total_length = 0
-            for i, seq in enumerate(st.session_state.seqs):
-                seq_len = len(seq)
-                total_length += seq_len
-                if seq_len > MAX_SEQUENCE_LENGTH:
-                    seq_name = st.session_state.names[i] if i < len(st.session_state.names) else f"Sequence {i+1}"
-                    sequences_over_limit.append((seq_name, seq_len))
+            # Sequence length limit has been removed - the system now uses automatic chunking
+            # (see nonbscanner.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
+            st.session_state.analysis_status = "Running"
             
-            if sequences_over_limit:
-                limit_display = format_sequence_limit()
-                st.error(f"""
-                **Sequence Length Limit Exceeded**
-                
-                The following sequence(s) exceed the maximum allowed length of **{limit_display}** for the web version:
-                """)
-                for seq_name, seq_len in sequences_over_limit:
-                    st.error(f"• **{seq_name}**: {seq_len:,} nucleotides ({seq_len - MAX_SEQUENCE_LENGTH:,} over limit)")
-                
-                st.info("""
-                **For unlimited sequence analysis:**
-                
-                Use the **local Jupyter notebook version** (`NonBScanner_Local.ipynb`) which has no sequence length limits.
-                The local version is optimized for large genome-scale analysis on your own hardware.
-                """)
-                st.session_state.analysis_status = "Error"
-            else:
-                st.session_state.analysis_status = "Running"
-                
-                # Store analysis parameters in session state for use in download section
-                st.session_state.overlap_option_used = overlap_option
-                st.session_state.nonoverlap_used = nonoverlap
-                
-                # Set analysis parameters based on user selections
-                # nonoverlap is already set above based on user selection
-                report_hotspots = True  # Enable hotspot detection 
-                calculate_conservation = False  # Disable to reduce computation time
-                threshold = 0.0  # Show all detected motifs (even 0 scores)
-                
-                validation_messages = []
+            # Store analysis parameters in session state for use in download section
+            st.session_state.overlap_option_used = overlap_option
+            st.session_state.nonoverlap_used = nonoverlap
+            
+            # Set analysis parameters based on user selections
+            # nonoverlap is already set above based on user selection
+            report_hotspots = True  # Enable hotspot detection 
+            calculate_conservation = False  # Disable to reduce computation time
+            threshold = 0.0  # Show all detected motifs (even 0 scores)
+            
+            validation_messages = []
 
-                # Scientific validation check
-                if CONFIG_AVAILABLE and st.session_state.get('selected_classes'):
-                    for class_id in st.session_state.selected_classes:
-                        limits = get_motif_limits(class_id)
-                        if limits:
-                            validation_messages.append(f"✓ {class_id}: Length limits {limits}")
+            # Scientific validation check
+            if CONFIG_AVAILABLE and st.session_state.get('selected_classes'):
+                for class_id in st.session_state.selected_classes:
+                    limits = get_motif_limits(class_id)
+                    if limits:
+                        validation_messages.append(f"✓ {class_id}: Length limits {limits}")
+            
+            # Enhanced progress tracking with timer
+            import time
+            
+            # Create placeholder for timer and progress
+            timer_placeholder = st.empty()
+            progress_placeholder = st.empty()
+            status_placeholder = st.empty()
+            detailed_progress_placeholder = st.empty()
+            
+            start_time = time.time()
+            
+            # Define detector processes for display
+            DETECTOR_PROCESSES = [
+                ("Curved DNA", "A-tract mediated DNA bending detection"),
+                ("Slipped DNA", "Direct repeats and STR detection"),
+                ("Cruciform", "Inverted repeat/palindrome detection"),
+                ("R-Loop", "RNA-DNA hybrid formation site detection"),
+                ("Triplex", "Three-stranded structure detection"),
+                ("G-Quadruplex", "Four-stranded G-rich structure detection"),
+                ("i-Motif", "C-rich structure detection"),
+                ("Z-DNA", "Left-handed helix detection"),
+                ("A-philic DNA", "A-rich structural element detection")
+            ]
+            
+            # Constants for progress estimation
+            # ESTIMATED_BP_PER_SECOND: Empirical processing rate based on benchmark testing
+            # on 10kb sequences with all 9 detectors running. Actual speed may vary
+            # depending on sequence complexity and hardware configuration.
+            ESTIMATED_BP_PER_SECOND = 5800
+            CHUNK_SIZE_FOR_PARALLEL = 50000  # Chunk size for parallel processing display
+            
+            # Helper function to display progress using Streamlit native components
+            def display_progress_panel(container, elapsed, estimated_remaining, progress_display, 
+                                     status_text, seq_name, seq_bp, seq_num, total_seqs, 
+                                     processed_bp, total_bp, detector_count, extra_info=""):
+                """Display progress panel using Streamlit native components instead of HTML.
                 
-                # Enhanced progress tracking with timer
-                import time
-                
-                # Create placeholder for timer and progress
-                timer_placeholder = st.empty()
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                detailed_progress_placeholder = st.empty()
-                
-                start_time = time.time()
-                
-                # Define detector processes for display
-                DETECTOR_PROCESSES = [
-                    ("Curved DNA", "A-tract mediated DNA bending detection"),
-                    ("Slipped DNA", "Direct repeats and STR detection"),
-                    ("Cruciform", "Inverted repeat/palindrome detection"),
-                    ("R-Loop", "RNA-DNA hybrid formation site detection"),
-                    ("Triplex", "Three-stranded structure detection"),
-                    ("G-Quadruplex", "Four-stranded G-rich structure detection"),
-                    ("i-Motif", "C-rich structure detection"),
-                    ("Z-DNA", "Left-handed helix detection"),
-                    ("A-philic DNA", "A-rich structural element detection")
-                ]
-                
-                # Constants for progress estimation
-                # ESTIMATED_BP_PER_SECOND: Empirical processing rate based on benchmark testing
-                # on 10kb sequences with all 9 detectors running. Actual speed may vary
-                # depending on sequence complexity and hardware configuration.
-                ESTIMATED_BP_PER_SECOND = 5800
-                CHUNK_SIZE_FOR_PARALLEL = 50000  # Chunk size for parallel processing display
-                
-                # Helper function to display progress using Streamlit native components
-                def display_progress_panel(container, elapsed, estimated_remaining, progress_display, 
-                                         status_text, seq_name, seq_bp, seq_num, total_seqs, 
-                                         processed_bp, total_bp, detector_count, extra_info=""):
-                    """Display progress panel using Streamlit native components instead of HTML.
+                Args:
+                    container: Streamlit container to display in
+                    elapsed: Elapsed time in seconds
+                    estimated_remaining: Estimated remaining time in seconds
+                    progress_display: Progress percentage or status string
+                    status_text: Status message
+                    seq_name: Current sequence name
+                    seq_bp: Current sequence length in bp
+                    seq_num: Current sequence number
+                    total_seqs: Total number of sequences
+                    processed_bp: Total bp processed so far
+                    total_bp: Total bp to process
+                    detector_count: Number of detectors
+                    extra_info: Extra information to display (e.g., speed, motifs)
+                """
+                with container:
+                    st.subheader("🧬 NonBScanner Analysis")
+                    st.write(status_text)
                     
-                    Args:
-                        container: Streamlit container to display in
-                        elapsed: Elapsed time in seconds
-                        estimated_remaining: Estimated remaining time in seconds
-                        progress_display: Progress percentage or status string
-                        status_text: Status message
-                        seq_name: Current sequence name
-                        seq_bp: Current sequence length in bp
-                        seq_num: Current sequence number
-                        total_seqs: Total number of sequences
-                        processed_bp: Total bp processed so far
-                        total_bp: Total bp to process
-                        detector_count: Number of detectors
-                        extra_info: Extra information to display (e.g., speed, motifs)
-                    """
-                    with container:
-                        st.subheader("🧬 NonBScanner Analysis")
-                        st.write(status_text)
-                        
-                        # Display metrics in 4 columns
-                        col1, col2, col3, col4 = st.columns(4)
-                        
-                        with col1:
-                            st.metric("⏱️ Elapsed", format_time(elapsed))
-                        
-                        with col2:
-                            st.metric("⏳ Remaining", format_time(estimated_remaining))
-                        
-                        with col3:
-                            st.metric("📊 Progress", progress_display)
-                        
-                        with col4:
-                            st.metric("🔬 Detectors", str(detector_count))
-                        
-                        # Sequence info
-                        st.write(f"**📄 Sequence {seq_num}/{total_seqs}**: {seq_name} *({seq_bp:,} bp)*")
-                        st.write(f"⚡ Processed: {processed_bp:,} / {total_bp:,} bp")
-                        
-                        if extra_info:
-                            st.write(extra_info)
-                
-                # Estimate processing time based on sequence length
-                def estimate_time(total_bp):
-                    return total_bp / ESTIMATED_BP_PER_SECOND
-                
-                total_bp_all_sequences = sum(len(seq) for seq in st.session_state.seqs)
-                estimated_total_time = estimate_time(total_bp_all_sequences)
-                
-                try:
-                    # Filter which classes to analyze based on selection
-                    analysis_classes = st.session_state.selected_classes if st.session_state.selected_classes else None
+                    # Display metrics in 4 columns
+                    col1, col2, col3, col4 = st.columns(4)
                     
-                    # Run analysis on each sequence
-                    all_results = []
-                    all_hotspots = []
+                    with col1:
+                        st.metric("⏱️ Elapsed", format_time(elapsed))
                     
-                    total_bp_processed = 0
+                    with col2:
+                        st.metric("⏳ Remaining", format_time(estimated_remaining))
+                    
+                    with col3:
+                        st.metric("📊 Progress", progress_display)
+                    
+                    with col4:
+                        st.metric("🔬 Detectors", str(detector_count))
+                    
+                    # Sequence info
+                    st.write(f"**📄 Sequence {seq_num}/{total_seqs}**: {seq_name} *({seq_bp:,} bp)*")
+                    st.write(f"⚡ Processed: {processed_bp:,} / {total_bp:,} bp")
+                    
+                    if extra_info:
+                        st.write(extra_info)
+            
+            # Estimate processing time based on sequence length
+            def estimate_time(total_bp):
+                return total_bp / ESTIMATED_BP_PER_SECOND
+            
+            total_bp_all_sequences = sum(len(seq) for seq in st.session_state.seqs)
+            estimated_total_time = estimate_time(total_bp_all_sequences)
+            
+            try:
+                # Filter which classes to analyze based on selection
+                analysis_classes = st.session_state.selected_classes if st.session_state.selected_classes else None
+                
+                # Run analysis on each sequence
+                all_results = []
+                all_hotspots = []
+                
+                total_bp_processed = 0
+                
+                with progress_placeholder.container():
+                    pbar = st.progress(0)
+                
+                # Show detailed progress panel with detector sequence (only once since it's static)
+                # The status shows all detectors as "running" during analysis since they run in parallel
+                with detailed_progress_placeholder.container():
+                    st.subheader("🔬 Analysis Pipeline")
+                    
+                    # Display detectors in a clean list format
+                    for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
+                        st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
+                    
+                    st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
+                    
+                for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
+                    progress = (i + 1) / len(st.session_state.seqs)
+                    
+                    # Calculate elapsed time and estimated remaining
+                    elapsed = time.time() - start_time
+                    
+                    # Calculate estimated remaining time (ensure non-negative)
+                    if elapsed > 0 and total_bp_processed > 0:
+                        current_rate = total_bp_processed / elapsed
+                        remaining_bp = total_bp_all_sequences - total_bp_processed
+                        estimated_remaining = max(0, remaining_bp / current_rate) if current_rate > 0 else 0
+                    else:
+                        estimated_remaining = max(0, estimated_total_time - elapsed)
+                    
+                    # Calculate overall percentage
+                    overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                    
+                    # Determine status text based on progress state
+                    if total_bp_processed == 0:
+                        status_text = "Starting analysis..."
+                        progress_display = "Starting"
+                    else:
+                        status_text = "Analysis in progress..."
+                        progress_display = f"{overall_percentage:.1f}%"
+                    
+                    # Build extra info for chunk progress if enabled
+                    extra_info = ""
+                    if show_chunk_progress and use_parallel_scanner:
+                        est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
+                        extra_info = f"📦 Chunks: {est_chunks}"
+                    
+                    # Display progress using Streamlit native components
+                    display_progress_panel(
+                        timer_placeholder,
+                        elapsed, estimated_remaining, progress_display,
+                        status_text, name, len(seq), i+1, len(st.session_state.seqs),
+                        total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
+                        extra_info
+                    )
+                    
+                    # Run the analysis - use parallel scanner for large sequences if enabled
+                    seq_start = time.time()
+                    
+                    if use_parallel_scanner and len(seq) > 100000:
+                        # Use experimental parallel scanner for large sequences
+                        try:
+                            from scanner_agent import ParallelScanner
+                            
+                            # Create chunk progress placeholder
+                            chunk_progress_placeholder = st.empty()
+                            
+                            def chunk_progress_callback(current, total):
+                                """Callback to update chunk progress"""
+                                if show_chunk_progress:
+                                    chunk_percent = (current / total) * 100
+                                    chunk_progress_placeholder.info(f"📦 Chunks: {current}/{total} ({chunk_percent:.1f}%)")
+                            
+                            # Run parallel scanner
+                            scanner = ParallelScanner(seq, hs_db=None)
+                            raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
+                            
+                            # Convert raw motifs to full motif format by running through scoring
+                            # For now, just use the standard analyzer
+                            results = analyze_sequence(seq, name)
+                            
+                            # Clear chunk progress
+                            if show_chunk_progress:
+                                chunk_progress_placeholder.success(f"✅ Chunks complete: {len(raw_motifs)} motifs")
+                            
+                        except Exception as e:
+                            st.warning(f"Parallel scanner failed, falling back to standard: {e}")
+                            results = analyze_sequence(seq, name)
+                    else:
+                        # Use standard consolidated NBDScanner analysis
+                        results = analyze_sequence(seq, name)
+                    
+                    seq_time = time.time() - seq_start
+                    
+                    # Ensure all motifs have required fields
+                    results = [ensure_subclass(motif) for motif in results]
+                    all_results.append(results)
+                    
+                    total_bp_processed += len(seq)
+                    
+                    # Calculate processing speed and update elapsed time
+                    elapsed = time.time() - start_time
+                    speed = total_bp_processed / elapsed if elapsed > 0 else 0
+                    
+                    # Recalculate estimated remaining time with actual speed
+                    if speed > 0:
+                        remaining_bp = total_bp_all_sequences - total_bp_processed
+                        estimated_remaining = max(0, remaining_bp / speed)
+                    else:
+                        estimated_remaining = 0
+                    
+                    # Calculate actual progress percentage
+                    actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                    
+                    # Build extra info for completion
+                    completion_info = f"⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s"
+                    
+                    # Update timer display with actual progress using native components
+                    display_progress_panel(
+                        timer_placeholder,
+                        elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
+                        f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
+                        name, len(seq), i+1, len(st.session_state.seqs),
+                        total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
+                        completion_info
+                    )
                     
                     with progress_placeholder.container():
-                        pbar = st.progress(0)
+                        pbar.progress(progress, text=f"🔬 Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
                     
-                    # Show detailed progress panel with detector sequence (only once since it's static)
-                    # The status shows all detectors as "running" during analysis since they run in parallel
-                    with detailed_progress_placeholder.container():
-                        st.subheader("🔬 Analysis Pipeline")
-                        
-                        # Display detectors in a clean list format
-                        for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
-                            st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
-                        
-                        st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
-                        
-                    for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
-                        progress = (i + 1) / len(st.session_state.seqs)
-                        
-                        # Calculate elapsed time and estimated remaining
-                        elapsed = time.time() - start_time
-                        
-                        # Calculate estimated remaining time (ensure non-negative)
-                        if elapsed > 0 and total_bp_processed > 0:
-                            current_rate = total_bp_processed / elapsed
-                            remaining_bp = total_bp_all_sequences - total_bp_processed
-                            estimated_remaining = max(0, remaining_bp / current_rate) if current_rate > 0 else 0
-                        else:
-                            estimated_remaining = max(0, estimated_total_time - elapsed)
-                        
-                        # Calculate overall percentage
-                        overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
-                        
-                        # Determine status text based on progress state
-                        if total_bp_processed == 0:
-                            status_text = "Starting analysis..."
-                            progress_display = "Starting"
-                        else:
-                            status_text = "Analysis in progress..."
-                            progress_display = f"{overall_percentage:.1f}%"
-                        
-                        # Build extra info for chunk progress if enabled
-                        extra_info = ""
-                        if show_chunk_progress and use_parallel_scanner:
-                            est_chunks = max(1, (len(seq) + CHUNK_SIZE_FOR_PARALLEL - 1) // CHUNK_SIZE_FOR_PARALLEL)
-                            extra_info = f"📦 Chunks: {est_chunks}"
-                        
-                        # Display progress using Streamlit native components
-                        display_progress_panel(
-                            timer_placeholder,
-                            elapsed, estimated_remaining, progress_display,
-                            status_text, name, len(seq), i+1, len(st.session_state.seqs),
-                            total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
-                            extra_info
-                        )
-                        
-                        # Run the analysis - use parallel scanner for large sequences if enabled
-                        seq_start = time.time()
-                        
-                        if use_parallel_scanner and len(seq) > 100000:
-                            # Use experimental parallel scanner for large sequences
-                            try:
-                                from scanner_agent import ParallelScanner
-                                
-                                # Create chunk progress placeholder
-                                chunk_progress_placeholder = st.empty()
-                                
-                                def chunk_progress_callback(current, total):
-                                    """Callback to update chunk progress"""
-                                    if show_chunk_progress:
-                                        chunk_percent = (current / total) * 100
-                                        chunk_progress_placeholder.info(f"📦 Chunks: {current}/{total} ({chunk_percent:.1f}%)")
-                                
-                                # Run parallel scanner
-                                scanner = ParallelScanner(seq, hs_db=None)
-                                raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
-                                
-                                # Convert raw motifs to full motif format by running through scoring
-                                # For now, just use the standard analyzer
-                                results = analyze_sequence(seq, name)
-                                
-                                # Clear chunk progress
-                                if show_chunk_progress:
-                                    chunk_progress_placeholder.success(f"✅ Chunks complete: {len(raw_motifs)} motifs")
-                                
-                            except Exception as e:
-                                st.warning(f"Parallel scanner failed, falling back to standard: {e}")
-                                results = analyze_sequence(seq, name)
-                        else:
-                            # Use standard consolidated NBDScanner analysis
-                            results = analyze_sequence(seq, name)
-                        
-                        seq_time = time.time() - seq_start
-                        
-                        # Ensure all motifs have required fields
-                        results = [ensure_subclass(motif) for motif in results]
-                        all_results.append(results)
-                        
-                        total_bp_processed += len(seq)
-                        
-                        # Calculate processing speed and update elapsed time
-                        elapsed = time.time() - start_time
-                        speed = total_bp_processed / elapsed if elapsed > 0 else 0
-                        
-                        # Recalculate estimated remaining time with actual speed
-                        if speed > 0:
-                            remaining_bp = total_bp_all_sequences - total_bp_processed
-                            estimated_remaining = max(0, remaining_bp / speed)
-                        else:
-                            estimated_remaining = 0
-                        
-                        # Calculate actual progress percentage
-                        actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
-                        
-                        # Build extra info for completion
-                        completion_info = f"⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s"
-                        
-                        # Update timer display with actual progress using native components
-                        display_progress_panel(
-                            timer_placeholder,
-                            elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
-                            f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
-                            name, len(seq), i+1, len(st.session_state.seqs),
-                            total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
-                            completion_info
-                        )
-                        
-                        with progress_placeholder.container():
-                            pbar.progress(progress, text=f"🔬 Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
-                        
-                        status_placeholder.success(f"✅ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) | 🎯 {len(results)} motifs")
-                    
-                    # Store results
-                    st.session_state.results = all_results
-                    
-                    # Final timing statistics
-                    total_time = time.time() - start_time
-                    overall_speed = total_bp_processed / total_time if total_time > 0 else 0
-                    
-                    # Generate summary
-                    summary = []
-                    for i, results in enumerate(all_results):
-                        seq = st.session_state.seqs[i]
-                        stats = get_basic_stats(seq, results)
-                        summary.append({
-                            'Sequence': st.session_state.names[i],
-                            'Length': stats['Length'],
-                            'GC Content': f"{stats['GC%']:.1f}%",
-                            'Motifs Found': len(results),
-                            'Unique Types': len(set(m.get('Type', 'Unknown') for m in results)),
-                            'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
-                        })
-                    
-                    st.session_state.summary_df = pd.DataFrame(summary)
-                    
-                    # Store performance metrics with enhanced details
-                    st.session_state.performance_metrics = {
-                        'total_time': total_time,
-                        'total_bp': total_bp_processed,
-                        'speed': overall_speed,
-                        'sequences': len(st.session_state.seqs),
-                        'total_motifs': sum(len(r) for r in all_results),
-                        'detector_count': len(DETECTOR_PROCESSES),  # Number of detector processes
-                        'estimated_time': estimated_total_time,  # Initial estimated time
-                        # Derive analysis steps from DETECTOR_PROCESSES plus post-processing steps
-                        'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
-                            'Hybrid/Cluster detection',
-                            'Overlap resolution'
-                        ]
-                    }
-                    
-                    # Clear progress displays
-                    progress_placeholder.empty()
-                    status_placeholder.empty()
-                    detailed_progress_placeholder.empty()
-                    
-                    # Show final success message with enhanced performance metrics
-                    timer_placeholder.markdown(f"""
-                    <div class='progress-panel progress-panel--success'>
-                        <h3 class='progress-panel__title'>🎉 Analysis Complete!</h3>
-                        <div class='stats-grid stats-grid--wide'>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>⏱️ {total_time:.2f}s</h2>
-                                <p class='stat-card__label'>Total Time</p>
-                            </div>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>🧬 {total_bp_processed:,}</h2>
-                                <p class='stat-card__label'>Base Pairs</p>
-                            </div>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>🚀 {overall_speed:,.0f}</h2>
-                                <p class='stat-card__label'>bp/second</p>
-                            </div>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>🔬 {len(DETECTOR_PROCESSES)}</h2>
-                                <p class='stat-card__label'>Detectors</p>
-                            </div>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>🎯 {sum(len(r) for r in all_results)}</h2>
-                                <p class='stat-card__label'>Motifs Found</p>
-                            </div>
-                            <div class='stat-card'>
-                                <h2 class='stat-card__value'>📊 {len(st.session_state.seqs)}</h2>
-                                <p class='stat-card__label'>Sequences</p>
-                            </div>
+                    status_placeholder.success(f"✅ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) | 🎯 {len(results)} motifs")
+                
+                # Store results
+                st.session_state.results = all_results
+                
+                # Final timing statistics
+                total_time = time.time() - start_time
+                overall_speed = total_bp_processed / total_time if total_time > 0 else 0
+                
+                # Generate summary
+                summary = []
+                for i, results in enumerate(all_results):
+                    seq = st.session_state.seqs[i]
+                    stats = get_basic_stats(seq, results)
+                    summary.append({
+                        'Sequence': st.session_state.names[i],
+                        'Length': stats['Length'],
+                        'GC Content': f"{stats['GC%']:.1f}%",
+                        'Motifs Found': len(results),
+                        'Unique Types': len(set(m.get('Type', 'Unknown') for m in results)),
+                        'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
+                    })
+                
+                st.session_state.summary_df = pd.DataFrame(summary)
+                
+                # Store performance metrics with enhanced details
+                st.session_state.performance_metrics = {
+                    'total_time': total_time,
+                    'total_bp': total_bp_processed,
+                    'speed': overall_speed,
+                    'sequences': len(st.session_state.seqs),
+                    'total_motifs': sum(len(r) for r in all_results),
+                    'detector_count': len(DETECTOR_PROCESSES),  # Number of detector processes
+                    'estimated_time': estimated_total_time,  # Initial estimated time
+                    # Derive analysis steps from DETECTOR_PROCESSES plus post-processing steps
+                    'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
+                        'Hybrid/Cluster detection',
+                        'Overlap resolution'
+                    ]
+                }
+                
+                # Clear progress displays
+                progress_placeholder.empty()
+                status_placeholder.empty()
+                detailed_progress_placeholder.empty()
+                
+                # Show final success message with enhanced performance metrics
+                timer_placeholder.markdown(f"""
+                <div class='progress-panel progress-panel--success'>
+                    <h3 class='progress-panel__title'>🎉 Analysis Complete!</h3>
+                    <div class='stats-grid stats-grid--wide'>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>⏱️ {total_time:.2f}s</h2>
+                            <p class='stat-card__label'>Total Time</p>
+                        </div>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>🧬 {total_bp_processed:,}</h2>
+                            <p class='stat-card__label'>Base Pairs</p>
+                        </div>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>🚀 {overall_speed:,.0f}</h2>
+                            <p class='stat-card__label'>bp/second</p>
+                        </div>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>🔬 {len(DETECTOR_PROCESSES)}</h2>
+                            <p class='stat-card__label'>Detectors</p>
+                        </div>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>🎯 {sum(len(r) for r in all_results)}</h2>
+                            <p class='stat-card__label'>Motifs Found</p>
+                        </div>
+                        <div class='stat-card'>
+                            <h2 class='stat-card__value'>📊 {len(st.session_state.seqs)}</h2>
+                            <p class='stat-card__label'>Sequences</p>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
-                    st.session_state.analysis_status = "Complete"
-                    
-                except Exception as e:
-                    timer_placeholder.empty()
-                    progress_placeholder.empty()
-                    status_placeholder.empty()
-                    detailed_progress_placeholder.empty()
-                    st.error(f"Analysis failed: {str(e)}")
-                    st.session_state.analysis_status = "Error"
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
+                st.session_state.analysis_status = "Complete"
+                
+            except Exception as e:
+                timer_placeholder.empty()
+                progress_placeholder.empty()
+                status_placeholder.empty()
+                detailed_progress_placeholder.empty()
+                st.error(f"Analysis failed: {str(e)}")
+                st.session_state.analysis_status = "Error"
 
     # Show quick summary table if available
     if st.session_state.get('summary_df') is not None:
