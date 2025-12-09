@@ -997,6 +997,43 @@ st.markdown(f"""
     }}
     
     /* ============================================
+       POPOVER STYLING: Modern popup design
+       ============================================ */
+    /* Popover button styling */
+    [data-testid="stPopover"] > button {{
+        border-radius: var(--border-radius-md) !important;
+        background: {'#252B3B' if is_dark_mode else '#F8FAFC'} !important;
+        font-weight: 500 !important;
+        padding: 0.6rem 1rem !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        transition: var(--transition-smooth);
+        box-shadow: 0 1px 4px {shadow_color};
+        color: var(--text-color) !important;
+        font-size: 0.92rem !important;
+    }}
+    [data-testid="stPopover"] > button:hover {{
+        background: {'#2D3748' if is_dark_mode else current_theme['bg_card']} !important;
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 2px 8px {shadow_color};
+    }}
+    
+    /* Popover content panel */
+    [data-testid="stPopover"] > div[data-baseweb="popover"] {{
+        border-radius: var(--border-radius-lg) !important;
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        border: 1.5px solid {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+        box-shadow: 0 4px 20px {shadow_color}, 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        padding: 1rem !important;
+        animation: fade-in 0.2s ease-out;
+    }}
+    
+    /* Popover arrow */
+    [data-testid="stPopover"] [data-baseweb="popover"] > div:first-child {{
+        background: {'#252B3B' if is_dark_mode else '#FFFFFF'} !important;
+        border-color: {'#374151' if is_dark_mode else '#E5E7EB'} !important;
+    }}
+    
+    /* ============================================
        METRIC CARDS: Clean design with soft shadows
        ============================================ */
     [data-testid="stMetric"] {{
@@ -1763,8 +1800,8 @@ with tab_pages["Upload & Analyze"]:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Show preview of first few sequences (collapsed by default)
-                    with st.expander("🔍 Preview Sequences", expanded=False):
+                    # Show preview of first few sequences using popover for better UX
+                    with st.popover("🔍 Preview Sequences"):
                         for prev in preview_info['previews']:
                             st.markdown(f"**{prev['name']}**: {prev['length']:,} bp")
                             stats = get_basic_stats(prev['preview'].replace('...', ''))
@@ -1915,9 +1952,9 @@ with tab_pages["Upload & Analyze"]:
             st.session_state.names = names
             st.session_state.results = []
 
-        # Compact sequence validation indicator
+        # Compact sequence validation indicator using popover for cleaner UI
         if st.session_state.get('seqs'):
-            with st.expander("✅ Validation Summary", expanded=False):
+            with st.popover("✅ Validation Summary"):
                 for i, seq in enumerate(st.session_state.seqs[:3]):
                     stats = get_basic_stats(seq)
                     st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp)")
@@ -1955,11 +1992,11 @@ with tab_pages["Upload & Analyze"]:
                 st.session_state.preset = "relaxed"
                 st.info("Relaxed preset selected")
         
-        # Advanced Options (collapsed by default)
+        # Advanced Options using popover for better space management
         show_chunk_progress = False
         use_parallel_scanner = False
         
-        with st.expander("🔧 Advanced Options", expanded=False):
+        with st.popover("🔧 Advanced Options"):
             st.markdown("##### Advanced Configuration")
             show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
                                              help="Display detailed progress for each processing chunk")
