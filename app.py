@@ -1716,7 +1716,7 @@ with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
-    
+    """
     # System Resource Monitor (collapsible for better UX)
     with st.expander("💻 System Resource Monitor", expanded=False):
         sys_info = get_system_info()
@@ -1741,7 +1741,7 @@ with tab_pages["Upload & Analyze"]:
             st.progress(sys_info['memory_percent'] / 100, text=f"Memory: {sys_info['memory_percent']:.1f}% used")
         else:
             st.info("System monitoring not available on this platform")
-    
+    """
     # Show unlimited processing info for web version
     st.info("""
     **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
