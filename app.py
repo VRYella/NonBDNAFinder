@@ -1746,9 +1746,9 @@ with tab_pages["Upload & Analyze"]:
                     
                     # Compact File Card
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); 
+                    <div style='background: linear-gradient(135deg, #4A90E2 0%, #6AA5F2 100%); 
                                 border-radius: 12px; padding: 12px; margin: 8px 0; color: white; 
-                                box-shadow: 0 2px 8px var(--shadow-color);'>
+                                box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
                         <div style='display: flex; justify-content: space-between; align-items: center;'>
                             <div>
                                 <div style='font-weight: 600; font-size: 0.95rem;'>📁 {fasta_file.name}</div>
@@ -1793,7 +1793,8 @@ with tab_pages["Upload & Analyze"]:
                             # Update progress
                             progress = (idx + 1) / preview_info['num_sequences']
                             progress_bar.progress(progress)
-                            status_text.text(f"Loading {idx + 1}/{preview_info['num_sequences']}: {name[:50]}")
+                            display_name = name[:50] + ('...' if len(name) > 50 else '')
+                            status_text.text(f"Loading {idx + 1}/{preview_info['num_sequences']}: {display_name}")
                         
                         progress_bar.empty()
                         status_text.empty()
@@ -1838,9 +1839,9 @@ with tab_pages["Upload & Analyze"]:
                     # Compact validation card
                     total_bp = sum(len(s) for s in seqs)
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); 
+                    <div style='background: linear-gradient(135deg, #4A90E2 0%, #6AA5F2 100%); 
                                 border-radius: 12px; padding: 12px; margin: 8px 0; color: white;
-                                box-shadow: 0 2px 8px var(--shadow-color);'>
+                                box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
                         <div style='display: flex; justify-content: space-between; align-items: center;'>
                             <div>
                                 <div style='font-weight: 600; font-size: 0.95rem;'>📝 Pasted Sequences</div>
@@ -1994,14 +1995,15 @@ with tab_pages["Upload & Analyze"]:
                 help="Start analyzing uploaded sequences for Non-B DNA motifs"
             )
         else:
-            # Disabled button appearance
+            # Disabled button appearance with accessibility
             st.markdown(f"""
-            <div style='background: #e0e0e0; color: #9e9e9e; padding: 12px; 
+            <div role="button" aria-disabled="true" aria-label="Run NBDScanner Analysis - Disabled: Please upload or paste a valid sequence first"
+                 style='background: #e0e0e0; color: #9e9e9e; padding: 12px; 
                         border-radius: 12px; text-align: center; font-weight: 600;
                         font-size: 1.1rem; cursor: not-allowed; opacity: 0.6;'>
-                🚀 Run NBDScanner Analysis
+                🚀 Run NBDScanner Analysis (Disabled)
             </div>
-            <p style='text-align: center; color: #9e9e9e; font-size: 0.85rem; margin-top: 8px;'>
+            <p style='text-align: center; color: #9e9e9e; font-size: 0.85rem; margin-top: 8px;' role="status">
                 ⚠️ Please upload or paste a valid sequence first
             </p>
             """, unsafe_allow_html=True)
