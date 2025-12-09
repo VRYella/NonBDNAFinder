@@ -15,7 +15,7 @@ def test_utilities_imports():
             parse_fasta, parse_fasta_chunked, get_file_preview, wrap, 
             get_basic_stats, export_to_bed, export_to_csv,
             export_to_json, export_to_excel, calculate_genomic_density, 
-            calculate_positional_density, export_results_to_dataframe
+            calculate_positional_density, export_results_to_dataframe,
         )
         print("✓ All utilities imports successful")
         return True
@@ -53,7 +53,7 @@ def test_visualizations_imports():
             plot_manhattan_motif_density, plot_cumulative_motif_distribution,
             plot_motif_cooccurrence_matrix, plot_gc_content_correlation,
             plot_linear_motif_track, plot_cluster_size_distribution,
-            plot_motif_length_kde
+            plot_motif_length_kde,
         )
         print("✓ All visualizations imports successful")
         print(f"  - Standard visualization functions: 8")
