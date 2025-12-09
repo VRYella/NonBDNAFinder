@@ -2832,7 +2832,8 @@ def shuffle_sequence(sequence: str, preserve_composition: bool = True) -> str:
 
 def calculate_genomic_density(motifs: List[Dict[str, Any]], 
                                sequence_length: int,
-                               by_class: bool = True) -> Dict[str, float]:
+                               by_class: bool = True,
+                               by_subclass: bool = False) -> Dict[str, float]:
     """
     Calculate genomic density (coverage) for motifs.
     
@@ -2846,14 +2847,18 @@ def calculate_genomic_density(motifs: List[Dict[str, Any]],
         motifs: List of motif dictionaries
         sequence_length: Total length of analyzed sequence
         by_class: If True, calculate density per motif class
+        by_subclass: If True, calculate density per motif subclass (takes precedence over by_class)
         
     Returns:
         Dictionary with density metrics (percentage, capped at 100%)
+        - If by_subclass=True: keys are 'Class:Subclass' format
+        - If by_class=True: keys are class names
+        - Otherwise: key is 'Overall'
     """
     if not motifs or sequence_length == 0:
         return {'Overall': 0.0}
     
-    if not by_class:
+    if not by_class and not by_subclass:
         # Overall density using set-based coverage (handles overlaps correctly)
         covered_positions = set()
         for motif in motifs:
@@ -2863,6 +2868,40 @@ def calculate_genomic_density(motifs: List[Dict[str, Any]],
         
         overall_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
         return {'Overall': round(overall_density, 4)}
+    
+    # Density per subclass using set-based coverage
+    if by_subclass:
+        density_by_subclass = {}
+        subclass_groups = defaultdict(list)
+        
+        for motif in motifs:
+            class_name = motif.get('Class', 'Unknown')
+            subclass_name = motif.get('Subclass', 'Unknown')
+            key = f"{class_name}:{subclass_name}"
+            subclass_groups[key].append(motif)
+        
+        # Calculate per-subclass density with overlap handling
+        for subclass_key, subclass_motifs in subclass_groups.items():
+            covered_positions = set()
+            for motif in subclass_motifs:
+                start = motif.get('Start', 0) - 1  # Convert to 0-based
+                end = motif.get('End', 0)
+                covered_positions.update(range(start, end))
+            
+            subclass_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
+            density_by_subclass[subclass_key] = round(subclass_density, 4)
+        
+        # Calculate overall density (all motifs combined)
+        all_covered_positions = set()
+        for motif in motifs:
+            start = motif.get('Start', 0) - 1  # Convert to 0-based
+            end = motif.get('End', 0)
+            all_covered_positions.update(range(start, end))
+        
+        overall_density = min((len(all_covered_positions) / sequence_length) * 100, 100.0)
+        density_by_subclass['Overall'] = round(overall_density, 4)
+        
+        return density_by_subclass
     
     # Density per class using set-based coverage
     density_by_class = {}
@@ -2899,7 +2938,8 @@ def calculate_genomic_density(motifs: List[Dict[str, Any]],
 def calculate_positional_density(motifs: List[Dict[str, Any]], 
                                   sequence_length: int,
                                   unit: str = 'Mbp',
-                                  by_class: bool = True) -> Dict[str, float]:
+                                  by_class: bool = True,
+                                  by_subclass: bool = False) -> Dict[str, float]:
     """
     Calculate positional density (frequency) for motifs.
     
@@ -2911,9 +2951,13 @@ def calculate_positional_density(motifs: List[Dict[str, Any]],
         sequence_length: Total length of analyzed sequence in bp
         unit: 'kbp' or 'Mbp' for reporting units
         by_class: If True, calculate density per motif class
+        by_subclass: If True, calculate density per motif subclass (takes precedence over by_class)
         
     Returns:
         Dictionary with positional density (motifs per unit)
+        - If by_subclass=True: keys are 'Class:Subclass' format
+        - If by_class=True: keys are class names
+        - Otherwise: key is 'Overall'
     """
     if not motifs or sequence_length == 0:
         return {'Overall': 0.0}
@@ -2926,10 +2970,30 @@ def calculate_positional_density(motifs: List[Dict[str, Any]],
     else:
         sequence_length_unit = sequence_length
     
-    if not by_class:
+    if not by_class and not by_subclass:
         # Overall positional density
         overall_density = len(motifs) / sequence_length_unit
         return {'Overall': round(overall_density, 2)}
+    
+    # Positional density per subclass
+    if by_subclass:
+        density_by_subclass = {}
+        subclass_counts = Counter()
+        
+        for motif in motifs:
+            class_name = motif.get('Class', 'Unknown')
+            subclass_name = motif.get('Subclass', 'Unknown')
+            key = f"{class_name}:{subclass_name}"
+            subclass_counts[key] += 1
+        
+        for subclass_key, count in subclass_counts.items():
+            subclass_density = count / sequence_length_unit
+            density_by_subclass[subclass_key] = round(subclass_density, 2)
+        
+        # Also add overall
+        density_by_subclass['Overall'] = round(len(motifs) / sequence_length_unit, 2)
+        
+        return density_by_subclass
     
     # Positional density per class
     density_by_class = {}
@@ -2949,6 +3013,7 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
                                        sequence: str,
                                        n_shuffles: int = 100,
                                        by_class: bool = True,
+                                       by_subclass: bool = False,
                                        progress_callback=None) -> Dict[str, Any]:
     """
     Calculate fold enrichment and statistical significance using sequence shuffling.
@@ -2963,6 +3028,7 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
         sequence: Original DNA sequence
         n_shuffles: Number of shuffling iterations (default: 100)
         by_class: If True, calculate enrichment per motif class
+        by_subclass: If True, calculate enrichment per motif subclass (takes precedence over by_class)
         progress_callback: Optional callback function for progress updates
         
     Returns:
@@ -2987,10 +3053,22 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
     sequence_length = len(sequence)
     
     # Calculate observed densities (genomic density is used for enrichment)
-    observed_genomic_density = calculate_genomic_density(motifs, sequence_length, by_class=by_class)
+    observed_genomic_density = calculate_genomic_density(motifs, sequence_length, 
+                                                         by_class=by_class, 
+                                                         by_subclass=by_subclass)
     
     # Initialize background storage
-    if by_class:
+    if by_subclass:
+        # Create keys for all unique subclass combinations
+        subclass_keys = set()
+        for m in motifs:
+            class_name = m.get('Class', 'Unknown')
+            subclass_name = m.get('Subclass', 'Unknown')
+            key = f"{class_name}:{subclass_name}"
+            subclass_keys.add(key)
+        background_densities = {key: [] for key in subclass_keys}
+        background_densities['Overall'] = []
+    elif by_class:
         class_names = set(m.get('Class', 'Unknown') for m in motifs)
         background_densities = {cls: [] for cls in class_names}
         background_densities['Overall'] = []
@@ -3010,7 +3088,9 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
             shuffled_motifs = analyze_sequence(shuffled_seq, f"shuffled_{i}")
             
             # Calculate density for shuffled sequence
-            shuffled_density = calculate_genomic_density(shuffled_motifs, sequence_length, by_class=by_class)
+            shuffled_density = calculate_genomic_density(shuffled_motifs, sequence_length, 
+                                                        by_class=by_class,
+                                                        by_subclass=by_subclass)
             
             # Store background densities
             for key in background_densities.keys():
@@ -3025,13 +3105,13 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
     # Calculate enrichment statistics
     enrichment_results = {}
     
-    for class_name, bg_densities in background_densities.items():
+    for group_name, bg_densities in background_densities.items():
         bg_densities = [d for d in bg_densities if d is not None]
         
         if not bg_densities:
             continue
         
-        obs_density = observed_genomic_density.get(class_name, 0.0)
+        obs_density = observed_genomic_density.get(group_name, 0.0)
         bg_mean = np.mean(bg_densities)
         bg_std = np.std(bg_densities)
         
@@ -3048,14 +3128,26 @@ def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]],
         else:
             p_value = 1.0
         
-        enrichment_results[class_name] = {
+        # Count motifs for this group
+        if by_subclass and group_name != 'Overall':
+            # Split the key to get class and subclass
+            class_part, subclass_part = group_name.split(':', 1)
+            observed_count = len([m for m in motifs 
+                                if m.get('Class', 'Unknown') == class_part 
+                                and m.get('Subclass', 'Unknown') == subclass_part])
+        elif by_class and group_name != 'Overall':
+            observed_count = len([m for m in motifs if m.get('Class', 'Unknown') == group_name])
+        else:
+            observed_count = len(motifs)
+        
+        enrichment_results[group_name] = {
             'observed_density': round(obs_density, 4),
             'background_mean': round(bg_mean, 4),
             'background_std': round(bg_std, 4),
             'fold_enrichment': round(fold_enrichment, 2) if not np.isinf(fold_enrichment) else 'Inf',
             'p_value': round(p_value, 4),
             'n_shuffles': n_shuffles,
-            'observed_count': len([m for m in motifs if m.get('Class', 'Unknown') == class_name]) if class_name != 'Overall' else len(motifs)
+            'observed_count': observed_count
         }
     
     return enrichment_results
