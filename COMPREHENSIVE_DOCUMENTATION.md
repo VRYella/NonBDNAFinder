@@ -138,7 +138,7 @@
 │  HYBRID_MAX_OVERLAP       │  1.0   │ratio │ Max overlap (<100%, exclusive)  │
 │  CLUSTER_WINDOW_SIZE      │  500   │  bp  │ Sliding window size for clusters│
 │  CLUSTER_MIN_MOTIFS       │    3   │ cnt  │ Minimum motifs to form cluster  │
-│  CLUSTER_MIN_CLASSES      │    2   │ cnt  │ Minimum classes for mixed type  │
+│  CLUSTER_MIN_CLASSES      │    2   │ cnt  │ Min distinct classes for mixed  │
 │                                                                              │
 │  Note: Hybrid overlap range is 0.3 < overlap < 1.0 (exclusive bounds)       │
 │  This means partial overlaps from >30% to <100%                              │
@@ -299,9 +299,9 @@
 │  Legend: n = sequence length (bp), m = number of motifs detected             │
 │                                                                               │
 │  Note on Algorithmic Complexity:                                              │
-│  • Hybrid detection: O(m log m) = O(m log m) sorting + O(m) sweep line       │
+│  • Hybrid detection: O(m log m) from sorting + O(m) sweep line               │
 │    - Sorts motifs once, then uses sweep line with early termination          │
-│  • Cluster detection: O(m log m) = O(m log m) sorting + O(m) window scan     │
+│  • Cluster detection: O(m log m) from sorting + O(m) window scan             │
 │    - Sorts motifs once, then linear scan with early termination per window   │
 │  Both algorithms avoid naive O(m²) pairwise comparisons through optimization  │
 │                                                                               │
@@ -839,7 +839,9 @@ def callback(
 │                                                                              │
 │  Parameter Name       │ Value     │ Description                             │
 │ ──────────────────────┼───────────┼─────────────────────────────────────────│
-│  TETRANUC_PATTERNS    │ 411 total │ Loaded from consolidated_registry.json  │
+│  TETRANUC_PATTERNS    │ 411 total │ Tetranucleotide patterns from registry  │
+│                       │           │ (consolidated_registry.json has A-rich  │
+│                       │           │ curvature-inducing patterns)            │
 │  MIN_PATTERN_MATCHES  │ 1         │ Minimum pattern matches required        │
 │  MIN_MOTIF_LENGTH     │ 10 bp     │ Minimum motif length                    │
 │  A_CONTENT_THRESHOLD  │ 60%       │ Minimum adenine content                 │
@@ -1057,7 +1059,7 @@ def callback(
 │  Testing Conditions:                                                         │
 │  • Hardware: Intel/AMD x86_64, 9+ cores, 16GB+ RAM                           │
 │  • Sequence Type: Mixed genomic DNA with typical GC content (40-60%)        │
-│  • Python: 3.8+, optimized k-mer indexing enabled                           │
+│  • Python: 3.8+, k-mer indexing (enabled by default in scanner.py)          │
 │  • Note: Actual speeds vary based on hardware, sequence composition,        │
 │    and motif density                                                         │
 │                                                                              │
