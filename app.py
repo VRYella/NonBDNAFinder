@@ -1714,127 +1714,116 @@ with tab_pages["Upload & Analyze"]:
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:0.95rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
 
-    # ----- Input Method + Sequence Preview -----
-    st.markdown("### Input Method")
-    input_method = st.radio("Choose your input method:",
-                            ["Upload FASTA File", "Paste Sequence", "Example Data", "NCBI Fetch"],
-                            horizontal=True)
+    # ----- TWO-COLUMN LAYOUT: Left for Upload, Right for Analysis -----
+    col1, col2 = st.columns([1.2, 1])
+    
+    with col1:
+        # LEFT COLUMN: Sequence Upload and Motif Analysis
+        st.markdown("### 📤 Sequence Upload")
+        
+        # ----- Input Method -----
+        input_method = st.radio("Choose your input method:",
+                                ["Upload FASTA File", "Paste Sequence", "Example Data", "NCBI Fetch"],
+                                horizontal=True,
+                                label_visibility="collapsed",
+                                key="upload_method")
 
-    seqs, names = [], []
+        seqs, names = [], []
 
-    if input_method == "Upload FASTA File":
-        fasta_file = st.file_uploader("Drag and drop FASTA/multi-FASTA file here", type=["fa", "fasta", "txt", "fna"])
-        if fasta_file:
-            # Show file info before processing
-            file_size_mb = fasta_file.size / (1024 * 1024)
-            st.info(f"📁 File: **{fasta_file.name}** | Size: **{file_size_mb:.2f} MB**")
-            
-            # Warn about large files and memory usage
-            if file_size_mb > 100:
-                st.warning(f"⚠️ Large file detected ({file_size_mb:.2f} MB). Processing may take longer and use more memory.")
-            
-            # Memory-efficient processing with progress indicator
-            with st.spinner(f"Processing {fasta_file.name}..."):
-                # Get preview first (lightweight operation)
-                preview_info = get_file_preview(fasta_file, max_sequences=3)
+        if input_method == "Upload FASTA File":
+            fasta_file = st.file_uploader("Drag and drop FASTA/multi-FASTA file here", 
+                                         type=["fa", "fasta", "txt", "fna"],
+                                         label_visibility="visible",
+                                         help="Upload a FASTA file containing DNA sequences")
+            if fasta_file:
+                # Compact file card after upload
+                file_size_mb = fasta_file.size / (1024 * 1024)
                 
-                st.success(f"✅ File contains **{preview_info['num_sequences']} sequences** totaling **{preview_info['total_bp']:,} bp**")
-                
-                # Show preview of first few sequences
-                for prev in preview_info['previews']:
-                    st.markdown(f"**{prev['name']}**: <span style='color:#576574'>{prev['length']:,} bp</span>", unsafe_allow_html=True)
-                    stats = get_basic_stats(prev['preview'].replace('...', ''))  # Basic stats on preview
-                    st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
-                
-                if preview_info['num_sequences'] > 3:
-                    st.caption(f"...and {preview_info['num_sequences']-3} more sequences.")
-                
-                # Now parse all sequences using chunked parsing for memory efficiency
-                # Use progress bar for large files with many sequences
-                seqs, names = [], []
-                has_large_sequences = False
-                
-                if preview_info['num_sequences'] > 10:
-                    # Show progress bar for files with many sequences
-                    progress_bar = st.progress(0)
-                    status_text = st.empty()
+                # Memory-efficient processing with progress indicator
+                with st.spinner(f"Processing {fasta_file.name}..."):
+                    # Get preview first (lightweight operation)
+                    preview_info = get_file_preview(fasta_file, max_sequences=3)
                     
-                    for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
-                        names.append(name)
-                        seqs.append(seq)
-                        
-                        # Track if we have very large sequences
-                        if len(seq) > 10_000_000:
-                            has_large_sequences = True
-                        
-                        # Update progress
-                        progress = (idx + 1) / preview_info['num_sequences']
-                        progress_bar.progress(progress)
-                        status_text.text(f"Loading sequence {idx + 1}/{preview_info['num_sequences']}: {name}")
+                    # Compact File Card
+                    st.markdown(f"""
+                    <div style='background: linear-gradient(135deg, #4A90E2 0%, #6AA5F2 100%); 
+                                border-radius: 12px; padding: 12px; margin: 8px 0; color: white; 
+                                box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
+                        <div style='display: flex; justify-content: space-between; align-items: center;'>
+                            <div>
+                                <div style='font-weight: 600; font-size: 0.95rem;'>📁 {fasta_file.name}</div>
+                                <div style='font-size: 0.85rem; opacity: 0.9; margin-top: 4px;'>
+                                    {preview_info['num_sequences']} sequences | {preview_info['total_bp']:,} bp | {file_size_mb:.2f} MB
+                                </div>
+                            </div>
+                            <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
+                                ✓ Valid
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     
-                    progress_bar.empty()
-                    status_text.empty()
-                else:
-                    # Fast path for small files
-                    for name, seq in parse_fasta_chunked(fasta_file):
-                        names.append(name)
-                        seqs.append(seq)
+                    # Show preview of first few sequences (collapsed by default)
+                    with st.expander("🔍 Preview Sequences", expanded=False):
+                        for prev in preview_info['previews']:
+                            st.markdown(f"**{prev['name']}**: {prev['length']:,} bp")
+                            stats = get_basic_stats(prev['preview'].replace('...', ''))
+                            st.caption(f"GC: {stats['GC%']}% | AT: {stats['AT%']}%")
                         
-                        # Track if we have very large sequences
-                        if len(seq) > 10_000_000:
-                            has_large_sequences = True
-                
-                # Force garbage collection after loading all sequences if we had large ones
-                if has_large_sequences:
-                    gc.collect()
-                
-                if not seqs:
-                    st.warning("No sequences found in file.")
+                        if preview_info['num_sequences'] > 3:
+                            st.caption(f"...and {preview_info['num_sequences']-3} more sequences.")
+                    
+                    # Now parse all sequences using chunked parsing for memory efficiency
+                    seqs, names = [], []
+                    has_large_sequences = False
+                    
+                    if preview_info['num_sequences'] > 10:
+                        # Show progress bar for files with many sequences
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
+                            names.append(name)
+                            seqs.append(seq)
+                            
+                            # Track if we have very large sequences
+                            if len(seq) > 10_000_000:
+                                has_large_sequences = True
+                            
+                            # Update progress
+                            progress = (idx + 1) / preview_info['num_sequences']
+                            progress_bar.progress(progress)
+                            display_name = name[:50] + ('...' if len(name) > 50 else '')
+                            status_text.text(f"Loading {idx + 1}/{preview_info['num_sequences']}: {display_name}")
+                        
+                        progress_bar.empty()
+                        status_text.empty()
+                    else:
+                        # Fast path for small files
+                        for name, seq in parse_fasta_chunked(fasta_file):
+                            names.append(name)
+                            seqs.append(seq)
+                            
+                            # Track if we have very large sequences
+                            if len(seq) > 10_000_000:
+                                has_large_sequences = True
+                    
+                    # Force garbage collection after loading all sequences if we had large ones
+                    if has_large_sequences:
+                        gc.collect()
+                    
+                    if not seqs:
+                        st.warning("No sequences found in file.")
 
-    elif input_method == "Paste Sequence":
-        seq_input = st.text_area("Paste single or multi-FASTA here:", height=150, placeholder="Paste your DNA sequence(s) here...")
-        if seq_input:
-            seqs, names = [], []
-            cur_seq, cur_name = "", ""
-            for line in seq_input.splitlines():
-                if line.startswith(">"):
-                    if cur_seq:
-                        seqs.append(cur_seq)
-                        names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                    cur_name = line.strip().lstrip(">")
-                    cur_seq = ""
-                else:
-                    cur_seq += line.strip()
-            if cur_seq:
-                seqs.append(cur_seq)
-                names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-            if seqs:
-                st.success(f"Pasted {len(seqs)} sequences.")
-                for i, seq in enumerate(seqs[:3]):
-                    stats = get_basic_stats(seq)
-                    st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
-                    st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
-                if len(seqs) > 3:
-                    st.caption(f"...and {len(seqs)-3} more.")
-            else:
-                st.warning("No sequences found.")
-
-    elif input_method == "Example Data":
-        ex_type = st.radio("Example Type:", ["Single Example", "Multi-FASTA Example"], horizontal=True)
-        if ex_type == "Single Example":
-            if st.button("Load Single Example"):
-                parsed_fasta = parse_fasta(EXAMPLE_FASTA)
-                seqs = list(parsed_fasta.values())
-                names = list(parsed_fasta.keys())
-                st.success("Single example sequence loaded.")
-                stats = get_basic_stats(seqs[0])
-                st.code(EXAMPLE_FASTA, language="fasta")
-                st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
-        else:
-            if st.button("Load Multi-FASTA Example"):
+        elif input_method == "Paste Sequence":
+            seq_input = st.text_area("Paste single or multi-FASTA here:", 
+                                    height=150, 
+                                    placeholder="Paste your DNA sequence(s) here...",
+                                    help="Paste DNA sequences in FASTA format")
+            if seq_input:
                 seqs, names = [], []
                 cur_seq, cur_name = "", ""
-                for line in EXAMPLE_MULTI_FASTA.splitlines():
+                for line in seq_input.splitlines():
                     if line.startswith(">"):
                         if cur_seq:
                             seqs.append(cur_seq)
@@ -1846,110 +1835,185 @@ with tab_pages["Upload & Analyze"]:
                 if cur_seq:
                     seqs.append(cur_seq)
                     names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                st.success(f"Multi-FASTA example loaded with {len(seqs)} sequences.")
-                for i, seq in enumerate(seqs[:3]):
-                    stats = get_basic_stats(seq)
-                    st.markdown(f"**{names[i]}**: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
-                    st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
-                st.code(EXAMPLE_MULTI_FASTA, language="fasta")
-
-    elif input_method == "NCBI Fetch":
-        db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True,
-                      help="Only nucleotide and gene databases are applicable for DNA motif analysis")
-        query_type = st.radio("Query Type", ["Accession", "Gene Name", "Custom Query"], horizontal=True)
-        motif_examples = {
-            "G-quadruplex": "NR_003287.2 (human telomerase RNA)",
-            "Z-DNA": "NM_001126112.2 (human ADAR1 gene)",
-            "R-loop": "NR_024540.1 (human SNRPN gene)",
-            "eGZ-motif": "CGG repeat region",
-            "AC-motif": "A-rich/C-rich consensus region"
-        }
-        with st.popover("View Example Queries", use_container_width=True):
-            st.markdown("**Motif Example Queries:**")
-            for motif, example in motif_examples.items():
-                st.markdown(f"• **{motif}**: `{example}`")
-        query = st.text_input("Enter query (accession, gene, etc.):")
-        rettype = st.radio("Return Format", ["fasta", "gb"], horizontal=True)
-        retmax = st.number_input("Max Records", min_value=1, max_value=20, value=3)
-        if st.button("Fetch from NCBI"):
-            if query:
-                with st.spinner("Contacting NCBI..."):
-                    handle = Entrez.efetch(db=db, id=query, rettype=rettype, retmode="text")
-                    records = list(SeqIO.parse(handle, rettype))
-                    handle.close()
-                    seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
-                    names = [rec.id for rec in records]
                 if seqs:
-                    st.success(f"Fetched {len(seqs)} sequences.")
-                    for i, seq in enumerate(seqs[:3]):
-                        stats = get_basic_stats(seq)
-                        st.markdown(f"<b>{names[i]}</b>: <span style='color:#576574'>{len(seq):,} bp</span>", unsafe_allow_html=True)
-                        st.markdown(f"GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}")
+                    # Compact validation card
+                    total_bp = sum(len(s) for s in seqs)
+                    st.markdown(f"""
+                    <div style='background: linear-gradient(135deg, #4A90E2 0%, #6AA5F2 100%); 
+                                border-radius: 12px; padding: 12px; margin: 8px 0; color: white;
+                                box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
+                        <div style='display: flex; justify-content: space-between; align-items: center;'>
+                            <div>
+                                <div style='font-weight: 600; font-size: 0.95rem;'>📝 Pasted Sequences</div>
+                                <div style='font-size: 0.85rem; opacity: 0.9; margin-top: 4px;'>
+                                    {len(seqs)} sequences | {total_bp:,} bp
+                                </div>
+                            </div>
+                            <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
+                                ✓ Valid
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.warning("No sequences found.")
+
+        elif input_method == "Example Data":
+            ex_type = st.radio("Example Type:", 
+                             ["Single Example", "Multi-FASTA Example"], 
+                             horizontal=True,
+                             help="Load example sequences for testing")
+            if ex_type == "Single Example":
+                if st.button("Load Single Example", use_container_width=True):
+                    parsed_fasta = parse_fasta(EXAMPLE_FASTA)
+                    seqs = list(parsed_fasta.values())
+                    names = list(parsed_fasta.keys())
+                    st.success("✅ Single example sequence loaded.")
             else:
-                st.warning("Enter a query before fetching.")
+                if st.button("Load Multi-FASTA Example", use_container_width=True):
+                    seqs, names = [], []
+                    cur_seq, cur_name = "", ""
+                    for line in EXAMPLE_MULTI_FASTA.splitlines():
+                        if line.startswith(">"):
+                            if cur_seq:
+                                seqs.append(cur_seq)
+                                names.append(cur_name if cur_name else f"Seq{len(seqs)}")
+                            cur_name = line.strip().lstrip(">")
+                            cur_seq = ""
+                        else:
+                            cur_seq += line.strip()
+                    if cur_seq:
+                        seqs.append(cur_seq)
+                        names.append(cur_name if cur_name else f"Seq{len(seqs)}")
+                    st.success(f"✅ Multi-FASTA example loaded with {len(seqs)} sequences.")
 
-    # Persist sequences to session state if any found from input
-    if seqs:
-        st.session_state.seqs = seqs
-        st.session_state.names = names
-        st.session_state.results = []
+        elif input_method == "NCBI Fetch":
+            db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True,
+                          help="Only nucleotide and gene databases are applicable for DNA motif analysis")
+            query = st.text_input("Enter query (accession, gene, etc.):", 
+                                help="e.g., NR_003287.2 or gene name")
+            retmax = st.number_input("Max Records", min_value=1, max_value=20, value=3)
+            if st.button("Fetch from NCBI", use_container_width=True):
+                if query:
+                    with st.spinner("Contacting NCBI..."):
+                        try:
+                            handle = Entrez.efetch(db=db, id=query, rettype="fasta", retmode="text")
+                            records = list(SeqIO.parse(handle, "fasta"))
+                            handle.close()
+                            seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
+                            names = [rec.id for rec in records]
+                            if seqs:
+                                st.success(f"✅ Fetched {len(seqs)} sequences.")
+                        except Exception as e:
+                            st.error(f"NCBI fetch failed: {e}")
+                else:
+                    st.warning("Enter a query before fetching.")
 
-    # Sequence Preview lives under the input column for immediate feedback
-    if st.session_state.get('seqs'):
-        st.markdown("### Sequence Preview")
-        for i, seq in enumerate(st.session_state.seqs[:2]):
-            stats = get_basic_stats(seq)
-            st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp) | GC %: {stats['GC%']} | AT %: {stats['AT%']} | A: {stats['A']} | T: {stats['T']} | G: {stats['G']} | C: {stats['C']}", unsafe_allow_html=True)
-            st.code(wrap(seq[:400]), language="fasta")
-        if len(st.session_state.seqs) > 2:
-            st.caption(f"...and {len(st.session_state.seqs)-2} more.")
+        # Persist sequences to session state if any found from input
+        if seqs:
+            st.session_state.seqs = seqs
+            st.session_state.names = names
+            st.session_state.results = []
 
-    st.markdown("---")
+        # Compact sequence validation indicator
+        if st.session_state.get('seqs'):
+            with st.expander("✅ Validation Summary", expanded=False):
+                for i, seq in enumerate(st.session_state.seqs[:3]):
+                    stats = get_basic_stats(seq)
+                    st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp)")
+                    st.caption(f"GC: {stats['GC%']}% | AT: {stats['AT%']}%")
+                if len(st.session_state.seqs) > 3:
+                    st.caption(f"...and {len(st.session_state.seqs)-3} more.")
     
-    # ----- Analysis Controls + Run Button + Summary Table -----
-    st.markdown("### Analysis & Run")
-    
-    # Analysis controls simplified
-    st.markdown("### Analysis Options")
-    
-    # Enable all classes by default in consolidated system
-    st.info("**NBDScanner detects all 11 motif classes with 22+ subclasses automatically**")
-    
-    # Simple options
-    col1, col2 = st.columns(2)
-    with col1:
+    with col2:
+        # RIGHT COLUMN: Analysis & Run
+        st.markdown("### ⚙️ Analysis & Run")
+        
+        # Quick Options Section
+        st.markdown("##### Quick Options")
         detailed_output = st.checkbox("Detailed Analysis", value=True, 
                                     help="Include comprehensive motif metadata")
-    with col2:
         quality_check = st.checkbox("Quality Validation", value=True, 
-                                  help="Validate detected motifs")
-    
-    # Advanced options using toggle + container for cleaner UI
-    show_advanced = st.toggle("Show Advanced Options", value=False, help="Toggle advanced analysis options")
-    
-    if show_advanced:
-        with st.container(border=True):
-            st.markdown("##### Advanced Configuration")
-            col_adv1, col_adv2 = st.columns(2)
-            with col_adv1:
-                show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
-                                                 help="Display detailed progress for each processing chunk (useful for large sequences)")
-            with col_adv2:
-                use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
-                                                  help="Enable experimental parallel chunk-based scanner (may improve performance on very large sequences >100kb)")
-            
-            if use_parallel_scanner:
-                st.info("Parallel scanner is experimental and works best on sequences >100kb with multiple CPU cores")
-    else:
+                                   help="Validate detected motifs")
+        
+        # Preset buttons for Stringent / Moderate / Relaxed
+        st.markdown("##### Presets")
+        preset_col1, preset_col2, preset_col3 = st.columns(3)
+        
+        with preset_col1:
+            if st.button("🔒 Stringent", use_container_width=True, help="High-confidence motifs only"):
+                st.session_state.preset = "stringent"
+                st.info("Stringent preset selected")
+        
+        with preset_col2:
+            if st.button("⚖️ Moderate", use_container_width=True, help="Balanced sensitivity and specificity"):
+                st.session_state.preset = "moderate"
+                st.info("Moderate preset selected (recommended)")
+        
+        with preset_col3:
+            if st.button("🔓 Relaxed", use_container_width=True, help="Maximum sensitivity"):
+                st.session_state.preset = "relaxed"
+                st.info("Relaxed preset selected")
+        
+        # Advanced Options (collapsed by default)
         show_chunk_progress = False
         use_parallel_scanner = False
+        
+        with st.expander("🔧 Advanced Options", expanded=False):
+            st.markdown("##### Advanced Configuration")
+            show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
+                                             help="Display detailed progress for each processing chunk")
+            use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
+                                              help="Enable experimental parallel chunk-based scanner (>100kb sequences)")
+            
+            if use_parallel_scanner:
+                st.caption("⚠️ Parallel scanner works best on sequences >100kb with multiple CPU cores")
+        
+        # Hardcoded default overlap handling
+        nonoverlap = True
+        overlap_option = "Remove overlaps within subclasses"
+        
+        # Helper text
+        st.caption("💡 All 11 motif classes with 22+ subclasses are detected automatically")
     
-    # Hardcoded default overlap handling: always remove overlaps within subclasses
-    nonoverlap = True
-    overlap_option = "Remove overlaps within subclasses"
+    # ----- FULL-WIDTH STICKY RUN BUTTON -----
+    st.markdown("---")
     
-    # ========== RUN ANALYSIS BUTTON ========== 
-    if st.button("Run NBDScanner Analysis", type="primary", use_container_width=True, key="run_motif_analysis_main"):
+    # Check if valid input is present
+    has_valid_input = bool(st.session_state.get('seqs'))
+    
+    # Create a full-width container for the run button
+    run_button_container = st.container()
+    with run_button_container:
+        # Sticky-ish styling with disabled state
+        if has_valid_input:
+            run_button = st.button(
+                "🚀 Run NBDScanner Analysis",
+                type="primary",
+                use_container_width=True,
+                key="run_motif_analysis_main",
+                help="Start analyzing uploaded sequences for Non-B DNA motifs"
+            )
+        else:
+            # Disabled button appearance with accessibility
+            st.markdown(f"""
+            <div role="button" aria-disabled="true" aria-label="Run NBDScanner Analysis - Disabled: Please upload or paste a valid sequence first"
+                 style='background: #e0e0e0; color: #9e9e9e; padding: 12px; 
+                        border-radius: 12px; text-align: center; font-weight: 600;
+                        font-size: 1.1rem; cursor: not-allowed; opacity: 0.6;'>
+                🚀 Run NBDScanner Analysis (Disabled)
+            </div>
+            <p style='text-align: center; color: #9e9e9e; font-size: 0.85rem; margin-top: 8px;' role="status">
+                ⚠️ Please upload or paste a valid sequence first
+            </p>
+            """, unsafe_allow_html=True)
+            run_button = False
+        
+        # Placeholder for progress area
+        progress_placeholder = st.empty()
+    
+    # ========== RUN ANALYSIS BUTTON LOGIC ========== 
+    if run_button:
         # Simplified validation
         if not st.session_state.seqs:
             st.error("Please upload or input sequences before running analysis.")
@@ -2280,7 +2344,7 @@ with tab_pages["Upload & Analyze"]:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                st.success("Results are available below and in the 'Analysis Results and Visualization' tab.")
+                st.success("✅ Analysis Complete! View detailed results in the 'Analysis Results and Visualization' tab.")
                 st.session_state.analysis_status = "Complete"
                 
             except Exception as e:
@@ -2291,10 +2355,6 @@ with tab_pages["Upload & Analyze"]:
                 st.error(f"Analysis failed: {str(e)}")
                 st.session_state.analysis_status = "Error"
 
-    # Show quick summary table if available
-    if st.session_state.get('summary_df') is not None:
-        st.markdown("#### Analysis Summary")
-        st.dataframe(st.session_state.summary_df)
     # End of Upload & Analyze tab
     st.markdown("---")
 # ---------- RESULTS ----------
