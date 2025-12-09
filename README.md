@@ -43,7 +43,7 @@ NonBScanner/
 ├── nonbscanner.py      # Main API & Scanner Orchestration (~600 lines)
 ├── detectors.py        # All 9 Motif Detector Classes (~3,500 lines)
 ├── utilities.py        # Sequence I/O, Export & Statistics (~2,100 lines)
-├── visualizations.py   # Complete Visualization Suite (~1,000 lines)
+├── visualizations.py   # Complete Visualization Suite (~3,300 lines)
 └── app.py              # Streamlit Web Interface (~1,800 lines)
 ```
 
@@ -243,6 +243,58 @@ The notebook provides:
 
 ## 📈 Visualization Suite
 
+### 🆕 NEW! Nature-Quality Genome-Wide Visualizations (2024.1.3)
+
+**7 Advanced Publication-Ready Visualizations for Manuscripts:**
+
+1. **Manhattan Plot** - Genome-wide motif density hotspots
+   - Highlights cluster regions and hybrid zones
+   - Color-coded by motif class
+   - Ideal for large genomes (human, mouse)
+   - 300 DPI publication quality
+
+2. **Cumulative Motif Distribution** - Running sum across genome
+   - Shows motif accumulation patterns
+   - Useful for comparing samples
+   - By-class or overall view
+
+3. **Motif Co-occurrence Matrix** - Class interaction heatmap
+   - Shows which classes overlap/co-occur
+   - Excellent for publication figures
+   - Statistical significance included
+
+4. **GC Content Correlation** - Scatter plot with regression
+   - Shows GC-driven motif enrichment
+   - Correlation coefficient displayed
+   - Window-based analysis
+
+5. **Linear Motif Track** - Horizontal genome browser view
+   - Best for <10kb regions
+   - Colored blocks for motifs
+   - Score labels on blocks
+   - Clean UCSC-style design
+
+6. **Cluster Size Distribution** - Cluster statistics
+   - Histograms of motif counts per cluster
+   - Class diversity distribution
+   - Mean/median annotations
+
+7. **Motif Length KDE** - Kernel density estimation
+   - Smooth probability curves
+   - By-class comparison
+   - Identifies modal lengths
+
+**📊 Example Outputs:** See `docs/visualization_examples/`
+
+**📖 Full Documentation:** See `VISUALIZATION_GUIDE.md`
+
+**All visualizations:**
+- ✅ 300 DPI for Nature/Science submissions
+- ✅ Colorblind-friendly palette (Wong 2011)
+- ✅ Clean, minimal Nature Methods style
+- ✅ PDF/PNG/SVG export support
+- ✅ Optimized for large genomes
+
 ### Static Plots (Classic)
 - Motif distribution analysis
 - Coverage and density maps
@@ -250,7 +302,7 @@ The notebook provides:
 - Sequence composition analysis
 - Class/subclass comparisons
 
-### Enhanced Scientific Visualizations (NEW! 🎨✨)
+### Enhanced Scientific Visualizations (Previously Added 🎨✨)
 **Publication-quality static plots with comprehensive statistics:**
 
 **Core Analysis Functions:**
@@ -285,6 +337,7 @@ The notebook provides:
 10. **UpSet Plot** - Clear intersection visualization (better than Venn diagrams)
 11. **Violin + Beeswarm** - Score distributions with individual data points
 12. **Cluster Hotspot Map** - Regional cluster analysis with annotations
+13. **Circos Plot** - Circular genome representation with density rings
 
 **Design Features:**
 - ✅ Export as PNG @300 DPI for publications
@@ -306,7 +359,7 @@ The notebook provides:
 Use the web interface at `http://localhost:8501` to:
 - Upload FASTA sequences or paste sequence data (supports files up to **1GB**)
 - Analyze G-quadruplex, Z-DNA, R-loops, and other motifs
-- Visualize results with comprehensive charts
+- Visualize results with comprehensive charts (6 visualization tabs!)
 - Export findings in BED, CSV, or JSON formats
 
 **Note**: The web interface now supports files up to 1GB with optimized memory-efficient processing. For large files (>100MB), processing may take several minutes depending on your system.

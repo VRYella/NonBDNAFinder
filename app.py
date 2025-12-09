@@ -48,7 +48,12 @@ from visualizations import (
     MOTIF_CLASS_COLORS, plot_density_comparison,
     plot_circos_motif_density,
     plot_density_comparison_by_subclass, plot_enrichment_analysis_by_subclass,
-    plot_subclass_density_heatmap
+    plot_subclass_density_heatmap,
+    # New Nature-quality visualizations
+    plot_manhattan_motif_density, plot_cumulative_motif_distribution,
+    plot_motif_cooccurrence_matrix, plot_gc_content_correlation,
+    plot_linear_motif_track, plot_cluster_size_distribution,
+    plot_motif_length_kde
 )
 
 # Try to import Entrez for demo functionality
@@ -2585,8 +2590,9 @@ with tab_pages["Results"]:
             # CONSOLIDATED VISUALIZATION SUITE
             st.markdown('<h3>Visualizations</h3>', unsafe_allow_html=True)
             
-            # Create 4 visualization tabs including dedicated Cluster/Hybrid tab
-            viz_tabs = st.tabs(["Distribution", "Coverage & Density", "Statistics", "Cluster/Hybrid"])
+            # Create 6 visualization tabs including new genome-wide and advanced tabs
+            viz_tabs = st.tabs(["Distribution", "Coverage & Density", "Statistics", 
+                               "Genome-Wide", "Advanced", "Cluster/Hybrid"])
             
             with viz_tabs[0]:  # Distribution
                 st.markdown("##### Motif Distribution")
@@ -2720,8 +2726,9 @@ with tab_pages["Results"]:
                     
                 except Exception as e:
                     st.error(f"Error calculating density metrics: {e}")
-                    import traceback
-                    st.error(traceback.format_exc())
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
                 
                 # Length/Score distributions
                 st.markdown("###### Distributions")
@@ -2737,8 +2744,105 @@ with tab_pages["Results"]:
                     plt.close(fig7)
                 except Exception as e:
                     st.error(f"Error generating distribution plots: {e}")
+            
+            with viz_tabs[3]:  # Genome-Wide Visualizations
+                st.markdown("##### Genome-Wide Motif Analysis")
+                st.info("📊 Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
                 
-            with viz_tabs[3]:  # Dedicated Cluster/Hybrid Tab
+                try:
+                    # Manhattan plot for motif density hotspots
+                    st.markdown("**Manhattan Plot - Motif Density Hotspots**")
+                    fig_manhattan = plot_manhattan_motif_density(
+                        filtered_motifs, sequence_length,
+                        title=f"Manhattan Plot - {sequence_name}"
+                    )
+                    st.pyplot(fig_manhattan)
+                    plt.close(fig_manhattan)
+                    
+                    # Cumulative motif distribution
+                    st.markdown("**Cumulative Motif Distribution**")
+                    fig_cumulative = plot_cumulative_motif_distribution(
+                        filtered_motifs, sequence_length,
+                        title=f"Cumulative Distribution - {sequence_name}",
+                        by_class=True
+                    )
+                    st.pyplot(fig_cumulative)
+                    plt.close(fig_cumulative)
+                    
+                    # Linear motif track (for smaller regions)
+                    if sequence_length <= 50000:  # Only for sequences < 50kb
+                        st.markdown("**Linear Motif Track Viewer**")
+                        fig_linear = plot_linear_motif_track(
+                            filtered_motifs, sequence_length,
+                            title=f"Motif Track - {sequence_name}"
+                        )
+                        st.pyplot(fig_linear)
+                        plt.close(fig_linear)
+                    else:
+                        st.info("💡 Linear motif track is shown for sequences < 50kb. For large sequences, use Manhattan plot or Coverage map.")
+                    
+                except Exception as e:
+                    st.error(f"Error generating genome-wide plots: {e}")
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
+            
+            with viz_tabs[4]:  # Advanced Visualizations
+                st.markdown("##### Advanced Statistical Visualizations")
+                st.info("📈 Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
+                
+                try:
+                    # Motif co-occurrence matrix
+                    st.markdown("**Motif Co-occurrence Matrix**")
+                    st.caption("Shows which motif classes tend to appear together (overlapping or within 1bp)")
+                    fig_cooccur = plot_motif_cooccurrence_matrix(
+                        filtered_motifs,
+                        title=f"Co-occurrence Matrix - {sequence_name}"
+                    )
+                    st.pyplot(fig_cooccur)
+                    plt.close(fig_cooccur)
+                    
+                    # GC content correlation (if sequence available)
+                    if sequence_data:
+                        st.markdown("**GC Content vs Motif Density Correlation**")
+                        st.caption("Scatter plot showing relationship between GC content and motif density")
+                        fig_gc = plot_gc_content_correlation(
+                            filtered_motifs, sequence_data,
+                            title=f"GC Correlation - {sequence_name}"
+                        )
+                        st.pyplot(fig_gc)
+                        plt.close(fig_gc)
+                    
+                    # Motif length KDE
+                    st.markdown("**Motif Length Distribution (Kernel Density)**")
+                    st.caption("Smooth probability density curves showing length patterns by class")
+                    fig_kde = plot_motif_length_kde(
+                        filtered_motifs,
+                        by_class=True,
+                        title=f"Length KDE - {sequence_name}"
+                    )
+                    st.pyplot(fig_kde)
+                    plt.close(fig_kde)
+                    
+                    # Cluster size distribution (if clusters exist)
+                    cluster_motifs_check = [m for m in filtered_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
+                    if cluster_motifs_check:
+                        st.markdown("**Cluster Size & Diversity Distribution**")
+                        st.caption("Distribution of motif counts and class diversity within clusters")
+                        fig_cluster_dist = plot_cluster_size_distribution(
+                            filtered_motifs,
+                            title=f"Cluster Statistics - {sequence_name}"
+                        )
+                        st.pyplot(fig_cluster_dist)
+                        plt.close(fig_cluster_dist)
+                    
+                except Exception as e:
+                    st.error(f"Error generating advanced plots: {e}")
+                    with st.expander("🔍 Show detailed error trace"):
+                        import traceback
+                        st.code(traceback.format_exc(), language="python")
+                
+            with viz_tabs[5]:  # Dedicated Cluster/Hybrid Tab (was viz_tabs[3])
                 st.markdown("##### Hybrid & Cluster Motif Analysis")
                 
                 if hybrid_cluster_motifs:

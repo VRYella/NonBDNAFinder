@@ -2550,5 +2550,750 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
     return fig
 
 
+# =============================================================================
+# NATURE-LEVEL PUBLICATION VISUALIZATIONS (GENOME-WIDE)
+# =============================================================================
+
+def plot_manhattan_motif_density(motifs: List[Dict[str, Any]], 
+                                  sequence_length: int,
+                                  window_size: int = None,
+                                  score_type: str = 'density',
+                                  title: str = "Manhattan Plot - Motif Distribution",
+                                  figsize: Tuple[int, int] = None) -> plt.Figure:
+    """
+    Create Manhattan plot showing motif density or score across genomic coordinates.
+    
+    Ideal for highlighting hotspots, clusters, and hybrid zones in large genomes.
+    Publication-quality visualization following Nature Methods guidelines.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        window_size: Window size for density calculation (auto if None)
+        score_type: 'density' for motif count or 'score' for average score
+        title: Plot title
+        figsize: Figure size (width, height)
+        
+    Returns:
+        Matplotlib figure object (publication-ready at 300 DPI)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Auto-calculate window size (1% of sequence or minimum 1kb)
+    if window_size is None:
+        window_size = max(1000, sequence_length // 100)
+    
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Get unique classes (exclude synthetic classes for cleaner visualization)
+    classes = sorted(set(m.get('Class', 'Unknown') for m in motifs
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+    
+    if not classes:
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    # Calculate metric for each window and class
+    positions_kb = []
+    values = []
+    colors = []
+    
+    for class_name in classes:
+        class_motifs = [m for m in motifs if m.get('Class') == class_name]
+        color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+        
+        for i in range(num_windows):
+            window_start = i * window_size
+            window_end = (i + 1) * window_size
+            window_center_kb = (window_start + window_end) / 2 / 1000
+            
+            # Count motifs in this window
+            window_motifs = []
+            for motif in class_motifs:
+                motif_start = motif.get('Start', 0) - 1
+                motif_end = motif.get('End', 0)
+                if not (motif_end <= window_start or motif_start >= window_end):
+                    window_motifs.append(motif)
+            
+            if window_motifs:
+                if score_type == 'density':
+                    # Density: motifs per kb
+                    value = len(window_motifs) / (window_size / 1000)
+                else:  # score
+                    # Average score in window
+                    scores = [m.get('Score', 0) for m in window_motifs if isinstance(m.get('Score'), (int, float))]
+                    value = np.mean(scores) if scores else 0
+                
+                positions_kb.append(window_center_kb)
+                values.append(value)
+                colors.append(color)
+    
+    # Plot points with class-specific colors
+    ax.scatter(positions_kb, values, c=colors, s=20, alpha=0.6, edgecolors='black', linewidth=0.3)
+    
+    # Styling
+    ax.set_xlabel('Genomic Position (kb)', fontsize=12, fontweight='bold')
+    y_label = 'Motif Density (motifs/kb)' if score_type == 'density' else 'Average Motif Score'
+    ax.set_ylabel(y_label, fontsize=12, fontweight='bold')
+    
+    # Replace underscores with spaces in title
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    
+    # Add horizontal grid for readability
+    ax.grid(axis='y', alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    # Create legend with class names
+    legend_elements = []
+    display_classes = []
+    for class_name in classes:
+        if any(c == MOTIF_CLASS_COLORS.get(class_name, '#808080') for c in colors):
+            legend_elements.append(plt.scatter([], [], c=MOTIF_CLASS_COLORS.get(class_name, '#808080'), 
+                                             s=50, alpha=0.6, edgecolors='black', linewidth=0.5))
+            display_classes.append(class_name.replace('_', ' '))
+    
+    if legend_elements:
+        ax.legend(legend_elements, display_classes, loc='upper right', 
+                 fontsize=8, framealpha=0.9, ncol=min(3, len(legend_elements)))
+    
+    # Apply Nature journal style
+    _apply_nature_style(ax)
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_cumulative_motif_distribution(motifs: List[Dict[str, Any]], 
+                                       sequence_length: int,
+                                       title: str = "Cumulative Motif Distribution",
+                                       figsize: Tuple[int, int] = None,
+                                       by_class: bool = True) -> plt.Figure:
+    """
+    Create cumulative distribution plot showing running sum of motifs over genome.
+    
+    Useful for comparing motifs or samples, showing how motif accumulation
+    varies across the sequence. Publication-quality following Nature guidelines.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size (width, height)
+        by_class: Whether to separate by motif class
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    if by_class:
+        # Group by class
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs
+                            if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+        
+        if not classes:
+            classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+        
+        for class_name in classes:
+            class_motifs = [m for m in motifs if m.get('Class') == class_name]
+            
+            # Sort by start position
+            class_motifs_sorted = sorted(class_motifs, key=lambda m: m.get('Start', 0))
+            
+            # Calculate cumulative count
+            positions = [0]
+            cumulative = [0]
+            
+            for i, motif in enumerate(class_motifs_sorted, 1):
+                positions.append(motif.get('Start', 0) / 1000)  # Convert to kb
+                cumulative.append(i)
+            
+            # Add final point at sequence end
+            positions.append(sequence_length / 1000)
+            cumulative.append(len(class_motifs))
+            
+            # Plot with class color
+            color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+            display_name = class_name.replace('_', ' ')
+            ax.plot(positions, cumulative, color=color, linewidth=1.5, 
+                   label=display_name, alpha=0.8)
+    else:
+        # Overall cumulative
+        motifs_sorted = sorted(motifs, key=lambda m: m.get('Start', 0))
+        
+        positions = [0]
+        cumulative = [0]
+        
+        for i, motif in enumerate(motifs_sorted, 1):
+            positions.append(motif.get('Start', 0) / 1000)
+            cumulative.append(i)
+        
+        positions.append(sequence_length / 1000)
+        cumulative.append(len(motifs))
+        
+        ax.plot(positions, cumulative, color='#0072B2', linewidth=2, alpha=0.8)
+    
+    # Styling
+    ax.set_xlabel('Genomic Position (kb)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Cumulative Motif Count', fontsize=12, fontweight='bold')
+    
+    # Replace underscores in title
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    
+    # Add grid
+    ax.grid(alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    if by_class:
+        ax.legend(loc='upper left', fontsize=8, framealpha=0.9)
+    
+    # Apply Nature journal style
+    _apply_nature_style(ax)
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]], 
+                                   title: str = "Motif Co-occurrence Matrix",
+                                   figsize: Tuple[int, int] = None,
+                                   overlap_threshold: int = 1) -> plt.Figure:
+    """
+    Create heatmap showing co-occurrence frequency between motif classes.
+    
+    Shows which motif classes tend to appear together (within overlap_threshold bp).
+    Excellent for publication figures showing motif relationships.
+    
+    Args:
+        motifs: List of motif dictionaries
+        title: Plot title
+        figsize: Figure size (width, height)
+        overlap_threshold: Maximum distance (bp) to consider as co-occurrence
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['square']
+    
+    if not motifs:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Get unique classes (exclude synthetic ones)
+    classes = sorted(set(m.get('Class', 'Unknown') for m in motifs
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+    
+    if not classes:
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+    
+    # Initialize co-occurrence matrix
+    n_classes = len(classes)
+    cooccurrence_matrix = np.zeros((n_classes, n_classes))
+    
+    # Calculate co-occurrences
+    for i, class_i in enumerate(classes):
+        motifs_i = [m for m in motifs if m.get('Class') == class_i]
+        
+        for j, class_j in enumerate(classes):
+            motifs_j = [m for m in motifs if m.get('Class') == class_j]
+            
+            # Count overlaps
+            count = 0
+            for mi in motifs_i:
+                start_i = mi.get('Start', 0)
+                end_i = mi.get('End', 0)
+                
+                for mj in motifs_j:
+                    start_j = mj.get('Start', 0)
+                    end_j = mj.get('End', 0)
+                    
+                    # Check if they overlap or are within threshold
+                    distance = max(0, max(start_i, start_j) - min(end_i, end_j))
+                    
+                    if distance <= overlap_threshold:
+                        count += 1
+            
+            cooccurrence_matrix[i, j] = count
+    
+    # Create heatmap
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    # Use colorblind-friendly colormap
+    im = ax.imshow(cooccurrence_matrix, cmap='YlOrRd', aspect='auto', interpolation='nearest')
+    
+    # Set ticks and labels
+    ax.set_xticks(range(n_classes))
+    ax.set_yticks(range(n_classes))
+    
+    # Replace underscores with spaces in labels
+    display_classes = [c.replace('_', ' ') for c in classes]
+    ax.set_xticklabels(display_classes, rotation=45, ha='right', fontsize=9)
+    ax.set_yticklabels(display_classes, fontsize=9)
+    
+    # Add colorbar
+    cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+    cbar.set_label('Co-occurrence Count', fontsize=10, fontweight='bold')
+    cbar.ax.tick_params(labelsize=8)
+    
+    # Add values to cells (if not too many)
+    if n_classes <= 10:
+        for i in range(n_classes):
+            for j in range(n_classes):
+                value = int(cooccurrence_matrix[i, j])
+                if value > 0:
+                    text_color = 'white' if value > cooccurrence_matrix.max() / 2 else 'black'
+                    ax.text(j, i, str(value), ha='center', va='center', 
+                           color=text_color, fontsize=8, fontweight='bold')
+    
+    # Title and labels
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    ax.set_xlabel('Motif Class', fontsize=11, fontweight='bold')
+    ax.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_gc_content_correlation(motifs: List[Dict[str, Any]], 
+                                sequence: str,
+                                window_size: int = 1000,
+                                title: str = "Motif Density vs GC Content",
+                                figsize: Tuple[int, int] = None) -> plt.Figure:
+    """
+    Create scatter plot showing correlation between GC content and motif density.
+    
+    Shows GC-driven motif enrichment patterns. One dot per genomic window.
+    Publication-quality visualization with regression line.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence: DNA sequence string
+        window_size: Window size for GC and density calculation
+        title: Plot title
+        figsize: Figure size (width, height)
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['one_and_half']
+    
+    sequence_length = len(sequence)
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Calculate GC% and motif density for each window
+    gc_percentages = []
+    motif_densities = []
+    
+    for i in range(num_windows):
+        window_start = i * window_size
+        window_end = min((i + 1) * window_size, sequence_length)
+        
+        # Calculate GC%
+        window_seq = sequence[window_start:window_end].upper()
+        gc_count = window_seq.count('G') + window_seq.count('C')
+        window_length = len(window_seq)
+        gc_pct = (gc_count / window_length * 100) if window_length > 0 else 0
+        
+        # Count motifs in window
+        motif_count = 0
+        for motif in motifs:
+            motif_start = motif.get('Start', 0) - 1
+            motif_end = motif.get('End', 0)
+            if not (motif_end <= window_start or motif_start >= window_end):
+                motif_count += 1
+        
+        # Density: motifs per kb
+        density = motif_count / (window_size / 1000)
+        
+        gc_percentages.append(gc_pct)
+        motif_densities.append(density)
+    
+    # Create scatter plot
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    ax.scatter(gc_percentages, motif_densities, alpha=0.5, s=30, 
+              color='#0072B2', edgecolors='black', linewidth=0.3)
+    
+    # Add regression line
+    if len(gc_percentages) > 1:
+        z = np.polyfit(gc_percentages, motif_densities, 1)
+        p = np.poly1d(z)
+        x_line = np.linspace(min(gc_percentages), max(gc_percentages), 100)
+        ax.plot(x_line, p(x_line), 'r--', linewidth=1.5, alpha=0.8, 
+               label=f'Linear fit: y={z[0]:.2f}x+{z[1]:.2f}')
+        
+        # Calculate correlation coefficient
+        correlation = np.corrcoef(gc_percentages, motif_densities)[0, 1]
+        ax.text(0.05, 0.95, f'R = {correlation:.3f}', transform=ax.transAxes,
+               fontsize=10, fontweight='bold', verticalalignment='top',
+               bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    
+    # Styling
+    ax.set_xlabel('GC Content (%)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Motif Density (motifs/kb)', fontsize=12, fontweight='bold')
+    
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    
+    ax.grid(alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    if len(gc_percentages) > 1:
+        ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
+    
+    # Apply Nature journal style
+    _apply_nature_style(ax)
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_linear_motif_track(motifs: List[Dict[str, Any]], 
+                            sequence_length: int,
+                            region_start: int = 0,
+                            region_end: int = None,
+                            title: str = "Linear Motif Track",
+                            figsize: Tuple[int, int] = None,
+                            show_labels: bool = True) -> plt.Figure:
+    """
+    Create horizontal graphical track with colored blocks for motifs.
+    
+    Best for visualizing <10kb regions. Colored blocks show motif positions
+    with class-specific colors. Publication-quality linear genome browser view.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        region_start: Start position of region to display (0-based)
+        region_end: End position of region to display (None = full sequence)
+        title: Plot title
+        figsize: Figure size (width, height)
+        show_labels: Whether to show motif class labels
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
+    
+    if region_end is None:
+        region_end = sequence_length
+    
+    # Filter motifs in region
+    region_motifs = [m for m in motifs 
+                     if m.get('End', 0) > region_start and m.get('Start', 0) < region_end]
+    
+    if not region_motifs:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, f'No motifs in region {region_start}-{region_end}', 
+               ha='center', va='center', transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Group by class
+    class_motifs = defaultdict(list)
+    for motif in region_motifs:
+        class_name = motif.get('Class', 'Unknown')
+        class_motifs[class_name].append(motif)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    # Plot each class on a separate track
+    classes = sorted(class_motifs.keys())
+    track_height = 0.6
+    track_spacing = 1.0
+    
+    for i, class_name in enumerate(classes):
+        y_pos = i * track_spacing
+        color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+        
+        for motif in class_motifs[class_name]:
+            start = max(region_start, motif.get('Start', 0))
+            end = min(region_end, motif.get('End', 0))
+            length = end - start
+            
+            # Draw motif as rectangle
+            rect = patches.Rectangle(
+                (start, y_pos - track_height/2), length, track_height,
+                facecolor=color, edgecolor='black', linewidth=0.5, alpha=0.8
+            )
+            ax.add_patch(rect)
+            
+            # Add score if available (small label inside block)
+            if length > (region_end - region_start) * 0.02:  # Only if block is large enough
+                score = motif.get('Score')
+                if isinstance(score, (int, float)):
+                    ax.text(start + length/2, y_pos, f'{score:.2f}', 
+                           ha='center', va='center', fontsize=6, color='white', fontweight='bold')
+        
+        # Add class label on the left
+        if show_labels:
+            display_name = class_name.replace('_', ' ')
+            ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
+                   display_name, ha='right', va='center', fontsize=9, fontweight='bold')
+    
+    # Styling
+    ax.set_xlim(region_start, region_end)
+    ax.set_ylim(-0.5, len(classes) * track_spacing - 0.5)
+    
+    ax.set_xlabel('Position (bp)', fontsize=12, fontweight='bold')
+    ax.set_yticks([])
+    
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    
+    # Add position ruler at top
+    ax.xaxis.tick_top()
+    ax.xaxis.set_label_position('top')
+    
+    # Format x-axis
+    ax.ticklabel_format(style='plain', axis='x')
+    
+    # Apply Nature journal style (minimal spines)
+    for spine in ['left', 'right', 'bottom']:
+        ax.spines[spine].set_visible(False)
+    ax.spines['top'].set_visible(True)
+    
+    plt.tight_layout()
+    return fig
+
+
+def plot_cluster_size_distribution(motifs: List[Dict[str, Any]], 
+                                   title: str = "Cluster Size Distribution",
+                                   figsize: Tuple[int, int] = None) -> plt.Figure:
+    """
+    Plot distribution of cluster sizes (number of motifs per cluster).
+    
+    Shows histogram and statistics of cluster composition.
+    Publication-quality visualization.
+    
+    Args:
+        motifs: List of motif dictionaries (should include cluster motifs)
+        title: Plot title
+        figsize: Figure size (width, height)
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['one_and_half']
+    
+    # Extract cluster motifs
+    cluster_motifs = [m for m in motifs if m.get('Class') == 'Non-B_DNA_Clusters']
+    
+    if not cluster_motifs:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No cluster motifs found', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Extract cluster sizes
+    cluster_sizes = []
+    cluster_diversities = []
+    
+    for motif in cluster_motifs:
+        size = motif.get('Motif_Count', 0)
+        diversity = motif.get('Class_Diversity', 0)
+        if size > 0:
+            cluster_sizes.append(size)
+            cluster_diversities.append(diversity)
+    
+    # Create figure with subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    # 1. Cluster size histogram
+    ax1.hist(cluster_sizes, bins=min(20, max(cluster_sizes) if cluster_sizes else 1), 
+            edgecolor='black', linewidth=0.5, color='#4ecdc4', alpha=0.7)
+    
+    ax1.set_xlabel('Motifs per Cluster', fontsize=11, fontweight='bold')
+    ax1.set_ylabel('Frequency', fontsize=11, fontweight='bold')
+    ax1.set_title('Cluster Size Distribution', fontsize=12, fontweight='bold')
+    
+    # Add statistics
+    if cluster_sizes:
+        mean_size = np.mean(cluster_sizes)
+        median_size = np.median(cluster_sizes)
+        ax1.axvline(mean_size, color='red', linestyle='--', linewidth=1.5, 
+                   label=f'Mean: {mean_size:.1f}')
+        ax1.axvline(median_size, color='orange', linestyle='--', linewidth=1.5, 
+                   label=f'Median: {median_size:.1f}')
+        ax1.legend(fontsize=9, framealpha=0.9)
+    
+    ax1.grid(axis='y', alpha=0.3)
+    _apply_nature_style(ax1)
+    
+    # 2. Class diversity histogram
+    if cluster_diversities:
+        ax2.hist(cluster_diversities, bins=min(10, max(cluster_diversities)), 
+                edgecolor='black', linewidth=0.5, color='#95e1d3', alpha=0.7)
+        
+        ax2.set_xlabel('Class Diversity per Cluster', fontsize=11, fontweight='bold')
+        ax2.set_ylabel('Frequency', fontsize=11, fontweight='bold')
+        ax2.set_title('Cluster Diversity Distribution', fontsize=12, fontweight='bold')
+        
+        mean_div = np.mean(cluster_diversities)
+        ax2.axvline(mean_div, color='red', linestyle='--', linewidth=1.5, 
+                   label=f'Mean: {mean_div:.1f}')
+        ax2.legend(fontsize=9, framealpha=0.9)
+        
+        ax2.grid(axis='y', alpha=0.3)
+        _apply_nature_style(ax2)
+    else:
+        ax2.text(0.5, 0.5, 'No diversity data', ha='center', va='center',
+                transform=ax2.transAxes, fontsize=12)
+        ax2.axis('off')
+    
+    display_title = title.replace('_', ' ')
+    plt.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
+    plt.tight_layout()
+    
+    return fig
+
+
+def plot_motif_length_kde(motifs: List[Dict[str, Any]], 
+                          by_class: bool = True,
+                          title: str = "Motif Length Distribution (KDE)",
+                          figsize: Tuple[int, int] = None) -> plt.Figure:
+    """
+    Plot kernel density estimation of motif length distributions.
+    
+    Shows smooth probability density curves for motif lengths,
+    useful for comparing length patterns across classes.
+    Publication-quality visualization.
+    
+    Args:
+        motifs: List of motif dictionaries
+        by_class: Whether to separate by motif class
+        title: Plot title
+        figsize: Figure size (width, height)
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['one_and_half']
+    
+    if not motifs:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+    
+    if by_class:
+        # Group by class
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs
+                            if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+        
+        if not classes:
+            classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+        
+        for class_name in classes:
+            class_motifs = [m for m in motifs if m.get('Class') == class_name]
+            lengths = [m.get('Length', 0) for m in class_motifs if m.get('Length', 0) > 0]
+            
+            if len(lengths) > 1:
+                color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+                display_name = class_name.replace('_', ' ')
+                
+                # Plot KDE
+                try:
+                    from scipy import stats
+                    kde = stats.gaussian_kde(lengths)
+                    x_range = np.linspace(min(lengths), max(lengths), 200)
+                    density = kde(x_range)
+                    ax.plot(x_range, density, color=color, linewidth=2, 
+                           label=display_name, alpha=0.8)
+                    ax.fill_between(x_range, density, alpha=0.2, color=color)
+                except:
+                    # Fallback to histogram if KDE fails
+                    ax.hist(lengths, bins=20, alpha=0.3, color=color, 
+                           label=display_name, density=True, edgecolor='black', linewidth=0.5)
+    else:
+        # Overall distribution
+        lengths = [m.get('Length', 0) for m in motifs if m.get('Length', 0) > 0]
+        
+        if len(lengths) > 1:
+            try:
+                from scipy import stats
+                kde = stats.gaussian_kde(lengths)
+                x_range = np.linspace(min(lengths), max(lengths), 200)
+                density = kde(x_range)
+                ax.plot(x_range, density, color='#0072B2', linewidth=2.5, alpha=0.8)
+                ax.fill_between(x_range, density, alpha=0.3, color='#0072B2')
+            except:
+                ax.hist(lengths, bins=30, alpha=0.7, color='#0072B2', 
+                       density=True, edgecolor='black', linewidth=0.5)
+    
+    # Styling
+    ax.set_xlabel('Motif Length (bp)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Probability Density', fontsize=12, fontweight='bold')
+    
+    display_title = title.replace('_', ' ')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
+    
+    ax.grid(alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    if by_class:
+        ax.legend(loc='upper right', fontsize=8, framealpha=0.9, ncol=2)
+    
+    # Apply Nature journal style
+    _apply_nature_style(ax)
+    
+    plt.tight_layout()
+    return fig
+
+
 if __name__ == "__main__":
     test_visualizations()
