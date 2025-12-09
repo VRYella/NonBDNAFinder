@@ -2590,11 +2590,11 @@ with tab_pages["Results"]:
             # CONSOLIDATED VISUALIZATION SUITE
             st.markdown('<h3>Visualizations</h3>', unsafe_allow_html=True)
             
-            # Create 6 visualization tabs including new genome-wide and advanced tabs
-            viz_tabs = st.tabs(["Distribution", "Coverage & Density", "Statistics", 
-                               "Genome-Wide", "Advanced", "Cluster/Hybrid"])
+            # Create 4 visualization tabs
+            viz_tabs = st.tabs(["Distribution & Statistics", "Coverage & Density", 
+                               "Genome-Wide Analysis", "Cluster/Hybrid"])
             
-            with viz_tabs[0]:  # Distribution
+            with viz_tabs[0]:  # Distribution & Statistics
                 st.markdown("##### Motif Distribution")
                 try:
                     # Class distribution
@@ -2613,33 +2613,8 @@ with tab_pages["Results"]:
                     plt.close(fig3)
                 except Exception as e:
                     st.error(f"Error generating distribution plots: {e}")
-            
-            with viz_tabs[1]:  # Coverage & Density (merged Coverage Map and Circos)
-                st.markdown("##### Sequence Coverage Analysis")
-                try:
-                    # Coverage map
-                    fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
-                    st.pyplot(fig4)
-                    plt.close(fig4)
-                    
-                    # Density heatmap
-                    fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
-                                               window_size=max(100, sequence_length // 20),
-                                               title=f"Motif Density - {sequence_name}")
-                    st.pyplot(fig5)
-                    plt.close(fig5)
-                    
-                    # Circos plot (only one - the main one)
-                    st.markdown("##### Circos Density Plot")
-                    fig_circos = plot_circos_motif_density(filtered_motifs, sequence_length,
-                                                          title=f"Circos Density - {sequence_name}")
-                    st.pyplot(fig_circos)
-                    plt.close(fig_circos)
-                    
-                except Exception as e:
-                    st.error(f"Error generating coverage plots: {e}")
-            
-            with viz_tabs[2]:  # Statistics (includes Cluster/Hybrid info)
+                
+                # Statistical Analysis section (merged from tab 2)
                 st.markdown("##### Statistical Analysis")
                 
                 # Density Metrics section
@@ -2745,9 +2720,34 @@ with tab_pages["Results"]:
                 except Exception as e:
                     st.error(f"Error generating distribution plots: {e}")
             
-            with viz_tabs[3]:  # Genome-Wide Visualizations
+            with viz_tabs[1]:  # Coverage & Density (merged Coverage Map and Circos)
+                st.markdown("##### Sequence Coverage Analysis")
+                try:
+                    # Coverage map
+                    fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
+                    st.pyplot(fig4)
+                    plt.close(fig4)
+                    
+                    # Density heatmap
+                    fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
+                                               window_size=max(100, sequence_length // 20),
+                                               title=f"Motif Density - {sequence_name}")
+                    st.pyplot(fig5)
+                    plt.close(fig5)
+                    
+                    # Circos plot (only one - the main one)
+                    st.markdown("##### Circos Density Plot")
+                    fig_circos = plot_circos_motif_density(filtered_motifs, sequence_length,
+                                                          title=f"Circos Density - {sequence_name}")
+                    st.pyplot(fig_circos)
+                    plt.close(fig_circos)
+                    
+                except Exception as e:
+                    st.error(f"Error generating coverage plots: {e}")
+            
+            with viz_tabs[2]:  # Genome-Wide Analysis (merged Genome-Wide and Advanced)
                 st.markdown("##### Genome-Wide Motif Analysis")
-                st.info("📊 Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
+                st.info("📊 Publication-quality genome-scale and advanced visualizations showing motif distribution patterns across the entire sequence.")
                 
                 try:
                     # Manhattan plot for motif density hotspots
@@ -2781,17 +2781,10 @@ with tab_pages["Results"]:
                     else:
                         st.info("💡 Linear motif track is shown for sequences < 50kb. For large sequences, use Manhattan plot or Coverage map.")
                     
-                except Exception as e:
-                    st.error(f"Error generating genome-wide plots: {e}")
-                    with st.expander("🔍 Show detailed error trace"):
-                        import traceback
-                        st.code(traceback.format_exc(), language="python")
-            
-            with viz_tabs[4]:  # Advanced Visualizations
-                st.markdown("##### Advanced Statistical Visualizations")
-                st.info("📈 Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
-                
-                try:
+                    # Advanced visualizations
+                    st.markdown("##### Advanced Statistical Visualizations")
+                    st.info("📈 Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
+                    
                     # Motif co-occurrence matrix
                     st.markdown("**Motif Co-occurrence Matrix**")
                     st.caption("Shows which motif classes tend to appear together (overlapping or within 1bp)")
@@ -2803,11 +2796,13 @@ with tab_pages["Results"]:
                     plt.close(fig_cooccur)
                     
                     # GC content correlation (if sequence available)
-                    if sequence_data:
+                    # Fix: Use st.session_state.seqs[seq_idx] instead of undefined sequence_data
+                    current_sequence = st.session_state.seqs[seq_idx]
+                    if current_sequence:
                         st.markdown("**GC Content vs Motif Density Correlation**")
                         st.caption("Scatter plot showing relationship between GC content and motif density")
                         fig_gc = plot_gc_content_correlation(
-                            filtered_motifs, sequence_data,
+                            filtered_motifs, current_sequence,
                             title=f"GC Correlation - {sequence_name}"
                         )
                         st.pyplot(fig_gc)
@@ -2837,12 +2832,12 @@ with tab_pages["Results"]:
                         plt.close(fig_cluster_dist)
                     
                 except Exception as e:
-                    st.error(f"Error generating advanced plots: {e}")
+                    st.error(f"Error generating genome-wide and advanced plots: {e}")
                     with st.expander("🔍 Show detailed error trace"):
                         import traceback
                         st.code(traceback.format_exc(), language="python")
                 
-            with viz_tabs[5]:  # Dedicated Cluster/Hybrid Tab (was viz_tabs[3])
+            with viz_tabs[3]:  # Cluster/Hybrid (renumbered from viz_tabs[5])
                 st.markdown("##### Hybrid & Cluster Motif Analysis")
                 
                 if hybrid_cluster_motifs:
