@@ -36,6 +36,10 @@ MAIN FUNCTIONS:
     - quality_check_motifs(): Validate motif quality
 """
 
+from typing import Dict, Any, List, Optional, Tuple, Union
+import json
+import re
+
 def canonicalize_motif(m: Dict[str, Any]) -> Dict[str, Any]:
     """
     Canonicalize motif dictionary to standard format with consistent field names.
