@@ -1955,7 +1955,8 @@ with tab_pages["Upload & Analyze"]:
             st.error("Please upload or input sequences before running analysis.")
             st.session_state.analysis_status = "Error"
         else:
-            # Sequence length limit has been removed - chunking handles any size
+            # Sequence length limit has been removed - the system now uses automatic chunking
+            # (see nonbscanner.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
             st.session_state.analysis_status = "Running"
             
             # Store analysis parameters in session state for use in download section
