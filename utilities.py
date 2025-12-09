@@ -36,10 +36,37 @@ MAIN FUNCTIONS:
     - quality_check_motifs(): Validate motif quality
 """
 
-def canonicalize_motif(m):
+def canonicalize_motif(m: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Canonicalize motif dictionary to standard format.
-    Maintains backward compatibility with Normalized_Score but doesn't require it.
+    Canonicalize motif dictionary to standard format with consistent field names.
+    
+    This function ensures all motif dictionaries follow the same structure regardless
+    of their source, making them compatible with export and visualization functions.
+    Maintains backward compatibility with legacy field names.
+    
+    Args:
+        m: Motif dictionary with potentially inconsistent field names
+        
+    Returns:
+        Standardized motif dictionary with canonical field names:
+        - Class: Motif class (e.g., 'G-Quadruplex', 'Z-DNA')
+        - Subclass: Motif subclass/subtype
+        - Start: Start position (int)
+        - End: End position (int)
+        - Length: Motif length in bp (int)
+        - Score: Normalized score (float)
+        - Actual_Score: Raw detector score (float)
+        - Normalized_Score: Legacy field, set to 0 if not present
+        - Motif: Actual sequence string
+        - Sequence_Name: Name of parent sequence
+        
+    Example:
+        >>> motif = {'Type': 'G-Quadruplex', 'Start': 100, 'End': 120}
+        >>> canonical = canonicalize_motif(motif)
+        >>> canonical['Class']
+        'G-Quadruplex'
+        >>> canonical['Length']
+        20
     """
     mapping = {
         'Actual Score': 'Actual_Score',
