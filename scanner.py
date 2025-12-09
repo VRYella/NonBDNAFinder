@@ -81,6 +81,15 @@ K_MIRROR = 10   # equal to MIRROR_MIN_ARM
 # Safety thresholds
 MAX_POSITIONS_PER_KMER = 10000  # skip extremely frequent k-mers to avoid blow-up
 
+# --- Stringent Hybrid Parameters ---
+HYBRID_MIN_OVERLAP = 0.50  # Minimum overlap ratio for hybrid detection (50%)
+HYBRID_MAX_OVERLAP = 0.99  # Maximum overlap ratio for hybrid detection (99%)
+
+# --- Stringent Cluster Parameters ---
+CLUSTER_WINDOW_SIZE = 300  # Sliding window size in bp for cluster detection
+CLUSTER_MIN_MOTIFS = 4     # Minimum number of motifs required in a cluster
+CLUSTER_MIN_CLASSES = 3    # Minimum number of different classes required in a cluster
+
 # -------------------------
 # Utilities
 # -------------------------
@@ -764,7 +773,7 @@ class ModularMotifDetector:
             for motif2 in motifs[i+1:]:
                 if motif1.get('Class') != motif2.get('Class'):
                     overlap = self._calculate_overlap(motif1, motif2)
-                    if 0.3 < overlap < 1.0:  # Partial overlap between different classes
+                    if HYBRID_MIN_OVERLAP < overlap < HYBRID_MAX_OVERLAP:  # Partial overlap between different classes
                         
                         # Create hybrid motif
                         start = min(motif1.get('Start', 0), motif2.get('Start', 0))
@@ -792,8 +801,9 @@ class ModularMotifDetector:
             return []
         
         cluster_motifs = []
-        window_size = 500  # 500bp window for cluster detection
-        min_density = 3    # Minimum 3 motifs per window
+        window_size = CLUSTER_WINDOW_SIZE  # Window size in bp for cluster detection
+        min_density = CLUSTER_MIN_MOTIFS   # Minimum motifs per window
+        min_classes = CLUSTER_MIN_CLASSES  # Minimum classes required
         
         # Sort motifs by start position
         sorted_motifs = sorted(motifs, key=lambda x: x.get('Start', 0))
@@ -811,23 +821,26 @@ class ModularMotifDetector:
                     break
             
             if len(window_motifs) >= min_density:
-                # Create cluster motif
-                actual_start = min(m.get('Start', 0) for m in window_motifs)
-                actual_end = max(m.get('End', 0) for m in window_motifs)
-                avg_score = sum(m.get('Score', 0) for m in window_motifs) / len(window_motifs)
-                
-                cluster_motifs.append({
-                    'ID': f"{sorted_motifs[i].get('Sequence_Name', 'seq')}_CLUSTER_{actual_start}",
-                    'Sequence_Name': sorted_motifs[i].get('Sequence_Name', 'sequence'),
-                    'Class': 'Non-B_DNA_Clusters',
-                    'Subclass': f'High-density cluster ({len(window_motifs)} motifs)',
-                    'Start': actual_start,
-                    'End': actual_end,
-                    'Length': actual_end - actual_start,
-                    'Score': round(avg_score, 3),
-                    'Strand': '+',
-                    'Method': 'cluster_detection'
-                })
+                # Get unique classes
+                classes = set(m.get('Class') for m in window_motifs)
+                if len(classes) >= min_classes:
+                    # Create cluster motif
+                    actual_start = min(m.get('Start', 0) for m in window_motifs)
+                    actual_end = max(m.get('End', 0) for m in window_motifs)
+                    avg_score = sum(m.get('Score', 0) for m in window_motifs) / len(window_motifs)
+                    
+                    cluster_motifs.append({
+                        'ID': f"{sorted_motifs[i].get('Sequence_Name', 'seq')}_CLUSTER_{actual_start}",
+                        'Sequence_Name': sorted_motifs[i].get('Sequence_Name', 'sequence'),
+                        'Class': 'Non-B_DNA_Clusters',
+                        'Subclass': f'High-density cluster ({len(window_motifs)} motifs)',
+                        'Start': actual_start,
+                        'End': actual_end,
+                        'Length': actual_end - actual_start,
+                        'Score': round(avg_score, 3),
+                        'Strand': '+',
+                        'Method': 'cluster_detection'
+                    })
         
         return cluster_motifs
     
@@ -1276,7 +1289,7 @@ class MotifDetector:
                 # Check for significant overlap between different classes
                 if motif1['Class'] != motif2['Class']:
                     overlap = self._calculate_overlap(motif1, motif2)
-                    if 0.3 <= overlap <= 0.7:  # 30-70% overlap
+                    if HYBRID_MIN_OVERLAP <= overlap <= HYBRID_MAX_OVERLAP:  # 50-99% overlap
                         start = min(motif1['Start'], motif2['Start'])
                         end = max(motif1['End'], motif2['End'])
                         length = end - start
