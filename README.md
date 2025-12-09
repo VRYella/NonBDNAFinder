@@ -84,6 +84,9 @@ This README provides a quick start guide for NonBScanner. For comprehensive docu
 
 See the full documentation: **[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
 
+**NEW! Complete Reference Guide:**
+- **[COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md)** - All parameters, flow diagrams, and code workflows in a single document with text-based diagrams
+
 Additional resources:
 - **[docs/perf_runbook.md](docs/perf_runbook.md)** - Performance optimization guide
 - **Python API** - See Quick Start below
