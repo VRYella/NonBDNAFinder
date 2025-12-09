@@ -68,10 +68,6 @@ def canonicalize_motif(m: Dict[str, Any]) -> Dict[str, Any]:
         >>> canonical['Length']
         20
     """
-    """
-    Canonicalize motif dictionary to standard format.
-    Maintains backward compatibility with Normalized_Score but doesn't require it.
-    """
     mapping = {
         'Actual Score': 'Actual_Score',
         'ActualScore': 'Actual_Score',

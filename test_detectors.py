@@ -5,7 +5,6 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 MODULE: test_detectors.py
-AUTHOR: Dr. Venkata Rajesh Yella
 VERSION: 2024.1
 LICENSE: MIT
 
@@ -27,6 +26,7 @@ TEST COVERAGE:
 
 import unittest
 import time
+import random
 from typing import List, Dict, Any
 import sys
 import os
@@ -231,11 +231,10 @@ class TestPerformanceRegression(TestDetectorBase):
     def test_all_detectors_on_large_sequence(self):
         """Test all detectors on a large 50kb sequence"""
         # Generate realistic sequence (40% GC content)
-        import random
         random.seed(42)
         bases = 'ATGC'
         weights = [0.3, 0.3, 0.2, 0.2]  # A, T, G, C
-        sequence = ''.join(random.choices(bases, weights=weights, k=50000))
+        sequence = ''.join(random.choices(bases, weights=weights, k=50000)))
         
         detectors = {
             'Curved DNA': CurvedDNADetector(),
