@@ -1709,8 +1709,8 @@ with tab_pages["Home"]:
                     break
             if not image_found:
                 raise FileNotFoundError("Image not found")
-        except (FileNotFoundError, Exception):
-            # If image doesn't exist, show placeholder
+        except Exception:
+            # If image doesn't exist or cannot be loaded, show placeholder
             st.markdown("""
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         border-radius: 15px; padding: 40px; text-align: center; color: white;'>
