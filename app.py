@@ -1716,39 +1716,6 @@ with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
     st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
-    """
-    # System Resource Monitor (collapsible for better UX)
-    with st.expander("💻 System Resource Monitor", expanded=False):
-        sys_info = get_system_info()
-        if sys_info['available']:
-            col_m1, col_m2, col_m3 = st.columns(3)
-            with col_m1:
-                st.metric("💾 Memory Usage", 
-                         f"{sys_info['memory_percent']:.1f}%",
-                         delta=f"{sys_info['memory_used_mb']/1024:.2f} GB used",
-                         help=f"Available: {sys_info['memory_available_mb']/1024:.2f} GB")
-            with col_m2:
-                st.metric("🖥️ Total Memory", 
-                         f"{sys_info['memory_total_mb']/1024:.2f} GB",
-                         help="Total system memory")
-            with col_m3:
-                st.metric("⚙️ CPU Cores", 
-                         f"{sys_info['cpu_count']}",
-                         help="Available CPU cores for parallel processing")
-            
-            # Memory usage bar
-            mem_color = "green" if sys_info['memory_percent'] < 70 else ("orange" if sys_info['memory_percent'] < 85 else "red")
-            st.progress(sys_info['memory_percent'] / 100, text=f"Memory: {sys_info['memory_percent']:.1f}% used")
-        else:
-            st.info("System monitoring not available on this platform")
-    """
-    # Show unlimited processing info for web version
-    st.info("""
-    **Unlimited Sequence Length**: This version supports sequences of any size using optimized chunked processing.  
-    Large sequences are automatically processed in 10kb chunks with 500bp overlap to ensure no motifs are missed.
-    """)
-
-    st.markdown("---")
 
     # ----- Input Method + Sequence Preview -----
     st.markdown("### Input Method")
