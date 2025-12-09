@@ -671,10 +671,10 @@ st.markdown(f"""
     
     /* Tab content - Clean content card section */
     .stTabs [data-baseweb="tab-panel"] {{
-        padding-top: 1.5rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 1rem !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+        padding-bottom: 1rem !important;
         animation: fade-in 0.3s ease-out;
         background: {'#1A1F2E' if is_dark_mode else '#FFFFFF'} !important;
         border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
@@ -1308,27 +1308,27 @@ st.markdown(f"""
         margin: 0 0 1rem 0;
         color: white;
         text-align: center;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         font-weight: 700;
         position: relative;
         z-index: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
     }}
     
     .progress-panel__title--large {{
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
     }}
     
     .progress-panel__status {{
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.8rem 0;
         text-align: center;
         opacity: 0.95;
-        font-size: 1rem;
+        font-size: 0.92rem;
         font-weight: 500;
         position: relative;
         z-index: 1;
@@ -1337,26 +1337,26 @@ st.markdown(f"""
     .stats-grid {{
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1rem;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
         position: relative;
         z-index: 1;
     }}
     
     .stats-grid--wide {{
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }}
     
     .stats-grid--extra-wide {{
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 0.8rem;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.8rem;
+        margin-top: 0.6rem;
     }}
     
     .stat-card {{
         text-align: center;
         background: rgba(255, 255, 255, 0.2);
-        padding: 1rem;
+        padding: 0.7rem;
         border-radius: var(--border-radius-md);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1370,7 +1370,7 @@ st.markdown(f"""
     }}
     
     .stat-card--large {{
-        padding: 1.2rem;
+        padding: 0.9rem;
         border-radius: var(--border-radius-md);
         backdrop-filter: blur(10px);
     }}
@@ -1378,28 +1378,28 @@ st.markdown(f"""
     .stat-card__value {{
         margin: 0;
         color: #FFFFFF;
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 700;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }}
     
     .stat-card__value--large {{
-        font-size: 2rem;
+        font-size: 1.7rem;
         font-weight: 700;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.25rem;
     }}
     
     .stat-card__label {{
-        margin: 0.4rem 0 0 0;
+        margin: 0.3rem 0 0 0;
         opacity: 0.9;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }}
     
     .stat-card__label--large {{
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         opacity: 0.95;
         font-weight: 600;
     }}
@@ -1407,7 +1407,7 @@ st.markdown(f"""
     .sequence-info {{
         background: rgba(0, 0, 0, 0.2);
         border-radius: var(--border-radius-md);
-        padding: 1rem;
+        padding: 0.8rem;
         margin-bottom: 0;
         border: 1px solid rgba(255, 255, 255, 0.2);
         position: relative;
@@ -1416,14 +1416,14 @@ st.markdown(f"""
     
     .sequence-info__text {{
         margin: 0;
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         text-align: center;
         font-weight: 500;
     }}
     
     .sequence-info__subtext {{
-        margin: 0.5rem 0 0 0;
-        font-size: 0.9rem;
+        margin: 0.4rem 0 0 0;
+        font-size: 0.82rem;
         opacity: 0.9;
         text-align: center;
     }}
@@ -1714,7 +1714,7 @@ with tab_pages["Home"]:
 
 with tab_pages["Upload & Analyze"]:
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
-    st.markdown('<span style="font-family:Montserrat,Arial; font-size:1.12rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
+    st.markdown('<span style="font-family:Montserrat,Arial; font-size:0.95rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
     st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
 
     # ----- Input Method + Sequence Preview -----
