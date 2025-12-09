@@ -134,11 +134,14 @@
 │                                                                              │
 │  Parameter Name           │ Value  │ Unit │ Description                     │
 │ ──────────────────────────┼────────┼──────┼─────────────────────────────────│
-│  HYBRID_MIN_OVERLAP       │  0.3   │ratio │ Minimum overlap for hybrid (30%)│
-│  HYBRID_MAX_OVERLAP       │  0.99  │ratio │ Maximum overlap for hybrid (99%)│
+│  HYBRID_MIN_OVERLAP       │  0.3   │ratio │ Min overlap (>30%, exclusive)   │
+│  HYBRID_MAX_OVERLAP       │  1.0   │ratio │ Max overlap (<100%, exclusive)  │
 │  CLUSTER_WINDOW_SIZE      │  500   │  bp  │ Sliding window size for clusters│
 │  CLUSTER_MIN_MOTIFS       │    3   │ cnt  │ Minimum motifs to form cluster  │
 │  CLUSTER_MIN_CLASSES      │    2   │ cnt  │ Minimum classes for mixed type  │
+│                                                                              │
+│  Note: Hybrid overlap range is 0.3 < overlap < 1.0 (exclusive bounds)       │
+│  This means partial overlaps from >30% to <100%                              │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -295,11 +298,12 @@
 │                                                                               │
 │  Legend: n = sequence length (bp), m = number of motifs detected             │
 │                                                                               │
-│  Note on Complexity:                                                          │
-│  • Hybrid detection uses sweep line algorithm: O(m log m) due to sorting     │
-│    and early termination (not naive O(m²) pairwise comparison)               │
-│  • Cluster detection uses sorted motifs with sliding window: O(m log m)      │
-│    due to initial sort, then linear scan with early termination              │
+│  Note on Algorithmic Complexity:                                              │
+│  • Hybrid detection: O(m log m) = O(m log m) sorting + O(m) sweep line       │
+│    - Sorts motifs once, then uses sweep line with early termination          │
+│  • Cluster detection: O(m log m) = O(m log m) sorting + O(m) window scan     │
+│    - Sorts motifs once, then linear scan with early termination per window   │
+│  Both algorithms avoid naive O(m²) pairwise comparisons through optimization  │
 │                                                                               │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -1050,6 +1054,13 @@ def callback(
 │  • R-Loop:       ~6,000 bp/s                                                 │
 │  • G4:           ~5,000 bp/s                                                 │
 │                                                                              │
+│  Testing Conditions:                                                         │
+│  • Hardware: Intel/AMD x86_64, 9+ cores, 16GB+ RAM                           │
+│  • Sequence Type: Mixed genomic DNA with typical GC content (40-60%)        │
+│  • Python: 3.8+, optimized k-mer indexing enabled                           │
+│  • Note: Actual speeds vary based on hardware, sequence composition,        │
+│    and motif density                                                         │
+│                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1147,8 +1158,8 @@ def callback(
 │                                                                              │
 │  Category: Hybrid & Cluster Detection                                        │
 │ ──────────────────────────────────────────────────────────────────────────── │
-│  HYBRID_MIN_OVERLAP           │    0.3  │ratio│ Min overlap (30%)           │
-│  HYBRID_MAX_OVERLAP           │   0.99  │ratio│ Max overlap (99%)           │
+│  HYBRID_MIN_OVERLAP           │    0.3  │ratio│ Min overlap (>30%, exclusive)│
+│  HYBRID_MAX_OVERLAP           │    1.0  │ratio│ Max overlap (<100%, exclusive)│
 │  CLUSTER_WINDOW_SIZE          │    500  │ bp  │ Window size                 │
 │  CLUSTER_MIN_MOTIFS           │      3  │ cnt │ Min motifs in cluster       │
 │  CLUSTER_MIN_CLASSES          │      2  │ cnt │ Min classes for mixed       │
