@@ -234,7 +234,7 @@ class TestPerformanceRegression(TestDetectorBase):
         random.seed(42)
         bases = 'ATGC'
         weights = [0.3, 0.3, 0.2, 0.2]  # A, T, G, C
-        sequence = ''.join(random.choices(bases, weights=weights, k=50000)))
+        sequence = ''.join(random.choices(bases, weights=weights, k=50000))
         
         detectors = {
             'Curved DNA': CurvedDNADetector(),
