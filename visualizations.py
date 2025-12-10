@@ -3295,5 +3295,259 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
     return fig
 
 
+# =============================================================================
+# FUNCTION ALIASES FOR BACKWARD COMPATIBILITY
+# =============================================================================
+
+# Aliases for functions with different naming conventions
+plot_comprehensive_class_analysis = plot_class_analysis_comprehensive
+plot_comprehensive_subclass_analysis = plot_subclass_analysis_comprehensive
+
+
+# =============================================================================
+# ADDITIONAL VISUALIZATION FUNCTIONS FOR NOTEBOOK COMPATIBILITY
+# =============================================================================
+
+def plot_genome_landscape_track(motifs: List[Dict[str, Any]], 
+                               sequence_length: int,
+                               title: str = "Genome Landscape Track",
+                               figsize: Tuple[int, int] = None,
+                               window_size: int = None) -> plt.Figure:
+    """
+    Create genome landscape track visualization showing motif distribution along sequence.
+    
+    This is a simplified horizontal track view showing motif positions and density.
+    Similar to plot_linear_motif_track but with additional density information.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size (width, height)
+        window_size: Window size for density calculation (auto if None)
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Auto-calculate window size
+    if window_size is None:
+        window_size = max(1000, sequence_length // 50)
+    
+    # Create figure with two subplots: density track + motif positions
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize, dpi=PUBLICATION_DPI,
+                                    gridspec_kw={'height_ratios': [1, 2]})
+    
+    # Top panel: Density line plot
+    num_windows = max(1, sequence_length // window_size)
+    positions = []
+    densities = []
+    
+    for i in range(num_windows):
+        window_start = i * window_size
+        window_end = (i + 1) * window_size
+        window_center = (window_start + window_end) / 2 / 1000  # In kb
+        
+        # Count motifs in window
+        count = 0
+        for motif in motifs:
+            motif_start = motif.get('Start', 0) - 1
+            motif_end = motif.get('End', 0)
+            if not (motif_end <= window_start or motif_start >= window_end):
+                count += 1
+        
+        density = count / (window_size / 1000)  # motifs per kb
+        positions.append(window_center)
+        densities.append(density)
+    
+    # Plot density line
+    ax1.fill_between(positions, densities, alpha=0.3, color='#0072B2')
+    ax1.plot(positions, densities, color='#0072B2', linewidth=1.5)
+    ax1.set_ylabel('Density\n(motifs/kb)', fontsize=10, fontweight='bold')
+    ax1.set_xlim(0, sequence_length / 1000)
+    ax1.grid(axis='y', alpha=0.3, linestyle='--', linewidth=0.5)
+    _apply_nature_style(ax1)
+    
+    # Bottom panel: Motif track by class
+    class_motifs = defaultdict(list)
+    for motif in motifs:
+        class_name = motif.get('Class', 'Unknown')
+        if class_name not in CIRCOS_EXCLUDED_CLASSES:
+            class_motifs[class_name].append(motif)
+    
+    if not class_motifs:
+        # Include all classes if none pass the filter
+        for motif in motifs:
+            class_name = motif.get('Class', 'Unknown')
+            class_motifs[class_name].append(motif)
+    
+    classes = sorted(class_motifs.keys())
+    track_height = 0.5
+    track_spacing = 1.0
+    
+    for i, class_name in enumerate(classes):
+        y_pos = i * track_spacing
+        color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+        
+        for motif in class_motifs[class_name]:
+            start_kb = motif.get('Start', 0) / 1000
+            end_kb = motif.get('End', 0) / 1000
+            length_kb = end_kb - start_kb
+            
+            # Draw motif as rectangle
+            rect = patches.Rectangle(
+                (start_kb, y_pos - track_height/2), length_kb, track_height,
+                facecolor=color, edgecolor='black', linewidth=0.3, alpha=0.8
+            )
+            ax2.add_patch(rect)
+    
+    # Customize bottom panel
+    ax2.set_xlim(0, sequence_length / 1000)
+    ax2.set_ylim(-0.5, len(classes) * track_spacing - 0.5)
+    ax2.set_xlabel('Position (kb)', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
+    ax2.set_yticks([i * track_spacing for i in range(len(classes))])
+    display_classes = [c.replace('_', ' ') for c in classes]
+    ax2.set_yticklabels(display_classes, fontsize=9)
+    _apply_nature_style(ax2)
+    
+    # Overall title
+    display_title = title.replace('_', ' ')
+    fig.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    return fig
+
+
+def plot_sliding_window_heat_ribbon(motifs: List[Dict[str, Any]], 
+                                    sequence_length: int,
+                                    title: str = "Sliding Window Heat Ribbon",
+                                    figsize: Tuple[int, int] = None,
+                                    window_size: int = None) -> plt.Figure:
+    """
+    Create a 1D heatmap ribbon showing motif density along the sequence.
+    
+    This creates a horizontal ribbon colored by density values, with an
+    accompanying line plot showing the density profile.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Total length of analyzed sequence in bp
+        title: Plot title
+        figsize: Figure size (width, height)
+        window_size: Window size for density calculation (auto if None)
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style()
+    
+    if figsize is None:
+        figsize = FIGURE_SIZES['wide']
+    
+    if not motifs or sequence_length == 0:
+        fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
+        ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
+                transform=ax.transAxes, fontsize=14)
+        ax.set_title(title)
+        return fig
+    
+    # Auto-calculate window size
+    if window_size is None:
+        window_size = max(1000, sequence_length // 100)
+    
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Calculate density for each window
+    density_values = []
+    positions = []
+    
+    for i in range(num_windows):
+        window_start = i * window_size
+        window_end = (i + 1) * window_size
+        
+        # Count motifs in window
+        count = 0
+        for motif in motifs:
+            motif_start = motif.get('Start', 0) - 1
+            motif_end = motif.get('End', 0)
+            if not (motif_end <= window_start or motif_start >= window_end):
+                count += 1
+        
+        density = count / (window_size / 1000)  # motifs per kb
+        density_values.append(density)
+        positions.append((window_start + window_end) / 2 / 1000)  # Center position in kb
+    
+    # Create figure with two subplots
+    fig = plt.figure(figsize=figsize, dpi=PUBLICATION_DPI)
+    gs = fig.add_gridspec(2, 1, height_ratios=[1, 3], hspace=0.3)
+    
+    # Top: Heat ribbon (1D heatmap)
+    ax1 = fig.add_subplot(gs[0])
+    
+    # Create 2D array for heatmap (1 row)
+    density_array = np.array(density_values).reshape(1, -1)
+    
+    # Plot heatmap
+    im = ax1.imshow(density_array, cmap='YlOrRd', aspect='auto', 
+                    extent=[0, sequence_length / 1000, 0, 1],
+                    interpolation='bilinear')
+    
+    ax1.set_yticks([])
+    ax1.set_ylabel('Density\nHeatmap', fontsize=10, fontweight='bold')
+    ax1.set_xticks([])
+    
+    # Add colorbar
+    cbar = plt.colorbar(im, ax=ax1, orientation='vertical', pad=0.02, shrink=0.8)
+    cbar.set_label('Motifs/kb', fontsize=9, fontweight='bold')
+    cbar.ax.tick_params(labelsize=8)
+    
+    # Bottom: Line plot
+    ax2 = fig.add_subplot(gs[1])
+    
+    ax2.plot(positions, density_values, color='#0072B2', linewidth=2, alpha=0.8)
+    ax2.fill_between(positions, density_values, alpha=0.3, color='#0072B2')
+    
+    # Mark peaks (top 10% density)
+    if density_values:
+        threshold = np.percentile(density_values, 90)
+        peak_indices = [i for i, d in enumerate(density_values) if d >= threshold]
+        if peak_indices:
+            peak_positions = [positions[i] for i in peak_indices]
+            peak_densities = [density_values[i] for i in peak_indices]
+            ax2.scatter(peak_positions, peak_densities, color='red', s=50, 
+                       zorder=5, alpha=0.7, edgecolors='black', linewidth=0.5,
+                       label=f'High density (top 10%)')
+    
+    # Styling
+    ax2.set_xlabel('Position (kb)', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Motif Density (motifs/kb)', fontsize=11, fontweight='bold')
+    ax2.set_xlim(0, sequence_length / 1000)
+    ax2.grid(alpha=0.3, linestyle='--', linewidth=0.5)
+    
+    if peak_indices:
+        ax2.legend(loc='upper right', fontsize=9, framealpha=0.9)
+    
+    _apply_nature_style(ax2)
+    
+    # Overall title
+    display_title = title.replace('_', ' ')
+    fig.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    return fig
+
+
 if __name__ == "__main__":
     test_visualizations()
