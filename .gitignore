@@ -80,3 +80,7 @@ venv.bak/
 .DS_Store
 Thumbs.db
 screenshots/
+
+# Archives (documentation, tests, benchmarks not needed for production)
+# Note: Already committed archives will remain in git history
+# archives/
