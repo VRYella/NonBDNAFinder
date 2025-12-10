@@ -822,38 +822,14 @@ with tab_pages["Upload & Analyze"]:
         quality_check = st.checkbox("Quality Validation", value=True, 
                                    help="Validate detected motifs")
         
-        # Preset buttons for Stringent / Moderate / Relaxed
-        st.markdown("##### Presets")
-        preset_col1, preset_col2, preset_col3 = st.columns(3)
+        # Advanced Options - now visible by default
+        show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
+                                         help="Display detailed progress for each processing chunk")
+        use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=True,
+                                          help="Enable experimental parallel chunk-based scanner (>100kb sequences)")
         
-        with preset_col1:
-            if st.button("🔒 Stringent", use_container_width=True, help="High-confidence motifs only"):
-                st.session_state.preset = "stringent"
-                st.info("Stringent preset selected")
-        
-        with preset_col2:
-            if st.button("⚖️ Moderate", use_container_width=True, help="Balanced sensitivity and specificity"):
-                st.session_state.preset = "moderate"
-                st.info("Moderate preset selected (recommended)")
-        
-        with preset_col3:
-            if st.button("🔓 Relaxed", use_container_width=True, help="Maximum sensitivity"):
-                st.session_state.preset = "relaxed"
-                st.info("Relaxed preset selected")
-        
-        # Advanced Options using popover for better space management
-        show_chunk_progress = False
-        use_parallel_scanner = False
-        
-        with st.popover("🔧 Advanced Options"):
-            st.markdown("##### Advanced Configuration")
-            show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
-                                             help="Display detailed progress for each processing chunk")
-            use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=False,
-                                              help="Enable experimental parallel chunk-based scanner (>100kb sequences)")
-            
-            if use_parallel_scanner:
-                st.caption("⚠️ Parallel scanner works best on sequences >100kb with multiple CPU cores")
+        if use_parallel_scanner:
+            st.caption("⚠️ Parallel scanner works best on sequences >100kb with multiple CPU cores")
         
         # Hardcoded default overlap handling
         nonoverlap = True
