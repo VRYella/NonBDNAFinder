@@ -156,8 +156,31 @@ streamlit run app.py                    # Web interface on :8501
 ```
 
 ### Jupyter Notebook (Recommended for Comprehensive Analysis)
+
+#### 🚀 High-Efficiency Big Genome Analysis (NEW!)
 ```bash
-# Launch Jupyter notebook - includes Excel export and detection analysis
+# Launch high-efficiency notebook for large genomes
+jupyter notebook HighEfficiency_Genome_Analysis.ipynb
+
+# Or with JupyterLab
+jupyter lab HighEfficiency_Genome_Analysis.ipynb
+```
+
+**Perfect for large genomes with just 3 execution boxes:**
+- **Box 1**: Setup and configuration (imports, file path, parameters)
+- **Box 2**: Run parallel analysis with progress tracking
+- **Box 3**: Generate consolidated Excel and all visualizations
+
+**Features:**
+- ⚡ **Parallel Processing**: Multi-core execution for maximum speed
+- 🎯 **Memory Efficient**: Chunked processing for genomes of any size (100MB+)
+- 📊 **Consolidated Excel**: All motif classes in separate sheets
+- 📈 **Publication-Quality Visualizations**: 25+ chart types with statistical analysis
+- 🔍 **Complete Detection**: All 11 Non-B DNA motif classes
+
+#### Legacy Notebook
+```bash
+# Launch standard notebook - includes Excel export and detection analysis
 jupyter notebook NonBScanner_Local.ipynb
 
 # Or with JupyterLab
