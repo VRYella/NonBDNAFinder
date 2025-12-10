@@ -2196,39 +2196,6 @@ with tab_pages["Download"]:
 with tab_pages["Documentation"]:
     st.header("Scientific Documentation & References")
     
-    # Motif detection parameters
-    st.markdown("""
-    <div style='background:#e3f2fd; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial; margin-bottom:20px;'>
-    <b>Motif Detection Parameters:</b><br><br>
-    <table style='width:100%; border-collapse: collapse;'>
-        <tr style='background:#1976d2; color:white;'>
-            <th style='padding:10px; text-align:left;'>Motif Type</th>
-            <th style='padding:10px; text-align:left;'>Arm/Unit Length</th>
-            <th style='padding:10px; text-align:left;'>Spacer/Loop</th>
-            <th style='padding:10px; text-align:left;'>Additional Requirements</th>
-        </tr>
-        <tr style='background:#f5f5f5;'>
-            <td style='padding:10px;'><b>Cruciform DNA</b></td>
-            <td style='padding:10px;'>10–100 nt</td>
-            <td style='padding:10px;'>0–3 nt</td>
-            <td style='padding:10px;'>Reverse complement arms</td>
-        </tr>
-        <tr>
-            <td style='padding:10px;'><b>Slipped DNA</b></td>
-            <td style='padding:10px;'>10–50 nt repeat</td>
-            <td style='padding:10px;'>0 nt (adjacent)</td>
-            <td style='padding:10px;'>Direct repeat units</td>
-        </tr>
-        <tr style='background:#f5f5f5;'>
-            <td style='padding:10px;'><b>Triplex DNA</b></td>
-            <td style='padding:10px;'>10–100 nt mirrored</td>
-            <td style='padding:10px;'>0–8 nt</td>
-            <td style='padding:10px;'>≥90% Purine or Pyrimidine</td>
-        </tr>
-    </table>
-    </div>
-    """, unsafe_allow_html=True)
-    
     # Motif classes documentation
     st.markdown("""
     <div style='background:#f4faff; border-radius:12px; padding:18px; font-size:1.08rem; font-family:Montserrat,Arial;'>
