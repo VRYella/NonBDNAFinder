@@ -541,6 +541,13 @@ tab_pages = dict(zip(PAGES.keys(), tabs))
 
 with tab_pages["Home"]:
     st.markdown("<h1>Non-B DNA Motif Finder</h1>", unsafe_allow_html=True)
+    
+    # System Status Indicator
+    if HYPERSCAN_AVAILABLE:
+        st.success("🚀 **Performance Mode:** Hyperscan acceleration is active for high-speed pattern matching")
+    else:
+        st.info("ℹ️ **Standard Mode:** Using regex-based pattern matching (Hyperscan not available). All features are fully functional.")
+    
     left, right = st.columns([1,1])
     with left:
         try:
