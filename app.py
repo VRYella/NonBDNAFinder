@@ -549,28 +549,6 @@ with tab_pages["Home"]:
                    font-family: "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.5px;'>
             NonBScanner Database
         </h1>
-        <p style='color: rgba(255,255,255,0.95); font-size: 1.3rem; margin: 0 0 1.5rem 0; 
-                  font-weight: 300; line-height: 1.6;'>
-            Comprehensive Detection and Analysis of Non-B DNA Structural Motifs
-        </p>
-        <div style='display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem;'>
-            <div style='text-align: center;'>
-                <div style='color: #fbbf24; font-size: 2.5rem; font-weight: 700;'>11</div>
-                <div style='color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-top: 0.3rem;'>Motif Classes</div>
-            </div>
-            <div style='text-align: center;'>
-                <div style='color: #fbbf24; font-size: 2.5rem; font-weight: 700;'>22+</div>
-                <div style='color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-top: 0.3rem;'>Subclasses</div>
-            </div>
-            <div style='text-align: center;'>
-                <div style='color: #fbbf24; font-size: 2.5rem; font-weight: 700;'>25+</div>
-                <div style='color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-top: 0.3rem;'>Visualizations</div>
-            </div>
-            <div style='text-align: center;'>
-                <div style='color: #fbbf24; font-size: 2.5rem; font-weight: 700;'>300 DPI</div>
-                <div style='color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-top: 0.3rem;'>Publication Quality</div>
-            </div>
-        </div>
     </div>
     """, unsafe_allow_html=True)
     
