@@ -42,6 +42,31 @@ import re
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Tuple, Optional
 
+# Import centralized pattern definitions
+try:
+    from motif_patterns import (
+        CURVED_DNA_PATTERNS,
+        ZDNA_PATTERNS,
+        APHILIC_DNA_PATTERNS,
+        SLIPPED_DNA_PATTERNS,
+        CRUCIFORM_PATTERNS,
+        RLOOP_PATTERNS,
+        TRIPLEX_PATTERNS,
+        G4_PATTERNS,
+        IMOTIF_PATTERNS,
+    )
+except ImportError:
+    # Fallback if motif_patterns module unavailable
+    CURVED_DNA_PATTERNS = {}
+    ZDNA_PATTERNS = {}
+    APHILIC_DNA_PATTERNS = {}
+    SLIPPED_DNA_PATTERNS = {}
+    CRUCIFORM_PATTERNS = {}
+    RLOOP_PATTERNS = {}
+    TRIPLEX_PATTERNS = {}
+    G4_PATTERNS = {}
+    IMOTIF_PATTERNS = {}
+
 # Import optimized scanner functions
 try:
     from scanner import (
@@ -85,9 +110,6 @@ TABULAR SUMMARY:
 └──────────────────────────────────────────────────────────────────────────────┘
 """
 
-import re
-from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Tuple, Optional
 
 
 class BaseMotifDetector(ABC):
@@ -1033,18 +1055,35 @@ class ZDNADetector(BaseMotifDetector):
         
         eGZ (Extruded-G Z-DNA) patterns search for trinucleotide repeats
         that form Z-DNA structures with guanine extrusion.
+        
+        Patterns are loaded from the centralized motif_patterns module.
         """
-        return {
-            "z_dna_10mers": [
-                (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
-            ],
-            "egz_motifs": [
-                (r"(?:CGG){3,}", "ZDN_EGZ_CGG", "CGG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CGG repeat", "Herbert 1997"),
-                (r"(?:GGC){3,}", "ZDN_EGZ_GGC", "GGC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GGC repeat", "Herbert 1997"),
-                (r"(?:CCG){3,}", "ZDN_EGZ_CCG", "CCG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CCG repeat", "Herbert 1997"),
-                (r"(?:GCC){3,}", "ZDN_EGZ_GCC", "GCC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GCC repeat", "Herbert 1997"),
-            ]
-        }
+        # Load patterns from centralized module
+        if ZDNA_PATTERNS:
+            patterns = ZDNA_PATTERNS.copy()
+            # Update EGZ_BASE_SCORE in patterns if needed
+            if 'egz_motifs' in patterns:
+                updated_egz = []
+                for pattern in patterns['egz_motifs']:
+                    # Update base score to use instance variable
+                    updated = list(pattern)
+                    updated[6] = self.EGZ_BASE_SCORE
+                    updated_egz.append(tuple(updated))
+                patterns['egz_motifs'] = updated_egz
+            return patterns
+        else:
+            # Fallback patterns if import failed
+            return {
+                "z_dna_10mers": [
+                    (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
+                ],
+                "egz_motifs": [
+                    (r"(?:CGG){3,}", "ZDN_EGZ_CGG", "CGG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CGG repeat", "Herbert 1997"),
+                    (r"(?:GGC){3,}", "ZDN_EGZ_GGC", "GGC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GGC repeat", "Herbert 1997"),
+                    (r"(?:CCG){3,}", "ZDN_EGZ_CCG", "CCG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CCG repeat", "Herbert 1997"),
+                    (r"(?:GCC){3,}", "ZDN_EGZ_GCC", "GCC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GCC repeat", "Herbert 1997"),
+                ]
+            }
 
     # -------------------------
     # Public API
@@ -2790,19 +2829,27 @@ class RLoopDetector(BaseMotifDetector):
         return "R-Loop"
     
     def get_patterns(self) -> Dict[str, List[Tuple]]:
-        """Return QmRLFS model patterns"""
-        return {
-            'qmrlfs_model_1': [
-                (r'G{3,}[ATCGU]{1,10}?G{3,}(?:[ATCGU]{1,10}?G{3,}){1,}?', 
-                 'QmRLFS_M1', 'QmRLFS Model 1', 'QmRLFS-m1', 25, 'qmrlfs_score', 
-                 0.90, 'RIZ detection with 3+ G tracts', 'Jenjaroenpun 2016'),
-            ],
-            'qmrlfs_model_2': [
-                (r'G{4,}(?:[ATCGU]{1,10}?G{4,}){1,}?', 
-                 'QmRLFS_M2', 'QmRLFS Model 2', 'QmRLFS-m2', 30, 'qmrlfs_score', 
-                 0.95, 'RIZ detection with 4+ G tracts', 'Jenjaroenpun 2016'),
-            ]
-        }
+        """
+        Return QmRLFS model patterns.
+        Patterns are loaded from the centralized motif_patterns module.
+        """
+        # Load patterns from centralized module
+        if RLOOP_PATTERNS:
+            return RLOOP_PATTERNS.copy()
+        else:
+            # Fallback patterns if import failed
+            return {
+                'qmrlfs_model_1': [
+                    (r'G{3,}[ATCGU]{1,10}?G{3,}(?:[ATCGU]{1,10}?G{3,}){1,}?', 
+                     'QmRLFS_M1', 'QmRLFS Model 1', 'QmRLFS-m1', 25, 'qmrlfs_score', 
+                     0.90, 'RIZ detection with 3+ G tracts', 'Jenjaroenpun 2016'),
+                ],
+                'qmrlfs_model_2': [
+                    (r'G{4,}(?:[ATCGU]{1,10}?G{4,}){1,}?', 
+                     'QmRLFS_M2', 'QmRLFS Model 2', 'QmRLFS-m2', 30, 'qmrlfs_score', 
+                     0.95, 'RIZ detection with 4+ G tracts', 'Jenjaroenpun 2016'),
+                ]
+            }
     
     def _compile_hyperscan_patterns(self):
         """Compile patterns for hyperscan if available"""
@@ -3219,16 +3266,25 @@ class TriplexDetector(BaseMotifDetector):
         return "Triplex"
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
-        # Sticky DNA patterns (simple regex)
-        # Mirror repeats use optimized k-mer scanner
-        return {
-            'triplex_forming_sequences': [
-                (r'(?:GAA){4,}', 'TRX_5_4', 'GAA repeat', 'Sticky_DNA', 12, 
-                 'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
-                (r'(?:TTC){4,}', 'TRX_5_5', 'TTC repeat', 'Sticky_DNA', 12, 
-                 'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
-            ]
-        }
+        """
+        Return sticky DNA patterns (simple regex).
+        Mirror repeats use optimized k-mer scanner.
+        
+        Patterns are loaded from the centralized motif_patterns module.
+        """
+        # Load patterns from centralized module
+        if TRIPLEX_PATTERNS:
+            return TRIPLEX_PATTERNS.copy()
+        else:
+            # Fallback patterns if import failed
+            return {
+                'triplex_forming_sequences': [
+                    (r'(?:GAA){4,}', 'TRX_5_4', 'GAA repeat', 'Sticky_DNA', 12, 
+                     'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
+                    (r'(?:TTC){4,}', 'TRX_5_5', 'TTC repeat', 'Sticky_DNA', 12, 
+                     'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
+                ]
+            }
     
     def annotate_sequence(self, sequence: str) -> List[Dict[str, Any]]:
         seq = sequence.upper()
@@ -3550,6 +3606,8 @@ class GQuadruplexDetector(BaseMotifDetector):
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """
         Returns regexes and metadata for major G4 motif families.
+        Patterns are loaded from the centralized motif_patterns module.
+        
         Patterns from problem statement (G4_HS_PATTERNS) and experimental literature:
           - canonical_g4: Burge 2006, Todd 2005
           - relaxed_g4: Huppert 2005, Phan 2006
@@ -3561,36 +3619,41 @@ class GQuadruplexDetector(BaseMotifDetector):
         
         Optimized with non-capturing groups for performance.
         """
-        return {
-            'canonical_g4': [
-                (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_0', 'Canonical G4', 'Canonical G4', 15, 'g4hunter_score', 
-                 0.95, 'Stable G4 structures', 'Burge 2006'),
-            ],
-            'relaxed_g4': [
-                (r'G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}', 'G4_1', 'Relaxed G4', 'Relaxed G4', 12, 'g4hunter_score', 
-                 0.80, 'Potential G4 structures', 'Huppert 2005'),
-            ],
-            'long_loop_g4': [
-                (r'G{3,}[ACGT]{8,15}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_2', 'Long-loop G4', 'Long-loop G4', 18, 'g4hunter_score', 
-                 0.75, 'Alternative G4 topology', 'Phan 2006'),
-            ],
-            'bulged_g4': [
-                (r'(?:G{2,3}[ACGT]{0,3}G{1,3})[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}', 'G4_3', 'Bulged G4', 'Bulged G4', 20, 'g4hunter_score', 
-                 0.85, 'G4 with bulge loops', 'Lim 2009'),
-            ],
-            'multimeric_g4': [
-                (r'(?:G{3,}[ACGT]{1,7}){4,}G{3,}', 'G4_4', 'Multimeric G4', 'Multimeric G4', 25, 'g4hunter_score', 
-                 0.90, 'Multiple G4 units', 'Phan 2007'),
-            ],
-            'imperfect_g4': [
-                (r'G{2,}[ACGT]{1,10}[AG]G{1,3}[ACGT]{1,10}G{2,}[ACGT]{1,10}G{2,}', 'G4_5', 'Imperfect G4', 'Imperfect G4', 15, 'g4hunter_score', 
-                 0.65, 'G4-like with interruptions', 'Kuryavyi 2010'),
-            ],
-            'g_triplex': [
-                (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_6', 'G-Triplex', 'G-Triplex intermediate', 12, 'g_triplex_score', 
-                 0.80, 'Three G-tract structures', 'Sen 1988'),
-            ]
-        }
+        # Load patterns from centralized module
+        if G4_PATTERNS:
+            return G4_PATTERNS.copy()
+        else:
+            # Fallback patterns if import failed
+            return {
+                'canonical_g4': [
+                    (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_0', 'Canonical G4', 'Canonical G4', 15, 'g4hunter_score', 
+                     0.95, 'Stable G4 structures', 'Burge 2006'),
+                ],
+                'relaxed_g4': [
+                    (r'G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}[ACGT]{1,12}G{2,}', 'G4_1', 'Relaxed G4', 'Relaxed G4', 12, 'g4hunter_score', 
+                     0.80, 'Potential G4 structures', 'Huppert 2005'),
+                ],
+                'long_loop_g4': [
+                    (r'G{3,}[ACGT]{8,15}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_2', 'Long-loop G4', 'Long-loop G4', 18, 'g4hunter_score', 
+                     0.75, 'Alternative G4 topology', 'Phan 2006'),
+                ],
+                'bulged_g4': [
+                    (r'(?:G{2,3}[ACGT]{0,3}G{1,3})[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}', 'G4_3', 'Bulged G4', 'Bulged G4', 20, 'g4hunter_score', 
+                     0.85, 'G4 with bulge loops', 'Lim 2009'),
+                ],
+                'multimeric_g4': [
+                    (r'(?:G{3,}[ACGT]{1,7}){4,}G{3,}', 'G4_4', 'Multimeric G4', 'Multimeric G4', 25, 'g4hunter_score', 
+                     0.90, 'Multiple G4 units', 'Phan 2007'),
+                ],
+                'imperfect_g4': [
+                    (r'G{2,}[ACGT]{1,10}[AG]G{1,3}[ACGT]{1,10}G{2,}[ACGT]{1,10}G{2,}', 'G4_5', 'Imperfect G4', 'Imperfect G4', 15, 'g4hunter_score', 
+                     0.65, 'G4-like with interruptions', 'Kuryavyi 2010'),
+                ],
+                'g_triplex': [
+                    (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_6', 'G-Triplex', 'G-Triplex intermediate', 12, 'g_triplex_score', 
+                     0.80, 'Three G-tract structures', 'Sen 1988'),
+                ]
+            }
 
     def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
         """Compute total score for all accepted G4 regions after overlap resolution."""
@@ -3911,22 +3974,29 @@ class IMotifDetector(BaseMotifDetector):
         Returns i-motif patterns including:
         - Canonical i-motif (4 C-tracts)
         - HUR AC-motifs (A-C alternating patterns from problem statement)
+        
+        Patterns are loaded from the centralized motif_patterns module.
         Based on problem statement specifications and Hur et al. 2021, Benabou 2014.
         """
-        return {
-            'canonical_imotif': [
-                (r'C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}', 'IM_0', 'Canonical i-motif', 'canonical_imotif', 15, 'imotif_score', 0.95, 'pH-dependent C-rich structure', 'Gehring 1993'),
-            ],
-            'hur_ac_motif': [
-                # HUR A-C motifs from problem statement (HUR_AC_PATTERNS)
-                (r'A{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}', 'HUR_AC_1', 'HUR AC-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
-                (r'C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}A{3}', 'HUR_AC_2', 'HUR CA-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
-                (r'A{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}', 'HUR_AC_3', 'HUR AC-motif (5bp)', 'AC-motif (HUR)', 21, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
-                (r'C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}A{3}', 'HUR_AC_4', 'HUR CA-motif (5bp)', 'AC-motif (HUR)', 21, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
-                (r'A{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}', 'HUR_AC_5', 'HUR AC-motif (6bp)', 'AC-motif (HUR)', 24, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
-                (r'C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}A{3}', 'HUR_AC_6', 'HUR CA-motif (6bp)', 'AC-motif (HUR)', 24, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
-            ]
-        }
+        # Load patterns from centralized module
+        if IMOTIF_PATTERNS:
+            return IMOTIF_PATTERNS.copy()
+        else:
+            # Fallback patterns if import failed
+            return {
+                'canonical_imotif': [
+                    (r'C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}', 'IM_0', 'Canonical i-motif', 'canonical_imotif', 15, 'imotif_score', 0.95, 'pH-dependent C-rich structure', 'Gehring 1993'),
+                ],
+                'hur_ac_motif': [
+                    # HUR A-C motifs from problem statement (HUR_AC_PATTERNS)
+                    (r'A{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}', 'HUR_AC_1', 'HUR AC-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
+                    (r'C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}A{3}', 'HUR_AC_2', 'HUR CA-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
+                    (r'A{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}', 'HUR_AC_3', 'HUR AC-motif (5bp)', 'AC-motif (HUR)', 21, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
+                    (r'C{3}[ACGT]{5}C{3}[ACGT]{5}C{3}[ACGT]{5}A{3}', 'HUR_AC_4', 'HUR CA-motif (5bp)', 'AC-motif (HUR)', 21, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
+                    (r'A{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}', 'HUR_AC_5', 'HUR AC-motif (6bp)', 'AC-motif (HUR)', 24, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
+                    (r'C{3}[ACGT]{6}C{3}[ACGT]{6}C{3}[ACGT]{6}A{3}', 'HUR_AC_6', 'HUR CA-motif (6bp)', 'AC-motif (HUR)', 24, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
+                ]
+            }
 
     def find_validated_matches(self, sequence: str, check_revcomp: bool = False) -> List[Dict[str, Any]]:
         seq = sequence.upper()

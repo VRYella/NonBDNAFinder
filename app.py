@@ -39,7 +39,7 @@ from utilities import (
     export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density,
     export_results_to_dataframe, CORE_OUTPUT_COLUMNS
 )
-from NonBFinder import (
+from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
 from visualizations import (
