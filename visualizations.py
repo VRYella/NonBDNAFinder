@@ -76,6 +76,7 @@ PUBLICATION_DPI = 300
 # Nature-level color palette for motif classes (colorblind-friendly)
 # Based on Wong, B. (2011) Nature Methods colorblind-safe palette
 # Each motif class has a unique color for distinguishability
+# Reference: Wong, B. (2011) Points of view: Color blindness. Nat Methods 8, 441
 MOTIF_CLASS_COLORS = {
     'Curved_DNA': '#CC79A7',          # Reddish Purple
     'Slipped_DNA': '#E69F00',         # Orange
@@ -89,6 +90,20 @@ MOTIF_CLASS_COLORS = {
     'Hybrid': '#999999',              # Gray - neutral
     'Non-B_DNA_Clusters': '#666666'   # Dark Gray - professional
 }
+
+# Helper function to format display names
+def _format_display_name(name: str) -> str:
+    """Convert internal names to publication-ready display format.
+    
+    Replaces underscores with spaces for better readability.
+    
+    Args:
+        name: Internal name (e.g., 'Curved_DNA')
+        
+    Returns:
+        Display name (e.g., 'Curved DNA')
+    """
+    return name.replace('_', ' ')
 
 # Nature-level scientific styling configuration for publication-quality plots
 # Reference: Nature author guidelines for figure preparation
