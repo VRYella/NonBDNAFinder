@@ -88,6 +88,7 @@ See the full documentation: **[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
 - **[COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md)** - All parameters, flow diagrams, and code workflows in a single document with text-based diagrams
 
 Additional resources:
+- **[STREAMLIT_DEPLOYMENT.md](STREAMLIT_DEPLOYMENT.md)** - Streamlit Cloud deployment guide
 - **[docs/perf_runbook.md](docs/perf_runbook.md)** - Performance optimization guide
 - **Python API** - See Quick Start below
 - **Web Interface** - Streamlit app (`app.py`)
