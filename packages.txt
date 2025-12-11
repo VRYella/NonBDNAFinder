@@ -1,5 +1,3 @@
-# System-level dependencies required for hyperscan compilation on Streamlit Cloud
-# Hyperscan is a high-performance pattern matching library that requires system libraries
 build-essential
 cmake
 libboost-all-dev
