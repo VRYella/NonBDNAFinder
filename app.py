@@ -1558,7 +1558,7 @@ with tab_pages["Results"]:
             
             # Use pills for column selection - multi-selection mode for better UX
             display_columns = st.pills(
-                "Select columns to display:",
+                "",
                 options=available_columns,
                 selection_mode="multi",
                 default=default_cols,
