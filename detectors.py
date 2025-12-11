@@ -2393,13 +2393,21 @@ class CruciformDetector(BaseMotifDetector):
         return "Cruciform"
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
-        """Pattern metadata for compatibility (actual detection uses k-mer indexing)."""
-        return {
-            'inverted_repeats': [
-                (r'palindrome_like', 'CRU_3_1', 'Potential palindrome', 'Inverted Repeats', 
-                 12, 'cruciform_stability', 0.95, 'DNA secondary structure', 'Lilley 2000'),
-            ]
-        }
+        """
+        Pattern metadata for compatibility (actual detection uses k-mer indexing).
+        Patterns are loaded from the centralized motif_patterns module.
+        """
+        # Load patterns from centralized module
+        if CRUCIFORM_PATTERNS:
+            return CRUCIFORM_PATTERNS.copy()
+        else:
+            # Fallback patterns if import failed
+            return {
+                'inverted_repeats': [
+                    (r'', 'CRU_3_1', 'Potential palindrome', 'Inverted Repeats', 
+                     12, 'cruciform_stability', 0.95, 'DNA secondary structure', 'Lilley 2000'),
+                ]
+            }
 
     # Configuration - Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
     MIN_ARM = 10
@@ -2837,15 +2845,15 @@ class RLoopDetector(BaseMotifDetector):
         if RLOOP_PATTERNS:
             return RLOOP_PATTERNS.copy()
         else:
-            # Fallback patterns if import failed
+            # Fallback patterns if import failed (using [ATCG] for DNA, not [ATCGU])
             return {
                 'qmrlfs_model_1': [
-                    (r'G{3,}[ATCGU]{1,10}?G{3,}(?:[ATCGU]{1,10}?G{3,}){1,}?', 
+                    (r'G{3,}[ATCG]{1,10}?G{3,}(?:[ATCG]{1,10}?G{3,}){1,}?', 
                      'QmRLFS_M1', 'QmRLFS Model 1', 'QmRLFS-m1', 25, 'qmrlfs_score', 
                      0.90, 'RIZ detection with 3+ G tracts', 'Jenjaroenpun 2016'),
                 ],
                 'qmrlfs_model_2': [
-                    (r'G{4,}(?:[ATCGU]{1,10}?G{4,}){1,}?', 
+                    (r'G{4,}(?:[ATCG]{1,10}?G{4,}){1,}?', 
                      'QmRLFS_M2', 'QmRLFS Model 2', 'QmRLFS-m2', 30, 'qmrlfs_score', 
                      0.95, 'RIZ detection with 4+ G tracts', 'Jenjaroenpun 2016'),
                 ]
