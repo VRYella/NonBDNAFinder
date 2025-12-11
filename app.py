@@ -1698,14 +1698,7 @@ with tab_pages["Results"]:
                     # Subclass Level Analysis
                     st.markdown("##### Subclass Level Analysis")
                     
-                    # Use cached subclass densities if available
-                    if not cached_densities:
-                        # Calculate subclass-level densities only if not cached
-                        genomic_density_subclass = calculate_genomic_density(filtered_motifs, sequence_length, 
-                                                                             by_class=False, by_subclass=True)
-                        positional_density_subclass = calculate_positional_density(filtered_motifs, sequence_length, 
-                                                                                   unit='kbp', by_class=False, by_subclass=True)
-                    
+                    # Subclass densities are already calculated or loaded from cache above
                     # Per-subclass density table
                     subclass_density_data = []
                     for subclass_key in sorted([k for k in genomic_density_subclass.keys() if k != 'Overall']):
