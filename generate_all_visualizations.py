@@ -23,7 +23,8 @@ import sys
 import os
 from pathlib import Path
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
+# Use non-interactive backend for automated screenshot generation without display
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # Import scanner and visualization functions
@@ -62,6 +63,9 @@ from utilities import calculate_genomic_density, calculate_positional_density
 def generate_comprehensive_test_sequence() -> str:
     """Generate a comprehensive test sequence with various motif types"""
     
+    # Configuration
+    SPACER_REPEAT_COUNT = 5  # Number of times to repeat spacer pattern
+    
     # G-Quadruplex canonical
     g4_sequence = "GGGTTAGGGTTAGGGTTAGGG"
     
@@ -84,7 +88,7 @@ def generate_comprehensive_test_sequence() -> str:
     egz_sequence = "CGG" * 6
     
     # Spacer sequences
-    spacer = "ATCGATCGATCG" * 5
+    spacer = "ATCGATCGATCG" * SPACER_REPEAT_COUNT
     
     # Combine all motifs with spacers
     full_sequence = (

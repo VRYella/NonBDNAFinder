@@ -112,8 +112,8 @@ All 20 visualizations are available in `docs/screenshots/`:
 ### Statistical Analysis
 5. `05_score_distribution.png` - Box plots by class
 6. `06_length_distribution.png` - Violin plots by class
-7. `10_score_statistics_by_class.png` - Advanced score stats
-8. `11_length_statistics_by_class.png` - Advanced length stats
+10. `10_score_statistics_by_class.png` - Advanced score stats
+11. `11_length_statistics_by_class.png` - Advanced length stats
 
 ### Hierarchical Views
 7. `07_nested_donut_chart.png` - Two-ring class/subclass chart

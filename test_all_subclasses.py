@@ -361,11 +361,14 @@ class SubclassDetectionTester:
             'details': dict(self.results)
         }
     
+    # Report date format constant
+    DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+    
     def generate_report(self) -> str:
         """Generate detailed markdown report"""
         report = []
         report.append("# Subclass Detection Test Report\n")
-        report.append(f"**Test Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        report.append(f"**Test Date:** {time.strftime(self.DATE_FORMAT)}\n")
         report.append("\n## Summary\n")
         
         total = len(self.results)
