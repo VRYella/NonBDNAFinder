@@ -905,7 +905,7 @@ class NonBScanner:
 # =============================================================================
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence", 
-                    use_fast_mode: bool = False,
+                    use_fast_mode: bool = True,  # Changed default to True for performance
                     use_chunking: bool = None,
                     chunk_size: int = None,
                     chunk_overlap: int = None,
