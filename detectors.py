@@ -1020,12 +1020,22 @@ class ZDNADetector(BaseMotifDetector):
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """
-        Keep compatibility with framework: return a representative pattern entry.
-        The actual matching uses the TENMER_SCORE table inside calculate_score/annotate_sequence.
+        Return patterns for Z-DNA detection including:
+        - 10-mer scoring table (classic Z-DNA)
+        - eGZ-motif patterns: long (CGG)n, (GGC)n, (CCG)n, (GCC)n runs
+        
+        eGZ (Extruded-G Z-DNA) patterns search for trinucleotide repeats
+        that form Z-DNA structures with guanine extrusion.
         """
         return {
             "z_dna_10mers": [
                 (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
+            ],
+            "egz_motifs": [
+                (r"(?:CGG){3,}", "ZDN_EGZ_CGG", "CGG repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA CGG repeat", "Herbert 1997"),
+                (r"(?:GGC){3,}", "ZDN_EGZ_GGC", "GGC repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA GGC repeat", "Herbert 1997"),
+                (r"(?:CCG){3,}", "ZDN_EGZ_CCG", "CCG repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA CCG repeat", "Herbert 1997"),
+                (r"(?:GCC){3,}", "ZDN_EGZ_GCC", "GCC repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA GCC repeat", "Herbert 1997"),
             ]
         }
 
@@ -1050,7 +1060,9 @@ class ZDNADetector(BaseMotifDetector):
 
     def annotate_sequence(self, sequence: str) -> List[Dict[str, Any]]:
         """
-        Return list of merged region annotations.
+        Return list of merged region annotations including both:
+        1. Classic Z-DNA regions (from 10-mer scoring)
+        2. eGZ-motif regions (from regex patterns)
         
         MERGING GUARANTEE: This method ALWAYS merges overlapping/adjacent 10-mer 
         matches into contiguous regions. No individual 10-mers are returned; only 
@@ -1059,57 +1071,69 @@ class ZDNADetector(BaseMotifDetector):
         Each dict contains:
           - start, end (0-based, end-exclusive)
           - length
-          - sum_score (sum of per-base contributions)
-          - mean_score_per10mer (mean of 10-mer scores contributing)
-          - n_10mers
-          - contributing_10mers: list of dicts {tenmer, start, score}
+          - sum_score (sum of per-base contributions for 10-mers OR repeat count score for eGZ)
+          - subclass: 'Z-DNA' or 'eGZ'
+          - pattern_id: identifier for the pattern
+          - (for eGZ) repeat_unit, repeat_count
+          - (for Z-DNA) mean_score_per10mer, n_10mers, contributing_10mers
         """
         seq = sequence.upper()
-        
-        # Step 1: Find all 10-mer matches (may overlap)
-        matches = self._find_10mer_matches(seq)
-        if not matches:
-            return []
-        
-        # Step 2: Merge overlapping/adjacent matches into regions
-        # This is the critical step that ensures no duplicate/split reporting
-        merged = self._merge_matches(matches)
-        
-        # Step 3: Build per-base contribution array for scoring
-        contrib = self._build_per_base_contrib(seq)
-        
-        # Step 4: Create annotation for each merged region
         annotations = []
-        for (s, e, region_matches) in merged:
-            # Sum contributions across the merged region
-            sum_score = sum(contrib[s:e])
-            n10 = len(region_matches)
-            mean10 = (sum(m[2] for m in region_matches) / n10) if n10 > 0 else 0.0
+        
+        # Step 1: Find classic Z-DNA regions from 10-mer matches
+        matches = self._find_10mer_matches(seq)
+        if matches:
+            # Merge overlapping/adjacent matches into regions
+            merged = self._merge_matches(matches)
             
-            # Build merged region annotation
-            ann = {
-                "start": s,
-                "end": e,
-                "length": e - s,
-                "sum_score": round(sum_score, 6),
-                "mean_score_per10mer": round(mean10, 6),
-                "n_10mers": n10,
-                "contributing_10mers": [{"tenmer": m[1], "start": m[0], "score": m[2]} for m in region_matches]
-            }
-            annotations.append(ann)
+            # Build per-base contribution array for scoring
+            contrib = self._build_per_base_contrib(seq)
+            
+            # Create annotation for each merged region
+            for (s, e, region_matches) in merged:
+                # Sum contributions across the merged region
+                sum_score = sum(contrib[s:e])
+                n10 = len(region_matches)
+                mean10 = (sum(m[2] for m in region_matches) / n10) if n10 > 0 else 0.0
+                
+                # Build merged region annotation
+                ann = {
+                    "start": s,
+                    "end": e,
+                    "length": e - s,
+                    "sum_score": round(sum_score, 6),
+                    "mean_score_per10mer": round(mean10, 6),
+                    "n_10mers": n10,
+                    "contributing_10mers": [{"tenmer": m[1], "start": m[0], "score": m[2]} for m in region_matches],
+                    "subclass": "Z-DNA",
+                    "pattern_id": "ZDN_10MER"
+                }
+                annotations.append(ann)
+        
+        # Step 2: Find eGZ-motif regions using regex patterns
+        egz_annotations = self._find_egz_motifs(seq)
+        annotations.extend(egz_annotations)
+        
+        # Step 3: Sort by start position
+        annotations.sort(key=lambda x: x['start'])
+        
         return annotations
 
     def detect_motifs(self, sequence: str, sequence_name: str = "sequence") -> List[Dict[str, Any]]:
         """
         Override base method to use sophisticated Z-DNA detection with component details.
         
+        Detects both:
+        1. Classic Z-DNA regions (from 10-mer scoring) - labeled as 'Z-DNA' subclass
+        2. eGZ-motif regions (from regex patterns) - labeled as 'eGZ' subclass
+        
         IMPORTANT: This method ALWAYS outputs merged regions, not individual 10-mers.
         All overlapping/adjacent 10-mer matches are merged into contiguous regions
         via annotate_sequence(), ensuring no duplicate or split reporting.
         
         Returns:
-            List of motif dictionaries, each representing a merged Z-DNA region
-            with start, end, length, sequence, score, and contributing 10-mer count.
+            List of motif dictionaries, each representing a Z-DNA or eGZ region
+            with start, end, length, sequence, score, and component information.
         """
         sequence = sequence.upper().strip()
         motifs = []
@@ -1119,51 +1143,137 @@ class ZDNADetector(BaseMotifDetector):
         annotations = self.annotate_sequence(sequence)
         
         for i, region in enumerate(annotations):
-            # Filter by meaningful score threshold
-            if region.get('sum_score', 0) > 50.0 and region.get('n_10mers', 0) >= 1:
-                start_pos = region['start']
-                end_pos = region['end']
-                motif_seq = sequence[start_pos:end_pos]
-                
-                # Extract CG/AT dinucleotides (characteristic of Z-DNA)
-                cg_count = motif_seq.count('CG') + motif_seq.count('GC')
-                at_count = motif_seq.count('AT') + motif_seq.count('TA')
-                
-                # Calculate GC content
-                gc_content = (motif_seq.count('G') + motif_seq.count('C')) / len(motif_seq) * 100 if len(motif_seq) > 0 else 0
-                
-                # Extract alternating pattern information
-                alternating_cg = len(re.findall(r'(?:CG){2,}', motif_seq)) + len(re.findall(r'(?:GC){2,}', motif_seq))
-                alternating_at = len(re.findall(r'(?:AT){2,}', motif_seq)) + len(re.findall(r'(?:TA){2,}', motif_seq))
-                
-                motifs.append({
-                    'ID': f"{sequence_name}_ZDNA_{start_pos+1}",
-                    'Sequence_Name': sequence_name,
-                    'Class': self.get_motif_class_name(),
-                    'Subclass': 'Z-DNA',
-                    'Start': start_pos + 1,  # 1-based coordinates
-                    'End': end_pos,
-                    'Length': region['length'],
-                    'Sequence': motif_seq,
-                    'Score': round(region['sum_score'], 3),
-                    'Strand': '+',
-                    'Method': 'Z-DNA_detection',
-                    'Pattern_ID': f'ZDNA_{i+1}',
-                    # Component details
-                    'Contributing_10mers': region.get('n_10mers', 0),
-                    'Mean_10mer_Score': region.get('mean_score_per10mer', 0),
-                    'CG_Dinucleotides': cg_count,
-                    'AT_Dinucleotides': at_count,
-                    'Alternating_CG_Regions': alternating_cg,
-                    'Alternating_AT_Regions': alternating_at,
-                    'GC_Content': round(gc_content, 2)
-                })
+            subclass = region.get('subclass', 'Z-DNA')
+            
+            # Handle eGZ-motif regions
+            if subclass == 'eGZ':
+                # Filter by minimal score threshold (at least 3 repeats = score ~0.85)
+                if region.get('sum_score', 0) >= 0.8:
+                    start_pos = region['start']
+                    end_pos = region['end']
+                    motif_seq = sequence[start_pos:end_pos]
+                    
+                    # Calculate GC content
+                    gc_content = (motif_seq.count('G') + motif_seq.count('C')) / len(motif_seq) * 100 if len(motif_seq) > 0 else 0
+                    
+                    motifs.append({
+                        'ID': f"{sequence_name}_{region['pattern_id']}_{start_pos+1}",
+                        'Sequence_Name': sequence_name,
+                        'Class': self.get_motif_class_name(),
+                        'Subclass': 'eGZ',
+                        'Start': start_pos + 1,  # 1-based coordinates
+                        'End': end_pos,
+                        'Length': region['length'],
+                        'Sequence': motif_seq,
+                        'Score': round(region['sum_score'], 3),
+                        'Strand': '+',
+                        'Method': 'Z-DNA_detection',
+                        'Pattern_ID': region['pattern_id'],
+                        # eGZ-specific details
+                        'Repeat_Unit': region.get('repeat_unit', ''),
+                        'Repeat_Count': region.get('repeat_count', 0),
+                        'GC_Content': round(gc_content, 2)
+                    })
+            else:
+                # Handle classic Z-DNA regions (from 10-mer scoring)
+                # Filter by meaningful score threshold
+                if region.get('sum_score', 0) > 50.0 and region.get('n_10mers', 0) >= 1:
+                    start_pos = region['start']
+                    end_pos = region['end']
+                    motif_seq = sequence[start_pos:end_pos]
+                    
+                    # Extract CG/AT dinucleotides (characteristic of Z-DNA)
+                    cg_count = motif_seq.count('CG') + motif_seq.count('GC')
+                    at_count = motif_seq.count('AT') + motif_seq.count('TA')
+                    
+                    # Calculate GC content
+                    gc_content = (motif_seq.count('G') + motif_seq.count('C')) / len(motif_seq) * 100 if len(motif_seq) > 0 else 0
+                    
+                    # Extract alternating pattern information
+                    alternating_cg = len(re.findall(r'(?:CG){2,}', motif_seq)) + len(re.findall(r'(?:GC){2,}', motif_seq))
+                    alternating_at = len(re.findall(r'(?:AT){2,}', motif_seq)) + len(re.findall(r'(?:TA){2,}', motif_seq))
+                    
+                    motifs.append({
+                        'ID': f"{sequence_name}_ZDNA_{start_pos+1}",
+                        'Sequence_Name': sequence_name,
+                        'Class': self.get_motif_class_name(),
+                        'Subclass': 'Z-DNA',
+                        'Start': start_pos + 1,  # 1-based coordinates
+                        'End': end_pos,
+                        'Length': region['length'],
+                        'Sequence': motif_seq,
+                        'Score': round(region['sum_score'], 3),
+                        'Strand': '+',
+                        'Method': 'Z-DNA_detection',
+                        'Pattern_ID': f'ZDNA_{i+1}',
+                        # Component details
+                        'Contributing_10mers': region.get('n_10mers', 0),
+                        'Mean_10mer_Score': region.get('mean_score_per10mer', 0),
+                        'CG_Dinucleotides': cg_count,
+                        'AT_Dinucleotides': at_count,
+                        'Alternating_CG_Regions': alternating_cg,
+                        'Alternating_AT_Regions': alternating_at,
+                        'GC_Content': round(gc_content, 2)
+                    })
         
         return motifs
 
     # -------------------------
     # Core helpers
     # -------------------------
+    def _find_egz_motifs(self, seq: str) -> List[Dict[str, Any]]:
+        """
+        Find eGZ-motif (Extruded-G Z-DNA) patterns using regex.
+        
+        Searches for long runs of (CGG)n, (GGC)n, (CCG)n, (GCC)n repeats.
+        Minimum 3 repeats (9 bp) are required for detection.
+        
+        Returns list of annotation dicts with:
+          - start, end (0-based, end-exclusive)
+          - length
+          - sum_score (based on repeat count)
+          - subclass: 'eGZ'
+          - pattern_id: pattern identifier
+          - repeat_unit: the trinucleotide being repeated
+          - repeat_count: number of repeats found
+        """
+        patterns = self.get_patterns().get('egz_motifs', [])
+        annotations = []
+        
+        for pattern_info in patterns:
+            regex, pattern_id, name, subclass, min_len, score_type, threshold, desc, ref = pattern_info
+            
+            # Find all matches for this pattern
+            for match in re.finditer(regex, seq, re.IGNORECASE):
+                start, end = match.span()
+                matched_seq = seq[start:end]
+                
+                # Determine repeat unit (first 3 characters of matched sequence)
+                repeat_unit = matched_seq[:3].upper()
+                repeat_count = len(matched_seq) // 3
+                
+                # Calculate score based on repeat count
+                # Score increases with more repeats: base_score * (repeat_count / 3)
+                # Minimum 3 repeats gives score ~0.85, more repeats give higher scores
+                base_score = threshold
+                repeat_score = base_score * (repeat_count / 3.0)
+                
+                ann = {
+                    "start": start,
+                    "end": end,
+                    "length": end - start,
+                    "sum_score": round(repeat_score, 6),
+                    "subclass": "eGZ",
+                    "pattern_id": pattern_id,
+                    "repeat_unit": repeat_unit,
+                    "repeat_count": repeat_count,
+                    "description": desc,
+                    "reference": ref
+                }
+                annotations.append(ann)
+        
+        return annotations
+    
     def _find_10mer_matches(self, seq: str) -> List[Tuple[int, str, float]]:
         """
         Find all exact 10-mer matches in the sequence.
