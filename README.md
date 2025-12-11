@@ -150,11 +150,21 @@ print(f"Throughput: {progress.get_throughput():,.0f} bp/s")
 # Clone and setup
 git clone https://github.com/VRYella/NonBScanner.git
 cd NonBScanner
+
+# Option 1: Quick install (core dependencies only)
 pip install -r requirements.txt
+
+# Option 2: Full install with optional performance enhancements
+./install.sh
+
+# Test installation
+python test_deployment.py
 
 # Launch web interface
 streamlit run app.py                    # Web interface on :8501
 ```
+
+📖 **Installation Guide**: See [REQUIREMENTS_GUIDE.md](REQUIREMENTS_GUIDE.md) for detailed installation instructions and troubleshooting.
 
 ### Jupyter Notebook (Recommended for Comprehensive Analysis)
 
