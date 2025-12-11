@@ -71,6 +71,12 @@ NATURE_SINGLE_COLUMN = 3.5  # 89mm
 NATURE_ONE_AND_HALF = 4.7   # 120mm
 NATURE_DOUBLE_COLUMN = 7.2  # 183mm
 
+# Constants for visualization configuration
+CIRCOS_EXCLUDED_CLASSES = ['Non-B_DNA_Clusters', 'Hybrid']  # Classes to exclude from certain visualizations
+MAX_CLASSES_FOR_SCATTER = 6  # Maximum classes to show in scatter plots for clarity
+MAX_CLASSES_FOR_COMPARISON = 5  # Maximum classes for comparative plots
+MAX_CLASSES_FOR_COOCCURRENCE = 7  # Maximum classes for co-occurrence matrix
+
 # Panel label styling (Nature convention)
 PANEL_LABEL_STYLE = {
     'fontsize': 12,
@@ -986,9 +992,8 @@ def create_figure_5_quality_metrics(motifs: List[Dict[str, Any]],
     gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.4, wspace=0.35)
     
     # Extract data
-    CIRCOS_EXCLUDED = ['Non-B_DNA_Clusters', 'Hybrid']
     classes = sorted(set(m.get('Class', 'Unknown') for m in motifs 
-                        if m.get('Class') not in CIRCOS_EXCLUDED))
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
     
     if not classes:
         classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
@@ -1045,8 +1050,8 @@ def create_figure_5_quality_metrics(motifs: List[Dict[str, Any]],
     if corr_data:
         df_corr = pd.DataFrame(corr_data)
         
-        # Scatter plot by class
-        for class_name in classes[:6]:  # Top 6 for clarity
+        # Scatter plot by class (show top MAX_CLASSES_FOR_SCATTER for clarity)
+        for class_name in classes[:MAX_CLASSES_FOR_SCATTER]:
             class_df = df_corr[df_corr['Class'] == class_name]
             if len(class_df) > 0:
                 color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
@@ -1164,8 +1169,14 @@ def create_figure_5_quality_metrics(motifs: List[Dict[str, Any]],
     ax_d.set_title('Abundance and Diversity Metrics', fontweight='bold', fontsize=9)
     
     ax_d.set_xticks(x_pos)
-    display_labels_d = [_format_display_name(c)[:10] + '...' if len(_format_display_name(c)) > 10 
-                       else _format_display_name(c) for c in sorted_classes]
+    # Format labels efficiently (avoid double computation)
+    display_labels_d = []
+    for c in sorted_classes:
+        formatted_name = _format_display_name(c)
+        if len(formatted_name) > 10:
+            display_labels_d.append(formatted_name[:10] + '...')
+        else:
+            display_labels_d.append(formatted_name)
     ax_d.set_xticklabels(display_labels_d, rotation=45, ha='right', fontsize=7)
     
     ax_d.tick_params(axis='y', labelcolor='black')
@@ -1223,18 +1234,17 @@ def create_figure_6_comparative_analysis(motifs: List[Dict[str, Any]],
     gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.4, wspace=0.35)
     
     # Get classes
-    CIRCOS_EXCLUDED = ['Non-B_DNA_Clusters', 'Hybrid']
     classes = sorted(set(m.get('Class', 'Unknown') for m in motifs 
-                        if m.get('Class') not in CIRCOS_EXCLUDED))
+                        if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
     
     if not classes:
         classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
     
-    # Panel A: Cumulative distributions
+    # Panel A: Cumulative distributions (show top MAX_CLASSES_FOR_COMPARISON)
     ax_a = fig.add_subplot(gs[0, 0])
     add_panel_label(ax_a, 'A')
     
-    for class_name in classes[:6]:  # Top 6 classes
+    for class_name in classes[:MAX_CLASSES_FOR_COMPARISON]:
         class_motifs = [m for m in motifs if m.get('Class') == class_name]
         class_motifs_sorted = sorted(class_motifs, key=lambda m: m.get('Start', 0))
         
@@ -1261,12 +1271,12 @@ def create_figure_6_comparative_analysis(motifs: List[Dict[str, Any]],
     ax_a.grid(alpha=0.3, linestyle='--', linewidth=0.5)
     _apply_nature_style(ax_a)
     
-    # Panel B: Co-occurrence heatmap
+    # Panel B: Co-occurrence heatmap (use MAX_CLASSES_FOR_COOCCURRENCE)
     ax_b = fig.add_subplot(gs[0, 1])
     add_panel_label(ax_b, 'B')
     
-    # Use top 7 classes for matrix
-    top_classes = classes[:7]
+    # Use top MAX_CLASSES_FOR_COOCCURRENCE classes for matrix
+    top_classes = classes[:MAX_CLASSES_FOR_COOCCURRENCE]
     n_classes = len(top_classes)
     cooccur_matrix = np.zeros((n_classes, n_classes))
     
@@ -1286,7 +1296,16 @@ def create_figure_6_comparative_analysis(motifs: List[Dict[str, Any]],
                     start_j = mj.get('Start', 0)
                     end_j = mj.get('End', 0)
                     
-                    distance = max(0, max(start_i, start_j) - min(end_i, end_j))
+                    # Calculate actual inter-motif distance
+                    # For overlapping motifs: distance = 0
+                    # For non-overlapping motifs: distance = gap between them
+                    if end_i <= start_j:
+                        distance = start_j - end_i
+                    elif end_j <= start_i:
+                        distance = start_i - end_j
+                    else:
+                        distance = 0  # Overlapping
+                    
                     if distance <= 50:
                         count += 1
             
@@ -1366,12 +1385,12 @@ def create_figure_6_comparative_analysis(motifs: List[Dict[str, Any]],
     ax_c.grid(axis='x', alpha=0.3, linestyle='--', linewidth=0.5)
     _apply_nature_style(ax_c)
     
-    # Panel D: Length distribution comparison (KDE)
+    # Panel D: Length distribution comparison (KDE) - show top MAX_CLASSES_FOR_COMPARISON
     ax_d = fig.add_subplot(gs[1, 1])
     add_panel_label(ax_d, 'D')
     
     if SCIPY_AVAILABLE:
-        for class_name in classes[:5]:  # Top 5 classes
+        for class_name in classes[:MAX_CLASSES_FOR_COMPARISON]:
             class_motifs = [m for m in motifs if m.get('Class') == class_name]
             lengths = [m.get('Length', 0) for m in class_motifs if m.get('Length', 0) > 0]
             
@@ -1386,7 +1405,8 @@ def create_figure_6_comparative_analysis(motifs: List[Dict[str, Any]],
                     ax_d.plot(x_range, density, color=color, linewidth=2, 
                              label=display_name, alpha=0.8)
                     ax_d.fill_between(x_range, density, alpha=0.2, color=color)
-                except:
+                except (ValueError, np.linalg.LinAlgError):
+                    # KDE can fail for very small or uniform datasets
                     pass
         
         ax_d.set_xlabel('Motif Length (bp)', fontweight='normal', fontsize=8)
@@ -1572,9 +1592,8 @@ def create_supplementary_figure_s1(motifs: List[Dict[str, Any]],
     window_size = max(1000, sequence_length // 20)
     num_windows = max(1, sequence_length // window_size)
     
-    CIRCOS_EXCLUDED = ['Non-B_DNA_Clusters', 'Hybrid']
     classes_viz = sorted(set(m.get('Class', 'Unknown') for m in motifs 
-                            if m.get('Class') not in CIRCOS_EXCLUDED))[:6]
+                            if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))[:MAX_CLASSES_FOR_SCATTER]
     
     density_matrix = np.zeros((len(classes_viz), num_windows))
     
