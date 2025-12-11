@@ -40,6 +40,19 @@ SUPPORTED MOTIF CLASSES:
     8. G-Quadruplex (GQuadruplexDetector) - 7 subclasses
     9. i-Motif (IMotifDetector) - Canonical and HUR AC-motifs
 
+PERFORMANCE NOTES:
+    Some patterns use nested quantifiers or non-greedy matching which may
+    have performance implications on very large sequences (genome-scale):
+    - R-loop patterns (qmrlfs_model_1, qmrlfs_model_2)
+    - Bulged G4 patterns (bulged_g4)
+    
+    These patterns are production-validated but may benefit from optimization
+    for genome-scale analysis. Consider using atomic groups or possessive
+    quantifiers if processing sequences >100MB.
+    
+    Most detectors also use optimized algorithmic approaches (k-mer indexing)
+    in addition to or instead of regex matching for better performance.
+
 USAGE:
     from motif_patterns import CURVED_DNA_PATTERNS, ZDNA_PATTERNS
     
@@ -137,6 +150,8 @@ RLOOP_PATTERNS: Dict[str, List[Tuple]] = {
     'qmrlfs_model_1': [
         # QmRLFS Model 1: 3+ G tracts for R-loop Initiation Zone (RIZ) detection
         # Note: [ATCG] instead of [ATCGU] since we're working with DNA sequences
+        # Performance note: Nested quantifiers may be slow on large sequences
+        # Consider optimization if processing genome-scale data
         (r'G{3,}[ATCG]{1,10}?G{3,}(?:[ATCG]{1,10}?G{3,}){1,}?', 
          'QmRLFS_M1', 'QmRLFS Model 1', 'QmRLFS-m1', 25, 'qmrlfs_score', 
          0.90, 'RIZ detection with 3+ G tracts', 'Jenjaroenpun 2016'),
@@ -144,6 +159,8 @@ RLOOP_PATTERNS: Dict[str, List[Tuple]] = {
     'qmrlfs_model_2': [
         # QmRLFS Model 2: 4+ G tracts for higher confidence RIZ detection
         # Note: [ATCG] instead of [ATCGU] since we're working with DNA sequences
+        # Performance note: Nested quantifiers may be slow on large sequences
+        # Consider optimization if processing genome-scale data
         (r'G{4,}(?:[ATCG]{1,10}?G{4,}){1,}?', 
          'QmRLFS_M2', 'QmRLFS Model 2', 'QmRLFS-m2', 30, 'qmrlfs_score', 
          0.95, 'RIZ detection with 4+ G tracts', 'Jenjaroenpun 2016'),
@@ -191,6 +208,8 @@ G4_PATTERNS: Dict[str, List[Tuple]] = {
     ],
     'bulged_g4': [
         # G4 with bulge loops (interruptions in G-tracts)
+        # Performance note: Complex nested quantifiers - consider optimization for large sequences
+        # These patterns have been validated in production but may be slow on genome-scale data
         (r'(?:G{2,3}[ACGT]{0,3}G{1,3})[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}[ACGT]{1,7}G{2,3}', 
          'G4_3', 'Bulged G4', 'Bulged G4', 20, 'g4hunter_score', 
          0.85, 'G4 with bulge loops', 'Lim 2009'),
