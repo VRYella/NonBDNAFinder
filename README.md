@@ -6,6 +6,40 @@
 [![Nature/NAR Standards](https://img.shields.io/badge/Standards-Nature%2FNAR-green?style=for-the-badge)](docs/PUBLICATION_LEVEL_INTERFACE.md)
 [![300 DPI](https://img.shields.io/badge/Output-300%20DPI-orange?style=for-the-badge)](docs/PUBLICATION_LEVEL_INTERFACE.md)
 
+---
+
+## 🏆 Nobel Laureate-Level Interface
+
+<table>
+<tr>
+<td width="33%" align="center">
+<img src="https://github.com/user-attachments/assets/bf6cb5e7-fb2a-4963-ae0e-ee986b0d6c01" alt="Home Page" width="100%"/>
+<br/>
+<b>Professional Landing Page</b>
+<br/>
+Hero section with statistics
+</td>
+<td width="33%" align="center">
+<img src="https://github.com/user-attachments/assets/c189dda6-eb71-42d3-a8bd-285330a5b24b" alt="Upload Interface" width="100%"/>
+<br/>
+<b>Upload & Analyze</b>
+<br/>
+Drag-and-drop up to 1GB
+</td>
+<td width="33%" align="center">
+<img src="https://github.com/user-attachments/assets/4df9e2a2-f4cf-4684-b79d-f87a7339fc08" alt="Documentation" width="100%"/>
+<br/>
+<b>Scientific Documentation</b>
+<br/>
+Peer-reviewed algorithms
+</td>
+</tr>
+</table>
+
+**[→ View Complete Interface Documentation with All Screenshots](docs/PUBLICATION_LEVEL_INTERFACE.md)**
+
+---
+
 ## 🎯 Overview
 
 NonBScanner is a **Nobel laureate-level** bioinformatics database for detecting and analyzing Non-B DNA motifs in genomic sequences. It combines high-performance optimized algorithms with scientific scoring methods to provide comprehensive analysis of structural DNA elements.
@@ -218,12 +252,30 @@ The notebook provides:
 
 ## 📱 User Interfaces
 
-### **Streamlit Web Application** (`http://localhost:8501`)
-- Interactive sequence upload and analysis
-- Comprehensive visualization suite (21+ chart types)
-- Real-time analysis with progress tracking
-- Export capabilities (CSV, BED, BigWig)
-- Documentation and tutorial sections
+### 🏆 Publication-Level Web Application (`http://localhost:8501`)
+
+**Nobel Laureate-Standard Interface** - Meeting Nature/NAR publication requirements
+
+![Home Interface](https://github.com/user-attachments/assets/bf6cb5e7-fb2a-4963-ae0e-ee986b0d6c01)
+
+**Key Features:**
+- 🎨 **Professional Design**: Gradient hero section with institutional-grade styling
+- 📊 **Feature Cards**: Six capability highlights with icons and statistics
+- 🔬 **Scientific Foundation**: Comprehensive biology background section
+- 📚 **Citation Ready**: Prominent "How to Cite" section for manuscripts
+- 🧬 **Motif Classes Grid**: Colorful, colorblind-friendly class display
+- ⚡ **Performance**: 24,674 bp/s with up to 1GB file support
+- 📈 **Visualizations**: 25+ publication-quality chart types (300 DPI)
+- 💾 **Export Formats**: Excel, CSV, BED, BigWig, JSON
+
+**Interface Pages:**
+1. **Home** - Professional landing with hero section and feature overview
+2. **Upload & Analyze** - Drag-and-drop interface with quick options
+3. **Results** - Interactive visualizations with statistical analysis
+4. **Download** - Multi-format export capabilities
+5. **Documentation** - Comprehensive methodology and references
+
+[→ View Complete Interface Documentation](docs/PUBLICATION_LEVEL_INTERFACE.md)
 
 ### **Jupyter Notebook** (Local Interactive Analysis)
 - **File**: `NonBScanner_Local.ipynb`
