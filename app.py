@@ -1545,8 +1545,12 @@ with tab_pages["Results"]:
             # Filter out specific Normalized_Score column
             available_columns = [col for col in available_columns if col != 'Normalized_Score']
             
+            # Core columns as per requirements (Sequence_Name, Source, Class, Subclass, Start, End, Length, Sequence, Score)
+            # Additional detailed columns should only appear in Excel download per-motif sheets
+            core_display_cols = ['Sequence_Name', 'Source', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score']
+            default_cols = [col for col in core_display_cols if col in available_columns]
+            
             # Use pills for column selection - multi-selection mode for better UX
-            default_cols = [col for col in ['Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score'] if col in available_columns]
             display_columns = st.pills(
                 "Select columns to display:",
                 options=available_columns,
@@ -2089,9 +2093,13 @@ with tab_pages["Download"]:
         # Add helpful info about Excel format
         st.info("""
         **Excel Format**: Downloads a multi-sheet workbook with:
-        • **Consolidated Sheet**: All non-overlapping motifs
-        • **Class Sheets**: Separate sheets for each motif class (G-Quadruplex, Z-DNA, etc.)
-        • **Subclass Sheets**: Detailed breakdown by subclass (when multiple subclasses exist)
+        • **Consolidated Sheet**: All non-overlapping motifs with core columns
+        • **Class Sheets**: Separate sheets for each motif class (G-Quadruplex, Z-DNA, etc.) with **ALL detailed columns**
+        • **Subclass Sheets**: Detailed breakdown by subclass (when multiple subclasses exist) with **ALL detailed columns**
+        
+        **Note**: Additional detailed columns (Repeat_Type, Left_Arm, Right_Arm, Loop_Seq, Arm_Length, Loop_Length, 
+        Stem_Length, Unit_Length, Number_Of_Copies, Spacer_Length, Spacer_Sequence, GC_Content, Method, Raw_Score) 
+        are only shown in the per-motif-class/subclass sheets, not in display tables.
         """)
         
         col1, col2, col3, col4 = st.columns(4)

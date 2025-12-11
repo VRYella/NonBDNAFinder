@@ -2171,7 +2171,12 @@ def export_to_bed(motifs: List[Dict[str, Any]], sequence_name: str = "sequence",
 
 def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None) -> str:
     """
-    Export motifs to CSV format with comprehensive fields
+    Export motifs to CSV format with CORE fields only (as per requirements).
+    
+    Output tables should only have: Sequence_Name, Source, Class, Subclass, 
+    Start, End, Length, Sequence, Score
+    
+    Additional detailed columns are only shown in Excel download per-motif sheets.
     
     Args:
         motifs: List of motif dictionaries
@@ -2183,80 +2188,32 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None) 
     if not motifs:
         return "No motifs to export"
     
-    # Comprehensive column order matching user requirements
-    comprehensive_columns = [
-        'ID',
+    # Core columns for output tables (as per requirements)
+    core_columns = [
         'Sequence_Name',  # Sequence Name (or Accession)
         'Source',  # Source (e.g., genome, experiment, study)
         'Class',  # Motif Class
         'Subclass',  # Motif Subclass
-        'Pattern_ID',  # Pattern/Annotation ID
         'Start',  # Start Position
         'End',  # End Position
         'Length',  # Length (bp)
         'Sequence',  # Sequence
-        'Method',  # Detection Method
         'Score',  # Motif Score
-        'Repeat_Type',  # Repeat/Tract Type
-        'Left_Arm',  # Left Arm Sequence
-        'Right_Arm',  # Right Arm Sequence
-        'Loop_Seq',  # Loop Sequence
-        'Arm_Length',  # Arm Length
-        'Loop_Length',  # Loop Length
-        'Stem_Length',  # Stem Length(s)
-        'Unit_Length',  # Unit/Repeat Length
-        'Number_Of_Copies',  # Number of Copies/Repeats
-        'Spacer_Length',  # Spacer Length
-        'Spacer_Sequence',  # Spacer Sequence
-        'GC_Content',  # GC Content (%)
-        'Structural_Features',  # Structural Features (e.g., Tract Type, Curvature Score)
-        'Strand'  # Strand information
     ]
     
-    # Get all unique keys from motifs to include additional fields
-    all_keys = set()
-    for motif in motifs:
-        all_keys.update(motif.keys())
-    
-    # Start with comprehensive columns, then add any additional fields found
-    columns = comprehensive_columns.copy()
-    for key in sorted(all_keys):
-        if key not in columns:
-            columns.append(key)
-    
     output = StringIO()
-    writer = csv.DictWriter(output, fieldnames=columns)
+    writer = csv.DictWriter(output, fieldnames=core_columns)
     writer.writeheader()
     
     for motif in motifs:
-        # Create row with comprehensive field mappings
+        # Create row with only core fields
         row = {}
-        for col in columns:
+        for col in core_columns:
             value = motif.get(col, 'NA')
             
-            # Map alternative field names to comprehensive columns
-            if value == 'NA' or value == '' or value is None:
-                # Try alternative mappings
-                if col == 'Number_Of_Copies' and 'Repeat_Units' in motif:
-                    value = motif['Repeat_Units']
-                elif col == 'Repeat_Type' and 'Tract_Type' in motif:
-                    value = motif['Tract_Type']
-                elif col == 'GC_Content' and 'GC_Total' in motif:
-                    value = motif['GC_Total']
-                elif col == 'Structural_Features':
-                    # Combine relevant structural features
-                    features = []
-                    if 'Tract_Type' in motif and motif['Tract_Type'] not in ['', 'NA', None]:
-                        features.append(f"Tract:{motif['Tract_Type']}")
-                    if 'Curvature_Score' in motif and motif['Curvature_Score'] not in ['', 'NA', None]:
-                        features.append(f"Curvature:{motif['Curvature_Score']}")
-                    if 'Z_Score' in motif and motif['Z_Score'] not in ['', 'NA', None]:
-                        features.append(f"Z-Score:{motif['Z_Score']}")
-                    value = '; '.join(features) if features else 'NA'
-                
-                # If still empty, set to NA
-                if value == '' or value is None:
-                    value = 'NA'
+            # If empty, set to NA
+            if value == '' or value is None:
+                value = 'NA'
             
             row[col] = value
         
@@ -2698,83 +2655,39 @@ def merge_detector_results(detector_results: Dict[str, List[Dict[str, Any]]],
     return resolved
 
 def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
-    """Convert motif results to pandas DataFrame with essential fields only.
+    """Convert motif results to pandas DataFrame with CORE fields only for display tables.
     
-    Excludes detailed structural features as per user requirements.
-    Only includes core motif identification and characterization fields.
+    Per requirements, output tables should only show:
+    - Sequence_Name, Source, Class, Subclass, Start, End, Length, Sequence, Score
     
-    Excluded columns (as per requirements): Structural_Features, Strand, AT_Content, 
-    AT_Dinucleotides, A_Tract_Lengths, A_Tracts, Alternating_AT_Regions, 
-    Alternating_CG_Regions, CG_Dinucleotides, Center_Positions, Contributing_10mers,
-    GC_Left_Arm, GC_Loop, GC_Right_Arm, GC_Stems, GC_Total, Gc_Spacer, Gc_Total,
-    Gc_Unit, Left_Unit, Linker_Length, Loop_Lengths, Loops, Match_Fraction,
-    Mean_10mer_Score, Mismatches, Num_A_Tracts, Num_Loops, Num_Stems, Num_T_Tracts,
-    REZ_3G_Tracts, REZ_4G_Tracts, REZ_End, REZ_G_Percent, REZ_G_Total, REZ_Length,
-    REZ_Sequence, REZ_Start, RIZ_3G_Tracts, RIZ_4G_Tracts, RIZ_End, RIZ_G_Percent,
-    RIZ_G_Total, RIZ_Length, RIZ_Sequence, RIZ_Start, Raw_Score, Repeat_Unit,
-    Repeat_Units, Right_Unit, Spacer_Seq, Stem_Lengths, Stems, T_Tract_Lengths,
-    T_Tracts, Tract_Length, Tract_Type, Unit_A_Count, Unit_C_Count, Unit_G_Count,
-    Unit_T_Count.
+    Additional detailed columns (Repeat_Type, Left_Arm, Right_Arm, Loop_Seq, etc.)
+    are only shown in Excel download per-motif sheets, not in display tables.
     """
     if not motifs:
         return pd.DataFrame()
     
     df = pd.DataFrame(motifs)
     
-    # Essential column list (excluding detailed structural features listed above)
-    comprehensive_columns = [
-        'ID',
+    # Core columns for display tables (as per requirements)
+    core_columns = [
         'Sequence_Name',  # Sequence Name (or Accession)
         'Source',  # Source (e.g., genome, experiment, study)
         'Class',  # Motif Class
         'Subclass',  # Motif Subclass
-        'Pattern_ID',  # Pattern/Annotation ID
         'Start',  # Start Position
         'End',  # End Position
         'Length',  # Length (bp)
         'Sequence',  # Sequence
-        'Method',  # Detection Method
         'Score',  # Motif Score
-        'Repeat_Type',  # Repeat/Tract Type
-        'Left_Arm',  # Left Arm Sequence
-        'Right_Arm',  # Right Arm Sequence
-        'Loop_Seq',  # Loop Sequence
-        'Arm_Length',  # Arm Length
-        'Loop_Length',  # Loop Length
-        'Stem_Length',  # Stem Length(s)
-        'Unit_Length',  # Unit/Repeat Length
-        'Number_Of_Copies',  # Number of Copies/Repeats
-        'Spacer_Length',  # Spacer Length
-        'Spacer_Sequence',  # Spacer Sequence
-        'GC_Content',  # GC Content (%)
     ]
     
-    # Ensure all comprehensive columns are present, fill missing with 'NA'
-    for col in comprehensive_columns:
+    # Ensure all core columns are present, fill missing with 'NA'
+    for col in core_columns:
         if col not in df.columns:
             df[col] = 'NA'
     
-    # Map existing fields to comprehensive column names if they differ
-    # Note: Removed 'Curvature_Score' mapping as Structural_Features is excluded
-    column_mappings = {
-        'Repeat_Units': 'Number_Of_Copies',
-        'Tract_Type': 'Repeat_Type',
-        'GC_Total': 'GC_Content',
-        'Gc_Total': 'GC_Content',
-        'Spacer': 'Spacer_Length',
-        'Spacer_Seq': 'Spacer_Sequence'
-    }
-    
-    for old_col, new_col in column_mappings.items():
-        if old_col in df.columns and new_col in comprehensive_columns:
-            # Only map if the new column is 'NA' (empty)
-            df[new_col] = df.apply(
-                lambda row: row[old_col] if pd.isna(row[new_col]) or row[new_col] == 'NA' else row[new_col],
-                axis=1
-            )
-    
     # Fill all NaN/None values with 'NA' string
-    result_df = df[comprehensive_columns].fillna('NA')
+    result_df = df[core_columns].fillna('NA')
     
     return result_df
 
