@@ -674,6 +674,249 @@ def create_figure_3_landscape(motifs: List[Dict[str, Any]],
 
 
 # =============================================================================
+# FIGURE 4: DETAILED SUBCLASS ANALYSIS
+# =============================================================================
+
+def create_figure_4_subclass_analysis(motifs: List[Dict[str, Any]],
+                                     sequence_length: int,
+                                     title: str = "Detailed Subclass-Level Analysis",
+                                     save_path: Optional[str] = None) -> plt.Figure:
+    """
+    Create Figure 4: Detailed subclass-level analysis with enhanced visualizations.
+    
+    Panel Layout (2x2):
+    - A: Subclass distribution (bar chart)
+    - B: Subclass density heatmap
+    - C: Length distribution by subclass (KDE)
+    - D: Motif co-occurrence matrix
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Length of analyzed sequence
+        title: Figure title
+        save_path: Optional path to save figure
+        
+    Returns:
+        Matplotlib figure object (publication-ready)
+    """
+    set_scientific_style('nature')
+    
+    fig = plt.figure(figsize=(NATURE_DOUBLE_COLUMN, 7.5), dpi=PUBLICATION_DPI)
+    gs = gridspec.GridSpec(2, 2, figure=fig, hspace=0.4, wspace=0.35)
+    
+    # Panel A: Subclass distribution
+    ax_a = fig.add_subplot(gs[0, 0])
+    add_panel_label(ax_a, 'A')
+    
+    # Get top 15 subclasses
+    subclass_counts = Counter()
+    for motif in motifs:
+        class_name = motif.get('Class', 'Unknown')
+        subclass_name = motif.get('Subclass', 'Unknown')
+        key = f"{class_name}:{subclass_name}"
+        subclass_counts[key] += 1
+    
+    top_subclasses = subclass_counts.most_common(15)
+    labels = [sc[0] for sc in top_subclasses]
+    values = [sc[1] for sc in top_subclasses]
+    
+    # Get colors based on parent class
+    colors = []
+    for label in labels:
+        if ':' in label:
+            parent_class = label.split(':')[0]
+            colors.append(MOTIF_CLASS_COLORS.get(parent_class, '#808080'))
+        else:
+            colors.append('#808080')
+    
+    bars = ax_a.barh(range(len(labels)), values, color=colors, 
+                     edgecolor='black', linewidth=0.5, alpha=0.85)
+    
+    ax_a.set_yticks(range(len(labels)))
+    display_labels = []
+    for label in labels:
+        parts = label.split(':')
+        if len(parts) == 2:
+            display_labels.append(f"{parts[0].replace('_', ' ')}: {parts[1]}")
+        else:
+            display_labels.append(label.replace('_', ' '))
+    ax_a.set_yticklabels(display_labels, fontsize=7)
+    ax_a.set_xlabel('Count', fontweight='normal')
+    ax_a.set_ylabel('Subclass', fontweight='normal')
+    ax_a.set_title('Top 15 Subclasses', fontweight='bold', fontsize=9)
+    ax_a.invert_yaxis()
+    
+    # Add count labels
+    max_val = max(values) if values else 1
+    for i, (bar, count) in enumerate(zip(bars, values)):
+        ax_a.text(count + max_val * 0.02, i, str(count), 
+                 va='center', fontsize=7, fontweight='bold')
+    
+    _apply_nature_style(ax_a)
+    
+    # Panel B: Subclass density heatmap (simplified)
+    ax_b = fig.add_subplot(gs[0, 1])
+    add_panel_label(ax_b, 'B')
+    
+    # Calculate density for top classes
+    window_size = max(1000, sequence_length // 20)
+    num_windows = max(1, sequence_length // window_size)
+    
+    # Use top 8 subclasses for clarity
+    top_8_subclasses = [sc[0] for sc in subclass_counts.most_common(8)]
+    density_matrix = np.zeros((len(top_8_subclasses), num_windows))
+    
+    for i, subclass_key in enumerate(top_8_subclasses):
+        class_name, subclass_name = subclass_key.split(':') if ':' in subclass_key else (subclass_key, '')
+        subclass_motifs = [m for m in motifs 
+                          if m.get('Class') == class_name and 
+                          (not subclass_name or m.get('Subclass') == subclass_name)]
+        
+        for j in range(num_windows):
+            window_start = j * window_size
+            window_end = (j + 1) * window_size
+            
+            count = sum(1 for m in subclass_motifs 
+                       if not (m.get('End', 0) <= window_start or 
+                              m.get('Start', 0) - 1 >= window_end))
+            density_matrix[i, j] = count
+    
+    im = ax_b.imshow(density_matrix, cmap='YlOrRd', aspect='auto', interpolation='nearest')
+    
+    ax_b.set_yticks(range(len(top_8_subclasses)))
+    display_sc = []
+    for sc in top_8_subclasses:
+        parts = sc.split(':')
+        if len(parts) == 2:
+            display_sc.append(f"{parts[1][:12]}")  # Short subclass name
+        else:
+            display_sc.append(sc.replace('_', ' ')[:12])
+    ax_b.set_yticklabels(display_sc, fontsize=7)
+    
+    x_ticks = np.arange(0, num_windows, max(1, num_windows // 4))
+    ax_b.set_xticks(x_ticks)
+    ax_b.set_xticklabels([f'{int(i*window_size/1000)}' for i in x_ticks], fontsize=7)
+    
+    ax_b.set_xlabel('Position (kb)', fontweight='normal')
+    ax_b.set_ylabel('Subclass', fontweight='normal')
+    ax_b.set_title('Density Heatmap', fontweight='bold', fontsize=9)
+    
+    cbar = plt.colorbar(im, ax=ax_b, shrink=0.8)
+    cbar.set_label('Count', fontsize=7, fontweight='bold')
+    cbar.ax.tick_params(labelsize=6)
+    
+    # Panel C: Length KDE by class
+    ax_c = fig.add_subplot(gs[1, 0])
+    add_panel_label(ax_c, 'C')
+    
+    # Get unique classes (not subclasses for clarity)
+    CIRCOS_EXCLUDED = ['Non-B_DNA_Clusters', 'Hybrid']
+    classes = sorted(set(m.get('Class', 'Unknown') for m in motifs 
+                        if m.get('Class') not in CIRCOS_EXCLUDED))
+    
+    if not classes:
+        classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
+    
+    # Plot KDE for top 5 classes
+    for class_name in classes[:5]:
+        class_motifs = [m for m in motifs if m.get('Class') == class_name]
+        lengths = [m.get('Length', 0) for m in class_motifs if m.get('Length', 0) > 0]
+        
+        if len(lengths) > 2:
+            color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
+            display_name = class_name.replace('_', ' ')
+            
+            try:
+                from scipy import stats
+                kde = stats.gaussian_kde(lengths)
+                x_range = np.linspace(min(lengths), max(lengths), 200)
+                density = kde(x_range)
+                ax_c.plot(x_range, density, color=color, linewidth=1.5, 
+                         label=display_name, alpha=0.8)
+                ax_c.fill_between(x_range, density, alpha=0.2, color=color)
+            except:
+                # Fallback to histogram
+                ax_c.hist(lengths, bins=20, alpha=0.3, color=color, 
+                         label=display_name, density=True, edgecolor='black', linewidth=0.5)
+    
+    ax_c.set_xlabel('Motif Length (bp)', fontweight='normal')
+    ax_c.set_ylabel('Density', fontweight='normal')
+    ax_c.set_title('Length Distribution (KDE)', fontweight='bold', fontsize=9)
+    ax_c.legend(loc='upper right', fontsize=7, framealpha=0.9)
+    ax_c.grid(alpha=0.3, linestyle='--', linewidth=0.5)
+    _apply_nature_style(ax_c)
+    
+    # Panel D: Co-occurrence matrix (simplified)
+    ax_d = fig.add_subplot(gs[1, 1])
+    add_panel_label(ax_d, 'D')
+    
+    # Use top 6 classes for matrix
+    top_classes = classes[:6]
+    n_classes = len(top_classes)
+    cooccur_matrix = np.zeros((n_classes, n_classes))
+    
+    # Calculate co-occurrences (within 100bp)
+    for i, class_i in enumerate(top_classes):
+        motifs_i = [m for m in motifs if m.get('Class') == class_i]
+        
+        for j, class_j in enumerate(top_classes):
+            motifs_j = [m for m in motifs if m.get('Class') == class_j]
+            
+            count = 0
+            for mi in motifs_i:
+                start_i = mi.get('Start', 0)
+                end_i = mi.get('End', 0)
+                
+                for mj in motifs_j:
+                    start_j = mj.get('Start', 0)
+                    end_j = mj.get('End', 0)
+                    
+                    # Check overlap or proximity (within 100bp)
+                    distance = max(0, max(start_i, start_j) - min(end_i, end_j))
+                    if distance <= 100:
+                        count += 1
+            
+            cooccur_matrix[i, j] = count
+    
+    im = ax_d.imshow(cooccur_matrix, cmap='Blues', aspect='auto', interpolation='nearest')
+    
+    ax_d.set_xticks(range(n_classes))
+    ax_d.set_yticks(range(n_classes))
+    
+    display_classes = [c.replace('_', ' ') for c in top_classes]
+    ax_d.set_xticklabels(display_classes, rotation=45, ha='right', fontsize=7)
+    ax_d.set_yticklabels(display_classes, fontsize=7)
+    
+    # Add values to cells
+    for i in range(n_classes):
+        for j in range(n_classes):
+            value = int(cooccur_matrix[i, j])
+            if value > 0:
+                text_color = 'white' if value > cooccur_matrix.max() / 2 else 'black'
+                ax_d.text(j, i, str(value), ha='center', va='center', 
+                         color=text_color, fontsize=7, fontweight='bold')
+    
+    ax_d.set_title('Co-occurrence Matrix', fontweight='bold', fontsize=9)
+    ax_d.set_xlabel('Motif Class', fontweight='normal', fontsize=8)
+    ax_d.set_ylabel('Motif Class', fontweight='normal', fontsize=8)
+    
+    # Colorbar
+    cbar = plt.colorbar(im, ax=ax_d, shrink=0.8)
+    cbar.set_label('Count', fontsize=7, fontweight='bold')
+    cbar.ax.tick_params(labelsize=6)
+    
+    fig.suptitle(title, fontsize=11, fontweight='bold', y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    
+    if save_path:
+        fig.savefig(save_path, dpi=PUBLICATION_DPI, bbox_inches='tight',
+                   facecolor='white', format='pdf')
+        print(f"✓ Saved Figure 4 to {save_path}")
+    
+    return fig
+
+
+# =============================================================================
 # EXAMPLE USAGE AND TESTING
 # =============================================================================
 
@@ -709,6 +952,11 @@ def generate_example_figures(motifs: List[Dict[str, Any]],
     print("\nGenerating Figure 3: Genomic Landscape...")
     fig3 = create_figure_3_landscape(motifs, sequence_length,
                                      save_path=f"{output_dir}/figure3_landscape.pdf")
+    
+    # Figure 4: Subclass Analysis
+    print("\nGenerating Figure 4: Subclass Analysis...")
+    fig4 = create_figure_4_subclass_analysis(motifs, sequence_length,
+                                            save_path=f"{output_dir}/figure4_subclass.pdf")
     
     print("\n" + "=" * 80)
     print(f"✅ All figures saved to: {output_dir}")

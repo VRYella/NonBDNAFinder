@@ -37,6 +37,7 @@ from publication_figures import (
     create_figure_1_overview,
     create_figure_2_statistics,
     create_figure_3_landscape,
+    create_figure_4_subclass_analysis,
 )
 
 
@@ -243,13 +244,26 @@ def main():
     
     try:
         # Figure 3: Landscape
-        print("\n[3/3] Generating Figure 3: Genomic Landscape...")
+        print("\n[3/4] Generating Figure 3: Genomic Landscape...")
         fig3_path = output_dir / f"figure3_landscape.{args.format}"
         fig3 = create_figure_3_landscape(motifs, sequence_length,
                                          save_path=str(fig3_path))
         plt.close(fig3)
         figures_generated.append(fig3_path)
         print(f"      ✓ Saved to: {fig3_path}")
+        
+    except Exception as e:
+        print(f"      ❌ Error: {e}")
+    
+    try:
+        # Figure 4: Subclass Analysis
+        print("\n[4/4] Generating Figure 4: Subclass Analysis...")
+        fig4_path = output_dir / f"figure4_subclass.{args.format}"
+        fig4 = create_figure_4_subclass_analysis(motifs, sequence_length,
+                                                 save_path=str(fig4_path))
+        plt.close(fig4)
+        figures_generated.append(fig4_path)
+        print(f"      ✓ Saved to: {fig4_path}")
         
     except Exception as e:
         print(f"      ❌ Error: {e}")
