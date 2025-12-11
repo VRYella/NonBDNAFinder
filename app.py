@@ -1671,75 +1671,67 @@ with tab_pages["Results"]:
                     with col2:
                         st.metric("Motifs/kbp", f"{positional_density_kbp.get('Overall', 0):.2f}")
                     
-                    # Density Analysis Level Selection
-                    density_level = st.radio(
-                        "Density Analysis Level:",
-                        ["Class Level", "Subclass Level"],
-                        horizontal=True,
-                        help="Choose whether to analyze density at class or subclass level"
+                    # Display both Class and Subclass level density analysis
+                    st.markdown("**Both class and subclass level density analysis are shown below**")
+                    
+                    # Class Level Analysis
+                    st.markdown("##### Class Level Analysis")
+                    
+                    # Per-class density table
+                    density_data = []
+                    for class_name in sorted([k for k in genomic_density.keys() if k != 'Overall']):
+                        density_data.append({
+                            'Motif Class': class_name.replace('_', ' '),
+                            'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
+                            'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}"
+                        })
+                    
+                    if density_data:
+                        density_df = pd.DataFrame(density_data)
+                        st.dataframe(density_df, use_container_width=True, height=200)
+                    
+                    fig_density = plot_density_comparison(genomic_density, positional_density_kbp,
+                                                          title="Motif Density Analysis (Class Level)")
+                    st.pyplot(fig_density)
+                    plt.close(fig_density)
+                    
+                    # Subclass Level Analysis
+                    st.markdown("##### Subclass Level Analysis")
+                    
+                    # Subclass densities are already calculated or loaded from cache above
+                    # Per-subclass density table
+                    subclass_density_data = []
+                    for subclass_key in sorted([k for k in genomic_density_subclass.keys() if k != 'Overall']):
+                        # Format the subclass key for display
+                        display_key = subclass_key.replace('_', ' ').replace(':', ': ')
+                        subclass_density_data.append({
+                            'Motif Subclass': display_key,
+                            'Genomic Density (%)': f"{genomic_density_subclass.get(subclass_key, 0):.4f}",
+                            'Motifs/kbp': f"{positional_density_subclass.get(subclass_key, 0):.2f}"
+                        })
+                    
+                    if subclass_density_data:
+                        subclass_density_df = pd.DataFrame(subclass_density_data)
+                        st.dataframe(subclass_density_df, use_container_width=True, height=300)
+                    
+                    # Subclass density visualization
+                    fig_density_subclass = plot_density_comparison_by_subclass(
+                        genomic_density_subclass, positional_density_subclass,
+                        title="Motif Density Analysis (Subclass Level)"
                     )
+                    st.pyplot(fig_density_subclass)
+                    plt.close(fig_density_subclass)
                     
-                    if density_level == "Class Level":
-                        # Per-class density table
-                        density_data = []
-                        for class_name in sorted([k for k in genomic_density.keys() if k != 'Overall']):
-                            density_data.append({
-                                'Motif Class': class_name.replace('_', ' '),
-                                'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
-                                'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}"
-                            })
-                        
-                        if density_data:
-                            density_df = pd.DataFrame(density_data)
-                            st.dataframe(density_df, use_container_width=True, height=200)
-                        
-                        fig_density = plot_density_comparison(genomic_density, positional_density_kbp,
-                                                              title="Motif Density Analysis (Class Level)")
-                        st.pyplot(fig_density)
-                        plt.close(fig_density)
-                    
-                    else:  # Subclass Level
-                        # Use cached subclass densities if available
-                        if not cached_densities:
-                            # Calculate subclass-level densities only if not cached
-                            genomic_density_subclass = calculate_genomic_density(filtered_motifs, sequence_length, 
-                                                                                 by_class=False, by_subclass=True)
-                            positional_density_subclass = calculate_positional_density(filtered_motifs, sequence_length, 
-                                                                                       unit='kbp', by_class=False, by_subclass=True)
-                        
-                        # Per-subclass density table
-                        subclass_density_data = []
-                        for subclass_key in sorted([k for k in genomic_density_subclass.keys() if k != 'Overall']):
-                            # Format the subclass key for display
-                            display_key = subclass_key.replace('_', ' ').replace(':', ': ')
-                            subclass_density_data.append({
-                                'Motif Subclass': display_key,
-                                'Genomic Density (%)': f"{genomic_density_subclass.get(subclass_key, 0):.4f}",
-                                'Motifs/kbp': f"{positional_density_subclass.get(subclass_key, 0):.2f}"
-                            })
-                        
-                        if subclass_density_data:
-                            subclass_density_df = pd.DataFrame(subclass_density_data)
-                            st.dataframe(subclass_density_df, use_container_width=True, height=300)
-                        
-                        # Subclass density visualization
-                        fig_density_subclass = plot_density_comparison_by_subclass(
-                            genomic_density_subclass, positional_density_subclass,
-                            title="Motif Density Analysis (Subclass Level)"
+                    # Additional subclass density heatmap
+                    if len(filtered_motifs) > 0:
+                        st.markdown("**Subclass Density Heatmap Along Sequence**")
+                        fig_heatmap = plot_subclass_density_heatmap(
+                            filtered_motifs, sequence_length,
+                            window_size=max(500, sequence_length // 50),
+                            title="Subclass Density Distribution"
                         )
-                        st.pyplot(fig_density_subclass)
-                        plt.close(fig_density_subclass)
-                        
-                        # Additional subclass density heatmap
-                        if len(filtered_motifs) > 0:
-                            st.markdown("**Subclass Density Heatmap Along Sequence**")
-                            fig_heatmap = plot_subclass_density_heatmap(
-                                filtered_motifs, sequence_length,
-                                window_size=max(500, sequence_length // 50),
-                                title="Subclass Density Distribution"
-                            )
-                            st.pyplot(fig_heatmap)
-                            plt.close(fig_heatmap)
+                        st.pyplot(fig_heatmap)
+                        plt.close(fig_heatmap)
                     
                 except Exception as e:
                     st.error(f"Error calculating density metrics: {e}")
