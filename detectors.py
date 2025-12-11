@@ -885,6 +885,11 @@ class ZDNADetector(BaseMotifDetector):
     # | GC_Content | float | GC% (Z-DNA favors high GC)          |
     """
 
+    # eGZ-motif detection constants
+    MIN_EGZ_REPEATS = 3  # Minimum number of trinucleotide repeats required
+    EGZ_BASE_SCORE = 0.85  # Base score for eGZ-motif detection
+    EGZ_MIN_SCORE_THRESHOLD = 0.80  # Minimum score threshold for reporting eGZ motifs
+
     # Full 10-mer scoring table from Ho et al. 1986
     TENMER_SCORE: Dict[str, float] = {
         "AACGCGCGCG": 50.25,
@@ -1020,9 +1025,11 @@ class ZDNADetector(BaseMotifDetector):
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """
-        Return patterns for Z-DNA detection including:
-        - 10-mer scoring table (classic Z-DNA)
-        - eGZ-motif patterns: long (CGG)n, (GGC)n, (CCG)n, (GCC)n runs
+        Return patterns for Z-DNA detection.
+        
+        Includes:
+          * 10-mer scoring table (classic Z-DNA)
+          * eGZ-motif patterns: long (CGG)n, (GGC)n, (CCG)n, (GCC)n runs
         
         eGZ (Extruded-G Z-DNA) patterns search for trinucleotide repeats
         that form Z-DNA structures with guanine extrusion.
@@ -1032,10 +1039,10 @@ class ZDNADetector(BaseMotifDetector):
                 (r"", "ZDN_10MER", "Z-DNA 10-mer table", "Z-DNA", 10, "z_dna_10mer_score", 0.9, "Z-DNA 10mer motif", "user_table"),
             ],
             "egz_motifs": [
-                (r"(?:CGG){3,}", "ZDN_EGZ_CGG", "CGG repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA CGG repeat", "Herbert 1997"),
-                (r"(?:GGC){3,}", "ZDN_EGZ_GGC", "GGC repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA GGC repeat", "Herbert 1997"),
-                (r"(?:CCG){3,}", "ZDN_EGZ_CCG", "CCG repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA CCG repeat", "Herbert 1997"),
-                (r"(?:GCC){3,}", "ZDN_EGZ_GCC", "GCC repeat (eGZ)", "eGZ", 9, "egz_score", 0.85, "Extruded-G Z-DNA GCC repeat", "Herbert 1997"),
+                (r"(?:CGG){3,}", "ZDN_EGZ_CGG", "CGG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CGG repeat", "Herbert 1997"),
+                (r"(?:GGC){3,}", "ZDN_EGZ_GGC", "GGC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GGC repeat", "Herbert 1997"),
+                (r"(?:CCG){3,}", "ZDN_EGZ_CCG", "CCG repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA CCG repeat", "Herbert 1997"),
+                (r"(?:GCC){3,}", "ZDN_EGZ_GCC", "GCC repeat (eGZ)", "eGZ", 9, "egz_score", self.EGZ_BASE_SCORE, "Extruded-G Z-DNA GCC repeat", "Herbert 1997"),
             ]
         }
 
@@ -1060,9 +1067,11 @@ class ZDNADetector(BaseMotifDetector):
 
     def annotate_sequence(self, sequence: str) -> List[Dict[str, Any]]:
         """
-        Return list of merged region annotations including both:
-        1. Classic Z-DNA regions (from 10-mer scoring)
-        2. eGZ-motif regions (from regex patterns)
+        Return list of merged region annotations.
+        
+        Detects both:
+          1. Classic Z-DNA regions (from 10-mer scoring)
+          2. eGZ-motif regions (from regex patterns)
         
         MERGING GUARANTEE: This method ALWAYS merges overlapping/adjacent 10-mer 
         matches into contiguous regions. No individual 10-mers are returned; only 
@@ -1124,8 +1133,8 @@ class ZDNADetector(BaseMotifDetector):
         Override base method to use sophisticated Z-DNA detection with component details.
         
         Detects both:
-        1. Classic Z-DNA regions (from 10-mer scoring) - labeled as 'Z-DNA' subclass
-        2. eGZ-motif regions (from regex patterns) - labeled as 'eGZ' subclass
+          1. Classic Z-DNA regions (from 10-mer scoring) - labeled as 'Z-DNA' subclass
+          2. eGZ-motif regions (from regex patterns) - labeled as 'eGZ' subclass
         
         IMPORTANT: This method ALWAYS outputs merged regions, not individual 10-mers.
         All overlapping/adjacent 10-mer matches are merged into contiguous regions
@@ -1147,8 +1156,8 @@ class ZDNADetector(BaseMotifDetector):
             
             # Handle eGZ-motif regions
             if subclass == 'eGZ':
-                # Filter by minimal score threshold (at least 3 repeats = score ~0.85)
-                if region.get('sum_score', 0) >= 0.8:
+                # Filter by minimal score threshold
+                if region.get('sum_score', 0) >= self.EGZ_MIN_SCORE_THRESHOLD:
                     start_pos = region['start']
                     end_pos = region['end']
                     motif_seq = sequence[start_pos:end_pos]
@@ -1226,7 +1235,7 @@ class ZDNADetector(BaseMotifDetector):
         Find eGZ-motif (Extruded-G Z-DNA) patterns using regex.
         
         Searches for long runs of (CGG)n, (GGC)n, (CCG)n, (GCC)n repeats.
-        Minimum 3 repeats (9 bp) are required for detection.
+        Minimum MIN_EGZ_REPEATS repeats (9 bp) are required for detection.
         
         Returns list of annotation dicts with:
           - start, end (0-based, end-exclusive)
@@ -1253,10 +1262,9 @@ class ZDNADetector(BaseMotifDetector):
                 repeat_count = len(matched_seq) // 3
                 
                 # Calculate score based on repeat count
-                # Score increases with more repeats: base_score * (repeat_count / 3)
-                # Minimum 3 repeats gives score ~0.85, more repeats give higher scores
-                base_score = threshold
-                repeat_score = base_score * (repeat_count / 3.0)
+                # Score increases with more repeats: base_score * (repeat_count / MIN_EGZ_REPEATS)
+                # Minimum MIN_EGZ_REPEATS repeats gives score = base_score, more repeats give higher scores
+                repeat_score = threshold * (repeat_count / float(self.MIN_EGZ_REPEATS))
                 
                 ann = {
                     "start": start,

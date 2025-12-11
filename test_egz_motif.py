@@ -2,7 +2,7 @@
 Test suite for eGZ-motif (Extruded-G Z-DNA) detection
 
 This test file verifies that the ZDNADetector correctly identifies
-long (CGG)n and (GGC)n runs via regex patterns.
+long (CGG)n, (GGC)n, (CCG)n, and (GCC)n trinucleotide repeats via regex patterns.
 """
 
 import unittest
