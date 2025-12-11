@@ -219,7 +219,7 @@ plt.close(fig)
 1. **Upload or paste your sequence** in the main interface
 2. **Click "Analyze Sequence"** to detect motifs
 3. **Navigate to "Statistics" tab** in the visualization section
-4. **Select analysis level** using the radio button:
+4. **View both analysis levels** - Both class and subclass level density analysis are automatically displayed:
    - **Class Level**: Analysis grouped by major motif classes (11 classes)
    - **Subclass Level**: Detailed analysis by specific motif subtypes (22+ subclasses)
 
@@ -229,18 +229,19 @@ plt.close(fig)
 - **Genomic Density**: Percentage of sequence covered by motifs
 - **Motifs/kbp**: Frequency of motifs per kilobase pair
 
-#### Per-Class/Subclass Table
-- Shows density metrics for each detected motif type
+#### Per-Class/Subclass Tables
+- Shows density metrics for each detected motif type at both class and subclass levels
 - Sorted alphabetically for easy comparison
 - Values formatted for readability (4 decimal places for %, 2 for frequency)
 
 #### Density Comparison Charts
 - **Panel A**: Genomic density (coverage %)
 - **Panel B**: Positional density (motifs/kbp)
+- Charts are provided for both class and subclass levels
 - Color-coded by parent class (subclass plots use parent class colors)
 - Values labeled on bars for precision
 
-#### Subclass Density Heatmap (Subclass Level Only)
+#### Subclass Density Heatmap
 - Shows distribution of each subclass across the sequence
 - Uses sliding windows (auto-calculated based on sequence length)
 - Color intensity indicates motif count per window
