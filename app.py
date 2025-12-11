@@ -36,12 +36,12 @@ import gc  # Added for memory management with large files
 # Import consolidated NBDScanner modules
 from utilities import (
     parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
-    export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density
+    export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density,
+    export_results_to_dataframe, CORE_OUTPUT_COLUMNS
 )
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
-from utilities import export_results_to_dataframe
 from visualizations import (
     plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
     plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
@@ -1545,8 +1545,11 @@ with tab_pages["Results"]:
             # Filter out specific Normalized_Score column
             available_columns = [col for col in available_columns if col != 'Normalized_Score']
             
+            # Core columns as per requirements (imported from utilities.CORE_OUTPUT_COLUMNS)
+            # Additional detailed columns should only appear in Excel download per-motif sheets
+            default_cols = [col for col in CORE_OUTPUT_COLUMNS if col in available_columns]
+            
             # Use pills for column selection - multi-selection mode for better UX
-            default_cols = [col for col in ['Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score'] if col in available_columns]
             display_columns = st.pills(
                 "Select columns to display:",
                 options=available_columns,
@@ -2089,9 +2092,13 @@ with tab_pages["Download"]:
         # Add helpful info about Excel format
         st.info("""
         **Excel Format**: Downloads a multi-sheet workbook with:
-        • **Consolidated Sheet**: All non-overlapping motifs
-        • **Class Sheets**: Separate sheets for each motif class (G-Quadruplex, Z-DNA, etc.)
-        • **Subclass Sheets**: Detailed breakdown by subclass (when multiple subclasses exist)
+        • **Consolidated Sheet**: All non-overlapping motifs with core columns
+        • **Class Sheets**: Separate sheets for each motif class (G-Quadruplex, Z-DNA, etc.) with **ALL detailed columns**
+        • **Subclass Sheets**: Detailed breakdown by subclass (when multiple subclasses exist) with **ALL detailed columns**
+        
+        **Note**: Additional detailed columns (Repeat_Type, Left_Arm, Right_Arm, Loop_Seq, Arm_Length, Loop_Length, 
+        Stem_Length, Unit_Length, Number_Of_Copies, Spacer_Length, Spacer_Sequence, GC_Content, Method, Raw_Score) 
+        are only shown in the per-motif-class/subclass sheets, not in display tables.
         """)
         
         col1, col2, col3, col4 = st.columns(4)
