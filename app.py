@@ -36,12 +36,12 @@ import gc  # Added for memory management with large files
 # Import consolidated NBDScanner modules
 from utilities import (
     parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
-    export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density
+    export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density,
+    export_results_to_dataframe, CORE_OUTPUT_COLUMNS
 )
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
-from utilities import export_results_to_dataframe
 from visualizations import (
     plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
     plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
@@ -1545,10 +1545,9 @@ with tab_pages["Results"]:
             # Filter out specific Normalized_Score column
             available_columns = [col for col in available_columns if col != 'Normalized_Score']
             
-            # Core columns as per requirements (Sequence_Name, Source, Class, Subclass, Start, End, Length, Sequence, Score)
+            # Core columns as per requirements (imported from utilities.CORE_OUTPUT_COLUMNS)
             # Additional detailed columns should only appear in Excel download per-motif sheets
-            core_display_cols = ['Sequence_Name', 'Source', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score']
-            default_cols = [col for col in core_display_cols if col in available_columns]
+            default_cols = [col for col in CORE_OUTPUT_COLUMNS if col in available_columns]
             
             # Use pills for column selection - multi-selection mode for better UX
             display_columns = st.pills(

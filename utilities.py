@@ -40,6 +40,25 @@ from typing import Dict, Any, List, Optional, Tuple, Union
 import json
 import re
 
+# =============================================================================
+# CONSTANTS FOR DATA EXPORT
+# =============================================================================
+
+# Core columns for output tables (as per requirements)
+# These columns appear in display tables, CSV exports, and are the primary columns
+# Additional detailed columns only appear in Excel download per-motif sheets
+CORE_OUTPUT_COLUMNS = [
+    'Sequence_Name',  # Sequence Name (or Accession)
+    'Source',         # Source (e.g., genome, experiment, study)
+    'Class',          # Motif Class
+    'Subclass',       # Motif Subclass
+    'Start',          # Start Position
+    'End',            # End Position
+    'Length',         # Length (bp)
+    'Sequence',       # Sequence
+    'Score',          # Motif Score
+]
+
 def canonicalize_motif(m: Dict[str, Any]) -> Dict[str, Any]:
     """
     Canonicalize motif dictionary to standard format with consistent field names.
@@ -2188,18 +2207,8 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None) 
     if not motifs:
         return "No motifs to export"
     
-    # Core columns for output tables (as per requirements)
-    core_columns = [
-        'Sequence_Name',  # Sequence Name (or Accession)
-        'Source',  # Source (e.g., genome, experiment, study)
-        'Class',  # Motif Class
-        'Subclass',  # Motif Subclass
-        'Start',  # Start Position
-        'End',  # End Position
-        'Length',  # Length (bp)
-        'Sequence',  # Sequence
-        'Score',  # Motif Score
-    ]
+    # Use core columns constant
+    core_columns = CORE_OUTPUT_COLUMNS
     
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=core_columns)
@@ -2668,18 +2677,8 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     
     df = pd.DataFrame(motifs)
     
-    # Core columns for display tables (as per requirements)
-    core_columns = [
-        'Sequence_Name',  # Sequence Name (or Accession)
-        'Source',  # Source (e.g., genome, experiment, study)
-        'Class',  # Motif Class
-        'Subclass',  # Motif Subclass
-        'Start',  # Start Position
-        'End',  # End Position
-        'Length',  # Length (bp)
-        'Sequence',  # Sequence
-        'Score',  # Motif Score
-    ]
+    # Use core columns constant
+    core_columns = CORE_OUTPUT_COLUMNS
     
     # Ensure all core columns are present, fill missing with 'NA'
     for col in core_columns:
