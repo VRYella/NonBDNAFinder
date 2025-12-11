@@ -38,24 +38,28 @@ from collections import Counter, defaultdict
 import warnings
 warnings.filterwarnings("ignore")
 
-# Import visualization functions
+# Import scipy for KDE plots
+try:
+    from scipy import stats
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+
+# Import seaborn for violin/box plots
+try:
+    import seaborn as sns
+    SEABORN_AVAILABLE = True
+except ImportError:
+    SEABORN_AVAILABLE = False
+
+# Import visualization functions and utilities
 from visualizations import (
-    plot_motif_distribution,
-    plot_coverage_map,
-    plot_score_distribution,
-    plot_length_distribution,
-    plot_nested_pie_chart,
-    plot_density_heatmap,
-    plot_manhattan_motif_density,
-    plot_cumulative_motif_distribution,
-    plot_motif_cooccurrence_matrix,
-    plot_linear_motif_track,
-    plot_motif_length_kde,
     MOTIF_CLASS_COLORS,
     PUBLICATION_DPI,
     FIGURE_SIZES,
     set_scientific_style,
-    _apply_nature_style
+    _apply_nature_style,
+    _format_display_name
 )
 
 # =============================================================================
@@ -212,7 +216,7 @@ def create_figure_1_overview(motifs: List[Dict[str, Any]],
     ax_a.set_ylabel('Count', fontweight='normal')
     ax_a.set_title('Motif Class Distribution', fontweight='bold', fontsize=9)
     ax_a.set_xticks(range(len(ALL_CLASSES)))
-    display_labels = [cls.replace('_', ' ') for cls in ALL_CLASSES]
+    display_labels = [_format_display_name(cls) for cls in ALL_CLASSES]
     ax_a.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=7)
     
     # Add count labels on bars
@@ -259,7 +263,7 @@ def create_figure_1_overview(motifs: List[Dict[str, Any]],
         angle = (wedge.theta2 + wedge.theta1) / 2
         x = 0.5 * np.cos(np.radians(angle))
         y = 0.5 * np.sin(np.radians(angle))
-        display_name = class_name.replace('_', ' ')
+        display_name = _format_display_name(class_name)
         ax_b.text(x, y, display_name, ha='center', va='center', 
                  fontsize=6, fontweight='bold')
     
@@ -329,7 +333,7 @@ def create_figure_1_overview(motifs: List[Dict[str, Any]],
     ax_c.set_title('Genomic Coverage Map', fontweight='bold', fontsize=9)
     
     ax_c.set_yticks(list(class_positions.values()))
-    display_labels = [label.replace('_', ' ') for label in class_positions.keys()]
+    display_labels = [_format_display_name(label) for label in class_positions.keys()]
     ax_c.set_yticklabels(display_labels, fontsize=7)
     ax_c.ticklabel_format(style='sci', axis='x', scilimits=(3, 3))
     
@@ -399,15 +403,14 @@ def create_figure_2_statistics(motifs: List[Dict[str, Any]],
     ax_a = fig.add_subplot(gs[0, 0])
     add_panel_label(ax_a, 'A')
     
-    if not df.empty:
-        import seaborn as sns
+    if not df.empty and SEABORN_AVAILABLE:
         classes = sorted(df['Class'].unique())
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in classes]
         
         sns.violinplot(data=df, x='Class', y='Score', ax=ax_a, palette=colors,
                       linewidth=0.8, inner='box')
-        ax_a.set_xticklabels([c.replace('_', ' ') for c in classes], 
-                            rotation=45, ha='right', fontsize=7)
+        display_labels = [_format_display_name(c) for c in classes]
+        ax_a.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=7)
         ax_a.set_ylabel('Motif Score', fontweight='normal')
         ax_a.set_xlabel('Motif Class', fontweight='normal')
         ax_a.set_title('Score Distribution by Class', fontweight='bold', fontsize=9)
@@ -417,12 +420,11 @@ def create_figure_2_statistics(motifs: List[Dict[str, Any]],
     ax_b = fig.add_subplot(gs[0, 1])
     add_panel_label(ax_b, 'B')
     
-    if not df.empty:
-        import seaborn as sns
+    if not df.empty and SEABORN_AVAILABLE:
         sns.boxplot(data=df, x='Class', y='Length', ax=ax_b, palette=colors,
                    linewidth=0.8, fliersize=2)
-        ax_b.set_xticklabels([c.replace('_', ' ') for c in classes], 
-                            rotation=45, ha='right', fontsize=7)
+        display_labels = [_format_display_name(c) for c in classes]
+        ax_b.set_xticklabels(display_labels, rotation=45, ha='right', fontsize=7)
         ax_b.set_ylabel('Motif Length (bp)', fontweight='normal')
         ax_b.set_xlabel('Motif Class', fontweight='normal')
         ax_b.set_title('Length Distribution by Class', fontweight='bold', fontsize=9)
@@ -436,7 +438,7 @@ def create_figure_2_statistics(motifs: List[Dict[str, Any]],
         for class_name in classes:
             class_df = df[df['Class'] == class_name]
             color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
-            display_name = class_name.replace('_', ' ')
+            display_name = _format_display_name(class_name)
             ax_c.scatter(class_df['Length'], class_df['Score'], 
                         c=color, s=20, alpha=0.6, edgecolors='black', 
                         linewidth=0.3, label=display_name)
@@ -459,7 +461,7 @@ def create_figure_2_statistics(motifs: List[Dict[str, Any]],
         for class_name in classes[:7]:  # Top 7 classes
             class_df = df[df['Class'] == class_name]
             if len(class_df) > 0:
-                display_name = class_name.replace('_', ' ')
+                display_name = _format_display_name(class_name)
                 if len(display_name) > 15:
                     display_name = display_name[:12] + '...'
                 
@@ -582,7 +584,7 @@ def create_figure_3_landscape(motifs: List[Dict[str, Any]],
     ax_a.set_title('Density Heatmap Across Genome', fontweight='bold', fontsize=9)
     
     ax_a.set_yticks(range(len(classes)))
-    display_classes = [cls.replace('_', ' ') for cls in classes]
+    display_classes = [_format_display_name(cls) for cls in classes]
     ax_a.set_yticklabels(display_classes, fontsize=7)
     
     x_ticks = np.arange(0, num_windows, max(1, num_windows // 5))
@@ -737,9 +739,9 @@ def create_figure_4_subclass_analysis(motifs: List[Dict[str, Any]],
     for label in labels:
         parts = label.split(':')
         if len(parts) == 2:
-            display_labels.append(f"{parts[0].replace('_', ' ')}: {parts[1]}")
+            display_labels.append(f"{_format_display_name(parts[0])}: {parts[1]}")
         else:
-            display_labels.append(label.replace('_', ' '))
+            display_labels.append(_format_display_name(label))
     ax_a.set_yticklabels(display_labels, fontsize=7)
     ax_a.set_xlabel('Count', fontweight='normal')
     ax_a.set_ylabel('Subclass', fontweight='normal')
@@ -883,7 +885,7 @@ def create_figure_4_subclass_analysis(motifs: List[Dict[str, Any]],
     ax_d.set_xticks(range(n_classes))
     ax_d.set_yticks(range(n_classes))
     
-    display_classes = [c.replace('_', ' ') for c in top_classes]
+    display_classes = [_format_display_name(c) for c in top_classes]
     ax_d.set_xticklabels(display_classes, rotation=45, ha='right', fontsize=7)
     ax_d.set_yticklabels(display_classes, fontsize=7)
     
