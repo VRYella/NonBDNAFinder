@@ -86,14 +86,14 @@ These requirements may not be available on all platforms, so we made it optional
 
 ## Testing Your Installation
 
-### Quick Test
+### Quick Import Test
 ```bash
 python test_app_imports.py
 ```
 
-This verifies that all modules can be imported.
+This quick test verifies that all required modules can be imported successfully.
 
-### Comprehensive Test
+### Comprehensive Deployment Test (Recommended)
 ```bash
 python test_deployment.py
 ```
@@ -105,6 +105,8 @@ This comprehensive test checks:
 - ✅ Basic functionality works
 - ✅ Fallback behavior is correct
 - ✅ Ready for deployment
+
+**Use `test_deployment.py` for full verification before deploying to Streamlit Cloud.**
 
 ### Run the Application
 ```bash
