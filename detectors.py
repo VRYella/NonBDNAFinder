@@ -350,8 +350,8 @@ class CurvedDNADetector(BaseMotifDetector):
     MIN_AT_TRACT = 3
     MAX_AT_WINDOW = None
     PHASING_CENTER_SPACING = 11.0
-    PHASING_TOL_LOW = 9.9
-    PHASING_TOL_HIGH = 11.1
+    PHASING_TOL_LOW = 5.0  # More flexible for shorter phasing patterns
+    PHASING_TOL_HIGH = 13.0  # More flexible for longer phasing patterns
     MIN_APR_TRACTS = 3
     LOCAL_LONG_TRACT = 7
 
@@ -2011,7 +2011,7 @@ class SlippedDNADetector(BaseMotifDetector):
     """
     
     # Slipped DNA parameters
-    MIN_UNIT = 10   # Minimum repeat unit length
+    MIN_UNIT = 2    # Minimum repeat unit length (lowered to detect small tandem repeats)
     MAX_UNIT = 50   # Maximum repeat unit length
     MAX_SPACER = 0  # No spacer for slipped DNA
 
@@ -2098,8 +2098,8 @@ class SlippedDNADetector(BaseMotifDetector):
 
         # Use optimized repeat_scanner if available
         if _find_strs_optimized and _find_direct_repeats_optimized:
-            # STRs (unit 1–9 bp)
-            str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=20)
+            # STRs (unit 1–6 bp, shorter repeats)
+            str_results = _find_strs_optimized(seq, min_u=1, max_u=6, min_total=20)
             for str_rec in str_results:
                 regions.append({
                     'class_name': 'STR',
@@ -2126,7 +2126,8 @@ class SlippedDNADetector(BaseMotifDetector):
                     }
                 })
 
-            # Direct repeats - Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
+            # Direct repeats - Slipped DNA: 2–50 nt repeat separated by spacer = 0 nt
+            # Covers longer unit repeats (3+ bp) to distinguish from microsatellites
             direct_results = _find_direct_repeats_optimized(seq, min_unit=self.MIN_UNIT, 
                                                             max_unit=self.MAX_UNIT, 
                                                             max_spacer=self.MAX_SPACER)
@@ -2362,8 +2363,8 @@ class CruciformDetector(BaseMotifDetector):
             ]
         }
 
-    # Configuration - Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
-    MIN_ARM = 10
+    # Configuration - Cruciform DNA: 6–100 nt arm length with reverse complement separated by spacer = 0–3 nt
+    MIN_ARM = 6  # Lowered to detect shorter palindromes
     MAX_ARM = 100  # Maximum arm length constraint
     MAX_LOOP = 3
     MAX_MISMATCHES = 0
@@ -2773,8 +2774,8 @@ class RLoopDetector(BaseMotifDetector):
     
     # QmRLFS parameters (from Jenjaroenpun 2016)
     MIN_PERC_G_RIZ = 50      # Minimum G% in RIZ
-    NUM_LINKER = 50          # Linker length for REZ search
-    WINDOW_STEP = 100        # Window step for sliding window
+    NUM_LINKER = 20          # Linker length for REZ search (lowered from 50 for better detection)
+    WINDOW_STEP = 50         # Window step for sliding window (lowered from 100 for better sensitivity)
     MAX_LENGTH_REZ = 2000    # Maximum REZ length
     MIN_PERC_G_REZ = 40      # Minimum G% in REZ
     
@@ -3121,9 +3122,15 @@ class RLoopDetector(BaseMotifDetector):
         annotations = self.annotate_sequence(sequence)
         
         for i, ann in enumerate(annotations):
-            # Determine model subclass
+            # Determine model subclass based on whether REZ is present
+            has_rez = ann.get('rez_length', 0) > 0 and ann.get('rez_start') is not None
             model = ann['model']
-            subclass = 'QmRLFS-m1' if model == 'qmrlfs_model_1' else 'QmRLFS-m2'
+            
+            # Classify as m2 if REZ is present, otherwise m1
+            if has_rez:
+                subclass = 'QmRLFS-m2'
+            else:
+                subclass = 'QmRLFS-m1'
             
             # Calculate combined score
             score = (ann['riz_perc_g'] / 100.0) + (ann.get('rez_score', 0) / 100.0)
@@ -3236,6 +3243,32 @@ class TriplexDetector(BaseMotifDetector):
         used = [False] * len(seq)
         patterns = self.get_patterns()['triplex_forming_sequences']
 
+        # PRIORITY 1: Sticky DNA patterns (GAA/TTC) - detect these first
+        # These are specific disease-associated repeats that should have priority
+        for patinfo in patterns:
+            pat, pid, name, cname, minlen, scoretype, cutoff, desc, ref = patinfo
+            for m in re.finditer(pat, seq):
+                s, e = m.span()
+                if any(used[s:e]):
+                    continue
+                for i in range(s, e):
+                    used[i] = True
+                results.append({
+                    'class_name': cname,
+                    'pattern_id': pid,
+                    'start': s,
+                    'end': e,
+                    'length': e-s,
+                    'score': self.calculate_score(seq[s:e], patinfo),
+                    'matched_seq': seq[s:e],
+                    'details': {
+                        'type': name,
+                        'reference': ref,
+                        'description': desc
+                    }
+                })
+
+        # PRIORITY 2: Mirror repeats - detect after Sticky DNA
         # Use optimized scanner if available
         # Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt, and 90% Purine or Pyrimidine
         if _find_mirror_repeats_optimized is not None:
@@ -3366,30 +3399,6 @@ class TriplexDetector(BaseMotifDetector):
                     }
                 })
 
-        # Sticky DNA patterns (GAA/TTC) - use regex
-        for patinfo in patterns:
-            pat, pid, name, cname, minlen, scoretype, cutoff, desc, ref = patinfo
-            for m in re.finditer(pat, seq):
-                s, e = m.span()
-                if any(used[s:e]):
-                    continue
-                for i in range(s, e):
-                    used[i] = True
-                results.append({
-                    'class_name': cname,
-                    'pattern_id': pid,
-                    'start': s,
-                    'end': e,
-                    'length': e-s,
-                    'score': self.calculate_score(seq[s:e], patinfo),
-                    'matched_seq': seq[s:e],
-                    'details': {
-                        'type': name,
-                        'reference': ref,
-                        'description': desc
-                    }
-                })
-        
         results.sort(key=lambda r: r['start'])
         return results
 
