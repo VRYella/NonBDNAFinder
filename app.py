@@ -39,7 +39,7 @@ from utilities import (
     export_to_json, export_to_excel, calculate_genomic_density, calculate_positional_density,
     export_results_to_dataframe, CORE_OUTPUT_COLUMNS
 )
-from nonbscanner import (
+from NonBFinder import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
 from visualizations import (
@@ -201,7 +201,7 @@ st.set_page_config(
 # to handle sequences of any size efficiently.
 #
 # Chunking is automatically applied to large sequences for optimal performance.
-# See nonbscanner.py for chunking configuration:
+# See NonBFinder.py for chunking configuration:
 # - CHUNK_THRESHOLD: 10,000 bp (sequences larger than this are chunked)
 # - DEFAULT_CHUNK_SIZE: 10,000 bp per chunk
 # - DEFAULT_CHUNK_OVERLAP: 500 bp overlap between chunks
@@ -547,7 +547,7 @@ with tab_pages["Home"]:
                 box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;'>
         <h1 style='color: white; font-size: 2.8rem; font-weight: 700; margin: 0 0 1rem 0; 
                    font-family: "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.5px;'>
-            NonBScanner Database
+            NonBFinder Database
         </h1>
     </div>
     """, unsafe_allow_html=True)
@@ -788,13 +788,13 @@ with tab_pages["Home"]:
         </h2>
         <div style='background: #f9fafb; padding: 1.2rem; border-radius: 8px; border-left: 4px solid #3b82f6; 
                     font-family: "Courier New", monospace; font-size: 0.9rem; line-height: 1.7; color: #374151;'>
-            <b>NonBScanner: Comprehensive Detection and Analysis of Non-B DNA Motifs</b><br>
+            <b>NonBFinder: Comprehensive Detection and Analysis of Non-B DNA Motifs</b><br>
             Dr. Venkata Rajesh Yella<br>
-            GitHub: <a href="https://github.com/VRYella/NonBScanner" style="color: #3b82f6;">https://github.com/VRYella/NonBScanner</a><br>
+            GitHub: <a href="https://github.com/VRYella/NonBFinder" style="color: #3b82f6;">https://github.com/VRYella/NonBFinder</a><br>
             Email: yvrajesh_bt@kluniversity.in
         </div>
         <p style='color: #6b7280; font-size: 0.9rem; margin-top: 1rem; line-height: 1.6;'>
-            If you use NonBScanner in your research, please cite this resource. 
+            If you use NonBFinder in your research, please cite this resource. 
             For methodology references, see the <b>Documentation</b> tab.
         </p>
     </div>
@@ -1093,7 +1093,7 @@ with tab_pages["Upload & Analyze"]:
             st.session_state.analysis_status = "Error"
         else:
             # Sequence length limit has been removed - the system now uses automatic chunking
-            # (see nonbscanner.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
+            # (see NonBFinder.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
             st.session_state.analysis_status = "Running"
             
             # Store analysis parameters in session state for use in download section
@@ -1168,7 +1168,7 @@ with tab_pages["Upload & Analyze"]:
                     extra_info: Extra information to display (e.g., speed, motifs)
                 """
                 with container:
-                    st.subheader("🧬 NonBScanner Analysis")
+                    st.subheader("🧬 NonBFinder Analysis")
                     st.write(status_text)
                     
                     # Display metrics in 4 columns
