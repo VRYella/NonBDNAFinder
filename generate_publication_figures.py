@@ -38,6 +38,9 @@ from publication_figures import (
     create_figure_2_statistics,
     create_figure_3_landscape,
     create_figure_4_subclass_analysis,
+    create_figure_5_quality_metrics,
+    create_figure_6_comparative_analysis,
+    create_supplementary_figure_s1,
 )
 
 
@@ -105,10 +108,9 @@ represents major classes with proportional sizes; outer ring shows subclass
 distribution. Percentages indicate relative abundance. **(C)** Genomic coverage 
 map displaying motif positions along analyzed sequence. Each horizontal track 
 represents one motif class; colored rectangles indicate individual motif instances 
-with class-specific colors. X-axis shows genomic coordinates in base pairs.
-
-Scale bars and statistical measures as indicated. All analyses performed using
-NBDScanner v2024.1 with default parameters.
+with class-specific colors. **(D)** Length distribution by class showing motif 
+size patterns across different Non-B DNA types. Violin plots reveal the full 
+distribution shape with embedded box plots for quartiles.
 
 ---
 
@@ -124,9 +126,6 @@ potential correlations between sequence properties and detection scores.
 **(D)** Summary statistics table showing sample sizes, mean scores, and mean 
 lengths for major motif classes.
 
-All statistical comparisons performed using two-tailed Student's t-test.
-Significance levels: *P < 0.05, **P < 0.01, ***P < 0.001.
-
 ---
 
 ## Figure 3. Genomic Landscape and Density Analysis
@@ -141,8 +140,67 @@ high motif enrichment. **(C)** Cumulative distribution curves showing running
 sum of motifs along genomic coordinates for the five most abundant classes.
 Steeper slopes indicate regions of higher motif density.
 
-Window size for density calculations: auto-optimized to sequence length.
-All coordinates shown in kilobases (kb) from sequence start.
+---
+
+## Figure 4. Detailed Subclass-Level Analysis
+
+Comprehensive subclass-level characterization showing fine-grained motif patterns.
+**(A)** Top 15 most abundant subclasses ranked by frequency. Colors correspond to
+parent class for visual grouping. **(B)** Density heatmap for top 8 subclasses
+across genomic windows, revealing regional enrichment patterns. **(C)** Kernel
+density estimation (KDE) of length distributions for major classes, showing
+characteristic size profiles for different Non-B DNA types. Overlapping distributions
+highlight similarities and differences in structural features. **(D)** Co-occurrence
+matrix showing normalized frequency of spatial proximity (<50bp) between different
+motif classes. Warm colors indicate frequent co-occurrence, suggesting potential
+structural interactions or shared genomic contexts.
+
+---
+
+## Figure 5. Motif Quality and Characteristic Features
+
+Quality metrics and distributional patterns revealing motif detection reliability.
+**(A)** Score distributions across classes with overlaid data points (strip plot)
+showing individual motif scores. Box plots indicate central tendency and spread.
+**(B)** Length vs Score correlation analysis with linear regression fit. Pearson
+correlation coefficient (ρ) and R² values quantify relationship strength. Scatter
+points colored by class reveal class-specific patterns. **(C)** Positional density
+heatmap showing motif frequency across genomic windows for each class. Reveals
+non-random distribution patterns and potential clustering. **(D)** Dual-axis plot
+combining motif abundance (bars) with Shannon diversity metric (line). Diversity
+calculated as H = -Σ(p_i × log(p_i)) where p_i is proportion of class i.
+
+---
+
+## Figure 6. Comparative Cross-Class Analysis
+
+Systematic comparison revealing relationships and patterns across motif types.
+**(A)** Cumulative distribution curves for top 6 classes showing temporal
+accumulation of motifs along genomic coordinates. Differences in curve shapes
+indicate varying distribution patterns (clustered vs. dispersed). **(B)** Normalized
+co-occurrence matrix showing similarity of spatial distributions between classes.
+Values normalized by geometric mean of self-occurrences. Warm colors indicate
+classes that frequently appear near each other (<50bp). **(C)** Relative coverage
+enrichment showing fold-change versus mean coverage percentage. Red dashed line
+at 1.0× indicates mean. Values >1 show over-representation; <1 show under-representation.
+**(D)** Kernel density estimation overlay comparing length distributions across
+top 5 classes. Smooth curves reveal characteristic size ranges and multimodal
+patterns for different Non-B DNA types.
+
+---
+
+## Supplementary Figure S1. Comprehensive Analysis Overview
+
+Six-panel comprehensive overview integrating all major analytical perspectives.
+**(A)** Complete class distribution bar chart showing all 11 Non-B DNA classes
+including those with zero detections. **(B)** Hierarchical donut chart showing
+proportional class representation. **(C)** Full-width genomic coverage track
+displaying all detected motifs across the complete analyzed sequence. Each row
+represents one motif class with individual motifs as colored rectangles. **(D)**
+Score-length scatter plot for top 5 classes revealing potential structure-function
+relationships. **(E)** Density heatmap for top 6 classes across genomic windows
+using plasma colormap optimized for pattern recognition. **(F)** [Space reserved
+for summary statistics table or additional analysis].
 
 ---
 
@@ -150,16 +208,25 @@ All coordinates shown in kilobases (kb) from sequence start.
 
 - **Resolution**: All figures generated at 300 DPI for publication quality
 - **Format**: Vector format (PDF/SVG) for editability and scalability
-- **Fonts**: Arial family following Nature Methods guidelines (8pt body, 9pt titles)
+- **Fonts**: Arial family following Nature Methods guidelines (8pt body, 9pt titles, 7pt labels)
 - **Colors**: Wong (2011) colorblind-safe palette for accessibility
-- **Software**: Figures generated using Python 3.12, matplotlib 3.5+, seaborn 0.11+
-- **Reproducibility**: Complete code and data available at [repository URL]
+- **Software**: Figures generated using Python 3.12, matplotlib 3.5+, seaborn 0.11+, scipy 1.7+
+- **Reproducibility**: Complete code and data available in GitHub repository
+
+**Statistical Methods**: Two-tailed Student's t-test for comparisons. Pearson correlation
+for linear relationships. Shannon entropy H = -Σ(p_i × log(p_i)) for diversity metrics.
+Kernel density estimation using Gaussian kernels with automatic bandwidth selection
+(Scott's rule). Sliding window analysis with adaptive window sizes optimized for
+sequence length (minimum 1kb, maximum 1% of sequence length).
 
 **Color Accessibility**: All color schemes tested with colorblind simulation tools
-to ensure distinguishability for readers with color vision deficiencies.
+(deuteranopia, protanopia, tritanopia) to ensure distinguishability for readers
+with color vision deficiencies. Alternative representations (patterns, shapes) used
+where color alone is insufficient.
 
 **Data Availability**: Test sequences and analysis parameters provided in 
-Supplementary Materials. Full codebase open-source under MIT license.
+Supplementary Materials. Full source code open-source under MIT license at
+https://github.com/VRYella/NonBDNAFinder
 """
     
     caption_file = Path(output_dir) / "figure_captions.md"
@@ -244,7 +311,7 @@ def main():
     
     try:
         # Figure 3: Landscape
-        print("\n[3/4] Generating Figure 3: Genomic Landscape...")
+        print("\n[3/6] Generating Figure 3: Genomic Landscape...")
         fig3_path = output_dir / f"figure3_landscape.{args.format}"
         fig3 = create_figure_3_landscape(motifs, sequence_length,
                                          save_path=str(fig3_path))
@@ -257,13 +324,56 @@ def main():
     
     try:
         # Figure 4: Subclass Analysis
-        print("\n[4/4] Generating Figure 4: Subclass Analysis...")
+        print("\n[4/6] Generating Figure 4: Subclass Analysis...")
         fig4_path = output_dir / f"figure4_subclass.{args.format}"
         fig4 = create_figure_4_subclass_analysis(motifs, sequence_length,
-                                                 save_path=str(fig4_path))
+                                                save_path=str(fig4_path))
         plt.close(fig4)
         figures_generated.append(fig4_path)
         print(f"      ✓ Saved to: {fig4_path}")
+        
+    except Exception as e:
+        print(f"      ❌ Error: {e}")
+    
+    try:
+        # Figure 5: Quality Metrics
+        print("\n[5/6] Generating Figure 5: Quality Metrics...")
+        fig5_path = output_dir / f"figure5_quality.{args.format}"
+        fig5 = create_figure_5_quality_metrics(motifs, sequence_length,
+                                              save_path=str(fig5_path))
+        plt.close(fig5)
+        figures_generated.append(fig5_path)
+        print(f"      ✓ Saved to: {fig5_path}")
+        
+    except Exception as e:
+        print(f"      ❌ Error: {e}")
+    
+    try:
+        # Figure 6: Comparative Analysis
+        print("\n[6/6] Generating Figure 6: Comparative Analysis...")
+        fig6_path = output_dir / f"figure6_comparative.{args.format}"
+        fig6 = create_figure_6_comparative_analysis(motifs, sequence_length,
+                                                   save_path=str(fig6_path))
+        plt.close(fig6)
+        figures_generated.append(fig6_path)
+        print(f"      ✓ Saved to: {fig6_path}")
+        
+    except Exception as e:
+        print(f"      ❌ Error: {e}")
+    
+    # Supplementary Figure
+    print("\n" + "=" * 80)
+    print("GENERATING SUPPLEMENTARY FIGURES")
+    print("=" * 80)
+    
+    try:
+        print("\n[S1] Generating Supplementary Figure S1...")
+        figS1_path = output_dir / f"figureS1_comprehensive.{args.format}"
+        figS1 = create_supplementary_figure_s1(motifs, sequence_length,
+                                              save_path=str(figS1_path))
+        plt.close(figS1)
+        figures_generated.append(figS1_path)
+        print(f"      ✓ Saved to: {figS1_path}")
         
     except Exception as e:
         print(f"      ❌ Error: {e}")
