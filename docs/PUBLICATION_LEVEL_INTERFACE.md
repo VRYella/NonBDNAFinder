@@ -144,22 +144,20 @@ The interface redesign follows these principles inspired by world-class scientif
    - Clean blue heading with professional typography
 
 2. **Motif Classes Detected Section**
-   - Comprehensive bullet-point list of all 14 detection algorithms:
+   - Comprehensive bullet-point list of all motif detection capabilities:
      - **Curved DNA**: Phased poly(A)/poly(T) tracts, intrinsic curvature
-     - **Z-DNA**: Alternating purine-pyrimidine patterns
-     - **eGZ-motif**: Extended (CGG)n runs
+     - **Z-DNA**: Alternating purine-pyrimidine patterns (includes eGZ-motif subtype)
      - **Slipped DNA**: Direct/tandem repeats (10-50 nt)
      - **R-Loop**: G-rich RNA-DNA hybrids, RLFS model
      - **Cruciform**: Palindromic inverted repeats (10-100 nt arms)
-     - **Triplex DNA**: Purine/pyrimidine mirror repeats
-     - **Sticky DNA**: Extended GAA/TTC repeats
-     - **G-Triplex**: Three consecutive guanine runs
-     - **G4 (G-Quadruplex)**: Canonical and variant G4 motifs
-     - **i-Motif**: C-rich sequences
-     - **AC-Motif**: Alternating A-rich/C-rich regions
+     - **Triplex DNA**: Purine/pyrimidine mirror repeats (includes Sticky DNA subtype)
+     - **G-Quadruplex**: Canonical and variant G4 motifs (includes G-Triplex subtype)
+     - **i-Motif**: C-rich sequences (includes AC-Motif subtype)
      - **A-philic DNA**: Tetranucleotide log2 odds scoring
      - **Hybrid Motif**: Overlapping class regions
      - **Non-B DNA Clusters**: Motif hotspots
+   
+   Note: 11 major classes with 22+ specialized subclasses for comprehensive characterization
 
 3. **Detailed Methodology**
    - Each motif class includes:
@@ -286,9 +284,9 @@ font-family: "Helvetica Neue", Arial, sans-serif;
 ## 🔬 Scientific Excellence Indicators
 
 ### Algorithm Validation
-- **QmRLFS**: R-loop detection (Jenjaroenpun & Wongsurawat)
-- **G4Hunter**: G-quadruplex prediction (Bedrat et al.)
-- **Z-Seeker**: Z-DNA identification (Ho et al.)
+- **QmRLFS**: R-loop detection (Jenjaroenpun & Wongsurawat, 2016, *Nucleic Acids Research*)
+- **G4Hunter**: G-quadruplex prediction (Bedrat et al., 2016, *Nucleic Acids Research*)
+- **Z-Seeker**: Z-DNA identification (Ho et al., 1986, *EMBO Journal*)
 
 ### Performance Metrics
 - **Speed**: 24,674 bp/second processing
