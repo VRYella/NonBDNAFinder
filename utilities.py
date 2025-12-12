@@ -368,13 +368,17 @@ except Exception:
 _CONSOLIDATED_REGISTRY = None
 
 # Try to import pandas for Excel support
+_PANDAS_AVAILABLE = False
+_PANDAS_WARNING_LOGGED = False
 try:
     import pandas as pd
     _PANDAS_AVAILABLE = True
 except ImportError:
-    _PANDAS_AVAILABLE = False
-    logger.warning("pandas not available - Excel pattern loading disabled. Install with: pip install pandas openpyxl")
+    pass  # Will log warning on first use attempt
 
+
+# Pattern registry version
+PATTERN_REGISTRY_VERSION = "2024.2"
 
 def _load_consolidated_registry_from_excel():
     """Load the consolidated registry from Excel file and cache it
@@ -382,9 +386,12 @@ def _load_consolidated_registry_from_excel():
     Returns:
         dict: Registry data in the same format as consolidated_registry.json
     """
-    global _CONSOLIDATED_REGISTRY
+    global _PANDAS_WARNING_LOGGED
     
     if not _PANDAS_AVAILABLE:
+        if not _PANDAS_WARNING_LOGGED:
+            logger.warning("pandas not available - Excel pattern loading disabled. Install with: pip install pandas openpyxl")
+            _PANDAS_WARNING_LOGGED = True
         return None
     
     # Try to load pattern_registry.xlsx from current directory
@@ -418,16 +425,16 @@ def _load_consolidated_registry_from_excel():
                 'patterns': patterns
             }
         
-        _CONSOLIDATED_REGISTRY = {
-            'version': '2024.2-excel',
+        registry_data = {
+            'version': f'{PATTERN_REGISTRY_VERSION}-excel',
             'source': 'pattern_registry.xlsx',
             'registries': registries,
             'total_patterns': sum(r['n_patterns'] for r in registries.values()),
             'total_classes': len(registries)
         }
         
-        logger.info(f"Loaded consolidated registry from {excel_path} ({_CONSOLIDATED_REGISTRY['total_patterns']} patterns)")
-        return _CONSOLIDATED_REGISTRY
+        logger.info(f"Loaded consolidated registry from {excel_path} ({registry_data['total_patterns']} patterns)")
+        return registry_data
         
     except Exception as e:
         logger.error(f"Failed to load Excel registry from {excel_path}: {e}")
@@ -490,6 +497,23 @@ def _load_registry(registry_dir: str, class_name: str):
             return consolidated["registries"][class_name]
     
     raise FileNotFoundError(f"No registry found for {class_name} in pattern registry (tried Excel and JSON)")
+
+
+def clear_pattern_registry_cache():
+    """
+    Clear the cached pattern registry data.
+    
+    This is mainly useful for testing or when you need to reload
+    the pattern data after modifying the Excel or JSON files.
+    
+    Example:
+        >>> from utilities import clear_pattern_registry_cache, _load_consolidated_registry
+        >>> clear_pattern_registry_cache()
+        >>> registry = _load_consolidated_registry()  # Reloads from file
+    """
+    global _CONSOLIDATED_REGISTRY
+    _CONSOLIDATED_REGISTRY = None
+    logger.debug("Pattern registry cache cleared")
 
 
 def load_db_for_class(class_name: str, registry_dir: str = "registry"):

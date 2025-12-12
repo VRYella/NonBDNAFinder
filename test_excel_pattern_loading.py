@@ -193,11 +193,10 @@ def test_performance():
     print("PERFORMANCE TEST")
     print("=" * 80)
     
-    from utilities import _load_consolidated_registry
+    from utilities import _load_consolidated_registry, clear_pattern_registry_cache
     
     # Clear cache
-    import utilities
-    utilities._CONSOLIDATED_REGISTRY = None
+    clear_pattern_registry_cache()
     
     # Test Excel loading time
     print("\n--- Excel loading time (cold) ---")
@@ -208,7 +207,7 @@ def test_performance():
     
     # Test cached loading time
     print("\n--- Excel loading time (cached) ---")
-    utilities._CONSOLIDATED_REGISTRY = None
+    clear_pattern_registry_cache()
     start = time.time()
     registry = _load_consolidated_registry()
     cached_time_1 = time.time() - start
