@@ -20,6 +20,9 @@ def test_excel_primary():
     
     from utilities import _load_consolidated_registry, clear_pattern_registry_cache
     
+    # Note: Using internal function for verification purposes only.
+    # Production code should use load_db_for_class() instead.
+    
     # Clear cache to force reload
     clear_pattern_registry_cache()
     
@@ -38,12 +41,16 @@ def test_excel_primary():
     print(f"✓ Total Patterns: {total_patterns}")
     print(f"✓ Total Classes: {total_classes}")
     
-    # Verify it's from Excel
-    if 'xlsx' in source.lower():
+    # Verify it's from Excel - check for explicit Excel filename
+    if source == 'pattern_registry.xlsx':
         print(f"\n✅ SUCCESS: Excel file is the primary source!")
+        return True
+    elif 'xlsx' in source.lower():
+        print(f"\n✅ SUCCESS: Excel file loaded ({source})")
         return True
     else:
         print(f"\n⚠ WARNING: Loaded from {source} instead of Excel")
+        print(f"   (Expected 'pattern_registry.xlsx')")
         return False
 
 
@@ -85,11 +92,20 @@ def test_end_to_end():
     import nonbscanner as nbs
     from collections import Counter
     
-    # Create test sequences for different motif types
+    # Test sequences based on known motif patterns from literature
+    # These sequences are designed to reliably trigger specific motif detectors
     test_sequences = {
-        'G4_test': 'GGGGAAAAGGGGAAAAGGGGAAAAGGGG' * 2,  # G-Quadruplex
-        'ZDNA_test': 'CGCGCGCGCGCGCGCGCGCGCGCGCGCG',  # Z-DNA
-        'Aphilic_test': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA',  # A-philic
+        # G-Quadruplex: Canonical G4 pattern (4 G-runs with 3+ Gs each)
+        # Based on c-MYC promoter G4 (Simonsson 1998, Nature)
+        'G4_canonical': 'GGGGAGGGTGGGGAGGGTGGGGA',
+        
+        # Z-DNA: Alternating CG repeats (canonical Z-DNA forming sequence)
+        # Based on Ho et al. 1986, Nature
+        'ZDNA_canonical': 'CGCGCGCGCGCGCGCGCGCGCGCGCG',
+        
+        # A-philic: Long A-tract (curved DNA)
+        # Based on Bolshoy et al. 1991, PNAS
+        'Curved_A_tract': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     }
     
     all_success = True
@@ -110,6 +126,10 @@ def test_end_to_end():
         except Exception as e:
             print(f"❌ {name:15} - ERROR: {e}")
             all_success = False
+    
+    # Note: Motif detection depends on scoring thresholds and may detect
+    # additional overlapping patterns (e.g., slipped DNA, R-loops).
+    # The important thing is that at least some motifs are detected.
     
     if all_success and total_motifs > 0:
         print(f"\n✅ SUCCESS: Detected {total_motifs} motifs across test sequences!")
