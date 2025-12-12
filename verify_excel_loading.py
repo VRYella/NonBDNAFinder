@@ -51,15 +51,15 @@ def test_excel_primary():
     # Verify it's from Excel - check for explicit Excel filename
     # We check for both exact match and .xlsx extension to be robust,
     # but the exact match is preferred for correctness
-    if source == 'pattern_registry.xlsx':
+    if source == 'pattern_registry2.xlsx':
         print(f"\n✅ SUCCESS: Excel file is the primary source!")
         return True
     elif source.endswith('.xlsx'):
-        print(f"\n⚠ WARNING: Loaded from Excel file '{source}' (expected 'pattern_registry.xlsx')")
+        print(f"\n⚠ WARNING: Loaded from Excel file '{source}' (expected 'pattern_registry2.xlsx')")
         return True  # Still Excel, just not the expected name
     else:
         print(f"\n❌ FAILED: Loaded from {source} instead of Excel")
-        print(f"   (Expected 'pattern_registry.xlsx')")
+        print(f"   (Expected 'pattern_registry2.xlsx')")
         return False
 
 
@@ -181,7 +181,7 @@ def main():
         print("🎉 ALL VERIFICATIONS PASSED!")
         print("=" * 70)
         print("\nConclusion:")
-        print("  • Excel (pattern_registry.xlsx) is the PRIMARY pattern source")
+        print("  • Excel (pattern_registry2.xlsx) is the PRIMARY pattern source")
         print("  • JSON (consolidated_registry.json) is ONLY used as fallback")
         print("  • All motif detection works correctly with Excel patterns")
         print("  • The tool is ready for production use")

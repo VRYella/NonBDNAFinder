@@ -55,7 +55,7 @@ NonBScanner is a **Nobel laureate-level** bioinformatics database for detecting 
 - **✨ Enrichment Analysis**: Fold enrichment calculation with 100-iteration sequence shuffling for statistical validation
 - **📊 Statistical Significance**: P-value calculation using permutation testing to validate motif enrichment
 - **🎨 Enhanced Visualizations**: New density comparison and enrichment analysis plots with no text overlap
-- **📊 Excel-Based Pattern Loading**: Primary pattern source is now Excel (`pattern_registry.xlsx`) for easy editing, with automatic JSON fallback (see [EXCEL_PATTERN_GUIDE.md](EXCEL_PATTERN_GUIDE.md))
+- **📊 Excel-Based Pattern Loading**: Primary pattern source is now Excel (`pattern_registry2.xlsx` with 170K+ patterns and normalized scores 1-3) for easy editing, with automatic JSON fallback (see [EXCEL_PATTERN_GUIDE.md](EXCEL_PATTERN_GUIDE.md))
 - **Dual Format Support**: Patterns available in Excel (primary, editable) and JSON (backup) formats
 - **Enhanced Scientific Visualizations**: Publication-quality plotting functions
 - **Comprehensive Class Analysis**: Shows all 11 classes with detection status
@@ -99,7 +99,7 @@ NonBScanner/
 
 ### Supporting Files
 - `scanner.py` - Low-level k-mer indexing functions (used by detectors)
-- `pattern_registry.xlsx` - **PRIMARY SOURCE** - Excel file with all 415 pattern definitions (user-editable)
+- `pattern_registry2.xlsx` - **PRIMARY SOURCE** - Excel file with 170,008+ pattern definitions with normalized scores (user-editable)
 - `consolidated_registry.json` - JSON pattern data (automatic fallback if Excel unavailable)
 - `example_motifs_multiline.fasta` - Example FASTA file with all motif types
 

@@ -2,15 +2,16 @@
 
 ## Overview
 
-NonBDNAFinder now supports loading pattern data from an Excel file (`pattern_registry.xlsx`) instead of JSON. This provides a more user-friendly way to view, edit, and manage pattern definitions.
+NonBDNAFinder now supports loading pattern data from an Excel file (`pattern_registry2.xlsx`) instead of JSON. This provides a more user-friendly way to view, edit, and manage pattern definitions with updated normalized scores (1-3 range for most patterns).
 
 ## Features
 
-✅ **Excel-First Loading**: Automatically loads from `pattern_registry.xlsx` if available  
+✅ **Excel-First Loading**: Automatically loads from `pattern_registry2.xlsx` if available  
 ✅ **JSON Fallback**: Falls back to `consolidated_registry.json` if Excel not found  
-✅ **Performance**: Fast loading with caching (0.035s vs 0.0005s for JSON)  
+✅ **Performance**: Fast loading with caching  
 ✅ **Easy Editing**: Edit patterns in Excel with formulas and formatting  
-✅ **Complete Coverage**: All 415 patterns across 9 motif classes  
+✅ **Complete Coverage**: 170,008 patterns across 9 motif classes with updated scores  
+✅ **Normalized Scores**: All patterns (except A-philic and Z-DNA) use 1-3 normalized scoring
 
 ## Excel File Structure
 
@@ -25,55 +26,62 @@ The Excel file contains 10 sheets:
    - Pattern type
 
 2. **APhilic** - A-philic DNA patterns (208 patterns)
-   - id, tenmer, score
+   - id, tenmer, score (NOT normalized - range 1.00-2.70)
 
-3. **Cruciform** - Cruciform DNA patterns (1 pattern)
-   - id, pattern, subclass, score, description, min_arm, max_arm, max_loop
+3. **Cruciform** - Cruciform DNA patterns (9,595 patterns)
+   - id, pattern, subclass, score, description, min_arm, max_arm, max_loop, arm_len, loop_len, purity
+   - Scores normalized 1.20-3.00
 
 4. **CurvedDNA** - Curved DNA patterns (44 patterns)
    - id, pattern, subclass, score
+   - Scores normalized 1.60-3.00
 
-5. **G4** - G-Quadruplex patterns (7 patterns)
+5. **G4** - G-Quadruplex patterns (140,969 patterns)
    - id, pattern, subclass, score
+   - Scores normalized 0.60-3.00
 
-6. **IMotif** - i-Motif patterns (7 patterns)
+6. **IMotif** - i-Motif patterns (454 patterns)
    - id, pattern, subclass, score
+   - Scores normalized 1.30-2.90
 
 7. **RLoop** - R-Loop patterns (5 patterns)
    - id, pattern, subclass, score
+   - Scores normalized 0.75-0.95
 
-8. **SlippedDNA** - Slipped DNA patterns (9 patterns)
-   - id, pattern, subclass, score, unit_size, description
+8. **SlippedDNA** - Slipped DNA patterns (127 patterns)
+   - id, pattern, subclass, score, description
+   - Scores normalized 1.01-3.00
 
-9. **Triplex** - Triplex DNA patterns (4 patterns)
+9. **Triplex** - Triplex DNA patterns (18,476 patterns)
    - id, pattern, subclass, score
+   - Scores normalized 1.20-3.00
 
 10. **ZDNA** - Z-DNA patterns (130 patterns)
     - id, tenmer, score, pattern, subclass, description, reference
+    - Scores NOT normalized - range 0.90-63.00
 
 ### Pattern Types
 
 **Tenmer-based patterns** (10-mer sequences):
-- APhilic: 208 patterns
-- ZDNA: 126 patterns (IDs 0-125)
+- APhilic: 208 patterns (scores 1.00-2.70, not normalized)
+- ZDNA: 130 patterns (scores 0.90-63.00, not normalized)
 
-**Regex-based patterns**:
+**Regex-based patterns with normalized scores (1-3)**:
 - CurvedDNA: 44 patterns
-- G4: 7 patterns
-- IMotif: 7 patterns
+- G4: 140,969 patterns
+- IMotif: 454 patterns
 - RLoop: 5 patterns
-- SlippedDNA: 9 patterns
-- Triplex: 4 patterns
-- ZDNA: 4 eGZ patterns (IDs 126-129)
+- SlippedDNA: 127 patterns
+- Triplex: 18,476 patterns
+- Cruciform: 9,595 patterns
 
-**Algorithmic patterns**:
-- Cruciform: 1 pattern (detected algorithmically)
+**Note**: A-philic and Z-DNA patterns explicitly do NOT use 1-3 normalization. They maintain their original scoring schemes for scientific accuracy.
 
 ## Usage
 
 ### Automatic Loading
 
-The system automatically tries to load `pattern_registry.xlsx` first, then falls back to JSON:
+The system automatically tries to load `pattern_registry2.xlsx` first, then falls back to JSON:
 
 ```python
 from utilities import load_db_for_class
@@ -96,7 +104,7 @@ if registry:
 
 ### Editing Patterns
 
-1. Open `pattern_registry.xlsx` in Excel or LibreOffice
+1. Open `pattern_registry2.xlsx` in Excel or LibreOffice
 2. Navigate to the sheet for the motif class you want to edit
 3. Modify patterns, scores, or add new rows
 4. Save the file
@@ -106,7 +114,7 @@ if registry:
 - Ensure `id` column has unique sequential integers
 - For regex patterns, use the `pattern` column
 - For 10-mer patterns, use the `tenmer` column
-- Always provide a `score` value
+- Always provide a `score` value (normalized 1-3 except for A-philic and Z-DNA)
 
 ## Performance
 
@@ -155,7 +163,7 @@ with open('consolidated_registry.json', 'r') as f:
     data = json.load(f)
 
 # Create Excel writer
-writer = pd.ExcelWriter('pattern_registry.xlsx', engine='openpyxl')
+writer = pd.ExcelWriter('pattern_registry2.xlsx', engine='openpyxl')
 
 # Create summary
 summary_data = []
@@ -207,7 +215,7 @@ These are optional - the system falls back to JSON if pandas is not available.
 
 ```
 NonBDNAFinder/
-├── pattern_registry.xlsx          # Primary pattern source (Excel)
+├── pattern_registry2.xlsx         # Primary pattern source (Excel, 170K+ patterns)
 ├── consolidated_registry.json     # Backup pattern source (JSON)
 ├── utilities.py                   # Loading logic
 └── test_excel_pattern_loading.py  # Test suite
@@ -225,13 +233,13 @@ NonBDNAFinder/
 2. Verify file exists:
    ```python
    import os
-   print(os.path.exists('pattern_registry.xlsx'))
+   print(os.path.exists('pattern_registry2.xlsx'))
    ```
 
 3. Check for file corruption:
    ```python
    import pandas as pd
-   pd.read_excel('pattern_registry.xlsx', sheet_name='Summary')
+   pd.read_excel('pattern_registry2.xlsx', sheet_name='Summary')
    ```
 
 ### Pattern counts don't match
@@ -273,22 +281,24 @@ A: Use the JSON file in production. The Excel feature is mainly for development 
 
 ### G4 Pattern
 
-1. Open `pattern_registry.xlsx`
+1. Open `pattern_registry2.xlsx`
 2. Go to the `G4` sheet
 3. Add a new row at the end:
    ```
-   id: 7
+   id: <next_id>
    pattern: G{4,}[ACGT]{1,5}G{4,}[ACGT]{1,5}G{4,}[ACGT]{1,5}G{4,}
    subclass: strict_g4
-   score: 0.95
+   score: 2.5
    ```
 4. Save the file
 5. Restart your Python session
 6. Test: `load_db_for_class('G4', 'registry')`
 
+**Note**: Use normalized scores (1-3) for G4 patterns.
+
 ### ZDNA Pattern (10-mer)
 
-1. Open `pattern_registry.xlsx`
+1. Open `pattern_registry2.xlsx`
 2. Go to the `ZDNA` sheet
 3. Add a new row at the end:
    ```
@@ -299,6 +309,8 @@ A: Use the JSON file in production. The Excel feature is mainly for development 
 4. Save the file
 5. Restart your Python session
 6. Test: `load_db_for_class('ZDNA', 'registry')`
+
+**Note**: Z-DNA scores are NOT normalized (can be > 3).
 
 ## Summary
 
