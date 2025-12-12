@@ -33,6 +33,12 @@ import sys  # Added for system info
 import psutil  # Added for memory monitoring
 import numpy as np
 import gc  # Added for memory management with large files
+
+# Ensure the current directory is in the Python path for module imports
+# This is needed for Streamlit Cloud deployment to find local modules
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+if _current_dir not in sys.path:
+    sys.path.insert(0, _current_dir)
 # Import consolidated NBDScanner modules
 from utilities import (
     parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
