@@ -1,8 +1,8 @@
 """
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                         NBDSCANNER WEB APPLICATION                            ║
-║                    Non-B DNA Motif Detection System                          ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+╔═════════════════════════════════════════════════════════════════
+║                         NBDSCANNER WEB APPLICATION              ║
+║                    Non-B DNA Motif Detection System             ║
+╚═════════════════════════════════════════════════════════════════
 
 MODULE: app.py
 AUTHOR: Dr. Venkata Rajesh Yella
@@ -14,12 +14,12 @@ DESCRIPTION:
     Provides interactive interface for sequence analysis and visualization.
 
 FEATURES:
-┌─────────────────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────��[...]
 │  - Multi-FASTA support             - Real-time analysis progress            │
 │  - 11 motif classes detection      - Interactive visualizations             │
 │  - 22+ subclass analysis           - Export to CSV/BED/JSON                 │
 │  - NCBI sequence fetch             - Publication-quality plots              │
-└─────────────────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────��[...]
 
 ARCHITECTURE:
     Input → Detection → Scoring → Overlap Resolution → Visualization → Export
@@ -312,7 +312,15 @@ def hex_to_rgb(hex_color: str) -> tuple:
 
 def get_dna_pattern_svg(stroke_color: str) -> str:
     """Generate subtle DNA helix SVG pattern for background."""
-    return f"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23{stroke_color}' stroke-width='0.5' opacity='0.3'%3E%3Cpath d='M10 10 Q 30 0, 50 10 T 90 10'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3Ccircle cx='50' cy='10' r='2'/%3E%3C/g%3E%3C/svg%3E\")"
+    # Compact and URL-encoded SVG for background pattern
+    svg = (
+        "%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E"
+        f"%3Cg fill='none' stroke='%23{stroke_color}' stroke-width='0.6' opacity='0.12'%3E"
+        "%3Cpath d='M10 30 C 18 12, 42 12, 50 30'/%3E"
+        "%3Cpath d='M10 30 C 18 48, 42 48, 50 30'/%3E"
+        "%3C/g%3E%3C/svg%3E"
+    )
+    return f"url(\"data:image/svg+xml,{svg}\")"
 
 # Color theme palettes for scientific styling - Soothing UI Theme
 # Using CSS variables approach with soft, modern colors optimized for readability
@@ -360,6 +368,17 @@ COLOR_THEMES = {
         'tab_bg': '#EBF7F6',
         'tab_active': '#5BBFB4',
         'shadow': 'rgba(91, 191, 180, 0.15)'
+    },
+    'midnight': {
+        'primary': '#7C4DFF',
+        'secondary': '#B39DDB',
+        'accent': '#D1C4E9',
+        'bg_light': '#0b1220',
+        'bg_card': '#0e1726',
+        'text': '#E6EEF8',
+        'tab_bg': '#0c1220',
+        'tab_active': '#7C4DFF',
+        'shadow': 'rgba(0, 0, 0, 0.45)'
     }
 }
 
@@ -393,34 +412,45 @@ shadow_color = current_theme.get('shadow', f"rgba({rgb['primary'][0]}, {rgb['pri
 # Generate SVG pattern based on theme
 dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
 
-def load_css():
+def load_css(theme_name=None):
     """
     Load external CSS file and inject dynamic theme variables.
     This makes the app.py file more succinct by separating styling concerns.
+    If theme_name provided, use per-page theme, otherwise use session color_theme.
     """
-    # Read the external CSS file
+    theme_to_use = COLOR_THEMES.get(theme_name, COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue']))
+    is_dark = st.session_state.theme_mode == 'dark'
+    # Read the external CSS file if present
     css_file_path = os.path.join(os.path.dirname(__file__), 'styles.css')
-    with open(css_file_path, 'r') as f:
-        css_content = f.read()
+    try:
+        with open(css_file_path, 'r') as f:
+            css_content = f.read()
+    except Exception:
+        css_content = ""
     
-    # Inject dynamic theme variables
+    # Compute some derived values
+    p_rgb = hex_to_rgb(theme_to_use['primary'])
+    s_rgb = hex_to_rgb(theme_to_use['secondary'])
+    tab_bg_color_local = theme_to_use.get('tab_bg', theme_to_use['bg_card'])
+    tab_active_color_local = theme_to_use.get('tab_active', theme_to_use['primary'])
+    dna_svg_local = get_dna_pattern_svg('1e3a5f' if is_dark else 'bbdefb')
+    
     theme_vars = f"""
     <style>
     :root {{
-        --primary-color: {current_theme['primary']};
-        --secondary-color: {current_theme['secondary']};
-        --accent-color: {current_theme['accent']};
-        --bg-light: {current_theme['bg_light']};
-        --bg-card: {current_theme['bg_card']};
-        --text-color: {current_theme['text']};
-        --tab-bg: {tab_bg_color};
-        --tab-active: {tab_active_color};
-        --shadow-color: {shadow_color};
-        --primary-rgb: {rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]};
-        --secondary-rgb: {rgb['secondary'][0]}, {rgb['secondary'][1]}, {rgb['secondary'][2]};
-        --dark-mode: {1 if is_dark_mode else 0};
-        --is-compact: {1 if is_compact else 0};
-        --dna-pattern: {dna_pattern};
+        --primary-color: {theme_to_use['primary']};
+        --secondary-color: {theme_to_use['secondary']};
+        --accent-color: {theme_to_use['accent']};
+        --bg-light: {theme_to_use['bg_light']};
+        --bg-card: {theme_to_use['bg_card']};
+        --text-color: {theme_to_use['text']};
+        --tab-bg: {tab_bg_color_local};
+        --tab-active: {tab_active_color_local};
+        --shadow-color: {theme_to_use['shadow']};
+        --primary-rgb: {p_rgb[0]}, {p_rgb[1]}, {p_rgb[2]};
+        --secondary-rgb: {s_rgb[0]}, {s_rgb[1]}, {s_rgb[2]};
+        --dark-mode: {1 if is_dark else 0};
+        --dna-pattern: {dna_svg_local};
     }}
     {css_content}
     </style>
@@ -428,11 +458,7 @@ def load_css():
     
     st.markdown(theme_vars, unsafe_allow_html=True)
 
-# Load the CSS with dynamic theme variables
-load_css()
-
-
-
+# Note: load_css() will be called per-page below to apply per-tab themes.
 
 # ---------- CONSTANTS ----------
 # Use classification config if available, otherwise fallback to defaults
@@ -546,6 +572,8 @@ tabs = st.tabs(list(PAGES.keys()))
 tab_pages = dict(zip(PAGES.keys(), tabs))
 
 with tab_pages["Home"]:
+    # Apply Home theme
+    load_css('scientific_blue')
     # ========== HERO SECTION - Nobel Laureate Level ==========
     st.markdown("""
     <div style='background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%); 
@@ -813,8 +841,10 @@ with tab_pages["Home"]:
 # ensure_subclass, MOTIF_ORDER, wrap, Entrez, SeqIO, Counter, pd, st
 
 with tab_pages["Upload & Analyze"]:
+    # Apply Upload tab theme
+    load_css('nature_green')
     st.markdown("<h2>Sequence Upload and Motif Analysis</h2>", unsafe_allow_html=True)
-   # st.markdown('<span style="font-family:Montserrat,Arial; font-size:0.95rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=True)
+   # st.markdown('<span style="font-family:Montserrat,Arial; font-size:0.95rem;">Supports multi-FASTA and single FASTA. Paste, upload, select example, or fetch from NCBI.</span>', unsafe_allow_html=Tr[...]
    # st.caption("Supported formats: .fa, .fasta, .txt, .fna | Limit: 1GB/file (optimized for large genomic sequences).")
 
     # ----- TWO-COLUMN LAYOUT: Left for Upload, Right for Analysis -----
@@ -1281,15 +1311,13 @@ with tab_pages["Upload & Analyze"]:
                             # Create chunk progress placeholder
                             chunk_progress_placeholder = st.empty()
                             
-                            def chunk_progress_callback(current, total):
+                            def chunk_progress_callback[current, total]:
                                 """Callback to update chunk progress"""
-                                if show_chunk_progress:
-                                    chunk_percent = (current / total) * 100
-                                    chunk_progress_placeholder.info(f"📦 Chunks: {current}/{total} ({chunk_percent:.1f}%)")
+                                pass
                             
                             # Run parallel scanner
                             scanner = ParallelScanner(seq, hs_db=None)
-                            raw_motifs = scanner.run_scan(progress_callback=chunk_progress_callback)
+                            raw_motifs = scanner.run_scan(progress_callback=None)
                             
                             # Convert raw motifs to full motif format by running through scoring
                             # For now, just use the standard analyzer
@@ -1618,6 +1646,8 @@ with tab_pages["Upload & Analyze"]:
     st.markdown("---")
 # ---------- RESULTS ----------
 with tab_pages["Results"]:
+    # Apply Results tab theme
+    load_css('genomic_purple')
     st.markdown('<h2>Analysis Results and Visualization</h2>', unsafe_allow_html=True)
     if not st.session_state.results:
         st.info("No analysis results. Please run motif analysis first.")
@@ -1665,15 +1695,18 @@ with tab_pages["Results"]:
         seq_idx = 0
         if len(st.session_state.seqs) > 1:
             # Use pills for sequence selection - a more modern and visual alternative to dropdown
-            selected_seq = st.pills(
-                "Choose Sequence for Details:",
-                options=list(range(len(st.session_state.seqs))),
-                format_func=lambda i: st.session_state.names[i],
-                selection_mode="single",
-                default=0,
-                help="Select a sequence to view detailed analysis results"
-            )
-            seq_idx = selected_seq or 0
+            try:
+                selected_seq = st.pills(
+                    "Choose Sequence for Details:",
+                    options=list(range(len(st.session_state.seqs))),
+                    format_func=lambda i: st.session_state.names[i],
+                    selection_mode="single",
+                    default=0,
+                    help="Select a sequence to view detailed analysis results"
+                )
+                seq_idx = selected_seq or 0
+            except Exception:
+                seq_idx = 0
         
         motifs = st.session_state.results[seq_idx]
         sequence_length = len(st.session_state.seqs[seq_idx])
@@ -1705,7 +1738,7 @@ with tab_pages["Results"]:
                 </h3>
                 <div class='stats-grid stats-grid--extra-wide'>
                     <div class='stat-card stat-card--large'>
-                        <h2 class='stat-card__value stat-card__value--large'>
+                        <h2 class='stat-card__value stat_card_value_large'>
                             {stats.get("Coverage%", 0):.2f}%
                         </h2>
                         <p class='stat-card__label stat-card__label--large'>
@@ -1767,13 +1800,17 @@ with tab_pages["Results"]:
             default_cols = [col for col in CORE_OUTPUT_COLUMNS if col in available_columns]
             
             # Use pills for column selection - multi-selection mode for better UX
-            display_columns = st.pills(
-                "",
-                options=available_columns,
-                selection_mode="multi",
-                default=default_cols,
-                help="Click to toggle columns on/off for display"
-            )
+            try:
+                display_columns = st.pills(
+                    "",
+                    options=available_columns,
+                    selection_mode="multi",
+                    default=default_cols,
+                    help="Click to toggle columns on/off for display"
+                )
+            except Exception:
+                # Fallback: use multiselect if pills not available
+                display_columns = st.multiselect("Columns to display", options=available_columns, default=default_cols)
             # Ensure display_columns is always a list (st.pills with multi mode returns list or None)
             if display_columns is None:
                 display_columns = []
@@ -2240,10 +2277,12 @@ with tab_pages["Results"]:
                             import traceback
                             st.code(traceback.format_exc(), language="python")
                 else:
-                    st.info("No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in close proximity.")
+                    st.info("No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in cl[...")
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
+    # Apply Download tab theme
+    load_css('clinical_teal')
     st.header("Export Data")
     if not st.session_state.results:
         st.info("No results available to download.")
@@ -2410,6 +2449,8 @@ with tab_pages["Download"]:
 
 # ---------- DOCUMENTATION ----------
 with tab_pages["Documentation"]:
+    # Apply Documentation tab theme
+    load_css('midnight')
     st.header("Scientific Documentation & References")
     
     # Motif classes documentation
@@ -2429,7 +2470,7 @@ with tab_pages["Documentation"]:
         <li><b>G4 (G-Quadruplex) and Variants</b>: Detects canonical/variant G4 motifs by G-run/loop regex. G4Hunter scoring for content/structure.</li>
         <li><b>i-Motif</b>: C-rich sequences for i-motif under acid. Regex for C runs/loops; scoring by run count and content.</li>
         <li><b>AC-Motif</b>: Alternating A-rich/C-rich consensus regions by regex. Scoring by pattern presence.</li>
-        <li><b>A-philic DNA</b>: Uses tetranucleotide log2 odds scoring to identify A-tract-favoring sequences with high protein-binding affinity. Classified as high-confidence or moderate A-philic based on score thresholds and strong tetranucleotide counts.</li>
+        <li><b>A-philic DNA</b>: Uses tetranucleotide log2 odds scoring to identify A-tract-favoring sequences with high protein-binding affinity. Classified as high-confidence or moderate A-philic ba[...]
         <li><b>Hybrid Motif</b>: Regions where motif classes overlap; found by interval intersection, scored on diversity/size.</li>
         <li><b>Non-B DNA Clusters</b>: Hotspots with multiple motifs in a window; sliding algorithm, scored by motif count/diversity.</li>
     </ul>
