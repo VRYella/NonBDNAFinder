@@ -1,8 +1,8 @@
 """
-╔═════════════════════════════════════════════════════════════════
-║                         NBDSCANNER WEB APPLICATION              ║
-║                    Non-B DNA Motif Detection System             ║
-╚═════════════════════════════════════════════════════════════════
+╔═════════════════════════════════════════════════════════════════��[...]
+║                         NBDSCANNER WEB APPLICATION                            ║
+║                    Non-B DNA Motif Detection System                          ║
+╚═════════════════════════════════════════════════════════════════��[...]
 
 MODULE: app.py
 AUTHOR: Dr. Venkata Rajesh Yella
