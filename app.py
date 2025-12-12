@@ -574,15 +574,18 @@ tab_pages = dict(zip(PAGES.keys(), tabs))
 with tab_pages["Home"]:
     # Apply Home theme
     load_css('scientific_blue')
-    # ========== HERO SECTION - Nobel Laureate Level ==========
+    # ========== PROFESSIONAL HEADER ==========
     st.markdown("""
-    <div style='background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%); 
-                padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; 
-                box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;'>
-        <h1 style='color: white; font-size: 2.8rem; font-weight: 700; margin: 0 0 1rem 0; 
-                   font-family: "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.5px;'>
-            NonBFinder Database
+    <div style='background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+                padding: 2.5rem 2rem; border-radius: 16px; margin-bottom: 2rem; 
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15); text-align: center;'>
+        <h1 style='color: white; font-size: 2.5rem; font-weight: 600; margin: 0 0 0.5rem 0; 
+                   font-family: "Inter", "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.02em;'>
+            NonBDNA Motif Detection System
         </h1>
+        <p style='color: rgba(255,255,255,0.9); font-size: 1.05rem; margin: 0; font-weight: 400;'>
+            Comprehensive Analysis of Non-Canonical DNA Structures
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
