@@ -590,11 +590,11 @@ with tab_pages["Home"]:
     col_stat1, col_stat2 = st.columns([1, 1])
     with col_stat1:
         if HYPERSCAN_AVAILABLE:
-            st.success("🚀 **Performance Mode:** Hyperscan acceleration active for high-speed pattern matching")
+            st.success("**Performance Mode:** Hyperscan acceleration active for high-speed pattern matching")
         else:
-            st.info("ℹ️ **Standard Mode:** Using regex-based pattern matching (all features fully functional)")
+            st.info("**Standard Mode:** Using regex-based pattern matching (all features fully functional)")
     with col_stat2:
-        st.info("📊 **Publication Ready:** Export to Nature/NAR-compliant formats with 300 DPI resolution")
+        st.info("**Publication Ready:** Export to Nature/NAR-compliant formats with 300 DPI resolution")
     
     # ========== MAIN CONTENT GRID ==========
     left, right = st.columns([1, 1], gap="large")
@@ -604,7 +604,7 @@ with tab_pages["Home"]:
         <div style='background: white; padding: 2rem; border-radius: 16px; 
                     box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; height: 100%;'>
             <h2 style='color: #1e3a8a; font-size: 1.6rem; margin: 0 0 1rem 0; font-weight: 600;'>
-                🧬 Scientific Foundation
+                Scientific Foundation
             </h2>
             <p style='color: #374151; font-size: 1rem; line-height: 1.8; margin-bottom: 1.2rem;'>
                 <b style='color: #1e40af;'>Non-canonical DNA structures</b> are critical regulatory elements 
@@ -619,7 +619,7 @@ with tab_pages["Home"]:
             </ul>
             <div style='background: #eff6ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #3b82f6; margin-top: 1.5rem;'>
                 <p style='margin: 0; color: #1e40af; font-size: 0.9rem; line-height: 1.6;'>
-                    <b>🔬 Algorithms Validated:</b> QmRLFS (R-loops), G4Hunter (G-quadruplexes), 
+                    <b>Algorithms Validated:</b> QmRLFS (R-loops), G4Hunter (G-quadruplexes), 
                     Z-Seeker (Z-DNA), with literature-based scoring methods ensuring biological accuracy.
                 </p>
             </div>
@@ -642,7 +642,7 @@ with tab_pages["Home"]:
             st.markdown("""
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         border-radius: 15px; padding: 40px; text-align: center; color: white; margin-top: 1rem;'>
-                <h2 style='margin: 0; color: white; font-size: 2rem;'>🧬</h2>
+                <h2 style='margin: 0; color: white; font-size: 2rem;'>DNA</h2>
                 <h3 style='margin: 10px 0 0 0; color: white;'>Non-B DNA Structures</h3>
                 <p style='margin: 5px 0 0 0; color: #E8E8E8;'>Structural Diversity Database</p>
             </div>
@@ -654,7 +654,7 @@ with tab_pages["Home"]:
         <div style='background: white; padding: 2rem; border-radius: 16px; 
                     box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; margin-bottom: 1.5rem;'>
             <h2 style='color: #1e3a8a; font-size: 1.6rem; margin: 0 0 1rem 0; font-weight: 600;'>
-                📊 Detected Motif Classes
+                Detected Motif Classes
             </h2>
             <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1rem;'>
                 <div style='padding: 0.8rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
@@ -722,7 +722,7 @@ with tab_pages["Home"]:
                     padding: 1.5rem; border-radius: 12px; text-align: center; 
                     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);'>
             <h3 style='color: white; margin: 0 0 0.5rem 0; font-size: 1.2rem;'>
-                🚀 Ready to Analyze?
+                Ready to Analyze?
             </h3>
             <p style='color: rgba(255,255,255,0.95); margin: 0 0 1rem 0; font-size: 0.95rem;'>
                 Upload your FASTA sequences to begin comprehensive Non-B DNA motif detection
@@ -739,12 +739,11 @@ with tab_pages["Home"]:
     st.markdown("""
     <div style='background: #f9fafb; padding: 2rem; border-radius: 16px; margin-top: 2rem;'>
         <h2 style='color: #1f2937; font-size: 1.8rem; margin: 0 0 1.5rem 0; text-align: center; font-weight: 600;'>
-            ✨ Key Features & Capabilities
+            Key Features & Capabilities
         </h2>
         <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;'>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>⚡</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     High Performance
                 </h3>
@@ -755,7 +754,6 @@ with tab_pages["Home"]:
             </div>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>📊</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     Publication Quality
                 </h3>
@@ -766,7 +764,6 @@ with tab_pages["Home"]:
             </div>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>🔬</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     Scientifically Validated
                 </h3>
@@ -777,7 +774,6 @@ with tab_pages["Home"]:
             </div>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>📈</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     Statistical Analysis
                 </h3>
@@ -788,7 +784,6 @@ with tab_pages["Home"]:
             </div>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>💾</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     Multiple Export Formats
                 </h3>
@@ -799,7 +794,6 @@ with tab_pages["Home"]:
             </div>
             <div style='background: white; padding: 1.5rem; border-radius: 12px; 
                         box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;'>
-                <div style='font-size: 2rem; margin-bottom: 0.8rem;'>🎯</div>
                 <h3 style='color: #1f2937; font-size: 1.1rem; margin: 0 0 0.5rem 0; font-weight: 600;'>
                     Comprehensive Coverage
                 </h3>
@@ -818,7 +812,7 @@ with tab_pages["Home"]:
     <div style='background: white; padding: 2rem; border-radius: 16px; 
                 box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; margin-top: 2rem;'>
         <h2 style='color: #1e3a8a; font-size: 1.6rem; margin: 0 0 1rem 0; font-weight: 600;'>
-            📚 How to Cite
+            How to Cite
         </h2>
         <div style='background: #f9fafb; padding: 1.2rem; border-radius: 8px; border-left: 4px solid #3b82f6; 
                     font-family: "Courier New", monospace; font-size: 0.9rem; line-height: 1.7; color: #374151;'>
@@ -852,7 +846,7 @@ with tab_pages["Upload & Analyze"]:
     
     with col1:
         # LEFT COLUMN: Sequence Upload and Motif Analysis
-        st.markdown("### 📤 Sequence Upload")
+        st.markdown("### Sequence Upload")
         
         # ----- Input Method -----
         input_method = st.radio("Choose your input method:",
@@ -884,20 +878,20 @@ with tab_pages["Upload & Analyze"]:
                                 box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
                         <div style='display: flex; justify-content: space-between; align-items: center;'>
                             <div>
-                                <div style='font-weight: 600; font-size: 0.95rem;'>📁 {fasta_file.name}</div>
+                                <div style='font-weight: 600; font-size: 0.95rem;'>File: {fasta_file.name}</div>
                                 <div style='font-size: 0.85rem; opacity: 0.9; margin-top: 4px;'>
                                     {preview_info['num_sequences']} sequences | {preview_info['total_bp']:,} bp | {file_size_mb:.2f} MB
                                 </div>
                             </div>
                             <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
-                                ✓ Valid
+                                Valid Valid
                             </div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
                     # Show preview of first few sequences using popover for better UX
-                    with st.popover("🔍 Preview Sequences"):
+                    with st.popover("Preview Preview Sequences"):
                         for prev in preview_info['previews']:
                             st.markdown(f"**{prev['name']}**: {prev['length']:,} bp")
                             stats = get_basic_stats(prev['preview'].replace('...', ''))
@@ -977,13 +971,13 @@ with tab_pages["Upload & Analyze"]:
                                 box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);'>
                         <div style='display: flex; justify-content: space-between; align-items: center;'>
                             <div>
-                                <div style='font-weight: 600; font-size: 0.95rem;'>📝 Pasted Sequences</div>
+                                <div style='font-weight: 600; font-size: 0.95rem;'>Pasted: Pasted Sequences</div>
                                 <div style='font-size: 0.85rem; opacity: 0.9; margin-top: 4px;'>
                                     {len(seqs)} sequences | {total_bp:,} bp
                                 </div>
                             </div>
                             <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
-                                ✓ Valid
+                                Valid Valid
                             </div>
                         </div>
                     </div>
@@ -1001,7 +995,7 @@ with tab_pages["Upload & Analyze"]:
                     parsed_fasta = parse_fasta(EXAMPLE_FASTA)
                     seqs = list(parsed_fasta.values())
                     names = list(parsed_fasta.keys())
-                    st.success("✅ Single example sequence loaded.")
+                    st.success("Success: Single example sequence loaded.")
             else:
                 if st.button("Load Multi-FASTA Example", use_container_width=True):
                     seqs, names = [], []
@@ -1018,7 +1012,7 @@ with tab_pages["Upload & Analyze"]:
                     if cur_seq:
                         seqs.append(cur_seq)
                         names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                    st.success(f"✅ Multi-FASTA example loaded with {len(seqs)} sequences.")
+                    st.success(f"Success: Multi-FASTA example loaded with {len(seqs)} sequences.")
 
         elif input_method == "NCBI Fetch":
             db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True,
@@ -1036,7 +1030,7 @@ with tab_pages["Upload & Analyze"]:
                             seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
                             names = [rec.id for rec in records]
                             if seqs:
-                                st.success(f"✅ Fetched {len(seqs)} sequences.")
+                                st.success(f"Success: Fetched {len(seqs)} sequences.")
                         except Exception as e:
                             st.error(f"NCBI fetch failed: {e}")
                 else:
@@ -1050,7 +1044,7 @@ with tab_pages["Upload & Analyze"]:
 
         # Compact sequence validation indicator using popover for cleaner UI
         if st.session_state.get('seqs'):
-            with st.popover("✅ Validation Summary"):
+            with st.popover("Success: Validation Summary"):
                 for i, seq in enumerate(st.session_state.seqs[:3]):
                     stats = get_basic_stats(seq)
                     st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp)")
@@ -1060,7 +1054,7 @@ with tab_pages["Upload & Analyze"]:
     
     with col2:
         # RIGHT COLUMN: Analysis & Run
-        st.markdown("### ⚙️ Analysis & Run")
+        st.markdown("### Analysis & Analysis & Run")
         
         # Quick Options Section
         st.markdown("##### Quick Options")
@@ -1076,14 +1070,14 @@ with tab_pages["Upload & Analyze"]:
                                           help="Enable experimental parallel chunk-based scanner (>100kb sequences)")
         
         if use_parallel_scanner:
-            st.caption("⚠️ Parallel scanner works best on sequences >100kb with multiple CPU cores")
+            st.caption("Note: Parallel scanner works best on sequences >100kb with multiple CPU cores")
         
         # Hardcoded default overlap handling
         nonoverlap = True
         overlap_option = "Remove overlaps within subclasses"
         
         # Helper text
-        st.caption("💡 All 11 motif classes with 22+ subclasses are detected automatically")
+        st.caption("Tip: All 11 motif classes with 22+ subclasses are detected automatically")
     
     # ----- FULL-WIDTH STICKY RUN BUTTON -----
     st.markdown("---")
@@ -1097,7 +1091,7 @@ with tab_pages["Upload & Analyze"]:
         # Sticky-ish styling with disabled state
         if has_valid_input:
             run_button = st.button(
-                "🚀 Run NBDScanner Analysis",
+                "Run Run NBDScanner Analysis",
                 type="primary",
                 use_container_width=True,
                 key="run_motif_analysis_main",
@@ -1110,10 +1104,10 @@ with tab_pages["Upload & Analyze"]:
                  style='background: #e0e0e0; color: #9e9e9e; padding: 12px; 
                         border-radius: 12px; text-align: center; font-weight: 600;
                         font-size: 1.1rem; cursor: not-allowed; opacity: 0.6;'>
-                🚀 Run NBDScanner Analysis (Disabled)
+                Run Run NBDScanner Analysis (Disabled)
             </div>
             <p style='text-align: center; color: #9e9e9e; font-size: 0.85rem; margin-top: 8px;' role="status">
-                ⚠️ Please upload or paste a valid sequence first
+                Note: Please upload or paste a valid sequence first
             </p>
             """, unsafe_allow_html=True)
             run_button = False
@@ -1149,7 +1143,7 @@ with tab_pages["Upload & Analyze"]:
                 for class_id in st.session_state.selected_classes:
                     limits = get_motif_limits(class_id)
                     if limits:
-                        validation_messages.append(f"✓ {class_id}: Length limits {limits}")
+                        validation_messages.append(f"Valid {class_id}: Length limits {limits}")
             
             # Enhanced progress tracking with timer
             import time
@@ -1204,27 +1198,27 @@ with tab_pages["Upload & Analyze"]:
                     extra_info: Extra information to display (e.g., speed, motifs)
                 """
                 with container:
-                    st.subheader("🧬 NonBFinder Analysis")
+                    st.subheader("DNA NonBFinder Analysis")
                     st.write(status_text)
                     
                     # Display metrics in 4 columns
                     col1, col2, col3, col4 = st.columns(4)
                     
                     with col1:
-                        st.metric("⏱️ Elapsed", format_time(elapsed))
+                        st.metric("Time: Elapsed", format_time(elapsed))
                     
                     with col2:
                         st.metric("⏳ Remaining", format_time(estimated_remaining))
                     
                     with col3:
-                        st.metric("📊 Progress", progress_display)
+                        st.metric("Progress: Progress", progress_display)
                     
                     with col4:
-                        st.metric("🔬 Detectors", str(detector_count))
+                        st.metric("Analysis Detectors", str(detector_count))
                     
                     # Sequence info
                     st.write(f"**📄 Sequence {seq_num}/{total_seqs}**: {seq_name} *({seq_bp:,} bp)*")
-                    st.write(f"⚡ Processed: {processed_bp:,} / {total_bp:,} bp")
+                    st.write(f"Speed: Processed: {processed_bp:,} / {total_bp:,} bp")
                     
                     if extra_info:
                         st.write(extra_info)
@@ -1252,13 +1246,13 @@ with tab_pages["Upload & Analyze"]:
                 # Show detailed progress panel with detector sequence (only once since it's static)
                 # The status shows all detectors as "running" during analysis since they run in parallel
                 with detailed_progress_placeholder.container():
-                    st.subheader("🔬 Analysis Pipeline")
+                    st.subheader("Analysis Analysis Pipeline")
                     
                     # Display detectors in a clean list format
                     for j, (detector_name, detector_desc) in enumerate(DETECTOR_PROCESSES):
                         st.write(f"**{j+1}. {detector_name}** - {detector_desc}")
                     
-                    st.info("✓ All detectors process in parallel | 🔄 Followed by overlap resolution & clustering")
+                    st.info("Valid All detectors process in parallel | Processing Followed by overlap resolution & clustering")
                     
                 for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
                     progress = (i + 1) / len(st.session_state.seqs)
@@ -1325,7 +1319,7 @@ with tab_pages["Upload & Analyze"]:
                             
                             # Clear chunk progress
                             if show_chunk_progress:
-                                chunk_progress_placeholder.success(f"✅ Chunks complete: {len(raw_motifs)} motifs")
+                                chunk_progress_placeholder.success(f"Success: Chunks complete: {len(raw_motifs)} motifs")
                             
                         except Exception as e:
                             st.warning(f"Parallel scanner failed, falling back to standard: {e}")
@@ -1357,22 +1351,22 @@ with tab_pages["Upload & Analyze"]:
                     actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                     
                     # Build extra info for completion
-                    completion_info = f"⚡ Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | 🎯 {len(results)} motifs | 🚀 {speed:,.0f} bp/s"
+                    completion_info = f"Speed: Total: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | Motifs: {len(results)} motifs | Run {speed:,.0f} bp/s"
                     
                     # Update timer display with actual progress using native components
                     display_progress_panel(
                         timer_placeholder,
                         elapsed, estimated_remaining, f"{actual_percentage:.1f}%",
-                        f"✅ Sequence {i+1}/{len(st.session_state.seqs)} completed",
+                        f"Success: Sequence {i+1}/{len(st.session_state.seqs)} completed",
                         name, len(seq), i+1, len(st.session_state.seqs),
                         total_bp_processed, total_bp_all_sequences, len(DETECTOR_PROCESSES),
                         completion_info
                     )
                     
                     with progress_placeholder.container():
-                        pbar.progress(progress, text=f"🔬 Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
+                        pbar.progress(progress, text=f"Analysis Analyzed {i+1}/{len(st.session_state.seqs)} sequences")
                     
-                    status_placeholder.success(f"✅ {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) | 🎯 {len(results)} motifs")
+                    status_placeholder.success(f"Success: {name}: {len(seq):,} bp in {seq_time:.2f}s ({len(seq)/seq_time:.0f} bp/s) | Motifs: {len(results)} motifs")
                 
                 # Store results
                 st.session_state.results = all_results
@@ -1385,7 +1379,7 @@ with tab_pages["Upload & Analyze"]:
                 # RIGOROUS VALIDATION & QUALITY CHECKS
                 # ============================================================
                 with status_placeholder.container():
-                    st.info("🔍 Validating results for consistency and quality...")
+                    st.info("Preview Validating results for consistency and quality...")
                 
                 validation_issues = []
                 
@@ -1400,25 +1394,25 @@ with tab_pages["Upload & Analyze"]:
                         seen_motifs.add(motif_key)
                     
                     if duplicates_found > 0:
-                        validation_issues.append(f"⚠️ Sequence {i+1}: {duplicates_found} duplicate motifs found")
+                        validation_issues.append(f"Note: Sequence {i+1}: {duplicates_found} duplicate motifs found")
                 
                 # 2. Validate motif data consistency
                 for i, results in enumerate(all_results):
                     for motif in results:
                         # Check required fields
                         if not all(k in motif for k in ['Start', 'End', 'Class']):
-                            validation_issues.append(f"⚠️ Sequence {i+1}: Motif missing required fields")
+                            validation_issues.append(f"Note: Sequence {i+1}: Motif missing required fields")
                             break
                         
                         # Validate positions
                         if motif.get('Start', 0) >= motif.get('End', 0):
-                            validation_issues.append(f"⚠️ Sequence {i+1}: Invalid motif position (Start >= End)")
+                            validation_issues.append(f"Note: Sequence {i+1}: Invalid motif position (Start >= End)")
                             break
                         
                         # Validate length consistency
                         calculated_length = motif.get('End', 0) - motif.get('Start', 0)
                         if motif.get('Length') and abs(motif.get('Length') - calculated_length) > 1:
-                            validation_issues.append(f"⚠️ Sequence {i+1}: Length mismatch detected")
+                            validation_issues.append(f"Note: Sequence {i+1}: Length mismatch detected")
                             break
                 
                 # 3. Check for overlapping motifs within same subclass (should be resolved)
@@ -1435,7 +1429,7 @@ with tab_pages["Upload & Analyze"]:
                         sorted_motifs = sorted(motifs, key=lambda m: m.get('Start', 0))
                         for j in range(len(sorted_motifs) - 1):
                             if sorted_motifs[j].get('End', 0) > sorted_motifs[j+1].get('Start', 0):
-                                validation_issues.append(f"⚠️ Sequence {i+1}: Overlapping motifs in {subclass}")
+                                validation_issues.append(f"Note: Sequence {i+1}: Overlapping motifs in {subclass}")
                                 break
                 
                 # Display validation results
@@ -1448,7 +1442,7 @@ with tab_pages["Upload & Analyze"]:
                             st.write(f"... and {len(validation_issues) - 5} more")
                 else:
                     with status_placeholder.container():
-                        st.success("✅ Validation passed: No consistency issues found")
+                        st.success("Success: Validation passed: No consistency issues found")
                 
                 # Generate summary
                 summary = []
@@ -1470,7 +1464,7 @@ with tab_pages["Upload & Analyze"]:
                 # PRE-GENERATE ALL VISUALIZATIONS FOR CLASSES AND SUBCLASSES
                 # ============================================================
                 with status_placeholder.container():
-                    st.info("📊 Generating comprehensive visualizations for all classes and subclasses...")
+                    st.info("Progress: Generating comprehensive visualizations for all classes and subclasses...")
                 
                 viz_progress = st.empty()
                 viz_status = st.empty()
@@ -1533,13 +1527,13 @@ with tab_pages["Upload & Analyze"]:
                     
                     with viz_progress.container():
                         viz_elapsed = time.time() - viz_start_time
-                        st.write(f"✅ Processed {seq_idx + 1}/{len(st.session_state.seqs)} sequences")
-                        st.write(f"📊 Generated {total_viz_count} visualization components in {viz_elapsed:.2f}s")
+                        st.write(f"Success: Processed {seq_idx + 1}/{len(st.session_state.seqs)} sequences")
+                        st.write(f"Progress: Generated {total_viz_count} visualization components in {viz_elapsed:.2f}s")
                 
                 viz_total_time = time.time() - viz_start_time
                 
                 with viz_status.container():
-                    st.success(f"✅ All visualizations prepared: {total_viz_count} components in {viz_total_time:.2f}s")
+                    st.success(f"Success: All visualizations prepared: {total_viz_count} components in {viz_total_time:.2f}s")
                 
                 # Store performance metrics with enhanced details
                 st.session_state.performance_metrics = {
@@ -1572,39 +1566,39 @@ with tab_pages["Upload & Analyze"]:
                 # Show final success message with enhanced performance metrics
                 timer_placeholder.markdown(f"""
                 <div class='progress-panel progress-panel--success'>
-                    <h3 class='progress-panel__title'>🎉 Analysis Complete!</h3>
+                    <h3 class='progress-panel__title'>Complete! Analysis Complete!</h3>
                     <p class='progress-panel__subtitle'>All detectors, validations, and visualizations completed successfully</p>
                     <div class='stats-grid stats-grid--wide'>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>⏱️ {total_time:.2f}s</h2>
+                            <h2 class='stat-card__value'>Time: {total_time:.2f}s</h2>
                             <p class='stat-card__label'>Analysis Time</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>📊 {viz_total_time:.2f}s</h2>
+                            <h2 class='stat-card__value'>Progress: {viz_total_time:.2f}s</h2>
                             <p class='stat-card__label'>Visualization Time</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>🧬 {total_bp_processed:,}</h2>
+                            <h2 class='stat-card__value'>DNA {total_bp_processed:,}</h2>
                             <p class='stat-card__label'>Base Pairs</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>🚀 {overall_speed:,.0f}</h2>
+                            <h2 class='stat-card__value'>Run {overall_speed:,.0f}</h2>
                             <p class='stat-card__label'>bp/second</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>🔬 {len(DETECTOR_PROCESSES)}</h2>
+                            <h2 class='stat-card__value'>Analysis {len(DETECTOR_PROCESSES)}</h2>
                             <p class='stat-card__label'>Detectors</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>🎯 {sum(len(r) for r in all_results)}</h2>
+                            <h2 class='stat-card__value'>Motifs: {sum(len(r) for r in all_results)}</h2>
                             <p class='stat-card__label'>Motifs Found</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>📈 {total_viz_count}</h2>
+                            <h2 class='stat-card__value'>Viz: {total_viz_count}</h2>
                             <p class='stat-card__label'>Viz Components</p>
                         </div>
                         <div class='stat-card'>
-                            <h2 class='stat-card__value'>✅ {len(validation_issues)}</h2>
+                            <h2 class='stat-card__value'>Success: {len(validation_issues)}</h2>
                             <p class='stat-card__label'>Validation Issues</p>
                         </div>
                     </div>
@@ -1612,22 +1606,22 @@ with tab_pages["Upload & Analyze"]:
                 """, unsafe_allow_html=True)
                 
                 # Show comprehensive completion summary
-                completion_msg = f"""✅ **Analysis Complete!** All processing stages finished successfully:
+                completion_msg = f"""Success: **Analysis Complete!** All processing stages finished successfully:
                 
 **Detection & Analysis:**
-- 🔬 {len(DETECTOR_PROCESSES)} detector processes completed
-- 🎯 {sum(len(r) for r in all_results)} total motifs detected across {len(st.session_state.seqs)} sequences
-- ⏱️ Analysis completed in {total_time:.2f}s ({overall_speed:,.0f} bp/s)
+- Analysis {len(DETECTOR_PROCESSES)} detector processes completed
+- Motifs: {sum(len(r) for r in all_results)} total motifs detected across {len(st.session_state.seqs)} sequences
+- Time: Analysis completed in {total_time:.2f}s ({overall_speed:,.0f} bp/s)
 
 **Quality Validation:**
-- ✅ Data consistency checks: {'PASSED' if len(validation_issues) == 0 else f'{len(validation_issues)} issues found'}
-- ✅ Non-redundancy validation: Complete
-- ✅ Position validation: Complete
+- Success: Data consistency checks: {'PASSED' if len(validation_issues) == 0 else f'{len(validation_issues)} issues found'}
+- Success: Non-redundancy validation: Complete
+- Success: Position validation: Complete
 
 **Visualization Generation:**
-- 📊 {total_viz_count} visualization components pre-generated
-- 📈 Class-level and subclass-level analysis ready
-- ⏱️ Visualizations prepared in {viz_total_time:.2f}s
+- Progress: {total_viz_count} visualization components pre-generated
+- Analysis: Class-level and subclass-level analysis ready
+- Time: Visualizations prepared in {viz_total_time:.2f}s
 
 **View detailed results in the 'Analysis Results and Visualization' tab.**
 """
@@ -1782,7 +1776,7 @@ with tab_pages["Results"]:
             cached_viz = st.session_state.get('cached_visualizations', {}).get(viz_cache_key, {})
             if cached_viz.get('summary'):
                 viz_summary = cached_viz['summary']
-                st.success(f"""📊 **Pre-generated Analysis Ready:** 
+                st.success(f"""Progress: **Pre-generated Analysis Ready:** 
                 {viz_summary['unique_classes']} unique classes, 
                 {viz_summary['unique_subclasses']} unique subclasses analyzed
                 """)
@@ -1898,7 +1892,7 @@ with tab_pages["Results"]:
                         positional_density_kbp = cached_densities['class_positional']
                         genomic_density_subclass = cached_densities['subclass_genomic']
                         positional_density_subclass = cached_densities['subclass_positional']
-                        st.info("📊 Using pre-calculated density metrics from analysis phase")
+                        st.info("Progress: Using pre-calculated density metrics from analysis phase")
                     else:
                         # Calculate fresh if not cached
                         genomic_density = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
@@ -1982,7 +1976,7 @@ with tab_pages["Results"]:
                     
                 except Exception as e:
                     st.error(f"Error calculating density metrics: {e}")
-                    with st.expander("🔍 Show detailed error trace"):
+                    with st.expander("Preview Show detailed error trace"):
                         import traceback
                         st.code(traceback.format_exc(), language="python")
                 
@@ -2028,7 +2022,7 @@ with tab_pages["Results"]:
             
             with viz_tabs[2]:  # Genome-Wide Visualizations (was tab 3)
                 st.markdown("##### Genome-Wide Motif Analysis")
-                st.info("📊 Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
+                st.info("Progress: Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
                 
                 try:
                     # Manhattan plot for motif density hotspots
@@ -2060,11 +2054,11 @@ with tab_pages["Results"]:
                         st.pyplot(fig_linear)
                         plt.close(fig_linear)
                     else:
-                        st.info("💡 Linear motif track is shown for sequences < 50kb. For large sequences, use Manhattan plot or Coverage map.")
+                        st.info("Tip: Linear motif track is shown for sequences < 50kb. For large sequences, use Manhattan plot or Coverage map.")
                     
                 except Exception as e:
                     st.error(f"Error generating genome-wide plots: {e}")
-                    with st.expander("🔍 Show detailed error trace"):
+                    with st.expander("Preview Show detailed error trace"):
                         import traceback
                         st.code(traceback.format_exc(), language="python")
             
@@ -2224,7 +2218,7 @@ with tab_pages["Results"]:
                     
                     # Advanced Statistical Visualizations Section
                     st.markdown("##### Advanced Statistical Visualizations")
-                    st.info("📈 Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
+                    st.info("Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
                     
                     try:
                         # Motif co-occurrence matrix
@@ -2273,7 +2267,7 @@ with tab_pages["Results"]:
                         
                     except Exception as e:
                         st.error(f"Error generating advanced plots: {e}")
-                        with st.expander("🔍 Show detailed error trace"):
+                        with st.expander("Preview Show detailed error trace"):
                             import traceback
                             st.code(traceback.format_exc(), language="python")
                 else:

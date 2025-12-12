@@ -187,17 +187,17 @@ class AnalysisProgress:
         'DETECTION': {
             'name': 'Motif Detection',
             'description': 'Run 9 specialized detectors',
-            'icon': '🔍'
+            'icon': '[DETECT]'
         },
         'PROCESSING': {
             'name': 'Post-Processing',
             'description': 'Overlap removal, hybrid/cluster detection',
-            'icon': '⚙️'
+            'icon': '[PROCESS]'
         },
         'OUTPUT': {
             'name': 'Output Generation',
             'description': 'Score normalization and formatting',
-            'icon': '📤'
+            'icon': '[OUTPUT]'
         }
     }
     
@@ -342,7 +342,7 @@ class AnalysisProgress:
             
             # Status icon
             if status['status'] == 'complete':
-                icon = '✓'
+                icon = '[OK]'
                 status_text = 'Complete'
             elif status['status'] == 'running':
                 icon = '►'
@@ -379,7 +379,7 @@ class AnalysisProgress:
             if stage_id in self.stage_times:
                 if self.stage_times[stage_id]['end']:
                     elapsed = self.stage_times[stage_id]['end'] - self.stage_times[stage_id]['start']
-                    status = f"✓ Complete ({elapsed:.2f}s)"
+                    status = f"Complete ({elapsed:.2f}s)"
                 else:
                     status = "► Running..."
             elif self.current_stage == stage_id:
@@ -1331,19 +1331,19 @@ def analyze_with_progress(sequence: str, sequence_name: str = "sequence",
     # │    └─► Parse sequence, validate ATGC characters                          │
     # │                          │                                               │
     # │                          ▼                                               │
-    # │  🔍 DETECTION (9 parallel detectors)                                     │
+    # │  [DETECTION] (9 parallel detectors)                                     │
     # │    ├─► Curved DNA     ├─► Slipped DNA   ├─► Cruciform                    │
     # │    ├─► R-Loop         ├─► Triplex       ├─► G-Quadruplex                 │
     # │    ├─► i-Motif        ├─► Z-DNA         └─► A-philic DNA                 │
     # │                          │                                               │
     # │                          ▼                                               │
-    # │  ⚙️ POST-PROCESSING                                                      │
+    # │  [POST-PROCESSING]                                                      │
     # │    ├─► Remove overlapping motifs                                         │
     # │    ├─► Detect hybrid regions (multi-class overlap)                       │
     # │    └─► Detect clusters (high-density regions)                            │
     # │                          │                                               │
     # │                          ▼                                               │
-    # │  📤 OUTPUT                                                               │
+    # │  [OUTPUT]                                                               │
     # │    ├─► Normalize scores (1-3 scale)                                      │
     # │    └─► Sort by genomic position                                          │
     # │                                                                          │
@@ -1440,7 +1440,7 @@ def get_pipeline_info() -> Dict[str, Any]:
             {
                 'id': 'DETECTION',
                 'name': 'Motif Detection',
-                'icon': '🔍',
+                'icon': '[DETECT]',
                 'description': 'Run 9 specialized detectors to find Non-B DNA motifs',
                 'complexity': 'O(n) per detector',
                 'operations': ['Run parallel detectors', 'Pattern matching', 'Score calculation']
@@ -1448,7 +1448,7 @@ def get_pipeline_info() -> Dict[str, Any]:
             {
                 'id': 'PROCESSING',
                 'name': 'Post-Processing',
-                'icon': '⚙️',
+                'icon': '[PROCESS]',
                 'description': 'Process and refine detected motifs',
                 'complexity': 'O(m log m) to O(m²)',
                 'operations': ['Remove overlapping motifs', 'Detect hybrid regions', 'Identify clusters']
@@ -1456,7 +1456,7 @@ def get_pipeline_info() -> Dict[str, Any]:
             {
                 'id': 'OUTPUT',
                 'name': 'Output Generation',
-                'icon': '📤',
+                'icon': '[OUTPUT]',
                 'description': 'Normalize scores and format results',
                 'complexity': 'O(m)',
                 'operations': ['Normalize scores to 1-3 scale', 'Sort by position', 'Generate output']

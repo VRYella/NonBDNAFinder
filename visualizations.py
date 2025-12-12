@@ -1219,7 +1219,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
                         raise ValueError(f"Unsupported file format: {file_format}. Use 'png', 'pdf', 'svg', or 'html'.") from fmt_err
             
             saved_files[plot_name] = filepath
-            print(f"✓ Saved {plot_name} to {filepath}")
+            print(f"[OK] Saved {plot_name} to {filepath}")
             
         except Exception as e:
             print(f"✗ Failed to generate {plot_name}: {e}")
@@ -1339,7 +1339,7 @@ def plot_class_analysis_comprehensive(motifs: List[Dict[str, Any]],
                 bbox=dict(boxstyle='round', facecolor='#FFEBEE', alpha=0.8),
                 wrap=True)
     else:
-        ax4.text(0.5, 0.5, 'All 11 Non-B DNA classes detected! ✓', 
+        ax4.text(0.5, 0.5, 'All 11 Non-B DNA classes detected! [OK]', 
                 ha='center', va='center', transform=ax4.transAxes, fontsize=12,
                 fontweight='bold', color='green')
     
@@ -1666,32 +1666,32 @@ def test_visualizations():
     try:
         fig1 = plot_motif_distribution(example_motifs, by='Class')
         plt.close(fig1)
-        print("✓ Motif distribution plot: PASS")
+        print("[OK] Motif distribution plot: PASS")
     except Exception as e:
         print(f"✗ Motif distribution plot: FAIL - {e}")
     
     try:
         fig2 = plot_coverage_map(example_motifs, sequence_length)
         plt.close(fig2)
-        print("✓ Coverage map plot: PASS")
+        print("[OK] Coverage map plot: PASS")
     except Exception as e:
         print(f"✗ Coverage map plot: FAIL - {e}")
     
     try:
         fig3 = plot_score_distribution(example_motifs)
         plt.close(fig3)
-        print("✓ Score distribution plot: PASS")
+        print("[OK] Score distribution plot: PASS")
     except Exception as e:
         print(f"✗ Score distribution plot: FAIL - {e}")
     
     try:
         fig4 = plot_nested_pie_chart(example_motifs)
         plt.close(fig4)
-        print("✓ Nested pie chart: PASS")
+        print("[OK] Nested pie chart: PASS")
     except Exception as e:
         print(f"✗ Nested pie chart: FAIL - {e}")
     
-    print(f"\n✓ Visualization testing completed")
+    print(f"\n[OK] Visualization testing completed")
     print(f"Plotly available: {'Yes' if PLOTLY_AVAILABLE else 'No'}")
 
 
