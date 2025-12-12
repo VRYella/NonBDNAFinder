@@ -2,11 +2,18 @@
 """
 Verification script to demonstrate that Excel is the primary pattern source.
 
+NOTE: This is a testing/verification script that requires access to internal
+utilities functions (_load_consolidated_registry) for validation purposes.
+Production code should use the public API (load_db_for_class) instead.
+
 This script verifies that:
 1. Excel file is loaded first when available
 2. JSON is only used as fallback
 3. All pattern loading goes through the unified loader
 4. End-to-end scanning works with Excel patterns
+
+The script uses literature-validated test sequences to ensure reliable
+motif detection across different classes.
 """
 
 import os
@@ -42,14 +49,16 @@ def test_excel_primary():
     print(f"✓ Total Classes: {total_classes}")
     
     # Verify it's from Excel - check for explicit Excel filename
+    # We check for both exact match and .xlsx extension to be robust,
+    # but the exact match is preferred for correctness
     if source == 'pattern_registry.xlsx':
         print(f"\n✅ SUCCESS: Excel file is the primary source!")
         return True
-    elif 'xlsx' in source.lower():
-        print(f"\n✅ SUCCESS: Excel file loaded ({source})")
-        return True
+    elif source.endswith('.xlsx'):
+        print(f"\n⚠ WARNING: Loaded from Excel file '{source}' (expected 'pattern_registry.xlsx')")
+        return True  # Still Excel, just not the expected name
     else:
-        print(f"\n⚠ WARNING: Loaded from {source} instead of Excel")
+        print(f"\n❌ FAILED: Loaded from {source} instead of Excel")
         print(f"   (Expected 'pattern_registry.xlsx')")
         return False
 
