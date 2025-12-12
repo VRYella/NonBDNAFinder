@@ -75,6 +75,8 @@ The Excel file contains 10 sheets:
 - Triplex: 18,476 patterns
 - Cruciform: 9,595 patterns
 
+**Note**: A-philic and Z-DNA patterns explicitly do NOT use 1-3 normalization. They maintain their original scoring schemes for scientific accuracy.
+
 ## Usage
 
 ### Automatic Loading
@@ -102,7 +104,7 @@ if registry:
 
 ### Editing Patterns
 
-1. Open `pattern_registry.xlsx` in Excel or LibreOffice
+1. Open `pattern_registry2.xlsx` in Excel or LibreOffice
 2. Navigate to the sheet for the motif class you want to edit
 3. Modify patterns, scores, or add new rows
 4. Save the file
@@ -112,7 +114,7 @@ if registry:
 - Ensure `id` column has unique sequential integers
 - For regex patterns, use the `pattern` column
 - For 10-mer patterns, use the `tenmer` column
-- Always provide a `score` value
+- Always provide a `score` value (normalized 1-3 except for A-philic and Z-DNA)
 
 ## Performance
 
@@ -161,7 +163,7 @@ with open('consolidated_registry.json', 'r') as f:
     data = json.load(f)
 
 # Create Excel writer
-writer = pd.ExcelWriter('pattern_registry.xlsx', engine='openpyxl')
+writer = pd.ExcelWriter('pattern_registry2.xlsx', engine='openpyxl')
 
 # Create summary
 summary_data = []
@@ -213,7 +215,7 @@ These are optional - the system falls back to JSON if pandas is not available.
 
 ```
 NonBDNAFinder/
-├── pattern_registry.xlsx          # Primary pattern source (Excel)
+├── pattern_registry2.xlsx         # Primary pattern source (Excel, 170K+ patterns)
 ├── consolidated_registry.json     # Backup pattern source (JSON)
 ├── utilities.py                   # Loading logic
 └── test_excel_pattern_loading.py  # Test suite
@@ -231,13 +233,13 @@ NonBDNAFinder/
 2. Verify file exists:
    ```python
    import os
-   print(os.path.exists('pattern_registry.xlsx'))
+   print(os.path.exists('pattern_registry2.xlsx'))
    ```
 
 3. Check for file corruption:
    ```python
    import pandas as pd
-   pd.read_excel('pattern_registry.xlsx', sheet_name='Summary')
+   pd.read_excel('pattern_registry2.xlsx', sheet_name='Summary')
    ```
 
 ### Pattern counts don't match
@@ -279,22 +281,24 @@ A: Use the JSON file in production. The Excel feature is mainly for development 
 
 ### G4 Pattern
 
-1. Open `pattern_registry.xlsx`
+1. Open `pattern_registry2.xlsx`
 2. Go to the `G4` sheet
 3. Add a new row at the end:
    ```
-   id: 7
+   id: <next_id>
    pattern: G{4,}[ACGT]{1,5}G{4,}[ACGT]{1,5}G{4,}[ACGT]{1,5}G{4,}
    subclass: strict_g4
-   score: 0.95
+   score: 2.5
    ```
 4. Save the file
 5. Restart your Python session
 6. Test: `load_db_for_class('G4', 'registry')`
 
+**Note**: Use normalized scores (1-3) for G4 patterns.
+
 ### ZDNA Pattern (10-mer)
 
-1. Open `pattern_registry.xlsx`
+1. Open `pattern_registry2.xlsx`
 2. Go to the `ZDNA` sheet
 3. Add a new row at the end:
    ```
@@ -305,6 +309,8 @@ A: Use the JSON file in production. The Excel feature is mainly for development 
 4. Save the file
 5. Restart your Python session
 6. Test: `load_db_for_class('ZDNA', 'registry')`
+
+**Note**: Z-DNA scores are NOT normalized (can be > 3).
 
 ## Summary
 
