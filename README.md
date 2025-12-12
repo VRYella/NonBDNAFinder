@@ -55,7 +55,8 @@ NonBScanner is a **Nobel laureate-level** bioinformatics database for detecting 
 - **✨ Enrichment Analysis**: Fold enrichment calculation with 100-iteration sequence shuffling for statistical validation
 - **📊 Statistical Significance**: P-value calculation using permutation testing to validate motif enrichment
 - **🎨 Enhanced Visualizations**: New density comparison and enrichment analysis plots with no text overlap
-- **Consolidated Registry**: Single file (`consolidated_registry.json`) instead of 18 separate files
+- **📊 Excel Pattern Support**: User-friendly Excel file for pattern editing with automatic JSON fallback (see [EXCEL_PATTERN_GUIDE.md](EXCEL_PATTERN_GUIDE.md))
+- **Consolidated Registry**: Pattern data in both Excel (`pattern_registry.xlsx`) and JSON (`consolidated_registry.json`) formats
 - **Enhanced Scientific Visualizations**: Publication-quality plotting functions
 - **Comprehensive Class Analysis**: Shows all 11 classes with detection status
 - **Advanced Statistics**: Mean, median, std, min/max for scores and lengths
@@ -98,7 +99,8 @@ NonBScanner/
 
 ### Supporting Files
 - `scanner.py` - Low-level k-mer indexing functions (used by detectors)
-- `consolidated_registry.json` - Single file with all 411 pattern definitions
+- `pattern_registry.xlsx` - **NEW!** Excel file with all 415 pattern definitions (user-editable)
+- `consolidated_registry.json` - JSON pattern data (fallback if Excel unavailable)
 - `example_motifs_multiline.fasta` - Example FASTA file with all motif types
 
 ## 🔬 Supported Motif Classes
@@ -133,6 +135,7 @@ See the full documentation: **[docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)**
 - **[COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md)** - All parameters, flow diagrams, and code workflows in a single document with text-based diagrams
 
 Additional resources:
+- **[EXCEL_PATTERN_GUIDE.md](EXCEL_PATTERN_GUIDE.md)** - **NEW!** Complete guide for Excel-based pattern editing
 - **[STREAMLIT_DEPLOYMENT.md](STREAMLIT_DEPLOYMENT.md)** - Streamlit Cloud deployment guide
 - **[docs/perf_runbook.md](docs/perf_runbook.md)** - Performance optimization guide
 - **Python API** - See Quick Start below
