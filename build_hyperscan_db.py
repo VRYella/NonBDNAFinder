@@ -69,7 +69,7 @@ try:
     PATTERN_REGISTRY_AVAILABLE = True
 except ImportError:
     PATTERN_REGISTRY_AVAILABLE = False
-    print("Warning: Could not import motif_patterns. Registry-based export disabled.", file=sys.stderr)
+    print("Warning: Could not import motif_patterns. Registry-based database building disabled.", file=sys.stderr)
 
 
 def test_hyperscan_compatible(pattern: str) -> bool:
@@ -89,8 +89,7 @@ def test_hyperscan_compatible(pattern: str) -> bool:
         db = hyperscan.Database()
         db.compile(
             expressions=[pattern.encode('ascii')],
-            ids=[0],
-            elements=1
+            ids=[0]
         )
         return True
     except Exception:
@@ -274,7 +273,6 @@ def build_hyperscan_database(patterns: List[Dict[str, Any]], output_path: Path) 
         db.compile(
             expressions=expressions,
             ids=ids,
-            elements=len(expressions),
             flags=[0] * len(expressions)  # Default flags
         )
         print(f"✓ Compiled {len(expressions)} patterns into Hyperscan database")

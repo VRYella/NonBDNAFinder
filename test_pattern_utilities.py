@@ -32,7 +32,7 @@ try:
         test_hyperscan_compatible as hs_test
     )
     BUILD_AVAILABLE = True
-except Exception as e:
+except (ImportError, ModuleNotFoundError) as e:
     BUILD_AVAILABLE = False
     print(f"Warning: build_hyperscan_db tests disabled: {e}")
 

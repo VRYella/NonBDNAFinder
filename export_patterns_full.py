@@ -113,12 +113,12 @@ def test_hyperscan_compatible(pattern: str) -> bool:
         # If Hyperscan is not available, do basic heuristic checks
         # Hyperscan doesn't support some features like backreferences, lookaheads, etc.
         unsupported_features = [
-            r'\\[0-9]',  # Backreferences like \1, \2
-            r'\(\?=',     # Positive lookahead
-            r'\(\?!',     # Negative lookahead
-            r'\(\?<=',    # Positive lookbehind
-            r'\(\?<!',    # Negative lookbehind
-            r'\(\?P<',    # Named groups
+            r'\\\\[0-9]',  # Backreferences like \1, \2
+            r'\(\?=',      # Positive lookahead
+            r'\(\?!',      # Negative lookahead
+            r'\(\?<=',     # Positive lookbehind
+            r'\(\?<!',     # Negative lookbehind
+            r'\(\?P<',     # Named groups
         ]
         for feature in unsupported_features:
             if re.search(feature, pattern):
@@ -130,8 +130,7 @@ def test_hyperscan_compatible(pattern: str) -> bool:
         db = hyperscan.Database()
         db.compile(
             expressions=[pattern.encode('ascii')],
-            ids=[0],
-            elements=1
+            ids=[0]
         )
         return True
     except Exception:
@@ -266,7 +265,7 @@ def export_to_excel(patterns_data: List[Dict[str, Any]], output_path: Path) -> N
     # Style header row
     header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
     header_font = Font(bold=True, color='FFFFFF')
-    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=False)
     
     for col_idx, header in enumerate(headers, start=1):
         cell = ws.cell(row=1, column=col_idx, value=header)
