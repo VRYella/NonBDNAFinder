@@ -11,6 +11,7 @@ This document explains how to deploy NonBScanner to Streamlit Cloud with robust 
 - ✅ All core features work without hyperscan (uses regex fallback)
 - ✅ Hyperscan provides 2-10x performance boost when available
 - ✅ The application automatically detects and adapts to available dependencies
+- ✅ Module import issues resolved with explicit Python path handling
 
 ## Deployment Files
 
@@ -67,24 +68,32 @@ This document explains how to deploy NonBScanner to Streamlit Cloud with robust 
 - Slightly slower (40-100% longer processing time)
 - Still practical for most research use cases
 
-### Scenario 3: ImportError (Should Not Happen Now)
+### Scenario 3: ModuleNotFoundError (Fixed)
 
-**Previous Issue:**
-```
-ImportError: This app has encountered an error
-Traceback: File "/mount/src/nonbdnafinder/app.py", line 37
-```
+**Previous Issues:**
 
-**Why This Was Fixed:**
-- Hyperscan was in main `requirements.txt`
-- If hyperscan failed to install, pip would fail
-- This would prevent other packages from installing
+1. **Line 37 ImportError (Fixed):**
+   ```
+   ImportError: This app has encountered an error
+   Traceback: File "/mount/src/nonbdnafinder/app.py", line 37
+   ```
+   - **Cause:** Hyperscan was in main `requirements.txt`, installation failures prevented other packages
+   - **Solution:** Moved hyperscan to optional dependencies, added system packages
+
+2. **Line 42 ModuleNotFoundError (Fixed):**
+   ```
+   ModuleNotFoundError: No module named 'nonbscanner'
+   Traceback: File "/mount/src/nonbdnafinder/app.py", line 42
+   ```
+   - **Cause:** Streamlit Cloud doesn't always add current directory to Python path
+   - **Solution:** Added explicit sys.path manipulation in app.py before local imports
 
 **Current Solution:**
-- Hyperscan removed from `requirements.txt`
+- Hyperscan removed from `requirements.txt` (now optional)
 - Only core dependencies in `requirements.txt`
 - All imports handle hyperscan as optional with try-except blocks
-- App works regardless of hyperscan availability
+- Explicit Python path handling ensures local modules are importable
+- App works regardless of hyperscan availability or deployment environment
 
 ### Testing Deployment Locally
 
