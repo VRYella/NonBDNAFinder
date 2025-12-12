@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Test script for Excel pattern loading functionality.
-Verifies that pattern_registry.xlsx can be loaded correctly and produces
-the same results as consolidated_registry.json.
+Verifies that pattern_registry2.xlsx can be loaded correctly and produces
+valid pattern data with updated normalized scores.
 """
 
 import os
@@ -29,12 +29,12 @@ def test_excel_loading():
         return False
     
     # Check if Excel file exists
-    if not os.path.exists('pattern_registry.xlsx'):
-        print("\n❌ FAILED: pattern_registry.xlsx not found")
+    if not os.path.exists('pattern_registry2.xlsx'):
+        print("\n❌ FAILED: pattern_registry2.xlsx not found")
         return False
     
     print("\n✓ pandas is available")
-    print("✓ pattern_registry.xlsx exists")
+    print("✓ pattern_registry2.xlsx exists")
     
     # Test loading
     print("\n--- Loading pattern registry ---")
