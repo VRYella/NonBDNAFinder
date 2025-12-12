@@ -8,44 +8,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* ============================================
-   ENHANCED ANIMATIONS & KEYFRAMES
+   MINIMAL ANIMATIONS FOR PERFORMANCE
    ============================================ */
-@keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-}
-
-@keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.4); }
-    50% { box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.8); }
-}
-
-@keyframes float-subtle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-}
-
-@keyframes scale-click {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.97); }
-    100% { transform: scale(1); }
-}
-
 @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-@keyframes slide-in-right {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+/* Remove complex animations for better performance */
 
 /* ============================================
    CSS CUSTOM PROPERTIES (Variables) for Soothing Theme
@@ -76,8 +46,8 @@
     --border-radius-lg: 16px;
     --border-radius-pill: 50px;
     
-    /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Transitions - simplified for performance */
+    --transition-smooth: all 0.2s ease;
     
     /* Theme-specific overrides */
     --dark-mode: 0; /* 0 = light, 1 = dark */

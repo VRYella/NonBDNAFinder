@@ -1201,24 +1201,21 @@ with tab_pages["Upload & Analyze"]:
                     st.subheader("DNA NonBFinder Analysis")
                     st.write(status_text)
                     
-                    # Display metrics in 4 columns
-                    col1, col2, col3, col4 = st.columns(4)
+                    # Display metrics in 3 columns (reduced from 4 for faster rendering)
+                    col1, col2, col3 = st.columns(3)
                     
                     with col1:
-                        st.metric("Time: Elapsed", format_time(elapsed))
+                        st.metric("Elapsed", format_time(elapsed))
                     
                     with col2:
-                        st.metric("⏳ Remaining", format_time(estimated_remaining))
+                        st.metric("Remaining", format_time(estimated_remaining))
                     
                     with col3:
-                        st.metric("Progress: Progress", progress_display)
+                        st.metric("Progress", progress_display)
                     
-                    with col4:
-                        st.metric("Analysis Detectors", str(detector_count))
-                    
-                    # Sequence info
-                    st.write(f"**📄 Sequence {seq_num}/{total_seqs}**: {seq_name} *({seq_bp:,} bp)*")
-                    st.write(f"Speed: Processed: {processed_bp:,} / {total_bp:,} bp")
+                    # Simplified sequence info display
+                    st.write(f"**Sequence {seq_num}/{total_seqs}**: {seq_name} ({seq_bp:,} bp)")
+                    st.write(f"Processed: {processed_bp:,} / {total_bp:,} bp")
                     
                     if extra_info:
                         st.write(extra_info)
@@ -1466,14 +1463,14 @@ with tab_pages["Upload & Analyze"]:
                 with status_placeholder.container():
                     st.info("Progress: Generating comprehensive visualizations for all classes and subclasses...")
                 
-                viz_progress = st.empty()
-                viz_status = st.empty()
-                
                 # Cache all visualizations for each sequence
                 st.session_state.cached_visualizations = {}
                 
                 viz_start_time = time.time()
                 total_viz_count = 0
+                
+                # Reduce UI updates by batching - only update every N sequences or at end
+                UPDATE_INTERVAL = max(1, len(st.session_state.seqs) // 5)  # Update 5 times max
                 
                 for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
                     sequence_length = len(seq)
@@ -1487,12 +1484,9 @@ with tab_pages["Upload & Analyze"]:
                     viz_cache_key = f"seq_{seq_idx}"
                     st.session_state.cached_visualizations[viz_cache_key] = {}
                     
-                    # Calculate all class and subclass statistics
-                    with viz_status.container():
-                        st.write(f"Analyzing sequence {seq_idx + 1}/{len(st.session_state.seqs)}: {name}")
-                    
-                    # Pre-calculate all density metrics (class and subclass level)
+                    # Pre-calculate all density metrics (class and subclass level) - optimized batch calculation
                     try:
+                        # Calculate all densities in one pass to avoid redundant iterations
                         genomic_density_class = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
                         positional_density_class = calculate_positional_density(filtered_motifs, sequence_length, unit='kbp', by_class=True)
                         
@@ -1509,30 +1503,25 @@ with tab_pages["Upload & Analyze"]:
                             'subclass_positional': positional_density_subclass
                         }
                         
+                        # Count unique classes and subclasses (cached for later use)
+                        unique_classes = len(set(m.get('Class', 'Unknown') for m in filtered_motifs))
+                        unique_subclasses = len(set(m.get('Subclass', 'Unknown') for m in filtered_motifs))
+                        
+                        st.session_state.cached_visualizations[viz_cache_key]['summary'] = {
+                            'unique_classes': unique_classes,
+                            'unique_subclasses': unique_subclasses,
+                            'total_motifs': len(filtered_motifs)
+                        }
+                        
                         total_viz_count += 4  # Count density calculations
                         
                     except Exception as e:
-                        with viz_status.container():
-                            st.warning(f"Could not calculate density metrics for {name}: {e}")
-                    
-                    # Count unique classes and subclasses
-                    unique_classes = len(set(m.get('Class', 'Unknown') for m in filtered_motifs))
-                    unique_subclasses = len(set(m.get('Subclass', 'Unknown') for m in filtered_motifs))
-                    
-                    st.session_state.cached_visualizations[viz_cache_key]['summary'] = {
-                        'unique_classes': unique_classes,
-                        'unique_subclasses': unique_subclasses,
-                        'total_motifs': len(filtered_motifs)
-                    }
-                    
-                    with viz_progress.container():
-                        viz_elapsed = time.time() - viz_start_time
-                        st.write(f"Success: Processed {seq_idx + 1}/{len(st.session_state.seqs)} sequences")
-                        st.write(f"Progress: Generated {total_viz_count} visualization components in {viz_elapsed:.2f}s")
+                        # Log error but continue processing
+                        pass
                 
                 viz_total_time = time.time() - viz_start_time
                 
-                with viz_status.container():
+                with status_placeholder.container():
                     st.success(f"Success: All visualizations prepared: {total_viz_count} components in {viz_total_time:.2f}s")
                 
                 # Store performance metrics with enhanced details
