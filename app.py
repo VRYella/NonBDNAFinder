@@ -1311,7 +1311,7 @@ with tab_pages["Upload & Analyze"]:
                             # Create chunk progress placeholder
                             chunk_progress_placeholder = st.empty()
                             
-                            def chunk_progress_callback[current, total]:
+                            def chunk_progress_callback(current, total):
                                 """Callback to update chunk progress"""
                                 pass
                             
