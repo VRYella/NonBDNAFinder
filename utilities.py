@@ -49,8 +49,14 @@ MAIN FUNCTIONS:
 from typing import Dict, Any, List, Optional, Tuple, Union
 import json
 import re
+
+# Set matplotlib to use non-interactive backend before importing pyplot
+# This is required for server environments like Streamlit Cloud
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -392,14 +398,9 @@ except Exception:
 # Cache for consolidated registry
 _CONSOLIDATED_REGISTRY = None
 
-# Try to import pandas for Excel support
-_PANDAS_AVAILABLE = False
+# pandas is already imported at the top and is required for this module
+_PANDAS_AVAILABLE = True
 _PANDAS_WARNING_LOGGED = False
-try:
-    import pandas as pd
-    _PANDAS_AVAILABLE = True
-except ImportError:
-    pass  # Will log warning on first use attempt
 
 
 # Pattern registry version
