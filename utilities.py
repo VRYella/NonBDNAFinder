@@ -394,8 +394,8 @@ def _load_consolidated_registry_from_excel():
             _PANDAS_WARNING_LOGGED = True
         return None
     
-    # Try to load pattern_registry2.xlsx from current directory (updated with normalized scores)
-    excel_path = "pattern_registry2.xlsx"
+    # Try to load patterns.excel from current directory (updated with normalized scores)
+    excel_path = "patterns.excel"
     if not os.path.isfile(excel_path):
         return None
     
@@ -465,7 +465,7 @@ def _load_consolidated_registry_from_json():
 def _load_consolidated_registry():
     """Load the consolidated registry file once and cache it
     
-    Tries to load from Excel first (pattern_registry2.xlsx with updated normalized scores), then falls back to JSON.
+    Tries to load from Excel first (patterns.excel with updated normalized scores), then falls back to JSON.
     
     Returns:
         dict: Consolidated registry data
