@@ -3338,23 +3338,6 @@ FEATURES:
     - Customizable styling
 """
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import seaborn as sns
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Any, Optional, Tuple, Union
-from collections import Counter, defaultdict
-import warnings
-warnings.filterwarnings("ignore")
-
-# Try to import plotly for interactive plots
-try:
-    import plotly.graph_objects as go
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
-
 # =============================================================================
 # NATURE-LEVEL PUBLICATION STYLING & CONFIGURATION
 # =============================================================================
