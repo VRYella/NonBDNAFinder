@@ -3446,7 +3446,6 @@ try:
 except Exception as e:
     # If styling fails (e.g., missing fonts), continue with default matplotlib settings
     # This ensures the module can still be imported and functions remain accessible
-    import warnings
     warnings.warn(f"Could not apply Nature-level styling: {e}. Using default matplotlib settings.", UserWarning)
 
 # Constants for enrichment analysis visualization
