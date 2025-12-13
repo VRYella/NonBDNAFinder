@@ -1,9 +1,0 @@
-# Optional Performance Dependencies
-# These packages provide performance improvements but are not required
-# The application will work without them, falling back to pure Python implementations
-
-# Hyperscan - High-performance pattern matching (requires system libraries)
-# Installation requires: build-essential, cmake, libboost-all-dev, ragel
-# See packages.txt for system dependencies
-# If installation fails on your platform, the app will use regex-based fallback
-hyperscan>=0.7.0
