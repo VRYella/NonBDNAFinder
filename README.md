@@ -46,9 +46,11 @@ NonBScanner is a **Nobel laureate-level** bioinformatics database for detecting 
 
 **🏆 NEW! Publication-Level Interface:** Professional web interface meeting **Nucleic Acids Research** and **Nature** publication standards. [View Screenshots →](docs/PUBLICATION_LEVEL_INTERFACE.md)
 
-**New in Version 2024.1:** Professional 5-file architecture for maximum elegance and maintainability.
+**New in Version 2024.1.4:** Professional 4-file architecture for maximum simplicity and maintainability.
 
-**✨ Latest Enhancements (2024.1.3):**
+**✨ Latest Enhancements (2024.1.4):**
+- **🎯 Consolidated Architecture**: Streamlined to just 4 core Python scripts for clarity and ease of use
+- **📦 Unified Utilities**: Merged visualization functions into utilities.py for better organization
 - **🎨 Publication-Level Interface**: Nobel laureate-standard web design with professional hero section, feature cards, and citation prominence
 - **📸 Professional Screenshots**: High-quality interface documentation for all major pages
 - **📏 Density Analysis**: Genomic density (coverage %) and positional density (motifs/kbp) calculations per motif class
@@ -77,31 +79,33 @@ NonBScanner is a **Nobel laureate-level** bioinformatics database for detecting 
 - **Memory efficient**: ~5 MB for 100K sequences
 - **Production ready**: Tested on large genomic datasets
 
-## 🏗️ Architecture - Professional 5-File Design
+## 🏗️ Architecture - Professional 4-File Design
 
-NonBScanner features an elegant, professional architecture with just **5 core Python files**:
+NonBScanner features an elegant, professional architecture with just **4 core Python scripts**:
 
 ```
 NonBScanner/
-├── nonbscanner.py      # Main API & Scanner Orchestration (~600 lines)
-├── detectors.py        # All 9 Motif Detector Classes (~3,500 lines)
-├── utilities.py        # Sequence I/O, Export & Statistics (~2,100 lines)
-├── visualizations.py   # Complete Visualization Suite (~3,300 lines)
-└── app.py              # Streamlit Web Interface (~1,800 lines)
+├── app.py              # Streamlit Web Interface (~2,500 lines)
+├── nonbscanner.py      # Main API & Scanner Orchestration (~1,600 lines)
+├── detectors.py        # All 11 Motif Detector Classes (~4,200 lines)
+└── utilities.py        # Sequence I/O, Export, Statistics & Visualizations (~6,900 lines)
 ```
 
 **Key Features:**
-- ✅ **Minimal & Clean**: Just 5 files for the entire tool
+- ✅ **Minimal & Clean**: Just 4 files for the entire tool
 - ✅ **Professional**: Well-documented, type-annotated code
 - ✅ **Modular**: Clear separation of concerns
 - ✅ **Elegant**: Advanced algorithms in readable structure
 - ✅ **Production-Ready**: Tested on large genomic datasets
 
-### Supporting Files
-- `scanner.py` - Low-level k-mer indexing functions (used by detectors)
+### Essential Assets
+- `.streamlit/config.toml` - Streamlit configuration (1GB upload limit)
+- `requirements.txt` - Python dependencies
+- `packages.txt` - System dependencies
 - `pattern_registry2.xlsx` - **PRIMARY SOURCE** - Excel file with 170,008+ pattern definitions with normalized scores (user-editable)
 - `consolidated_registry.json` - JSON pattern data (automatic fallback if Excel unavailable)
-- `example_motifs_multiline.fasta` - Example FASTA file with all motif types
+- `styles.css` - Custom web styling
+- `nbdcircle.JPG` - Logo image
 
 ## 🔬 Supported Motif Classes
 
