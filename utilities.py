@@ -1406,7 +1406,7 @@ def run_pattern_tests() -> bool:
                     break
             
             test_results[motif_class] = matches_found > 0
-            print(f"✓ {motif_class}: {'PASS' if matches_found > 0 else 'FAIL'}")
+            print(f"[OK] {motif_class}: {'PASS' if matches_found > 0 else 'FAIL'}")
     
     all_passed = all(test_results.values()) and validation_results['validation_passed']
     print(f"\nOverall validation: {'PASSED' if all_passed else 'FAILED'}")
@@ -2142,7 +2142,7 @@ def print_detection_report(detection_report: Dict[str, Any]) -> str:
             lines.append(f"  Detected subclasses: {len(details['detected_subclasses'])}")
             
             if details['detected_subclasses']:
-                lines.append("  ✓ Detected:")
+                lines.append("  [OK] Detected:")
                 for subcls in details['detected_subclasses']:
                     count = details['subclass_counts'].get(subcls, 0)
                     lines.append(f"    - {subcls} ({count} motifs)")
@@ -2866,7 +2866,7 @@ AAAAATTTTCCCCGGGG"""
     quality_report = quality_check_motifs(example_motifs)
     print(f"\nQuality check: {quality_report['status']}")
     
-    print("✓ All utility tests completed")
+    print("[OK] All utility tests completed")
 
 # =============================================================================
 # ENHANCED STATISTICS: DENSITY AND ENRICHMENT ANALYSIS

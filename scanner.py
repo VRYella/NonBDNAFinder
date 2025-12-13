@@ -537,15 +537,15 @@ TABULAR SUMMARY:
 │ Last Updated:  2024                                                          │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ MOTIF CLASSES (9 detectors):                                                 │
-│ ✓ CurvedDNA      - A-tract mediated DNA bending                              │
-│ ✓ SlippedDNA     - Tandem repeats (adaptive sampling for large sequences)    │
-│ ✓ Cruciform      - Inverted repeats (sliding window for large sequences)    │
-│ ✓ R-Loop         - RNA-DNA hybrid formation sites                            │
-│ ✓ Triplex        - Three-stranded DNA structures                             │
-│ ✓ G-Quadruplex   - Four-stranded G-rich structures                           │
-│ ✓ i-Motif        - C-rich structures                                         │
-│ ✓ Z-DNA          - Left-handed double helix                                  │
-│ ✓ A-philic       - A-rich protein binding sites                              │
+│ [OK] CurvedDNA      - A-tract mediated DNA bending                              │
+│ [OK] SlippedDNA     - Tandem repeats (adaptive sampling for large sequences)    │
+│ [OK] Cruciform      - Inverted repeats (sliding window for large sequences)    │
+│ [OK] R-Loop         - RNA-DNA hybrid formation sites                            │
+│ [OK] Triplex        - Three-stranded DNA structures                             │
+│ [OK] G-Quadruplex   - Four-stranded G-rich structures                           │
+│ [OK] i-Motif        - C-rich structures                                         │
+│ [OK] Z-DNA          - Left-handed double helix                                  │
+│ [OK] A-philic       - A-rich protein binding sites                              │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ PERFORMANCE OPTIMIZATIONS:                                                   │
 │ • Pure Python scanner DISABLED (too slow - O(n³) complexity)                 │
@@ -1733,7 +1733,7 @@ def run_validation_tests() -> bool:
     for name, seq in test_sequences.items():
         try:
             motifs = analyze_sequence(seq, name)
-            print(f"✓ {name}: {len(motifs)} motifs detected")
+            print(f"[OK] {name}: {len(motifs)} motifs detected")
             
             if name == 'g4_test' and not any('G-Quadruplex' in m['Class'] for m in motifs):
                 print(f"✗ {name}: Expected G-quadruplex not detected")
