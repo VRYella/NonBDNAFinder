@@ -2440,14 +2440,10 @@ class CruciformDetector(BaseMotifDetector):
         
         # Use optimized scanner when available and perfect matches required
         if _find_inverted_repeats_optimized is not None and max_mismatches == 0:
-            results = _find_inverted_repeats_optimized(seq, min_arm=min_arm, max_loop=max_loop)
+            results = _find_inverted_repeats_optimized(seq, min_arm=min_arm, max_arm=max_arm, max_loop=max_loop)
             
-            # Convert to internal format, filtering by max_arm
+            # Convert to internal format
             for rec in results:
-                # Filter by max arm length constraint
-                if rec['Arm_Length'] > max_arm:
-                    continue
-                    
                 match_fraction = 1.0
                 score = self._score_arm_loop(rec['Arm_Length'], rec['Loop'], match_fraction)
                 hits.append({
@@ -3304,17 +3300,13 @@ class TriplexDetector(BaseMotifDetector):
         # Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt, and 90% Purine or Pyrimidine
         if _find_mirror_repeats_optimized is not None:
             mirror_results = _find_mirror_repeats_optimized(seq, min_arm=self.MIN_ARM, 
+                                                            max_arm=self.MAX_ARM,
                                                             max_loop=self.MAX_LOOP, 
                                                             purine_pyrimidine_threshold=self.PURINE_PYRIMIDINE_THRESHOLD)
             
             # Only keep those that pass the triplex threshold (>90% purine or pyrimidine)
-            # Also filter by max arm length (100 nt)
             for mr_rec in mirror_results:
                 if mr_rec.get('Is_Triplex', False):
-                    # Filter by max arm length
-                    if mr_rec.get('Arm_Length', 0) > self.MAX_ARM:
-                        continue
-                        
                     s = mr_rec['Start'] - 1  # Convert to 0-based
                     e = mr_rec['End']
                     
