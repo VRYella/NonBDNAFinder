@@ -368,6 +368,11 @@ def find_mirror_repeats(seq: str,
     
     For Triplex DNA, we also filter for >90% purine or pyrimidine content in arms.
     """
+    # Use optimized version if available
+    if _USE_OPTIMIZED:
+        return _find_mirror_repeats_optimized(seq, min_arm, max_arm, max_loop, purine_pyrimidine_threshold)
+    
+    # Fallback to original implementation
     n = len(seq)
     idx = build_kmer_index(seq, K_MIRROR)
     results = []

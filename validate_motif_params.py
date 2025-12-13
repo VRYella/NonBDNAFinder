@@ -46,8 +46,9 @@ motifs = detector.detect_motifs(cruciform_seq, "cruciform_test")
 print(f"\nDetected {len(motifs)} motif(s):")
 for motif in motifs:
     print(f"  - Class: {motif.get('Class')}, Length: {motif.get('Length')} bp")
-    if 'Arm_Length' in motif.get('Method', ''):
-        print(f"    Arm: {motif.get('Arm_Length', 'N/A')} nt, Loop: {motif.get('Loop_Length', 'N/A')} nt")
+    # Check if motif has arm/loop details (detector-specific fields may vary)
+    if motif.get('Arm_Length'):
+        print(f"    Arm: {motif.get('Arm_Length')} nt, Loop: {motif.get('Loop_Length', 'N/A')} nt")
 
 # Example 2: Triplex DNA
 print("\n2. Triplex DNA Detection (Purine-rich)")

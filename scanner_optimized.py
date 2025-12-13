@@ -546,10 +546,8 @@ def find_mirror_repeats_optimized(seq: str,
                     if left_arm == right_arm[::-1]:
                         # Check purine/pyrimidine content for Triplex DNA
                         combined_arms = left_arm + right_arm
-                        purine_count = sum(1 for idx in range(len(combined_arms)) 
-                                         if combined_arms[idx] in 'AG')
-                        pyrimidine_count = sum(1 for idx in range(len(combined_arms)) 
-                                             if combined_arms[idx] in 'CT')
+                        purine_count = sum(1 for b in combined_arms if b in 'AG')
+                        pyrimidine_count = sum(1 for b in combined_arms if b in 'CT')
                         total_bases = len(combined_arms)
                         
                         purine_fraction = purine_count / total_bases if total_bases > 0 else 0
