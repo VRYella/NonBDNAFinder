@@ -277,6 +277,54 @@ A: Yes. Add a new sheet with the same column structure as existing classes.
 **Q: What about performance in production?**  
 A: Use the JSON file in production. The Excel feature is mainly for development and pattern editing.
 
+## Motif Detection Parameters
+
+### Cruciform DNA (Inverted Repeats)
+**Cruciform Subset (Four-way junction):**
+- Arm length: 10–100 nt
+- Spacer (loop): 0–3 nt
+- Matching: Perfect Watson-Crick reverse-complement (0 mismatches)
+- Detection: Algorithmic k-mer indexing
+
+**General Inverted Repeat (DNA-feature level):**
+- Arm length: 10–100 nt
+- Spacer (loop): 0–100 nt
+- Matching: Perfect Watson-Crick reverse-complement
+- Note: Cruciform subset is defined by loop ≤ 3 nt
+
+### Triplex DNA (Mirror Repeats)
+**Triplex Motif Subset:**
+- Arm length: 10–100 nt (mirror repeats: left arm = reverse of right arm, NOT complement)
+- Spacer (loop): 0–8 nt
+- Purity: >90% purine (R) OR >90% pyrimidine (Y) in combined arms
+- Detection: Algorithmic k-mer indexing with purity filtering
+
+**General Mirror Repeat (DNA-feature level):**
+- Arm length: 10–100 nt
+- Spacer (loop): 0–100 nt
+- No purity requirement
+- Note: Triplex subset requires >90% R or Y purity AND loop ≤ 8 nt
+
+### Slipped DNA (Direct Repeats)
+**Slipped DNA Subset (Tandem):**
+- Unit length: 10–50 nt
+- Spacer: 0 nt (tandem repeats only)
+- Matching: Perfect exact repeat
+- Detection: Algorithmic k-mer indexing
+
+**General Direct Repeat (DNA-feature level):**
+- Unit length: 10–50 nt
+- Spacer: 0–5 nt
+- Matching: Perfect exact repeat
+- Note: Slipped DNA subset requires spacer = 0 (tandem only)
+
+### Short Tandem Repeats (STRs)
+- Unit size: 1–9 bp
+- Minimum total length: ≥20 bp (no upper cutoff)
+- Matching: Perfect tandem repeats
+- Detection: Algorithmic greedy extension
+- Note: Part of Slipped DNA class but distinct from direct repeats
+
 ## Example: Adding a New Pattern
 
 ### G4 Pattern

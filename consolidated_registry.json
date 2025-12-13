@@ -1059,25 +1059,36 @@
     },
     "Cruciform": {
       "class": "Cruciform",
-      "generated_at": "2025-10-24T07:01:59.944123Z",
-      "n_patterns": 1,
+      "generated_at": "2025-12-13T05:13:49.718787Z",
+      "n_patterns": 2,
       "patterns": [
         {
           "id": 0,
-          "pattern": "([ACGT]{6,100})([ACGT]{0,100})",
-          "subclass": "Inverted_Repeats",
+          "pattern": "([ACGT]{10,100})([ACGT]{0,3})",
+          "subclass": "Cruciform",
           "score": 0.95,
-          "description": "Palindromic inverted repeat (arm >= 6bp, loop <= 100bp)",
-          "min_arm": 6,
+          "description": "Cruciform DNA: inverted repeats with arms 10-100 nt, spacer 0-3 nt, perfect Watson-Crick reverse-complement",
+          "min_arm": 10,
+          "max_arm": 100,
+          "max_loop": 3,
+          "max_mismatches": 0
+        },
+        {
+          "id": 1,
+          "pattern": "([ACGT]{10,100})([ACGT]{0,100})",
+          "subclass": "Inverted_Repeat",
+          "score": 0.85,
+          "description": "General inverted repeat (DNA-feature level): arms 10-100 nt, loop 0-100 nt",
+          "min_arm": 10,
           "max_arm": 100,
           "max_loop": 100
         }
       ],
       "meta": {
-        "source": "Cruciform detector - inverted repeats",
+        "source": "CruciformDetector - algorithmic palindromic inverted repeat detection",
         "detector_class": "CruciformDetector",
         "pattern_type": "algorithmic",
-        "note": "Uses algorithmic search for palindromic inverted repeats"
+        "note": "Cruciform subset uses max_loop=3; general inverted repeats use max_loop=100"
       }
     },
     "CurvedDNA": {
@@ -1585,51 +1596,64 @@
         }
       ],
       "meta": {
-        "source": "SlippedDNADetector STR patterns (Wells 2005)",
+        "source": "SlippedDNADetector - direct repeats and STRs (Wells 2005)",
         "detector_class": "SlippedDNADetector",
-        "pattern_type": "regex",
-        "note": "STR: unit 1-9bp, min total length >= 20bp. Direct Repeat: unit >= 10bp, require at least two copies",
+        "pattern_type": "algorithmic",
+        "note": "STRs: unit 1-9 bp, min_total=20 bp; Direct repeats (general): unit 10-50 bp, spacer 0-5 nt; Slipped DNA subset: spacer=0 (tandem only)",
         "str_min_total": 20,
-        "str_min_unit": 1,
-        "str_max_unit": 9,
-        "direct_min_unit": 10,
-        "direct_min_copies": 2
+        "direct_repeat_min_unit": 10,
+        "direct_repeat_max_unit": 50,
+        "direct_repeat_max_spacer_general": 5,
+        "slipped_dna_max_spacer": 0
       }
     },
     "Triplex": {
       "class": "Triplex",
-      "generated_at": "2025-10-24T07:01:59.944994Z",
+      "generated_at": "2025-12-13T05:13:49.718802Z",
       "n_patterns": 4,
       "patterns": [
         {
           "id": 0,
-          "pattern": "((?:[GA]{1,}){10,})([ATGC]{1,100})((?:[GA]{1,}){10,})",
+          "pattern": "([GA]{10,100})([ATGC]{0,8})([GA]{10,100})",
           "subclass": "Triplex",
-          "score": 0.9
+          "score": 0.9,
+          "description": "Triplex motif: mirror repeat 10-100 nt purine arms (>90%), spacer 0-8 nt",
+          "min_arm": 10,
+          "max_arm": 100,
+          "max_loop": 8,
+          "purine_threshold": 0.9
         },
         {
           "id": 1,
-          "pattern": "((?:[CT]{1,}){10,})([ATGC]{1,100})((?:[CT]{1,}){10,})",
+          "pattern": "([CT]{10,100})([ATGC]{0,8})([CT]{10,100})",
           "subclass": "Triplex",
-          "score": 0.9
+          "score": 0.9,
+          "description": "Triplex motif: mirror repeat 10-100 nt pyrimidine arms (>90%), spacer 0-8 nt",
+          "min_arm": 10,
+          "max_arm": 100,
+          "max_loop": 8,
+          "pyrimidine_threshold": 0.9
         },
         {
           "id": 2,
           "pattern": "(?:GAA){4,}",
           "subclass": "Sticky_DNA",
-          "score": 0.95
+          "score": 0.95,
+          "description": "GAA repeat (Sticky DNA)"
         },
         {
           "id": 3,
           "pattern": "(?:TTC){4,}",
           "subclass": "Sticky_DNA",
-          "score": 0.95
+          "score": 0.95,
+          "description": "TTC repeat (Sticky DNA)"
         }
       ],
       "meta": {
-        "source": "TriplexDetector patterns (Frank-Kamenetskii 1995, Sakamoto 1999)",
+        "source": "TriplexDetector - mirror repeats with purine/pyrimidine purity (Frank-Kamenetskii 1995, Sakamoto 1999)",
         "detector_class": "TriplexDetector",
-        "pattern_type": "regex"
+        "pattern_type": "algorithmic + regex",
+        "note": "Triplex subset requires >90% purine OR pyrimidine in combined arms and max_loop=8"
       }
     },
     "ZDNA": {

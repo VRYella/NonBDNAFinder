@@ -39,13 +39,15 @@ MAX_POSITIONS_PER_KMER = 10000
 # Parameters
 DIRECT_MIN_UNIT = 10
 DIRECT_MAX_UNIT = 50
-DIRECT_MAX_SPACER = 0
+DIRECT_MAX_SPACER = 5  # General direct repeat allows spacer up to 5; SlippedDNADetector uses 0
 
 INVERTED_MIN_ARM = 10
-INVERTED_MAX_LOOP = 3
+INVERTED_MAX_ARM = 100  # Maximum arm length for inverted repeats
+INVERTED_MAX_LOOP = 100  # General inverted repeat max loop; Cruciform subset uses 3
 
 MIRROR_MIN_ARM = 10
-MIRROR_MAX_LOOP = 8
+MIRROR_MAX_ARM = 100  # Maximum arm length for mirror repeats
+MIRROR_MAX_LOOP = 100  # General mirror repeat max loop; Triplex subset uses 8
 
 STR_MIN_UNIT = 1
 STR_MAX_UNIT = 9
@@ -296,6 +298,7 @@ def find_direct_repeats_optimized(seq: str,
 
 def find_inverted_repeats_optimized(seq: str,
                                      min_arm: int = INVERTED_MIN_ARM,
+                                     max_arm: int = INVERTED_MAX_ARM,
                                      max_loop: int = INVERTED_MAX_LOOP) -> List[Dict]:
     """
     Optimized inverted repeat (cruciform) detection.
@@ -305,6 +308,7 @@ def find_inverted_repeats_optimized(seq: str,
     Args:
         seq: DNA sequence
         min_arm: Minimum arm length
+        max_arm: Maximum arm length
         max_loop: Maximum loop length
         
     Returns:
@@ -335,7 +339,7 @@ def find_inverted_repeats_optimized(seq: str,
                     continue
                 delta = j - i
                 arm_min = max(min_arm, delta - max_loop)
-                arm_max = min(delta, n - j, n - i)
+                arm_max = min(max_arm, delta, n - j, n - i)  # Apply max_arm constraint
                 if arm_min > arm_max:
                     continue
                 
@@ -482,9 +486,126 @@ def find_strs_optimized(seq: str,
     return results
 
 
+def find_mirror_repeats_optimized(seq: str,
+                                   min_arm: int = MIRROR_MIN_ARM,
+                                   max_arm: int = MIRROR_MAX_ARM,
+                                   max_loop: int = MIRROR_MAX_LOOP,
+                                   purine_pyrimidine_threshold: float = 0.9) -> List[Dict]:
+    """
+    Optimized mirror repeat detection for Triplex DNA.
+    
+    Mirror repeats: left arm matches reverse (not complement) of right arm.
+    For Triplex DNA, filters for >90% purine or pyrimidine content in arms.
+    
+    Args:
+        seq: DNA sequence
+        min_arm: Minimum arm length
+        max_arm: Maximum arm length
+        max_loop: Maximum loop length
+        purine_pyrimidine_threshold: Minimum purine or pyrimidine fraction for Triplex
+        
+    Returns:
+        List of mirror repeat dictionaries
+    """
+    n = len(seq)
+    
+    # Build optimized k-mer index
+    idx = build_kmer_index_optimized(seq, K_MIRROR)
+    
+    results = []
+    seq_array = np.frombuffer(seq.encode('ascii'), dtype=np.uint8)
+    
+    # Precompute reverse mapping (not reverse complement, just reverse)
+    rev_map = {}
+    for kmer in list(idx.keys()):
+        rev = kmer[::-1]
+        if rev in idx:
+            rev_map[kmer] = idx[rev]
+    
+    # Find mirror repeats
+    for kmer, rev_positions in rev_map.items():
+        left_positions = idx[kmer]
+        for i in left_positions:
+            for j in rev_positions:
+                if j <= i:
+                    continue
+                delta = j - i
+                arm_min = max(min_arm, delta - max_loop)
+                arm_max = min(max_arm, delta, n - j, n - i)  # Apply max_arm constraint
+                if arm_min > arm_max:
+                    continue
+                
+                for arm in range(arm_max, arm_min - 1, -1):
+                    if i + arm > n or j + arm > n:
+                        continue
+                    
+                    # Check if left arm matches reverse of right arm
+                    left_arm = seq[i:i + arm]
+                    right_arm = seq[j:j + arm]
+                    
+                    if left_arm == right_arm[::-1]:
+                        # Check purine/pyrimidine content for Triplex DNA
+                        combined_arms = left_arm + right_arm
+                        purine_count = sum(1 for b in combined_arms if b in 'AG')
+                        pyrimidine_count = sum(1 for b in combined_arms if b in 'CT')
+                        total_bases = len(combined_arms)
+                        
+                        purine_fraction = purine_count / total_bases if total_bases > 0 else 0
+                        pyrimidine_fraction = pyrimidine_count / total_bases if total_bases > 0 else 0
+                        
+                        is_triplex = (purine_fraction >= purine_pyrimidine_threshold or 
+                                     pyrimidine_fraction >= purine_pyrimidine_threshold)
+                        
+                        # Calculate component details
+                        loop_seq = seq[i + arm:j] if j > i + arm else ''
+                        full_seq = seq[i:j + arm]
+                        
+                        gc_left = _calc_gc_content_fast(seq_array, i, arm)
+                        gc_right = _calc_gc_content_fast(seq_array, j, arm)
+                        gc_loop = _calc_gc_content_fast(seq_array, i + arm, len(loop_seq)) if loop_seq else 0
+                        gc_total = _calc_gc_content_fast(seq_array, i, len(full_seq))
+                        
+                        rec = {
+                            'Class': 'Mirror_Repeat',
+                            'Subclass': f'Mirror_arm_{arm}',
+                            'Start': i + 1,
+                            'End': j + arm,
+                            'Length': (j + arm) - i,
+                            'Left_Start': i + 1,
+                            'Right_Start': j + 1,
+                            'Arm_Length': arm,
+                            'Loop': delta - arm,
+                            'Loop_Length': len(loop_seq),
+                            'Left_Arm': left_arm,
+                            'Right_Arm': right_arm,
+                            'Loop_Seq': loop_seq,
+                            'Sequence': full_seq,
+                            'Is_Triplex': is_triplex,
+                            'Purine_Fraction': round(purine_fraction, 3),
+                            'Pyrimidine_Fraction': round(pyrimidine_fraction, 3),
+                            'Stem': f'{left_arm}...{right_arm}',
+                            'GC_Left_Arm': round(gc_left, 2),
+                            'GC_Right_Arm': round(gc_right, 2),
+                            'GC_Loop': round(gc_loop, 2),
+                            'GC_Total': round(gc_total, 2)
+                        }
+                        results.append(rec)
+                        break
+    
+    # Deduplicate
+    dedup = {}
+    for rec in results:
+        key = (rec['Left_Start'], rec['Loop'])
+        if key not in dedup or rec['Arm_Length'] > dedup[key]['Arm_Length']:
+            dedup[key] = rec
+    
+    return list(dedup.values())
+
+
 # Export optimized functions as drop-in replacements
 find_direct_repeats = find_direct_repeats_optimized
 find_inverted_repeats = find_inverted_repeats_optimized
+find_mirror_repeats = find_mirror_repeats_optimized
 find_strs = find_strs_optimized
 
 

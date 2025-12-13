@@ -58,6 +58,7 @@ try:
     from scanner_optimized import (
         find_direct_repeats as _find_direct_repeats_optimized,
         find_inverted_repeats as _find_inverted_repeats_optimized,
+        find_mirror_repeats as _find_mirror_repeats_optimized,
         find_strs as _find_strs_optimized
     )
     _USE_OPTIMIZED = True
@@ -67,18 +68,20 @@ except ImportError:
 # -------------------------
 # Parameters (user constraints)
 # -------------------------
-# Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
+# Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt (general direct repeat allows up to 5)
 DIRECT_MIN_UNIT = 10
 DIRECT_MAX_UNIT = 50
-DIRECT_MAX_SPACER = 0
+DIRECT_MAX_SPACER = 5  # General direct repeat allows spacer up to 5; SlippedDNADetector uses 0
 
 # Cruciform DNA: 10–100 nt arm length with reverse complement separated by spacer = 0–3 nt
 INVERTED_MIN_ARM = 10
-INVERTED_MAX_LOOP = 3
+INVERTED_MAX_ARM = 100  # Maximum arm length for inverted repeats
+INVERTED_MAX_LOOP = 100  # General inverted repeat max loop; Cruciform subset uses 3
 
 # Triplex DNA: 10–100 nt mirrored with spacer = 0–8 nt
 MIRROR_MIN_ARM = 10
-MIRROR_MAX_LOOP = 8
+MIRROR_MAX_ARM = 100  # Maximum arm length for mirror repeats
+MIRROR_MAX_LOOP = 100  # General mirror repeat max loop; Triplex subset uses 8
 
 STR_MIN_UNIT = 1
 STR_MAX_UNIT = 9
@@ -259,7 +262,8 @@ def find_direct_repeats(seq: str,
 # Inverted Repeats (Cruciform)
 # -------------------------
 def find_inverted_repeats(seq: str, 
-                         min_arm: int = INVERTED_MIN_ARM, 
+                         min_arm: int = INVERTED_MIN_ARM,
+                         max_arm: int = INVERTED_MAX_ARM,
                          max_loop: int = INVERTED_MAX_LOOP) -> List[Dict]:
     """
     Find inverted repeats (cruciform precursors) using k-mer indexing.
@@ -281,7 +285,7 @@ def find_inverted_repeats(seq: str,
     """
     # Use optimized version if available
     if _USE_OPTIMIZED:
-        return _find_inverted_repeats_optimized(seq, min_arm, max_loop)
+        return _find_inverted_repeats_optimized(seq, min_arm, max_arm, max_loop)
     
     # Fallback to original implementation
     n = len(seq)
@@ -304,7 +308,7 @@ def find_inverted_repeats(seq: str,
                     continue
                 delta = j - i
                 arm_min = max(min_arm, delta - max_loop)
-                arm_max = min(delta, n - j, n - i)
+                arm_max = min(max_arm, delta, n - j, n - i)  # Apply max_arm constraint
                 if arm_min > arm_max:
                     continue
                     
@@ -354,7 +358,8 @@ def find_inverted_repeats(seq: str,
 # Mirror Repeats (Triplex DNA component)
 # -------------------------
 def find_mirror_repeats(seq: str, 
-                       min_arm: int = MIRROR_MIN_ARM, 
+                       min_arm: int = MIRROR_MIN_ARM,
+                       max_arm: int = MIRROR_MAX_ARM,
                        max_loop: int = MIRROR_MAX_LOOP,
                        purine_pyrimidine_threshold: float = 0.9) -> List[Dict]:
     """
@@ -363,6 +368,11 @@ def find_mirror_repeats(seq: str,
     
     For Triplex DNA, we also filter for >90% purine or pyrimidine content in arms.
     """
+    # Use optimized version if available
+    if _USE_OPTIMIZED:
+        return _find_mirror_repeats_optimized(seq, min_arm, max_arm, max_loop, purine_pyrimidine_threshold)
+    
+    # Fallback to original implementation
     n = len(seq)
     idx = build_kmer_index(seq, K_MIRROR)
     results = []
@@ -383,7 +393,7 @@ def find_mirror_repeats(seq: str,
                     continue
                 delta = j - i
                 arm_min = max(min_arm, delta - max_loop)
-                arm_max = min(delta, n - j, n - i)
+                arm_max = min(max_arm, delta, n - j, n - i)  # Apply max_arm constraint
                 if arm_min > arm_max:
                     continue
                 for arm in range(arm_max, arm_min - 1, -1):

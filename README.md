@@ -312,7 +312,14 @@ The notebook provides:
 - See `OPTIMIZED_SCANNER_ARCHITECTURE.md` for detailed architecture documentation
 
 ### Performance Notes
-- **Slipped DNA**: No size limits, O(n) complexity (was O(n²) with 50kb limit)
+**Canonical Motif Parameters:**
+- **Cruciform DNA**: Inverted repeats with arms 10–100 nt; spacer 0–3 nt for Cruciform subset (general inverted repeats: 0–100 nt); perfect Watson-Crick matches
+- **Triplex DNA**: Mirror repeats with arms 10–100 nt; spacer 0–8 nt for Triplex subset (general mirror: 0–100 nt); >90% purine OR pyrimidine purity required
+- **Slipped DNA**: Direct repeats with unit 10–50 nt; spacer = 0 nt for Slipped subset (general direct: 0–5 nt spacer allowed)
+- **STRs**: Unit size 1–9 bp; minimum total length ≥20 bp
+
+**Performance:**
+- **Slipped DNA**: No size limits, O(n) complexity (was O(n²) with 50kb limit) - ~280,000 bp/second on 50kb sequences
 - **Cruciform**: No size limits, O(n) complexity (was O(n²) with 1kb limit)
 - **Triplex**: No size limits, O(n) complexity with purine/pyrimidine filtering
 - **All detectors**: Linear scaling validated on sequences up to 50kb+

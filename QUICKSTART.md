@@ -164,10 +164,10 @@ streamlit run app.py --server.port 8502
 NonBDNAFinder detects 11 major classes:
 
 1. **Curved DNA**: A-tract mediated curvature
-2. **Slipped DNA**: Direct repeats and STRs
-3. **Cruciform**: Palindromic inverted repeats
+2. **Slipped DNA**: Direct repeats (unit 10–50 nt, spacer 0–5 nt general; spacer=0 for Slipped subset) and STRs (unit 1–9 bp, min total ≥20 bp)
+3. **Cruciform**: Palindromic inverted repeats (arms 10–100 nt, spacer 0–3 nt for Cruciform subset; 0–100 nt general)
 4. **R-Loop**: RNA-DNA hybrid formation sites
-5. **Triplex**: Three-stranded structures
+5. **Triplex**: Three-stranded structures (mirror repeats 10–100 nt arms, spacer 0–8 nt with >90% purine/pyrimidine for Triplex subset; 0–100 nt general)
 6. **G-Quadruplex**: G-rich four-stranded structures (7 variants)
 7. **i-Motif**: C-rich structures
 8. **Z-DNA**: Left-handed double helix
