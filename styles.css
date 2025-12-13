@@ -981,53 +981,59 @@ details.streamlit-expander[open] {
 
 .stat-card {
     text-align: center;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.95);  /* Light background */
     padding: 0.7rem;
     border-radius: var(--border-radius-md);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 1);  /* Fully opaque on hover */
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(74, 144, 226, 0.5);
 }
 
 .stat-card--large {
     padding: 0.9rem;
     border-radius: var(--border-radius-md);
     backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);  /* Light background */
+    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
 }
 
 .stat-card__value {
     margin: 0;
-    color: #FFFFFF;
-    font-size: 1.4rem;
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    color: var(--primary-color);  /* Dark colored text */
+    font-size: 1.5rem;
+    font-weight: 800;  /* Extra bold */
+    text-shadow: none;  /* Remove shadow for clarity */
 }
 
 .stat-card__value--large {
-    font-size: 1.7rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    font-weight: 800;  /* Extra bold */
     margin-bottom: 0.25rem;
+    color: var(--primary-color);  /* Dark colored text */
 }
 
 .stat-card__label {
     margin: 0.3rem 0 0 0;
-    opacity: 0.9;
+    opacity: 1;
+    color: var(--text-color);  /* Dark text */
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;  /* Bold */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .stat-card__label--large {
     font-size: 0.85rem;
-    opacity: 0.95;
-    font-weight: 600;
+    opacity: 1;
+    font-weight: 700;  /* Extra bold */
+    color: var(--text-color);  /* Dark text */
 }
 
 .sequence-info {

@@ -1552,8 +1552,6 @@ with tab_pages["Upload & Analyze"]:
                 progress_placeholder.empty()
                 status_placeholder.empty()
                 detailed_progress_placeholder.empty()
-                viz_progress.empty()
-                viz_status.empty()
                 
                 # Show final success message with enhanced performance metrics
                 timer_placeholder.markdown(f"""
@@ -1791,8 +1789,7 @@ with tab_pages["Results"]:
                     "",
                     options=available_columns,
                     selection_mode="multi",
-                    default=default_cols,
-                    help="Click to toggle columns on/off for display"
+                    default=default_cols
                 )
             except Exception:
                 # Fallback: use multiselect if pills not available

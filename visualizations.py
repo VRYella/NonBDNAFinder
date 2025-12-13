@@ -476,10 +476,10 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         labels=None,  # We'll add labels manually
         colors=class_colors,
         radius=0.65,
-        autopct=lambda pct: f'{pct:.0f}%' if pct > 5 else '',
+        autopct=lambda pct: f'{pct:.1f}%' if pct > 3 else '',  # Show more percentage labels with 1 decimal
         pctdistance=0.80,
         startangle=90,
-        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1)
+        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=2)  # Thicker edge for better clarity
     )
     
     # Manually add class labels with better positioning (replace underscores with spaces)
@@ -489,7 +489,9 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         y = 0.5 * np.sin(np.radians(angle))
         # Replace underscores with spaces in labels
         display_name = class_name.replace('_', ' ')
-        ax.text(x, y, display_name, ha='center', va='center', fontsize=7, fontweight='bold')
+        # Add white background box for better readability
+        ax.text(x, y, display_name, ha='center', va='center', fontsize=8, fontweight='bold',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
     
     # Outer donut (subclasses)
     all_subclass_counts = []
@@ -520,7 +522,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
             colors=all_subclass_colors,
             radius=1.0,
             startangle=90,
-            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8)
+            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1.5)  # Thicker edge for clarity
         )
         
         # Add a legend for subclasses instead
@@ -533,13 +535,14 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         for i, (label, color) in enumerate(zip(all_subclass_labels, all_subclass_colors)):
             if label not in seen_labels:
                 seen_labels[label] = color
-                legend_handles.append(plt.Rectangle((0,0),1,1, fc=color, ec='white', lw=0.5))
+                legend_handles.append(plt.Rectangle((0,0),1,1, fc=color, ec='white', lw=1))
                 legend_labels.append(label)
-                if len(legend_labels) >= 10:  # Limit to 10
+                if len(legend_labels) >= 12:  # Limit to 12 for better display
                     break
         
         ax.legend(legend_handles, legend_labels, loc='center left', bbox_to_anchor=(1, 0.5),
-                 fontsize=6, frameon=False, title='Top Subclasses')
+                 fontsize=7, frameon=True, title='Top Subclasses', title_fontsize=8,
+                 framealpha=0.95, edgecolor='lightgray')
     else:
         # For fewer subclasses, show labels with improved spacing
         wedges2, texts2 = ax.pie(
@@ -547,15 +550,16 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
             labels=all_subclass_labels,
             colors=all_subclass_colors,
             radius=1.0,
-            labeldistance=1.15,  # Push labels further out to avoid overlap
+            labeldistance=1.18,  # Push labels further out to avoid overlap
             startangle=90,
-            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=0.8),
-            textprops={'fontsize': 6}
+            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1.5),  # Thicker edge
+            textprops={'fontsize': 7, 'weight': 'medium'}  # Larger, bolder text
         )
         
         # Adjust label positions to avoid overlap
         for text in texts2:
-            text.set_fontsize(6)
+            text.set_fontsize(7)
+            text.set_weight('medium')
             # Add slight rotation for better readability
             angle = text.get_rotation()
             if 90 < angle < 270:
@@ -564,11 +568,12 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
     if title:
         # Replace underscores with spaces in title
         display_title = title.replace('_', ' ')
-        ax.set_title(display_title, fontweight='bold', pad=10)
+        ax.set_title(display_title, fontweight='bold', fontsize=12, pad=15)
     
-    # Style percentage labels
+    # Style percentage labels - larger and bolder
     for autotext in autotexts1:
-        autotext.set_fontsize(6)
+        autotext.set_fontsize(7)
+        autotext.set_weight('bold')
         autotext.set_color('white')
     
     return fig
