@@ -1,0 +1,198 @@
+{
+  "timestamp": "2025-12-25T18:29:08.120928",
+  "sequence_length": 99827,
+  "detector_results": {
+    "Curved DNA": {
+      "detector_name": "Curved DNA",
+      "elapsed_time": 0.799163818359375,
+      "memory_mb": 0.12366199493408203,
+      "throughput_bps": 124914.31381983426,
+      "motif_count": 31,
+      "total_bp_covered": 2083,
+      "coverage_percent": 2.0866098350145754,
+      "subclasses": {
+        "Local Curvature": 22,
+        "Global Curvature": 9
+      },
+      "success": true,
+      "error": null
+    },
+    "Slipped DNA": {
+      "detector_name": "Slipped DNA",
+      "elapsed_time": 6.019144296646118,
+      "memory_mb": 0.10000133514404297,
+      "throughput_bps": 16584.91557606018,
+      "motif_count": 1,
+      "total_bp_covered": 99827,
+      "coverage_percent": 100.0,
+      "subclasses": {
+        "STR": 1
+      },
+      "success": true,
+      "error": null
+    },
+    "Cruciform": {
+      "detector_name": "Cruciform",
+      "elapsed_time": 6.295079708099365,
+      "memory_mb": 0.00046539306640625,
+      "throughput_bps": 15857.940586766637,
+      "motif_count": 0,
+      "total_bp_covered": 0,
+      "coverage_percent": 0.0,
+      "subclasses": {},
+      "success": true,
+      "error": null
+    },
+    "R-Loop": {
+      "detector_name": "R-Loop",
+      "elapsed_time": 0.5386667251586914,
+      "memory_mb": 0.11583137512207031,
+      "throughput_bps": 185322.380866557,
+      "motif_count": 34,
+      "total_bp_covered": 40602,
+      "coverage_percent": 40.672363188315785,
+      "subclasses": {
+        "QmRLFS-m1": 16,
+        "QmRLFS-m2": 18
+      },
+      "success": true,
+      "error": null
+    },
+    "Triplex": {
+      "detector_name": "Triplex",
+      "elapsed_time": 0.38619184494018555,
+      "memory_mb": 0.009569168090820312,
+      "throughput_bps": 258490.69913804493,
+      "motif_count": 12,
+      "total_bp_covered": 276,
+      "coverage_percent": 0.2764783074719264,
+      "subclasses": {
+        "Homopurine mirror repeat": 12
+      },
+      "success": true,
+      "error": null
+    },
+    "G-Quadruplex": {
+      "detector_name": "G-Quadruplex",
+      "elapsed_time": 0.3241302967071533,
+      "memory_mb": 0.6902389526367188,
+      "throughput_bps": 307984.1687560362,
+      "motif_count": 361,
+      "total_bp_covered": 9233,
+      "coverage_percent": 9.249000771334408,
+      "subclasses": {
+        "Two-tetrad weak PQS": 289,
+        "Canonical intramolecular G4": 26,
+        "Extended-loop canonical": 23,
+        "Intramolecular G-triplex": 20,
+        "Higher-order G4 array/G4-wire": 2,
+        "Stacked G4s with linker": 1
+      },
+      "success": true,
+      "error": null
+    },
+    "i-Motif": {
+      "detector_name": "i-Motif",
+      "elapsed_time": 0.0389707088470459,
+      "memory_mb": 0.15601253509521484,
+      "throughput_bps": 2561590.5625890917,
+      "motif_count": 82,
+      "total_bp_covered": 1894,
+      "coverage_percent": 1.897282298376191,
+      "subclasses": {
+        "Canonical i-Motif": 79,
+        "HUR AC-Motif": 3
+      },
+      "success": true,
+      "error": null
+    },
+    "Z-DNA": {
+      "detector_name": "Z-DNA",
+      "elapsed_time": 0.3765420913696289,
+      "memory_mb": 0.0213470458984375,
+      "throughput_bps": 265115.11538295937,
+      "motif_count": 24,
+      "total_bp_covered": 264,
+      "coverage_percent": 0.2644575114948861,
+      "subclasses": {
+        "Z-DNA": 19,
+        "eGZ": 5
+      },
+      "success": true,
+      "error": null
+    },
+    "A-philic DNA": {
+      "detector_name": "A-philic DNA",
+      "elapsed_time": 0.2623889446258545,
+      "memory_mb": 0.034043312072753906,
+      "throughput_bps": 380454.29140448454,
+      "motif_count": 41,
+      "total_bp_covered": 447,
+      "coverage_percent": 0.44777465014475043,
+      "subclasses": {
+        "A-philic DNA": 41
+      },
+      "success": true,
+      "error": null
+    }
+  },
+  "pipeline_result": {
+    "elapsed_time": 15.711615562438965,
+    "memory_mb": 1.2355785369873047,
+    "throughput_bps": 6353.706886684003,
+    "motif_count": 643,
+    "total_bp_covered": 195008,
+    "coverage_percent": 195.34594849088924,
+    "classes": {
+      "Slipped_DNA": 1,
+      "G-Quadruplex": 361,
+      "Curved_DNA": 31,
+      "R-Loop": 34,
+      "A-philic_DNA": 41,
+      "i-Motif": 82,
+      "Non-B_DNA_Clusters": 20,
+      "Hybrid": 38,
+      "Z-DNA": 23,
+      "Triplex": 12
+    },
+    "subclasses": {
+      "STR": 1,
+      "Two-tetrad weak PQS": 289,
+      "Local Curvature": 22,
+      "QmRLFS-m1": 16,
+      "Canonical intramolecular G4": 26,
+      "A-philic DNA": 41,
+      "Extended-loop canonical": 23,
+      "Canonical i-Motif": 79,
+      "Global Curvature": 9,
+      "Intramolecular G-triplex": 20,
+      "QmRLFS-m2": 18,
+      "Mixed_Cluster_3_classes": 16,
+      "R-Loop_G-Quadruplex_Overlap": 1,
+      "Z-DNA": 19,
+      "Higher-order G4 array/G4-wire": 2,
+      "G-Quadruplex_R-Loop_Overlap": 7,
+      "Homopurine mirror repeat": 12,
+      "Triplex_G-Quadruplex_Overlap": 6,
+      "G-Quadruplex_Triplex_Overlap": 6,
+      "G-Quadruplex_A-philic_DNA_Overlap": 5,
+      "A-philic_DNA_G-Quadruplex_Overlap": 2,
+      "i-Motif_G-Quadruplex_Overlap": 5,
+      "Mixed_Cluster_4_classes": 4,
+      "A-philic_DNA_R-Loop_Overlap": 2,
+      "G-Quadruplex_Z-DNA_Overlap": 1,
+      "eGZ": 4,
+      "Z-DNA_G-Quadruplex_Overlap": 2,
+      "HUR AC-Motif": 3,
+      "G-Quadruplex_i-Motif_Overlap": 1,
+      "Stacked G4s with linker": 1
+    },
+    "success": true,
+    "error": null
+  },
+  "summary": {
+    "total_detector_time": 15.040278434753418,
+    "total_motifs_found": 586,
+    "average_throughput": 457368.26534664835
+  }
+}
