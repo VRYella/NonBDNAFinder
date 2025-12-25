@@ -100,13 +100,8 @@ try:
 except ImportError:
     PLOTLY_AVAILABLE = False
 
-# Try to import memory profiling tools
-try:
-    import gc
-    GC_AVAILABLE = True
-except ImportError:
-    GC_AVAILABLE = False
-    logger.warning("gc module not available - garbage collection disabled")
+# Import standard library modules
+import gc  # Garbage collection (standard library, always available)
 
 # =============================================================================
 # PERFORMANCE & MEMORY MANAGEMENT UTILITIES
@@ -122,13 +117,11 @@ def trigger_garbage_collection():
     - Before/after large data exports
     
     Returns:
-        int: Number of objects collected, or 0 if gc not available
+        int: Number of objects collected
     """
-    if GC_AVAILABLE:
-        collected = gc.collect()
-        logger.debug(f"Garbage collection: {collected} objects freed")
-        return collected
-    return 0
+    collected = gc.collect()
+    logger.debug(f"Garbage collection: {collected} objects freed")
+    return collected
 
 
 def optimize_dataframe_memory(df: pd.DataFrame) -> pd.DataFrame:
@@ -136,44 +129,58 @@ def optimize_dataframe_memory(df: pd.DataFrame) -> pd.DataFrame:
     Optimize pandas DataFrame memory usage by downcasting numeric types.
     
     Reduces memory footprint for large result datasets without losing precision.
+    Note: float64 → float32 conversion may affect precision for some calculations.
     
     Args:
         df: Input DataFrame
         
     Returns:
-        Memory-optimized DataFrame
+        Memory-optimized DataFrame (a copy, original unchanged)
         
     Example:
         >>> df = optimize_dataframe_memory(large_motif_df)
         >>> # Memory usage reduced by ~50-70% for integer columns
     """
-    for col in df.columns:
-        col_type = df[col].dtype
+    # Create a copy to avoid modifying original
+    df_optimized = df.copy()
+    
+    # Collect all type changes first
+    type_changes = {}
+    
+    for col in df_optimized.columns:
+        col_type = df_optimized[col].dtype
         
         # Optimize integer columns
         if col_type == 'int64':
-            c_min = df[col].min()
-            c_max = df[col].max()
+            c_min = df_optimized[col].min()
+            c_max = df_optimized[col].max()
             if c_min >= 0:
-                if c_max < 255:
-                    df[col] = df[col].astype(np.uint8)
-                elif c_max < 65535:
-                    df[col] = df[col].astype(np.uint16)
-                elif c_max < 4294967295:
-                    df[col] = df[col].astype(np.uint32)
+                # Unsigned integers (boundary inclusive)
+                if c_max <= 255:
+                    type_changes[col] = np.uint8
+                elif c_max <= 65535:
+                    type_changes[col] = np.uint16
+                elif c_max <= 4294967295:
+                    type_changes[col] = np.uint32
             else:
-                if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-                    df[col] = df[col].astype(np.int8)
-                elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
-                    df[col] = df[col].astype(np.int16)
-                elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
-                    df[col] = df[col].astype(np.int32)
+                # Signed integers (boundary inclusive)
+                if c_min >= np.iinfo(np.int8).min and c_max <= np.iinfo(np.int8).max:
+                    type_changes[col] = np.int8
+                elif c_min >= np.iinfo(np.int16).min and c_max <= np.iinfo(np.int16).max:
+                    type_changes[col] = np.int16
+                elif c_min >= np.iinfo(np.int32).min and c_max <= np.iinfo(np.int32).max:
+                    type_changes[col] = np.int32
         
-        # Optimize float columns
+        # Optimize float columns (with precision note)
+        # Note: float32 provides ~7 significant digits, sufficient for most genomic scores
         elif col_type == 'float64':
-            df[col] = df[col].astype(np.float32)
+            type_changes[col] = np.float32
+    
+    # Apply all type changes
+    for col, new_type in type_changes.items():
+        df_optimized[col] = df_optimized[col].astype(new_type)
             
-    return df
+    return df_optimized
 
 
 def get_memory_usage_mb() -> float:

@@ -266,7 +266,9 @@ Reduction:                   70.8%
 2. **Float Precision**
    ```python
    # Default float64 → float32 for ~50% reduction
-   # Maintains precision for scientific calculations
+   # Note: float32 provides ~7 significant digits
+   # Sufficient for genomic scores (typically 0.0-1.0 range)
+   # Original DataFrame is not modified (returns optimized copy)
    ```
 
 3. **Compression Detection**

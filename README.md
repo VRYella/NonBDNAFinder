@@ -145,7 +145,6 @@ All visualizations follow Nature/Science journal standards:
 - Streamlit (for web interface)
 - Biopython (for FASTA parsing)
 - psutil (for memory monitoring)
-- Altair (for lightweight visualizations)
 - Optional: Hyperscan (for acceleration)
 - Optional: PyFastx (for fast FASTA parsing)
 
