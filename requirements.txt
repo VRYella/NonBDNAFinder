@@ -13,6 +13,7 @@ scipy>=1.7.0
 matplotlib>=3.5.0
 seaborn>=0.11.0
 plotly>=5.17.0
+altair>=5.0.0  # Lightweight interactive visualizations
 
 # Bioinformatics
 biopython>=1.79
@@ -26,6 +27,10 @@ requests>=2.28.0
 
 # System Monitoring
 psutil>=5.8.0
+
+# Optional: Performance Acceleration (install separately for production use)
+# hyperscan>=0.7.0  # High-performance pattern matching (optional acceleration)
+# pyfastx>=0.8.0    # Fast FASTA/FASTQ parsing (optional acceleration)
 
 # Optional: Development tools
 # pytest>=7.0.0
