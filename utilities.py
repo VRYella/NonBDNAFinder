@@ -139,7 +139,8 @@ def optimize_dataframe_memory(df: pd.DataFrame) -> pd.DataFrame:
         
     Example:
         >>> df = optimize_dataframe_memory(large_motif_df)
-        >>> # Memory usage reduced by ~50-70% for integer columns
+        >>> # Overall memory usage typically reduced by 50-70%
+        >>> # (Varies based on data types: integers optimize more than floats)
     """
     # Create a copy to avoid modifying original
     df_optimized = df.copy()
