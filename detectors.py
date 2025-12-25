@@ -2112,15 +2112,20 @@ class SlippedDNADetector(BaseMotifDetector):
         if not sequence:
             return 0.0
         
-        # Calculate base frequencies
+        # Calculate base frequencies in a single pass (O(n) complexity)
         freq = {}
-        for base in "ACGT":
-            count = sequence.count(base)
-            if count > 0:
-                freq[base] = count / len(sequence)
+        for base in sequence:
+            if base in "ACGT":
+                freq[base] = freq.get(base, 0) + 1
+        
+        # Normalize to probabilities
+        seq_len = sum(freq.values())
+        if seq_len == 0:
+            return 0.0
         
         # Calculate Shannon entropy
-        entropy = -sum(f * log2(f) for f in freq.values() if f > 0)
+        entropy = -sum((count / seq_len) * log2(count / seq_len) 
+                       for count in freq.values() if count > 0)
         return entropy
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
@@ -2151,6 +2156,8 @@ class SlippedDNADetector(BaseMotifDetector):
         
         for unit_len in range(self.MIN_UNIT, max_unit + 1):
             # Ensure we check all valid positions (inclusive of the boundary)
+            # Use max(1, ...) to ensure at least one iteration even if sequence is too short
+            # The condition n >= 2*unit_len is needed to have space for two repeats
             for i in range(0, max(1, n - 2 * unit_len + 1), step_size):
                 unit = seq[i:i + unit_len]
                 

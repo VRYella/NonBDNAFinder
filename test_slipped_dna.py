@@ -10,6 +10,7 @@ Tests:
 """
 
 import sys
+import hashlib
 from detectors import SlippedDNADetector
 
 
@@ -113,7 +114,6 @@ def test_large_sequence_no_false_positives():
     
     # Create a 50,000 bp random sequence with no actual repeats
     # Use a pseudo-random pattern to ensure no accidental repeats
-    import hashlib
     seq_parts = []
     for i in range(5000):
         # Generate 10 bp chunks with varying patterns
