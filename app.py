@@ -3495,26 +3495,7 @@ with tab_pages["Download"]:
         # Sanitize sequence name for safe filenames
         safe_filename = re.sub(r'[^\w\-]', '_', primary_sequence_name)[:50].strip('_')
         
-        # Display Analysis Summary
-        st.markdown(f"""
-        <div class='progress-panel progress-panel--success'>
-            <h2 class='progress-panel__title'>✅ Analysis Complete</h2>
-            <div style='background: rgba(255,255,255,0.9); padding: 1.5rem; border-radius: 12px; margin: 1rem 0;'>
-                <div style='display: grid; grid-template-columns: 150px 1fr; gap: 1rem; font-size: 1.05rem;'>
-                    <div style='font-weight: 600; color: #1e293b;'>Sequence:</div>
-                    <div style='color: #334155;'>{primary_sequence_name}</div>
-                    
-                    <div style='font-weight: 600; color: #1e293b;'>Status:</div>
-                    <div style='color: #16a34a; font-weight: 600;'>✅ Complete</div>
-                    
-                    <div style='font-weight: 600; color: #1e293b;'>Analysis Time:</div>
-                    <div style='color: #334155;'>{format_time_scientific(analysis_time)}</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("---")
+
         
         # Prepare motif data
         all_motifs = []
