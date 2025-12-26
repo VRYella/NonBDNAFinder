@@ -2092,9 +2092,41 @@ class SlippedDNADetector(BaseMotifDetector):
     MIN_UNIT = 10   # Minimum repeat unit length
     MAX_UNIT = 50   # Maximum repeat unit length
     MAX_SPACER = 0  # No spacer for slipped DNA
+    ENTROPY_THRESHOLD = 1.0  # Minimum entropy to avoid low-complexity sequences
 
     def get_motif_class_name(self) -> str:
         return "Slipped_DNA"
+    
+    @staticmethod
+    def calculate_entropy(sequence: str) -> float:
+        """
+        Calculate Shannon entropy of a DNA sequence.
+        
+        Args:
+            sequence: DNA sequence string (uppercase)
+            
+        Returns:
+            Entropy value (0-2 bits for DNA, 2 = maximum complexity)
+        """
+        from math import log2
+        if not sequence:
+            return 0.0
+        
+        # Calculate base frequencies in a single pass (O(n) complexity)
+        freq = {}
+        for base in sequence:
+            if base in "ACGT":
+                freq[base] = freq.get(base, 0) + 1
+        
+        # Normalize to probabilities
+        seq_len = sum(freq.values())
+        if seq_len == 0:
+            return 0.0
+        
+        # Calculate Shannon entropy
+        entropy = -sum((count / seq_len) * log2(count / seq_len) 
+                       for count in freq.values() if count > 0)
+        return entropy
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         # Detection via optimized k-mer scanner
@@ -2108,35 +2140,38 @@ class SlippedDNADetector(BaseMotifDetector):
         """
         Fast algorithmic detection of direct repeats without catastrophic backtracking.
         Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt.
+        
+        Improvements:
+        - Fixed step_size to 1 for fine granularity (prevents false positives in large sequences)
+        - Added entropy filter to exclude low-complexity sequences
+        - Ensures direct repeats with no spacer are accurately detected
         """
         regions = []
         n = len(seq)
         
-        # PERFORMANCE: Adaptive parameters based on sequence length
-        # Slipped DNA: 10–50 nt repeat separated by spacer = 0 nt
+        # Fixed parameters - maintain fine granularity for all sequence lengths
+        step_size = 1  # Maintain fine granularity for all sequence lengths
+        max_unit = self.MAX_UNIT  # Stick strictly to maximum repeat size (50 bp)
         max_spacer = self.MAX_SPACER  # No spacer for slipped DNA
         
-        if n > 100000:
-            max_unit = min(self.MAX_UNIT, n // 3)  # Limited to MAX_UNIT (50 bp) as per spec
-            step_size = max(5, n // 20000)
-        elif n > 50000:
-            max_unit = min(self.MAX_UNIT, n // 3)
-            step_size = 4
-        elif n >= 10000:
-            max_unit = min(self.MAX_UNIT, n // 3)
-            step_size = 3
-        else:
-            max_unit = min(self.MAX_UNIT, n // 3)
-            step_size = 1
-        
         for unit_len in range(self.MIN_UNIT, max_unit + 1):
-            for i in range(0, n - 2 * unit_len, step_size):
+            # Ensure we check all valid positions (inclusive of the boundary)
+            # Use max(1, ...) to ensure at least one iteration even if sequence is too short
+            # The condition n >= 2*unit_len is needed to have space for two repeats
+            for i in range(0, max(1, n - 2 * unit_len + 1), step_size):
                 unit = seq[i:i + unit_len]
+                
+                # Skip units with N bases
                 if 'N' in unit:
                     continue
+                
+                # Apply entropy filter to exclude low-complexity sequences
+                unit_entropy = self.calculate_entropy(unit)
+                if unit_entropy < self.ENTROPY_THRESHOLD:
+                    continue
                     
-                # Check for repeat with 0 bp spacer (adjacent repeats only)
-                j = i + unit_len  # No spacer
+                # Strictly check for direct repeats with no spacer
+                j = i + unit_len  # No spacer - adjacent repeat
                 if j + unit_len > n:
                     continue
                 
@@ -2164,7 +2199,8 @@ class SlippedDNADetector(BaseMotifDetector):
                             'unit_length': unit_len,
                             'spacer_length': 0,
                             'repeat_type': f'Direct repeat ({unit_len} bp unit, 0 bp spacer)',
-                            'source': 'Wells 2005'
+                            'source': 'Wells 2005',
+                            'entropy': round(unit_entropy, 3)
                         }
                     })
         
@@ -2179,6 +2215,14 @@ class SlippedDNADetector(BaseMotifDetector):
             # STRs (unit 1–9 bp)
             str_results = _find_strs_optimized(seq, min_u=1, max_u=9, min_total=20)
             for str_rec in str_results:
+                # Apply entropy filter to STR unit
+                unit_seq = str_rec.get('Repeat_Unit', str_rec.get('Unit_Seq', ''))
+                if unit_seq:
+                    unit_entropy = self.calculate_entropy(unit_seq)
+                    # Skip low-complexity STRs
+                    if unit_entropy < self.ENTROPY_THRESHOLD:
+                        continue
+                
                 regions.append({
                     'class_name': 'STR',
                     'pattern_id': f'SLP_STR_{str_rec["Unit_Length"]}',
@@ -2193,14 +2237,15 @@ class SlippedDNADetector(BaseMotifDetector):
                         'repeat_type': f"{str_rec['Unit_Length']}-mer STR",
                         'source': 'Wells 2005',
                         # Enhanced component fields
-                        'repeat_unit': str_rec.get('Repeat_Unit', str_rec.get('Unit_Seq', '')),
+                        'repeat_unit': unit_seq,
                         'number_of_copies': str_rec.get('Number_of_Copies', str_rec.get('Copies', 0)),
                         'gc_unit': str_rec.get('GC_Unit', 0),
                         'gc_total': str_rec.get('GC_Total', 0),
                         'unit_a_count': str_rec.get('Unit_A_Count', 0),
                         'unit_t_count': str_rec.get('Unit_T_Count', 0),
                         'unit_g_count': str_rec.get('Unit_G_Count', 0),
-                        'unit_c_count': str_rec.get('Unit_C_Count', 0)
+                        'unit_c_count': str_rec.get('Unit_C_Count', 0),
+                        'entropy': round(unit_entropy, 3) if unit_seq else None
                     }
                 })
 
@@ -2209,6 +2254,14 @@ class SlippedDNADetector(BaseMotifDetector):
                                                             max_unit=self.MAX_UNIT, 
                                                             max_spacer=self.MAX_SPACER)
             for dr_rec in direct_results:
+                # Apply entropy filter to direct repeat unit
+                left_unit = dr_rec.get('Left_Unit', '')
+                if left_unit:
+                    unit_entropy = self.calculate_entropy(left_unit)
+                    # Skip low-complexity direct repeats
+                    if unit_entropy < self.ENTROPY_THRESHOLD:
+                        continue
+                
                 regions.append({
                     'class_name': 'Direct_Repeat',
                     'pattern_id': 'SLP_DIR_1',
@@ -2223,12 +2276,13 @@ class SlippedDNADetector(BaseMotifDetector):
                         'repeat_type': f'Direct repeat ({dr_rec["Unit_Length"]} bp unit, {dr_rec["Spacer"]} bp spacer)',
                         'source': 'Wells 2005',
                         # Enhanced component fields
-                        'left_unit': dr_rec.get('Left_Unit', ''),
+                        'left_unit': left_unit,
                         'right_unit': dr_rec.get('Right_Unit', ''),
                         'spacer_seq': dr_rec.get('Spacer_Seq', ''),
                         'gc_unit': dr_rec.get('GC_Unit', 0),
                         'gc_spacer': dr_rec.get('GC_Spacer', 0),
-                        'gc_total': dr_rec.get('GC_Total', 0)
+                        'gc_total': dr_rec.get('GC_Total', 0),
+                        'entropy': round(unit_entropy, 3) if left_unit else None
                     }
                 })
         else:
@@ -2243,6 +2297,13 @@ class SlippedDNADetector(BaseMotifDetector):
                     s, e = m.span()
                     if (e - s) < 20 or any(used[s:e]):
                         continue
+                    
+                    # Apply entropy filter to STR unit
+                    unit = seq[s:s+k]
+                    unit_entropy = self.calculate_entropy(unit)
+                    if unit_entropy < self.ENTROPY_THRESHOLD:
+                        continue
+                    
                     for i in range(s, e):
                         used[i] = True
                     n_units = (e - s) // k
@@ -2258,7 +2319,8 @@ class SlippedDNADetector(BaseMotifDetector):
                             'unit_length': k,
                             'repeat_units': n_units,
                             'repeat_type': f'{k}-mer STR',
-                            'source': 'Wells 2005'
+                            'source': 'Wells 2005',
+                            'entropy': round(unit_entropy, 3)
                         }
                     })
 
