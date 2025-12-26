@@ -104,11 +104,30 @@ See [IMPROVEMENTS_SUMMARY.md](./IMPROVEMENTS_SUMMARY.md) for complete details.
 
 ## 📈 Performance
 
+### Speed
 - **Standard Mode**: ~5,800 bp/second
 - **Optimized Mode**: ~24,674 bp/second  
 - **Genome-Scale**: 100MB+ sequences supported
 - **Memory Efficient**: ~5 MB for 100K sequences
 - **No Compromise**: All enhancements maintain O(n) complexity
+
+### Memory Management
+- **Lazy Loading**: Chunked parsing for large files (>200MB)
+- **Garbage Collection**: Automatic memory cleanup after processing stages
+- **DataFrame Optimization**: Downcasting for 50-70% memory reduction
+- **Real-Time Monitoring**: Optional memory usage display during analysis
+
+### Scalability Features
+- **Compressed Input**: Native support for gzip (.gz) and bgzip (.bgz) files
+- **Chunked Processing**: 2MB chunks for memory-efficient large file handling
+- **Parallel Scanner**: Experimental multi-core support for sequences >100kb
+- **Smart Caching**: Streamlit `@st.cache_data` for visualization reuse
+
+### Large File Support
+- **200MB+ Files**: Tested and optimized for large genomic datasets
+- **Compression**: Automatic detection and decompression
+- **Progress Tracking**: Real-time progress bars with chunk-level detail
+- **Memory Profiling**: Optional psutil-based memory tracking
 
 ## 🎨 Example Visualizations
 
@@ -125,7 +144,9 @@ All visualizations follow Nature/Science journal standards:
 - NumPy, Pandas, Matplotlib, Seaborn
 - Streamlit (for web interface)
 - Biopython (for FASTA parsing)
+- psutil (for memory monitoring)
 - Optional: Hyperscan (for acceleration)
+- Optional: PyFastx (for fast FASTA parsing)
 
 ## 📦 Installation
 

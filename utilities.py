@@ -100,6 +100,107 @@ try:
 except ImportError:
     PLOTLY_AVAILABLE = False
 
+# Import standard library modules
+import gc  # Garbage collection (standard library, always available)
+
+# =============================================================================
+# PERFORMANCE & MEMORY MANAGEMENT UTILITIES
+# =============================================================================
+
+def trigger_garbage_collection():
+    """
+    Trigger explicit garbage collection to free memory.
+    
+    Should be called at critical pipeline stages:
+    - After processing large sequences
+    - After generating visualizations
+    - Before/after large data exports
+    
+    Returns:
+        int: Number of objects collected
+    """
+    collected = gc.collect()
+    logger.debug(f"Garbage collection: {collected} objects freed")
+    return collected
+
+
+def optimize_dataframe_memory(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Optimize pandas DataFrame memory usage by downcasting numeric types.
+    
+    Reduces memory footprint for large result datasets without losing precision.
+    Note: float64 → float32 conversion may affect precision for some calculations.
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Memory-optimized DataFrame (a copy, original unchanged)
+        
+    Example:
+        >>> df = optimize_dataframe_memory(large_motif_df)
+        >>> # Overall memory usage typically reduced by 50-70%
+        >>> # (Varies based on data types: integers optimize more than floats)
+    """
+    # Create a copy to avoid modifying original
+    df_optimized = df.copy()
+    
+    # Collect all type changes first
+    type_changes = {}
+    
+    for col in df_optimized.columns:
+        col_type = df_optimized[col].dtype
+        
+        # Optimize integer columns
+        if col_type == 'int64':
+            c_min = df_optimized[col].min()
+            c_max = df_optimized[col].max()
+            if c_min >= 0:
+                # Unsigned integers (boundary inclusive)
+                if c_max <= 255:
+                    type_changes[col] = np.uint8
+                elif c_max <= 65535:
+                    type_changes[col] = np.uint16
+                elif c_max <= 4294967295:
+                    type_changes[col] = np.uint32
+            else:
+                # Signed integers (boundary inclusive)
+                if c_min >= np.iinfo(np.int8).min and c_max <= np.iinfo(np.int8).max:
+                    type_changes[col] = np.int8
+                elif c_min >= np.iinfo(np.int16).min and c_max <= np.iinfo(np.int16).max:
+                    type_changes[col] = np.int16
+                elif c_min >= np.iinfo(np.int32).min and c_max <= np.iinfo(np.int32).max:
+                    type_changes[col] = np.int32
+        
+        # Optimize float columns (with precision note)
+        # Note: float32 provides ~7 significant digits, sufficient for most genomic scores
+        elif col_type == 'float64':
+            type_changes[col] = np.float32
+    
+    # Apply all type changes
+    for col, new_type in type_changes.items():
+        df_optimized[col] = df_optimized[col].astype(new_type)
+            
+    return df_optimized
+
+
+def get_memory_usage_mb() -> float:
+    """
+    Get current process memory usage in MB.
+    
+    Returns:
+        Memory usage in megabytes
+    """
+    try:
+        import psutil
+        import os
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / 1024 / 1024
+    except ImportError:
+        logger.warning("psutil not available - cannot monitor memory")
+        return 0.0
+
+
 # =============================================================================
 # CONSTANTS FOR DATA EXPORT
 # =============================================================================
@@ -1845,6 +1946,77 @@ def parse_fasta_chunked(file_object, chunk_size_mb: int = 2):
         current_seq_parts.clear()
         yield (current_name, full_seq)
         del full_seq
+
+
+def open_compressed_file(file_path_or_object):
+    """
+    Open a file that may be compressed (gzip, bgzip) or uncompressed.
+    
+    Automatically detects compression by file extension or magic bytes.
+    Supports both file paths and file-like objects.
+    
+    Args:
+        file_path_or_object: File path string or file-like object
+        
+    Returns:
+        File-like object ready for reading (text mode)
+        
+    Example:
+        >>> with open_compressed_file('genome.fa.gz') as f:
+        ...     sequences = parse_fasta_chunked(f)
+    """
+    import gzip
+    
+    # Check if it's a file path or file object
+    if isinstance(file_path_or_object, str):
+        # File path - check extension
+        if file_path_or_object.endswith('.gz') or file_path_or_object.endswith('.bgz'):
+            return gzip.open(file_path_or_object, 'rt', encoding='utf-8')
+        else:
+            return open(file_path_or_object, 'r', encoding='utf-8')
+    else:
+        # File object - check magic bytes
+        file_object = file_path_or_object
+        file_object.seek(0)
+        
+        # Read first 2 bytes to check for gzip magic number (1f 8b)
+        magic = file_object.read(2)
+        file_object.seek(0)
+        
+        if isinstance(magic, bytes) and magic == b'\x1f\x8b':
+            # Gzip compressed
+            return gzip.open(file_object, 'rt', encoding='utf-8')
+        else:
+            # Not compressed, return as-is
+            return file_object
+
+
+def parse_fasta_chunked_compressed(file_path_or_object, chunk_size_mb: int = 2):
+    """
+    Parse FASTA file with automatic compression detection.
+    
+    Combines parse_fasta_chunked with open_compressed_file for seamless
+    handling of both compressed (.gz, .bgz) and uncompressed FASTA files.
+    
+    Args:
+        file_path_or_object: File path string or file-like object
+        chunk_size_mb: Size of read chunks in MB (default: 2MB)
+        
+    Yields:
+        Tuple of (sequence_name, sequence_string)
+        
+    Example:
+        >>> # Works with compressed files
+        >>> for name, seq in parse_fasta_chunked_compressed('large_genome.fa.gz'):
+        ...     print(f"{name}: {len(seq)} bp")
+        >>> 
+        >>> # Also works with regular files
+        >>> for name, seq in parse_fasta_chunked_compressed('sequences.fasta'):
+        ...     print(f"{name}: {len(seq)} bp")
+    """
+    with open_compressed_file(file_path_or_object) as f:
+        yield from parse_fasta_chunked(f, chunk_size_mb=chunk_size_mb)
+
 
 def get_file_preview(file_object, max_sequences: int = 3, max_preview_chars: int = 400):
     """

@@ -43,9 +43,12 @@ if _current_dir not in sys.path:
     sys.path.insert(0, _current_dir)
 # Import consolidated NBDScanner modules
 from utilities import (
-    parse_fasta, parse_fasta_chunked, get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
+    parse_fasta, parse_fasta_chunked, parse_fasta_chunked_compressed, 
+    get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
     export_to_json, export_to_excel, export_statistics_to_excel, calculate_genomic_density, calculate_positional_density,
     export_results_to_dataframe, CORE_OUTPUT_COLUMNS, export_to_pdf,
+    # Performance & Memory Management
+    trigger_garbage_collection, optimize_dataframe_memory, get_memory_usage_mb,
     # Visualization functions (now consolidated in utilities.py)
     plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
     plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
@@ -2182,6 +2185,8 @@ with tab_pages["Upload & Analyze"]:
                                          help=UI_TEXT['tooltip_chunk_progress'])
         use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=True,
                                           help=UI_TEXT['tooltip_parallel_scanner'])
+        show_memory_usage = st.checkbox("Show Memory Usage", value=False,
+                                        help="Display real-time memory usage during analysis")
         
         if use_parallel_scanner:
             st.caption(UI_TEXT['upload_parallel_note'])
@@ -2351,8 +2356,11 @@ with tab_pages["Upload & Analyze"]:
                     st.subheader(UI_TEXT['analysis_progress_title'])
                     st.write(status_text)
                     
-                    # Display metrics in 3 columns with scientific time format
-                    col1, col2, col3 = st.columns(3)
+                    # Display metrics in 3-4 columns with scientific time format
+                    if show_memory_usage:
+                        col1, col2, col3, col4 = st.columns(4)
+                    else:
+                        col1, col2, col3 = st.columns(3)
                     
                     with col1:
                         st.metric("Elapsed", format_time_scientific(elapsed))
@@ -2362,6 +2370,11 @@ with tab_pages["Upload & Analyze"]:
                     
                     with col3:
                         st.metric("Progress", progress_display)
+                    
+                    if show_memory_usage:
+                        with col4:
+                            mem_mb = get_memory_usage_mb()
+                            st.metric("Memory", f"{mem_mb:.0f} MB")
                     
                     # Simplified sequence info display
                     st.write(f"**Sequence {seq_num}/{total_seqs}**: {seq_name} ({seq_bp:,} bp)")
@@ -2489,6 +2502,11 @@ with tab_pages["Upload & Analyze"]:
                     all_results.append(results)
                     
                     total_bp_processed += len(seq)
+                    
+                    # Memory management: Trigger garbage collection for large sequences
+                    if len(seq) > 1_000_000:  # For sequences > 1 Mb
+                        trigger_garbage_collection()
+                        logger.debug(f"Triggered garbage collection after processing {name} ({len(seq):,} bp)")
                     
                     # ============================================================
                     # DETERMINISTIC TIMING: No intermediate time calculations
@@ -2690,6 +2708,10 @@ with tab_pages["Upload & Analyze"]:
                 
                 viz_total_time = time.time() - viz_start_time
                 
+                # Memory management: Trigger garbage collection after all visualizations
+                trigger_garbage_collection()
+                logger.debug(f"Triggered garbage collection after generating {total_viz_count} visualizations")
+                
                 # Ephemeral success with scientific time format
                 status_placeholder.success(f"✅ All visualizations prepared: {total_viz_count} components in {format_time_compact(viz_total_time)}")
                 
@@ -2890,6 +2912,11 @@ with tab_pages["Results"]:
         
         # Create enhanced motifs DataFrame
         df = pd.DataFrame(filtered_motifs) if filtered_motifs else pd.DataFrame()
+        
+        # Memory optimization: Optimize DataFrame for large result sets
+        if len(df) > 1000:
+            df = optimize_dataframe_memory(df)
+            logger.debug(f"Optimized DataFrame memory for {len(df)} motifs")
         
         # Calculate and display enhanced coverage statistics (using filtered motifs)
         stats = get_basic_stats(st.session_state.seqs[seq_idx], filtered_motifs)
