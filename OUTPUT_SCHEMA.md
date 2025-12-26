@@ -45,7 +45,9 @@ These columns are **only included in class-specific Excel sheets**, never in mai
 | `Loop_Length` | float | Average loop length between G-tracts |
 | `Num_Stems` | integer | Number of tetrad stems |
 | `Stem_Length` | float | Average stem length |
-| `Priority` | integer | Priority score for overlap resolution (25-95) |
+| `Priority` | integer | Priority score for overlap resolution (25-95, internal use for ranking) |
+
+**Note**: The `Priority` field uses a different scale (25-95) than the normalized `Score` field (0-3). Priority is used internally for resolving overlaps between G4 subclasses and does not represent biological confidence.
 
 ### Z-DNA / eGZ-DNA
 | Column | Type | Description |

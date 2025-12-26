@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """
-Test suite for minimal reporting schema (Task 1 & 2 requirements).
+Test suite for minimal reporting schema implementation.
+
+This test suite validates the implementation of Tasks 1 & 2 from the requirements:
+- Task 1: Core output columns (10 mandatory, universal columns)
+- Task 2: Motif-specific columns (conditional reporting per motif class)
+
+The goal is to ensure publication-grade output per Nature/NAR/Genome Research standards.
 
 Tests:
 1. Core output columns are correctly defined
