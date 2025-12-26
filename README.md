@@ -79,6 +79,28 @@ print(f'Found {len(motifs)} motifs')
 
 See [IMPROVEMENTS_SUMMARY.md](./IMPROVEMENTS_SUMMARY.md) for complete details.
 
+## 📋 Output Schema (NEW in 2025.1)
+
+NonBDNAFinder now implements a **minimal, publication-grade reporting schema** based on Nature/NAR/Genome Research standards:
+
+### Core Output (10 Columns - Always Reported)
+- `Sequence_Name`, `Class`, `Subclass`, `Start`, `End`, `Length`, `Strand`, `Score`, `Method`, `Pattern_ID`
+
+### Motif-Specific Columns (Conditionally Reported)
+- G-Quadruplex: `Num_Tracts`, `Loop_Length`, `Priority`
+- Slipped DNA: `Repeat_Unit`, `Unit_Length`, `Repeat_Count`
+- Cruciform: `Arm_Length`, `Loop_Length`, `Num_Stems`
+- R-loops: `GC_Skew`, `RIZ_Length`, `REZ_Length`
+- And more...
+
+**Design Principles**:
+- ✅ Minimal: 10 core columns vs. 80+ in legacy systems
+- ✅ Non-redundant: No duplicate or overlapping features
+- ✅ Biologically meaningful: Every column has interpretative value
+- ✅ Publication-ready: Meets top journal standards from the start
+
+See **[OUTPUT_SCHEMA.md](./OUTPUT_SCHEMA.md)** for complete documentation with examples.
+
 ## 📁 Project Structure
 
 The application is unified into **4 core scripts** for clarity and maintainability:
@@ -122,9 +144,11 @@ See `archive/README.md` for details on archived content.
 
 ## 📖 Documentation
 
+- **[Output Schema](./OUTPUT_SCHEMA.md)**: ⭐ **NEW** - Minimal reporting format
 - **[API Documentation](./app.py)**: Complete function reference
 - **[JSON Registry](./consolidated_registry.json)**: Pattern database
 - **[Performance Guide](./PERFORMANCE_GUIDE.md)**: Optimization tips
+- **[Improvements Summary](./IMPROVEMENTS_SUMMARY.md)**: What's new in 2025.1
 
 ## 🔬 Scientific Accuracy
 
