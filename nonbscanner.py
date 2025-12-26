@@ -100,7 +100,8 @@ from utilities import (
     normalize_motif_scores
 )
 
-# Try to import Streamlit progress panel (optional)
+# Try to import Streamlit progress panel (optional, archived)
+# NOTE: scientific_progress.py has been archived - progress tracking is now built-in
 try:
     from scientific_progress import (
         StreamlitProgressPanel,

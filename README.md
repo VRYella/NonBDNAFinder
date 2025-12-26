@@ -79,12 +79,52 @@ print(f'Found {len(motifs)} motifs')
 
 See [IMPROVEMENTS_SUMMARY.md](./IMPROVEMENTS_SUMMARY.md) for complete details.
 
+## 📁 Project Structure
+
+The application is unified into **4 core scripts** for clarity and maintainability:
+
+### Core Files
+1. **`app.py`** (192 KB) - Streamlit web application
+   - User interface and interaction
+   - File upload and parsing
+   - Results display and export
+   
+2. **`utilities.py`** (311 KB) - Utilities, export, and visualization
+   - Sequence processing functions
+   - Data export (CSV, BED, JSON, Excel)
+   - 25+ publication-quality visualization functions
+   - Memory management and optimization
+   
+3. **`nonbscanner.py`** (75 KB) - Main scanner API
+   - Analysis orchestration
+   - Hybrid and cluster detection
+   - Score normalization (1-3 scale)
+   - Progress tracking
+   
+4. **`detectors.py`** (195 KB) - All detector classes
+   - 9 motif detector classes consolidated
+   - Pattern matching and scoring
+   - Component extraction
+
+### Data Files
+- `consolidated_registry.json` - Pattern database
+- `pattern_registry2.xlsx` - Pattern registry with scores
+- `requirements.txt` - Python dependencies
+
+### Archived Files
+Development and experimental files have been moved to `archive/` directory:
+- Legacy detector implementations
+- Experimental optimization code
+- Development tests and validation scripts
+- Historical documentation
+
+See `archive/README.md` for details on archived content.
+
 ## 📖 Documentation
 
-- **[Improvements Summary](./IMPROVEMENTS_SUMMARY.md)**: Comprehensive changelog
-- **[Scientific References](./IMPROVEMENTS_SUMMARY.md#-references)**: All peer-reviewed sources
 - **[API Documentation](./app.py)**: Complete function reference
 - **[JSON Registry](./consolidated_registry.json)**: Pattern database
+- **[Performance Guide](./PERFORMANCE_GUIDE.md)**: Optimization tips
 
 ## 🔬 Scientific Accuracy
 
