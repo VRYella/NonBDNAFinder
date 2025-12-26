@@ -2450,6 +2450,7 @@ with tab_pages["Upload & Analyze"]:
                     # No per-sequence timing - total time captured once at end
                     
                     if use_parallel_scanner and len(seq) > 100000:
+                        # NOTE: scanner_agent.py has been archived - parallel scanning experimental
                         # Use experimental parallel scanner for large sequences
                         try:
                             from scanner_agent import ParallelScanner
