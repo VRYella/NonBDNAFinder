@@ -206,19 +206,35 @@ def get_memory_usage_mb() -> float:
 # =============================================================================
 
 # Core columns for output tables (as per requirements)
-# These columns appear in display tables, CSV exports, and are the primary columns
-# Additional detailed columns only appear in Excel download per-motif sheets
+# Mandatory, universal columns for publication-grade reporting
+# These columns appear in all display tables and CSV exports
+# Task 1 & 2: Minimal, high-value features for Nature/NAR/Genome Research standards
 CORE_OUTPUT_COLUMNS = [
-    'Sequence_Name',  # Sequence Name (or Accession)
-    'Source',         # Source (e.g., genome, experiment, study)
-    'Class',          # Motif Class
-    'Subclass',       # Motif Subclass
-    'Start',          # Start Position
-    'End',            # End Position
-    'Length',         # Length (bp)
-    'Sequence',       # Sequence
-    'Score',          # Motif Score
+    'Sequence_Name',  # Identity: Traceability
+    'Class',          # Classification: Biological interpretation
+    'Subclass',       # Classification: Detailed subtype
+    'Start',          # Genomics: Absolute genomic context
+    'End',            # Genomics: Absolute genomic context
+    'Length',         # Genomics: Feature size (bp)
+    'Strand',         # Strand: Structural relevance (+/-)
+    'Score',          # Confidence: 1-3 normalized, cross-motif comparability
+    'Method',         # Evidence: Reproducibility (Regex/k-mer/ΔG/Hyperscan)
+    'Pattern_ID',     # Evidence: Pattern identifier for traceability
 ]
+
+# Motif-specific columns (ONLY reported when relevant per motif class)
+# These are attached only in class-specific sheets or tooltips
+MOTIF_SPECIFIC_COLUMNS = {
+    'G-Quadruplex': ['Num_Tracts', 'Loop_Length', 'Num_Stems', 'Stem_Length', 'Priority'],
+    'Z-DNA': ['Mean_10mer_Score', 'Contributing_10mers', 'Alternating_CG_Regions'],
+    'i-Motif': ['Num_C_Tracts', 'Loop_Length', 'Motif_Type'],
+    'Slipped DNA': ['Repeat_Unit', 'Unit_Length', 'Repeat_Count'],
+    'Cruciform': ['Arm_Length', 'Loop_Length', 'Num_Stems'],
+    'Triplex': ['Mirror_Type', 'Spacer_Length', 'Arm_Length', 'Loop_Length'],
+    'R-Loop': ['GC_Skew', 'RIZ_Length', 'REZ_Length'],
+    'Curved DNA': ['Tract_Type', 'Tract_Length', 'Num_Tracts'],
+    'A-Philic': ['Tract_Type', 'Tract_Length'],
+}
 
 # =============================================================================
 # CONSTANTS FOR DOWNLOAD PACKAGE GENERATION
@@ -2692,12 +2708,13 @@ def export_to_bed(motifs: List[Dict[str, Any]], sequence_name: str = "sequence",
 def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None, 
                  non_overlapping_only: bool = False) -> str:
     """
-    Export motifs to CSV format with CORE fields only (as per requirements).
+    Export motifs to CSV format with CORE fields only (Task 1 & 2 requirements).
     
-    Output tables should only have: Sequence_Name, Source, Class, Subclass, 
-    Start, End, Length, Sequence, Score
+    Output tables use minimal, high-value features per Nature/NAR/Genome Research standards:
+    - Sequence_Name, Class, Subclass, Start, End, Length, Strand, Score, Method, Pattern_ID
     
-    Additional detailed columns are only shown in Excel download per-motif sheets.
+    Motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only included in 
+    Excel downloads per-motif sheets, not in CSV exports for clarity.
     
     Args:
         motifs: List of motif dictionaries
@@ -2725,11 +2742,18 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None,
         # Create row with only core fields
         row = {}
         for col in core_columns:
-            value = motif.get(col, 'NA')
+            value = motif.get(col, None)
             
-            # If empty, set to NA
+            # Set appropriate defaults for missing columns
             if value == '' or value is None:
-                value = 'NA'
+                if col == 'Strand':
+                    value = '+'
+                elif col == 'Method':
+                    value = 'Pattern_detection'
+                elif col == 'Pattern_ID':
+                    value = 'Unknown'
+                else:
+                    value = 'NA'
             
             row[col] = value
         
@@ -2785,20 +2809,28 @@ def export_to_json(motifs: List[Dict[str, Any]], filename: Optional[str] = None,
 def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_results.xlsx", 
                    simple_format: bool = False) -> str:
     """
-    Export motifs to Excel format.
+    Export motifs to Excel format with Task 1 & 2 requirements:
+    - Main sheet: Core columns only (minimal, publication-grade)
+    - Additional sheets: Motif-specific columns per class (conditional reporting)
     
-    If simple_format=True (default for downloads):
-        - Tab 1: NonOverlappingConsolidated (exclude Hybrid/Cluster motifs)
-        - Tab 2: OverlappingAll (include ALL motifs)
+    Core columns (all sheets):
+        Sequence_Name, Class, Subclass, Start, End, Length, Strand, 
+        Score, Method, Pattern_ID
     
-    If simple_format=False (legacy format):
-        - First sheet: Consolidated non-overlapping motifs
-        - Subsequent sheets: Individual motif classes/subclasses
+    Motif-specific columns (class-specific sheets only):
+        G-Quadruplex: Num_Tracts, Loop_Length, Priority
+        Slipped DNA: Repeat_Unit, Unit_Length, Repeat_Count
+        Cruciform: Arm_Length, Loop_Length, Num_Stems
+        Triplex: Mirror_Type, Spacer_Length, Arm_Length, Loop_Length
+        R-Loop: GC_Skew, RIZ_Length, REZ_Length
+        Z-DNA: Mean_10mer_Score, Alternating_CG_Regions
+        i-Motif: Num_C_Tracts, Loop_Length, Motif_Type
+        Curved DNA: Tract_Type, Tract_Length, Num_Tracts
     
     Args:
         motifs: List of motif dictionaries
         filename: Output Excel filename (default: "nonbscanner_results.xlsx")
-        simple_format: If True, use 2-tab format; if False, use legacy multi-sheet format
+        simple_format: If True, use 2-tab format; if False, use class-specific format
         
     Returns:
         Success message string
@@ -2811,120 +2843,99 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
     if not motifs:
         return "No motifs to export"
     
-    # Comprehensive column order
-    comprehensive_columns = [
-        'ID', 'Sequence_Name', 'Source', 'Class', 'Subclass', 'Pattern_ID',
-        'Start', 'End', 'Length', 'Sequence', 'Method', 'Score',
-        'Repeat_Type', 'Left_Arm', 'Right_Arm', 'Loop_Seq',
-        'Arm_Length', 'Loop_Length', 'Stem_Length', 'Unit_Length',
-        'Number_Of_Copies', 'Spacer_Length', 'Spacer_Sequence',
-        'GC_Content', 'Structural_Features', 'Strand'
-    ]
+    # Core columns for all sheets (Task 1 & 2 requirements)
+    core_columns = CORE_OUTPUT_COLUMNS
     
-    # Get all unique keys from motifs
-    all_keys = set()
-    for motif in motifs:
-        all_keys.update(motif.keys())
-    
-    # Add any additional fields found
-    columns = comprehensive_columns.copy()
-    for key in sorted(all_keys):
-        if key not in columns:
-            columns.append(key)
-    
-    # Prepare data rows
-    def prepare_row(motif):
+    # Prepare row with core columns only
+    def prepare_core_row(motif):
         row = {}
-        for col in columns:
-            value = motif.get(col, 'NA')
-            
-            # Map alternative field names
-            if value == 'NA' or value == '' or value is None:
-                if col == 'Number_Of_Copies' and 'Repeat_Units' in motif:
-                    value = motif['Repeat_Units']
-                elif col == 'Repeat_Type' and 'Tract_Type' in motif:
-                    value = motif['Tract_Type']
-                elif col == 'GC_Content' and 'GC_Total' in motif:
-                    value = motif['GC_Total']
-                elif col == 'Structural_Features':
-                    features = []
-                    if 'Tract_Type' in motif and motif['Tract_Type'] not in ['', 'NA', None]:
-                        features.append(f"Tract:{motif['Tract_Type']}")
-                    if 'Curvature_Score' in motif and motif['Curvature_Score'] not in ['', 'NA', None]:
-                        features.append(f"Curvature:{motif['Curvature_Score']}")
-                    if 'Z_Score' in motif and motif['Z_Score'] not in ['', 'NA', None]:
-                        features.append(f"Z-Score:{motif['Z_Score']}")
-                    value = '; '.join(features) if features else 'NA'
-                
-                if value == '' or value is None:
+        for col in core_columns:
+            value = motif.get(col, None)
+            if value == '' or value is None:
+                if col == 'Strand':
+                    value = '+'
+                elif col == 'Method':
+                    value = 'Pattern_detection'
+                elif col == 'Pattern_ID':
+                    value = 'Unknown'
+                else:
                     value = 'NA'
-            
             row[col] = value
+        return row
+    
+    # Prepare row with motif-specific columns
+    def prepare_detailed_row(motif, motif_class):
+        row = prepare_core_row(motif)
+        
+        # Add motif-specific columns based on class
+        specific_cols = MOTIF_SPECIFIC_COLUMNS.get(motif_class, [])
+        for col in specific_cols:
+            value = motif.get(col, 'NA')
+            if value == '' or value is None:
+                value = 'NA'
+            row[col] = value
+        
         return row
     
     # Create Excel writer
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         if simple_format:
             # Simple 2-tab format for user downloads
-            # Tab 1: NonOverlappingConsolidated (exclude Hybrid and Cluster)
+            # Tab 1: Core columns only (NonOverlappingConsolidated)
             consolidated_motifs = [m for m in motifs 
                                  if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
             
             if consolidated_motifs:
-                consolidated_data = [prepare_row(m) for m in consolidated_motifs]
-                df_consolidated = pd.DataFrame(consolidated_data, columns=columns)
+                consolidated_data = [prepare_core_row(m) for m in consolidated_motifs]
+                df_consolidated = pd.DataFrame(consolidated_data, columns=core_columns)
                 df_consolidated.to_excel(writer, sheet_name='NonOverlappingConsolidated', index=False)
             
-            # Tab 2: OverlappingAll (include ALL motifs)
-            all_data = [prepare_row(m) for m in motifs]
-            df_all = pd.DataFrame(all_data, columns=columns)
+            # Tab 2: Core columns only (OverlappingAll)
+            all_data = [prepare_core_row(m) for m in motifs]
+            df_all = pd.DataFrame(all_data, columns=core_columns)
             df_all.to_excel(writer, sheet_name='OverlappingAll', index=False)
         else:
-            # Legacy multi-sheet format
-            # Sheet 1: Consolidated non-overlapping motifs (exclude Hybrid and Cluster)
+            # Publication-grade format with motif-specific sheets
+            # Sheet 1: Core columns only (all non-overlapping motifs)
             consolidated_motifs = [m for m in motifs 
                                  if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
             
             if consolidated_motifs:
-                consolidated_data = [prepare_row(m) for m in consolidated_motifs]
-                df_consolidated = pd.DataFrame(consolidated_data, columns=columns)
-                df_consolidated.to_excel(writer, sheet_name='Consolidated_NonOverlapping', index=False)
+                consolidated_data = [prepare_core_row(m) for m in consolidated_motifs]
+                df_consolidated = pd.DataFrame(consolidated_data, columns=core_columns)
+                df_consolidated.to_excel(writer, sheet_name='Core_Results', index=False)
             
-            # Group motifs by class
+            # Group motifs by class for detailed sheets
             class_groups = defaultdict(list)
             for motif in motifs:
                 cls = motif.get('Class', 'Unknown')
-                class_groups[cls].append(motif)
+                if cls not in ['Hybrid', 'Non-B_DNA_Clusters']:  # Skip these for detailed sheets
+                    class_groups[cls].append(motif)
             
-            # Create separate sheets for each class
+            # Create class-specific sheets with motif-specific columns
             for cls, class_motifs in sorted(class_groups.items()):
                 # Sanitize sheet name (Excel has 31 character limit)
                 sheet_name = cls.replace('/', '_').replace(' ', '_').replace('-', '_')[:31]
                 
-                class_data = [prepare_row(m) for m in class_motifs]
-                df_class = pd.DataFrame(class_data, columns=columns)
+                # Get columns for this class: core + motif-specific
+                class_columns = core_columns + MOTIF_SPECIFIC_COLUMNS.get(cls, [])
+                
+                class_data = [prepare_detailed_row(m, cls) for m in class_motifs]
+                df_class = pd.DataFrame(class_data, columns=class_columns)
                 df_class.to_excel(writer, sheet_name=sheet_name, index=False)
-                
-                # Also create sheets by subclass if there are multiple subclasses
-                subclass_groups = defaultdict(list)
-                for motif in class_motifs:
-                    subclass = motif.get('Subclass', 'Other')
-                    subclass_groups[subclass].append(motif)
-                
-                # Only create subclass sheets if there are multiple subclasses
-                if len(subclass_groups) > 1:
-                    for subclass, subclass_motifs in sorted(subclass_groups.items()):
-                        # Sanitize subclass sheet name
-                        subclass_name = f"{cls}_{subclass}".replace('/', '_').replace(' ', '_').replace('-', '_')[:31]
-                        
-                        subclass_data = [prepare_row(m) for m in subclass_motifs]
-                        df_subclass = pd.DataFrame(subclass_data, columns=columns)
-                        
-                        # Try to add sheet, skip if name collision
-                        try:
-                            df_subclass.to_excel(writer, sheet_name=subclass_name, index=False)
-                        except:
-                            pass  # Skip if sheet name collision
+            
+            # Separate sheets for Hybrid and Cluster motifs (if present)
+            hybrid_motifs = [m for m in motifs if m.get('Class') == 'Hybrid']
+            if hybrid_motifs:
+                hybrid_data = [prepare_core_row(m) for m in hybrid_motifs]
+                df_hybrid = pd.DataFrame(hybrid_data, columns=core_columns)
+                df_hybrid.to_excel(writer, sheet_name='Hybrid_Motifs', index=False)
+            
+            cluster_motifs = [m for m in motifs if m.get('Class') == 'Non-B_DNA_Clusters']
+            if cluster_motifs:
+                cluster_data = [prepare_core_row(m) for m in cluster_motifs]
+                df_cluster = pd.DataFrame(cluster_data, columns=core_columns)
+                df_cluster.to_excel(writer, sheet_name='Cluster_Motifs', index=False)
     
     return f"Excel file exported successfully to {filename}"
 
@@ -3451,11 +3462,13 @@ def merge_detector_results(detector_results: Dict[str, List[Dict[str, Any]]],
 def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     """Convert motif results to pandas DataFrame with CORE fields only for display tables.
     
-    Per requirements, output tables should only show:
-    - Sequence_Name, Source, Class, Subclass, Start, End, Length, Sequence, Score
+    Per Task 1 & 2 requirements, output tables should only show mandatory, universal columns:
+    - Sequence_Name, Class, Subclass, Start, End, Length, Strand, Score, Method, Pattern_ID
     
-    Additional detailed columns (Repeat_Type, Left_Arm, Right_Arm, Loop_Seq, etc.)
-    are only shown in Excel download per-motif sheets, not in display tables.
+    Additional motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only shown 
+    in Excel download per-motif sheets, not in display tables.
+    
+    This ensures publication-grade clarity per Nature/NAR/Genome Research standards.
     """
     if not motifs:
         return pd.DataFrame()
@@ -3465,13 +3478,30 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     # Use core columns constant
     core_columns = CORE_OUTPUT_COLUMNS
     
-    # Ensure all core columns are present, fill missing with 'NA'
+    # Ensure all core columns are present with appropriate defaults
     for col in core_columns:
         if col not in df.columns:
-            df[col] = 'NA'
+            # Set appropriate defaults for missing columns
+            if col == 'Strand':
+                df[col] = '+'  # Default strand
+            elif col == 'Method':
+                df[col] = 'Pattern_detection'  # Default method
+            elif col == 'Pattern_ID':
+                df[col] = 'Unknown'  # Default pattern ID
+            else:
+                df[col] = 'NA'
     
-    # Fill all NaN/None values with 'NA' string
-    result_df = df[core_columns].fillna('NA')
+    # Fill all NaN/None values with appropriate defaults
+    result_df = df[core_columns].copy()
+    for col in core_columns:
+        if col == 'Strand':
+            result_df[col] = result_df[col].fillna('+')
+        elif col == 'Method':
+            result_df[col] = result_df[col].fillna('Pattern_detection')
+        elif col == 'Pattern_ID':
+            result_df[col] = result_df[col].fillna('Unknown')
+        else:
+            result_df[col] = result_df[col].fillna('NA')
     
     return result_df
 
