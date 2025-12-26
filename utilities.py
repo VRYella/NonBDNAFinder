@@ -236,6 +236,10 @@ MOTIF_SPECIFIC_COLUMNS = {
     'A-Philic': ['Tract_Type', 'Tract_Length'],
 }
 
+# Classes that are excluded from non-overlapping consolidated outputs
+# These represent composite/derived features rather than primary motifs
+EXCLUDED_FROM_CONSOLIDATED = ['Hybrid', 'Non-B_DNA_Clusters']
+
 # =============================================================================
 # CONSTANTS FOR DOWNLOAD PACKAGE GENERATION
 # =============================================================================
@@ -2714,7 +2718,7 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None,
     - Sequence_Name, Class, Subclass, Start, End, Length, Strand, Score, Method, Pattern_ID
     
     Motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only included in 
-    Excel downloads per-motif sheets, not in CSV exports for clarity.
+    Excel downloads class-specific sheets, not in CSV exports for clarity.
     
     Args:
         motifs: List of motif dictionaries
@@ -2729,7 +2733,7 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None,
     
     # Filter motifs if requested
     if non_overlapping_only:
-        motifs = [m for m in motifs if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
+        motifs = [m for m in motifs if m.get('Class') not in EXCLUDED_FROM_CONSOLIDATED]
     
     # Use core columns constant
     core_columns = CORE_OUTPUT_COLUMNS
@@ -2883,7 +2887,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
             # Simple 2-tab format for user downloads
             # Tab 1: Core columns only (NonOverlappingConsolidated)
             consolidated_motifs = [m for m in motifs 
-                                 if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
+                                 if m.get('Class') not in EXCLUDED_FROM_CONSOLIDATED]
             
             if consolidated_motifs:
                 consolidated_data = [prepare_core_row(m) for m in consolidated_motifs]
@@ -2898,7 +2902,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
             # Publication-grade format with motif-specific sheets
             # Sheet 1: Core columns only (all non-overlapping motifs)
             consolidated_motifs = [m for m in motifs 
-                                 if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
+                                 if m.get('Class') not in EXCLUDED_FROM_CONSOLIDATED]
             
             if consolidated_motifs:
                 consolidated_data = [prepare_core_row(m) for m in consolidated_motifs]
@@ -2909,7 +2913,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
             class_groups = defaultdict(list)
             for motif in motifs:
                 cls = motif.get('Class', 'Unknown')
-                if cls not in ['Hybrid', 'Non-B_DNA_Clusters']:  # Skip these for detailed sheets
+                if cls not in EXCLUDED_FROM_CONSOLIDATED:  # Skip these for detailed sheets
                     class_groups[cls].append(motif)
             
             # Create class-specific sheets with motif-specific columns
@@ -2970,7 +2974,7 @@ def export_statistics_to_excel(motifs: List[Dict[str, Any]], sequence_length: in
         return "No motifs to export statistics"
     
     # Filter out Hybrid and Cluster motifs for main statistics
-    main_motifs = [m for m in motifs if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
+    main_motifs = [m for m in motifs if m.get('Class') not in EXCLUDED_FROM_CONSOLIDATED]
     
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         # Sheet 1: Summary Statistics
@@ -3466,7 +3470,7 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     - Sequence_Name, Class, Subclass, Start, End, Length, Strand, Score, Method, Pattern_ID
     
     Additional motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only shown 
-    in Excel download per-motif sheets, not in display tables.
+    in Excel download class-specific sheets, not in display tables.
     
     This ensures publication-grade clarity per Nature/NAR/Genome Research standards.
     """
