@@ -1,7 +1,7 @@
 # NonBDNAFinder - Unified Architecture Summary
 
 ## Overview
-Successfully unified the NonBDNAFinder application into **4 core scripts** as requested, maintaining the current architecture while removing redundancy and simplifying the codebase.
+Successfully unified the NonBDNAFinder application into **4 core scripts** as requested, maintaining the current architecture while removing redundancy and simplifying the codebase. The **scanner_agent.py** module provides optional parallel scanning capabilities for large sequences (>100kb).
 
 ## Core Files (4 Scripts)
 
@@ -96,17 +96,42 @@ Successfully unified the NonBDNAFinder application into **4 core scripts** as re
 - Quality thresholds
 - Overlap resolution within subclasses
 
+## Optional Parallel Scanner Component
+
+### 5. `scanner_agent.py` (16 KB, 405 lines)
+**Purpose:** Optional parallel scanner for large sequences (>100kb)
+
+**Key Components:**
+- Memory-efficient parallel motif detection
+- Chunk-based processing with overlap handling
+- Multiprocessing.Pool for parallel execution
+- Deduplication of overlapping matches
+- Progress reporting callbacks
+
+**Features:**
+- Chunk size: 50,000 bp (configurable)
+- Overlap: 1,000 bp (handles motifs at boundaries)
+- Worker processes: CPU count (auto-detected)
+- Hyperscan support (optional acceleration)
+- Fallback to standard scanner
+
+**Usage:**
+- Automatically imported by `app.py` for sequences >100kb
+- Graceful fallback to standard scanner if unavailable
+- No changes needed to existing workflows
+
 ## Archived Files (Moved to `archive/`)
 
-### Python Modules (8 files)
+### Python Modules (7 files)
 - `Newdetector.py` - Old A-philic detector (superseded)
 - `optimized_scoring_and_pipeline.py` - Experimental code
-- `scanner_agent.py` - Parallel scanner experiment
 - `scientific_progress.py` - Progress UI (integrated)
 - `visualization_enhancements.py` - Duplicate functions
 - `test_performance.py` - Performance tests
 - `test_slipped_dna.py` - Detector tests
 - `validate_improvements.py` - Validation scripts
+
+**Note:** `scanner_agent.py` has been restored from archive to enable parallel scanning for large sequences.
 
 ### Documentation (5 files)
 - `FINAL_SUMMARY.md` - Development summary
@@ -160,16 +185,19 @@ Successfully unified the NonBDNAFinder application into **4 core scripts** as re
 
 ### Code Reduction
 - **Before:** 12+ Python files, complex structure
-- **After:** 4 core Python files, clean architecture
-- **Total Lines:** 17,774 lines across 4 files
-- **Archived:** 14 files (8 Python + 6 docs)
+- **After:** 4 core Python files + 1 optional parallel scanner, clean architecture
+- **Core Lines:** 17,774 lines across 4 core files
+- **Parallel Scanner:** 405 lines (optional component)
+- **Archived:** 13 files (7 Python + 6 docs)
 
 ### File Sizes
 - `app.py`: 189 KB
 - `utilities.py`: 305 KB
 - `nonbscanner.py`: 74 KB
 - `detectors.py`: 191 KB
-- **Total:** 759 KB of Python code
+- `scanner_agent.py`: 16 KB (optional)
+- **Core Total:** 759 KB
+- **With Parallel:** 775 KB
 
 ### Functionality Preserved
 - ✅ All 11 motif classes detection
@@ -181,6 +209,7 @@ Successfully unified the NonBDNAFinder application into **4 core scripts** as re
 - ✅ Error handling
 - ✅ Scoring system (1-3 scale)
 - ✅ Component extraction (stems, loops, arms)
+- ✅ Parallel scanning for large sequences (>100kb)
 
 ## Benefits of Unification
 
@@ -213,7 +242,7 @@ Successfully unified the NonBDNAFinder application into **4 core scripts** as re
 ### Optional Imports (Graceful Degradation)
 The application uses try-except blocks for optional dependencies:
 - `scientific_progress` (archived): Built-in progress tracking used as fallback
-- `scanner_agent` (archived): Standard sequential processing used as fallback
+- `scanner_agent` (optional): Standard sequential processing used as fallback when unavailable
 - `hyperscan`: Pure Python regex matching used as fallback
 - `streamlit`: Required only for web interface
 
@@ -260,13 +289,14 @@ The application uses try-except blocks for optional dependencies:
 
 ## Conclusion
 
-The NonBDNAFinder application has been successfully unified into a clean, maintainable 4-file architecture:
+The NonBDNAFinder application has been successfully unified into a clean, maintainable 4-file core architecture with optional parallel scanning:
 
 1. **`app.py`** - Streamlit interface
 2. **`utilities.py`** - Functions and visualization
 3. **`nonbscanner.py`** - Scanner API
 4. **`detectors.py`** - All detectors
+5. **`scanner_agent.py`** - Optional parallel scanner (for sequences >100kb)
 
-All unnecessary files have been archived, redundant code has been removed, and the architecture remains robust and extensible. The application retains 100% of its functionality with improved organization and clarity.
+All unnecessary files have been archived, redundant code has been removed, and the architecture remains robust and extensible. The application retains 100% of its functionality with improved organization and clarity. Parallel scanning is now fully operational for large sequences.
 
-**Status:** ✅ Complete - Ready for deployment and further development
+**Status:** ✅ Complete - Ready for deployment and further development with parallel scanning enabled
