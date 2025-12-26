@@ -217,7 +217,7 @@ CORE_OUTPUT_COLUMNS = [
     'End',            # Genomics: Absolute genomic context
     'Length',         # Genomics: Feature size (bp)
     'Strand',         # Strand: Structural relevance (+/-)
-    'Score',          # Confidence: 1-3 normalized, cross-motif comparability
+    'Score',          # Confidence: 0-3 normalized, cross-motif comparability
     'Method',         # Evidence: Reproducibility (Regex/k-mer/ΔG/Hyperscan)
     'Pattern_ID',     # Evidence: Pattern identifier for traceability
 ]
@@ -240,6 +240,14 @@ MOTIF_SPECIFIC_COLUMNS = {
 # These represent composite/derived features rather than primary motifs
 EXCLUDED_FROM_CONSOLIDATED = ['Hybrid', 'Non-B_DNA_Clusters']
 
+# Default values for missing core columns
+DEFAULT_COLUMN_VALUES = {
+    'Strand': '+',
+    'Method': 'Pattern_detection',
+    'Pattern_ID': 'Unknown',
+    'Score': 0.0
+}
+
 # =============================================================================
 # CONSTANTS FOR DOWNLOAD PACKAGE GENERATION
 # =============================================================================
@@ -254,7 +262,7 @@ DEFAULT_PDF_WINDOW_DIVISOR = 20      # Divisor for adaptive window sizing
 
 # Application version
 APP_NAME = "NonBDNAFinder"
-APP_VERSION = "2024.1"
+APP_VERSION = "2025.1"
 
 # File hosting settings - DEPRECATED
 # Note: file.io upload functionality has been removed in favor of direct downloads
@@ -2748,16 +2756,9 @@ def export_to_csv(motifs: List[Dict[str, Any]], filename: Optional[str] = None,
         for col in core_columns:
             value = motif.get(col, None)
             
-            # Set appropriate defaults for missing columns
+            # Set appropriate defaults for missing columns using constants
             if value == '' or value is None:
-                if col == 'Strand':
-                    value = '+'
-                elif col == 'Method':
-                    value = 'Pattern_detection'
-                elif col == 'Pattern_ID':
-                    value = 'Unknown'
-                else:
-                    value = 'NA'
+                value = DEFAULT_COLUMN_VALUES.get(col, 'NA')
             
             row[col] = value
         
@@ -2856,14 +2857,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
         for col in core_columns:
             value = motif.get(col, None)
             if value == '' or value is None:
-                if col == 'Strand':
-                    value = '+'
-                elif col == 'Method':
-                    value = 'Pattern_detection'
-                elif col == 'Pattern_ID':
-                    value = 'Unknown'
-                else:
-                    value = 'NA'
+                value = DEFAULT_COLUMN_VALUES.get(col, 'NA')
             row[col] = value
         return row
     
@@ -3485,27 +3479,14 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     # Ensure all core columns are present with appropriate defaults
     for col in core_columns:
         if col not in df.columns:
-            # Set appropriate defaults for missing columns
-            if col == 'Strand':
-                df[col] = '+'  # Default strand
-            elif col == 'Method':
-                df[col] = 'Pattern_detection'  # Default method
-            elif col == 'Pattern_ID':
-                df[col] = 'Unknown'  # Default pattern ID
-            else:
-                df[col] = 'NA'
+            # Set appropriate defaults for missing columns using constants
+            df[col] = DEFAULT_COLUMN_VALUES.get(col, 'NA')
     
     # Fill all NaN/None values with appropriate defaults
     result_df = df[core_columns].copy()
     for col in core_columns:
-        if col == 'Strand':
-            result_df[col] = result_df[col].fillna('+')
-        elif col == 'Method':
-            result_df[col] = result_df[col].fillna('Pattern_detection')
-        elif col == 'Pattern_ID':
-            result_df[col] = result_df[col].fillna('Unknown')
-        else:
-            result_df[col] = result_df[col].fillna('NA')
+        default_val = DEFAULT_COLUMN_VALUES.get(col, 'NA')
+        result_df[col] = result_df[col].fillna(default_val)
     
     return result_df
 
