@@ -4261,14 +4261,16 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     display_categories = [cat.replace('_', ' ') for cat in categories]
     ax.set_xticklabels(display_categories, rotation=45, ha='right')
     
-    # Add count labels on bars (small font, positioned above)
-    if len(categories) <= 20:
-        max_val = max(values) if max(values) > 0 else 1
-        for bar, count in zip(bars, values):
-            if count > 0:  # Only label non-zero bars
-                height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.02,
-                        str(count), ha='center', va='bottom', fontsize=6)
+    # Add count labels on ALL bars (improved visibility)
+    # Show numbers for all categories to make distribution clear
+    max_val = max(values) if max(values) > 0 else 1
+    for bar, count in zip(bars, values):
+        height = bar.get_height()
+        # Position label above bar if count > 0, at baseline if 0
+        y_pos = height + max_val * 0.02 if count > 0 else 0.5
+        # Use larger font (8pt) and bold for better readability
+        ax.text(bar.get_x() + bar.get_width()/2., y_pos,
+                str(count), ha='center', va='bottom', fontsize=8, fontweight='bold')
     
     # Apply Nature journal style
     _apply_nature_style(ax)

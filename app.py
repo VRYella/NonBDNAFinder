@@ -3053,24 +3053,28 @@ with tab_pages["Results"]:
         # CONSOLIDATED VISUALIZATION SUITE
         st.markdown(f'<h3>{UI_TEXT["heading_results_viz"]}</h3>', unsafe_allow_html=True)
         
-        # Create 4 visualization tabs
-        viz_tabs = st.tabs(["Distribution & Statistics", "Coverage & Density", 
-                           "Genome-Wide Analysis", "Cluster/Hybrid"])
+        # Create 3 visualization tabs (merged Coverage & Genome-Wide per requirements)
+        viz_tabs = st.tabs(["Distribution & Statistics", "Coverage & Genome-Wide Analysis", "Cluster/Hybrid"])
         
         with viz_tabs[0]:  # Distribution & Statistics (merged)
             st.markdown(f"##### {UI_TEXT['heading_motif_distribution']}")
             try:
-                # Class distribution
-                fig1 = plot_motif_distribution(filtered_motifs, by='Class', title=f"Motif Classes - {sequence_name}")
-                st.pyplot(fig1)
-                plt.close(fig1)
+                # Show Class and Subclass distribution in 2-column layout
+                col1, col2 = st.columns(2)
                 
-                # Subclass distribution
-                fig2 = plot_motif_distribution(filtered_motifs, by='Subclass', title=f"Motif Subclasses - {sequence_name}")
-                st.pyplot(fig2) 
-                plt.close(fig2)
+                with col1:
+                    # Class distribution
+                    fig1 = plot_motif_distribution(filtered_motifs, by='Class', title=f"Motif Classes - {sequence_name}")
+                    st.pyplot(fig1)
+                    plt.close(fig1)
                 
-                # Nested pie chart
+                with col2:
+                    # Subclass distribution
+                    fig2 = plot_motif_distribution(filtered_motifs, by='Subclass', title=f"Motif Subclasses - {sequence_name}")
+                    st.pyplot(fig2) 
+                    plt.close(fig2)
+                
+                # Nested pie chart (full width for better visibility)
                 fig3 = plot_nested_pie_chart(filtered_motifs, title=f"Class-Subclass Distribution - {sequence_name}")
                 st.pyplot(fig3)
                 plt.close(fig3)
@@ -3184,71 +3188,78 @@ with tab_pages["Results"]:
                     with st.container():
                         st.code(traceback.format_exc(), language="python")
             
-            # Length/Score distributions
+            # Length/Score distributions in 2-column layout
             st.markdown(f"###### {UI_TEXT['heading_distributions']}")
             try:
-                fig6 = plot_length_distribution(filtered_motifs, by_class=True, 
-                                               title="Length Distribution by Motif Class") 
-                st.pyplot(fig6)
-                plt.close(fig6)
+                col1, col2 = st.columns(2)
                 
-                fig7 = plot_score_distribution(filtered_motifs, by_class=True,
-                                              title="Score Distribution by Motif Class (1-3 Scale)")
-                st.pyplot(fig7)
-                plt.close(fig7)
+                with col1:
+                    fig6 = plot_length_distribution(filtered_motifs, by_class=True, 
+                                                   title="Length Distribution by Motif Class") 
+                    st.pyplot(fig6)
+                    plt.close(fig6)
+                
+                with col2:
+                    fig7 = plot_score_distribution(filtered_motifs, by_class=True,
+                                                  title="Score Distribution by Motif Class (1-3 Scale)")
+                    st.pyplot(fig7)
+                    plt.close(fig7)
             except Exception as e:
                 st.error(f"Error generating distribution plots: {e}")
         
-        with viz_tabs[1]:  # Coverage & Density (merged Coverage Map and Circos)
+        with viz_tabs[1]:  # Coverage & Genome-Wide Analysis (merged per requirements)
             st.markdown(f"##### {UI_TEXT['heading_sequence_coverage']}")
             try:
-                # Coverage map
-                fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
-                st.pyplot(fig4)
-                plt.close(fig4)
+                # Show Coverage and Density in 2-column layout
+                col1, col2 = st.columns(2)
                 
-                # Density heatmap
-                fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
-                                           window_size=max(100, sequence_length // 20),
-                                           title=f"Motif Density - {sequence_name}")
-                st.pyplot(fig5)
-                plt.close(fig5)
+                with col1:
+                    # Coverage map
+                    fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
+                    st.pyplot(fig4)
+                    plt.close(fig4)
                 
-                # Circos plot (only one - the main one)
-                st.markdown(f"##### {UI_TEXT['heading_circos_density']}")
-                fig_circos = plot_circos_motif_density(filtered_motifs, sequence_length,
-                                                      title=f"Circos Density - {sequence_name}")
-                st.pyplot(fig_circos)
-                plt.close(fig_circos)
+                with col2:
+                    # Density heatmap
+                    fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
+                                               window_size=max(100, sequence_length // 20),
+                                               title=f"Motif Density - {sequence_name}")
+                    st.pyplot(fig5)
+                    plt.close(fig5)
                 
             except Exception as e:
                 st.error(f"Error generating coverage plots: {e}")
-        
-        with viz_tabs[2]:  # Genome-Wide Visualizations (was tab 3)
+            
+            # Genome-Wide Analysis section (merged into same tab)
             st.markdown(f"##### {UI_TEXT['heading_genome_wide']}")
             st.info("📊 Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
             
             try:
-                # Manhattan plot for motif density hotspots
-                st.markdown("**Manhattan Plot - Motif Density Hotspots**")
-                fig_manhattan = plot_manhattan_motif_density(
-                    filtered_motifs, sequence_length,
-                    title=f"Manhattan Plot - {sequence_name}"
-                )
-                st.pyplot(fig_manhattan)
-                plt.close(fig_manhattan)
+                # Manhattan plot and Cumulative distribution in 2-column layout
+                col1, col2 = st.columns(2)
                 
-                # Cumulative motif distribution
-                st.markdown("**Cumulative Motif Distribution**")
-                fig_cumulative = plot_cumulative_motif_distribution(
-                    filtered_motifs, sequence_length,
-                    title=f"Cumulative Distribution - {sequence_name}",
-                    by_class=True
-                )
-                st.pyplot(fig_cumulative)
-                plt.close(fig_cumulative)
+                with col1:
+                    # Manhattan plot for motif density hotspots
+                    st.markdown("**Manhattan Plot - Motif Density Hotspots**")
+                    fig_manhattan = plot_manhattan_motif_density(
+                        filtered_motifs, sequence_length,
+                        title=f"Manhattan Plot - {sequence_name}"
+                    )
+                    st.pyplot(fig_manhattan)
+                    plt.close(fig_manhattan)
                 
-                # Linear motif track (for smaller regions)
+                with col2:
+                    # Cumulative motif distribution
+                    st.markdown("**Cumulative Motif Distribution**")
+                    fig_cumulative = plot_cumulative_motif_distribution(
+                        filtered_motifs, sequence_length,
+                        title=f"Cumulative Distribution - {sequence_name}",
+                        by_class=True
+                    )
+                    st.pyplot(fig_cumulative)
+                    plt.close(fig_cumulative)
+                
+                # Linear motif track (for smaller regions) - full width
                 if sequence_length <= 50000:  # Only for sequences < 50kb
                     st.markdown("**Linear Motif Track Viewer**")
                     fig_linear = plot_linear_motif_track(
@@ -3268,7 +3279,7 @@ with tab_pages["Results"]:
                     with st.container():
                         st.code(traceback.format_exc(), language="python")
         
-        with viz_tabs[3]:  # Cluster/Hybrid & Advanced Visualizations (merged from tabs 4 and 5)
+        with viz_tabs[2]:  # Cluster/Hybrid & Advanced Visualizations (now tab 2 after merge)
             st.markdown(f"##### {UI_TEXT['heading_hybrid_cluster']}")
             
             if hybrid_cluster_motifs:
@@ -3599,6 +3610,150 @@ with tab_pages["Download"]:
                         st.warning("No sequence data available for PDF generation")
                 except Exception as e:
                     st.error(f"PDF export error: {str(e)}")
+        
+        # Add Distribution & Statistics Tables Download Section
+        st.markdown("---")
+        st.markdown("### 📊 Download Distribution & Statistics Tables")
+        st.markdown("""
+        <div style='background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
+                    border-left: 4px solid #22c55e;'>
+            <p style='color: #14532d; margin: 0;'>
+                📈 <strong>Download detailed distribution and density statistics</strong> for publication and analysis
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Calculate distribution and density statistics for all sequences
+        if all_motifs and st.session_state.seqs:
+            try:
+                # Prepare distribution statistics
+                distribution_data = []
+                for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, st.session_state.results)):
+                    sequence_length = len(seq)
+                    
+                    # Filter motifs (exclude hybrid/cluster if configured)
+                    excluded_classes = []
+                    if not ANALYSIS_CONFIG['include_hybrid_in_distribution']:
+                        excluded_classes.append('Hybrid')
+                    if not ANALYSIS_CONFIG['include_clusters_in_distribution']:
+                        excluded_classes.append('Non-B_DNA_Clusters')
+                    filtered_motifs = [m for m in motifs if m.get('Class') not in excluded_classes] if excluded_classes else motifs
+                    
+                    # Calculate class-level statistics
+                    class_counts = Counter(m.get('Class', 'Unknown') for m in filtered_motifs)
+                    for class_name, count in class_counts.items():
+                        genomic_density = (sum(m.get('Length', 0) for m in filtered_motifs if m.get('Class') == class_name) / sequence_length * 100) if sequence_length > 0 else 0
+                        motifs_per_kbp = (count / sequence_length * 1000) if sequence_length > 0 else 0
+                        avg_length = np.mean([m.get('Length', 0) for m in filtered_motifs if m.get('Class') == class_name])
+                        
+                        distribution_data.append({
+                            'Sequence Name': name,
+                            'Motif Class': class_name.replace('_', ' '),
+                            'Count': count,
+                            'Genomic Density (%)': f"{genomic_density:.4f}",
+                            'Motifs per kbp': f"{motifs_per_kbp:.2f}",
+                            'Average Length (bp)': f"{avg_length:.1f}",
+                            'Total Coverage (bp)': sum(m.get('Length', 0) for m in filtered_motifs if m.get('Class') == class_name)
+                        })
+                
+                distribution_df = pd.DataFrame(distribution_data)
+                
+                # Prepare subclass-level statistics
+                subclass_data = []
+                for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, st.session_state.results)):
+                    sequence_length = len(seq)
+                    
+                    # Filter motifs
+                    excluded_classes = []
+                    if not ANALYSIS_CONFIG['include_hybrid_in_distribution']:
+                        excluded_classes.append('Hybrid')
+                    if not ANALYSIS_CONFIG['include_clusters_in_distribution']:
+                        excluded_classes.append('Non-B_DNA_Clusters')
+                    filtered_motifs = [m for m in motifs if m.get('Class') not in excluded_classes] if excluded_classes else motifs
+                    
+                    # Calculate subclass-level statistics
+                    subclass_counts = Counter(m.get('Subclass', 'Unknown') for m in filtered_motifs)
+                    for subclass_name, count in subclass_counts.items():
+                        parent_class = next((m.get('Class') for m in filtered_motifs if m.get('Subclass') == subclass_name), 'Unknown')
+                        genomic_density = (sum(m.get('Length', 0) for m in filtered_motifs if m.get('Subclass') == subclass_name) / sequence_length * 100) if sequence_length > 0 else 0
+                        motifs_per_kbp = (count / sequence_length * 1000) if sequence_length > 0 else 0
+                        avg_length = np.mean([m.get('Length', 0) for m in filtered_motifs if m.get('Subclass') == subclass_name])
+                        
+                        subclass_data.append({
+                            'Sequence Name': name,
+                            'Motif Class': parent_class.replace('_', ' '),
+                            'Motif Subclass': subclass_name.replace('_', ' '),
+                            'Count': count,
+                            'Genomic Density (%)': f"{genomic_density:.4f}",
+                            'Motifs per kbp': f"{motifs_per_kbp:.2f}",
+                            'Average Length (bp)': f"{avg_length:.1f}",
+                            'Total Coverage (bp)': sum(m.get('Length', 0) for m in filtered_motifs if m.get('Subclass') == subclass_name)
+                        })
+                
+                subclass_df = pd.DataFrame(subclass_data)
+                
+                # Display preview of tables
+                st.markdown("#### Class-Level Distribution Statistics")
+                st.dataframe(distribution_df.head(10), use_container_width=True, height=300)
+                st.caption(f"Showing first 10 of {len(distribution_df)} total records")
+                
+                st.markdown("#### Subclass-Level Distribution Statistics")
+                st.dataframe(subclass_df.head(10), use_container_width=True, height=300)
+                st.caption(f"Showing first 10 of {len(subclass_df)} total records")
+                
+                # Download buttons for statistics tables
+                col_stat1, col_stat2, col_stat3 = st.columns(3)
+                
+                with col_stat1:
+                    # Class-level CSV
+                    class_csv = distribution_df.to_csv(index=False)
+                    st.download_button(
+                        "📊 Class Statistics (CSV)",
+                        data=class_csv.encode('utf-8'),
+                        file_name=f"{safe_filename}_class_statistics.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                        help="Download class-level distribution statistics"
+                    )
+                
+                with col_stat2:
+                    # Subclass-level CSV
+                    subclass_csv = subclass_df.to_csv(index=False)
+                    st.download_button(
+                        "📊 Subclass Statistics (CSV)",
+                        data=subclass_csv.encode('utf-8'),
+                        file_name=f"{safe_filename}_subclass_statistics.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                        help="Download subclass-level distribution statistics"
+                    )
+                
+                with col_stat3:
+                    # Combined Excel with both sheets
+                    try:
+                        import io
+                        from openpyxl import Workbook
+                        
+                        output = io.BytesIO()
+                        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                            distribution_df.to_excel(writer, sheet_name='Class Statistics', index=False)
+                            subclass_df.to_excel(writer, sheet_name='Subclass Statistics', index=False)
+                        
+                        output.seek(0)
+                        st.download_button(
+                            "📊 All Statistics (Excel)",
+                            data=output.getvalue(),
+                            file_name=f"{safe_filename}_all_statistics.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            use_container_width=True,
+                            help="Download all statistics in Excel format with separate sheets"
+                        )
+                    except Exception as e:
+                        st.error(f"Excel generation error: {str(e)}")
+                
+            except Exception as e:
+                st.error(f"Error generating distribution statistics: {str(e)}")
+                st.code(traceback.format_exc(), language="python")
 
 
 # ---------- DOCUMENTATION ----------
