@@ -2151,11 +2151,14 @@ class SlippedDNADetector(BaseMotifDetector):
         Compute the primitive (irreducible) repeat unit of a sequence.
         
         The primitive motif is the shortest substring that, when repeated,
-        generates the full sequence (or a close approximation).
+        generates the full sequence (or as close as possible for partial repeats).
+        
+        Handles both perfect repeats and partial repeats at the end.
         
         Example:
             CAGCAGCAGCAG → primitive motif = CAG (not CAGCAG)
             ATATATATAT → primitive motif = AT (not ATAT or ATATAT)
+            CAGCAGCA → primitive motif = CAG (handles partial repeat)
         
         Args:
             sequence: DNA sequence (uppercase)
@@ -2167,15 +2170,23 @@ class SlippedDNADetector(BaseMotifDetector):
         if n == 0:
             return ""
         
-        # Try all divisors of sequence length (potential periodicities)
-        for period in range(1, n + 1):
-            if n % period == 0:
-                # Check if this period generates the full sequence
-                unit = sequence[:period]
-                if unit * (n // period) == sequence:
-                    return unit
+        # Try all possible periods from 1 to n/2 (a repeat must occur at least twice)
+        for period in range(1, n // 2 + 1):
+            unit = sequence[:period]
+            
+            # Check if this period can generate the sequence (with possible partial at end)
+            is_primitive = True
+            for i in range(0, n, period):
+                # Check each position against the unit
+                check_len = min(period, n - i)
+                if sequence[i:i+check_len] != unit[:check_len]:
+                    is_primitive = False
+                    break
+            
+            if is_primitive:
+                return unit
         
-        # If no perfect repeat found, return the sequence itself
+        # If no period found, the sequence itself is primitive
         return sequence
     
     @staticmethod
@@ -2336,40 +2347,40 @@ class SlippedDNADetector(BaseMotifDetector):
         # Scan all possible unit sizes (k=1 to MAX_UNIT_SIZE)
         for k in range(1, min(self.MAX_UNIT_SIZE + 1, n // 2)):
             # Slide window across sequence looking for repeats
-            i = 0
-            while i < n - k:
-                unit = seq[i:i+k]
+            current_pos = 0
+            while current_pos < n - k:
+                unit = seq[current_pos:current_pos+k]
                 
                 # Skip units with ambiguous bases
                 if 'N' in unit:
-                    i += 1
+                    current_pos += 1
                     continue
                 
                 # Count consecutive copies of this unit
                 copies = 1
-                j = i + k
-                while j + k <= n and seq[j:j+k] == unit:
+                repeat_end_pos = current_pos + k
+                while repeat_end_pos + k <= n and seq[repeat_end_pos:repeat_end_pos+k] == unit:
                     copies += 1
-                    j += k
+                    repeat_end_pos += k
                 
                 # Check if this tract meets minimum length
                 tract_length = copies * k
                 if tract_length >= self.MIN_TRACT_LENGTH:
                     # Record this candidate
                     candidates.append({
-                        'start': i,
-                        'end': j,
+                        'start': current_pos,
+                        'end': repeat_end_pos,
                         'length': tract_length,
                         'unit': unit,
                         'unit_size': k,
                         'copies': copies,
-                        'sequence': seq[i:j]
+                        'sequence': seq[current_pos:repeat_end_pos]
                     })
                     
                     # Skip past this repeat to avoid overlapping detections
-                    i = j
+                    current_pos = repeat_end_pos
                 else:
-                    i += 1
+                    current_pos += 1
         
         return candidates
     
@@ -2389,7 +2400,6 @@ class SlippedDNADetector(BaseMotifDetector):
         filtered = []
         
         for cand in candidates:
-            unit = cand['unit']
             sequence = cand['sequence']
             copies = cand['copies']
             unit_size = cand['unit_size']
@@ -2398,16 +2408,18 @@ class SlippedDNADetector(BaseMotifDetector):
             if cand['length'] < self.MIN_TRACT_LENGTH:
                 continue
             
-            # Gate 2: Compute primitive motif and purity
-            primitive_unit = self.compute_primitive_motif(unit)
+            # Gate 2: Compute primitive motif from full sequence (not just unit)
+            # This ensures we get the true primitive even if detected unit is composite
+            primitive_unit = self.compute_primitive_motif(sequence)
             purity = self.compute_repeat_purity(sequence, primitive_unit)
             
             if purity < self.MIN_PURITY:
                 continue
             
-            # Gate 3: Minimum copy number
-            min_copies = self.MIN_COPIES_STR if unit_size < 10 else self.MIN_COPIES_DIRECT
-            if copies < min_copies:
+            # Gate 3: Minimum copy number (recompute based on primitive unit)
+            primitive_copies = len(sequence) / len(primitive_unit) if len(primitive_unit) > 0 else 0
+            min_copies = self.MIN_COPIES_STR if len(primitive_unit) < 10 else self.MIN_COPIES_DIRECT
+            if primitive_copies < min_copies:
                 continue
             
             # Gate 4: Entropy check (exclude low-complexity)
@@ -2419,6 +2431,7 @@ class SlippedDNADetector(BaseMotifDetector):
             cand['primitive_unit'] = primitive_unit
             cand['purity'] = purity
             cand['entropy'] = entropy
+            cand['primitive_copies'] = primitive_copies  # Updated copy count based on primitive
             filtered.append(cand)
         
         return filtered
@@ -2521,6 +2534,9 @@ class SlippedDNADetector(BaseMotifDetector):
         motifs = []
         
         for i, ann in enumerate(annotations):
+            # Use primitive_copies if available, otherwise fall back to original copies
+            copy_number = ann.get('primitive_copies', ann.get('copies', 0))
+            
             motif = {
                 'ID': f"{sequence_name}_SLIPPED_{ann['start']+1}",
                 'Sequence_Name': sequence_name,
@@ -2532,7 +2548,7 @@ class SlippedDNADetector(BaseMotifDetector):
                 'Sequence': ann['sequence'],
                 'Repeat_Unit': ann['primitive_unit'],
                 'Unit_Size': len(ann['primitive_unit']),
-                'Copy_Number': ann['copies'],
+                'Copy_Number': copy_number,
                 'Purity': round(ann['purity'], 3),
                 'Slippage_Energy_Score': round(ann['slippage_score'], 3),
                 'Score': round(ann['slippage_score'], 3),  # For compatibility

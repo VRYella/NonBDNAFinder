@@ -56,7 +56,7 @@ def test_repeat_purity():
         ("CAGCAGCAGCAG", "CAG", 1.0),     # Perfect purity
         ("CAGCAGCAACAG", "CAG", 0.917),   # One mismatch (11/12)
         ("ATATATATAT", "AT", 1.0),        # Perfect purity
-        ("ATACATATAC", "AT", 0.8),        # 8/10 matches (corrected)
+        ("ATACATATAC", "AT", 0.8),        # 8/10 matches
     ]
     
     passed = 0
