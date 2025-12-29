@@ -2984,8 +2984,145 @@ with tab_pages["Results"]:
             {viz_summary['unique_subclasses']} unique subclasses analyzed
             """)
         
+        # Enhanced Motif Detail Viewer - Show picked motifs with all details
+        st.markdown("### 🔍 Motif Detail Viewer")
+        st.markdown("""
+        <div style='background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
+                    border-left: 4px solid #0ea5e9;'>
+            <p style='color: #0c4a6e; margin: 0;'>
+                💡 <strong>Explore Individual Motifs:</strong> Select a motif to view detailed scoring components, 
+                pattern information, and biological context
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if len(filtered_motifs) > 0:
+            # Create a dropdown for motif selection
+            motif_options = [f"{m.get('Class', 'Unknown')} | {m.get('Subclass', 'N/A')} | Pos: {m.get('Start', 0)}-{m.get('End', 0)} | Score: {m.get('Score', 0):.2f}" 
+                           for m in filtered_motifs]
+            
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                selected_motif_idx = st.selectbox(
+                    "Select a motif to view details:",
+                    range(len(filtered_motifs)),
+                    format_func=lambda i: motif_options[i],
+                    key="motif_detail_selector"
+                )
+            
+            with col2:
+                show_all_fields = st.checkbox("Show all fields", value=False, key="show_all_motif_fields")
+            
+            if selected_motif_idx is not None:
+                selected_motif = filtered_motifs[selected_motif_idx]
+                
+                # Display detailed motif information in an expander
+                with st.expander("📊 Detailed Motif Information", expanded=True):
+                    # Core information in columns
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.metric("Class", selected_motif.get('Class', 'N/A'))
+                        st.metric("Start Position", f"{selected_motif.get('Start', 0):,} bp")
+                    
+                    with col2:
+                        st.metric("Subclass", selected_motif.get('Subclass', 'N/A'))
+                        st.metric("End Position", f"{selected_motif.get('End', 0):,} bp")
+                    
+                    with col3:
+                        score = selected_motif.get('Score', 0)
+                        score_tier = "High" if score >= 2.5 else "Moderate" if score >= 1.5 else "Low"
+                        st.metric("Confidence Score", f"{score:.3f}", f"{score_tier} Confidence")
+                        st.metric("Length", f"{selected_motif.get('Length', 0)} bp")
+                    
+                    # Sequence display with highlighting
+                    seq = selected_motif.get('Sequence', '')
+                    if seq:
+                        st.markdown("**Motif Sequence:**")
+                        if len(seq) <= 100:
+                            st.code(seq, language=None)
+                        else:
+                            st.code(f"{seq[:50]} ... {seq[-50:]}", language=None)
+                            st.caption(f"Sequence truncated for display. Full length: {len(seq)} bp")
+                    
+                    # Method and pattern information
+                    st.markdown("**Detection Method:**")
+                    st.info(f"🔬 Method: {selected_motif.get('Method', 'N/A')} | Pattern ID: {selected_motif.get('Pattern_ID', 'N/A')}")
+                    
+                    # Show class-specific fields
+                    if show_all_fields:
+                        st.markdown("**All Motif Properties:**")
+                        
+                        # Group fields by category
+                        core_fields = {'ID', 'Sequence_Name', 'Class', 'Subclass', 'Start', 'End', 'Length', 
+                                     'Score', 'Strand', 'Method', 'Sequence', 'Pattern_ID'}
+                        
+                        scoring_fields = {}
+                        structural_fields = {}
+                        other_fields = {}
+                        
+                        for key, value in selected_motif.items():
+                            if key in core_fields:
+                                continue
+                            
+                            key_lower = key.lower()
+                            if 'score' in key_lower or 'energy' in key_lower or 'confidence' in key_lower:
+                                scoring_fields[key] = value
+                            elif any(x in key_lower for x in ['stem', 'loop', 'tract', 'arm', 'repeat', 'unit']):
+                                structural_fields[key] = value
+                            else:
+                                other_fields[key] = value
+                        
+                        # Display categorized fields
+                        if scoring_fields:
+                            st.markdown("##### Scoring Components:")
+                            for key, value in scoring_fields.items():
+                                if isinstance(value, float):
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value:.4f}")
+                                else:
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value}")
+                        
+                        if structural_fields:
+                            st.markdown("##### Structural Properties:")
+                            for key, value in structural_fields.items():
+                                if isinstance(value, float):
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value:.2f}")
+                                elif isinstance(value, list):
+                                    st.write(f"- **{key.replace('_', ' ')}:** {', '.join(map(str, value))}")
+                                else:
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value}")
+                        
+                        if other_fields:
+                            st.markdown("##### Additional Properties:")
+                            for key, value in other_fields.items():
+                                if isinstance(value, float):
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value:.2f}")
+                                elif isinstance(value, list):
+                                    st.write(f"- **{key.replace('_', ' ')}:** {', '.join(map(str, value))}")
+                                else:
+                                    st.write(f"- **{key.replace('_', ' ')}:** {value}")
+                    
+                    # Add biological context based on motif class
+                    st.markdown("**Biological Context:**")
+                    motif_class = selected_motif.get('Class', '')
+                    
+                    context_info = {
+                        'G-Quadruplex': '🧬 G-quadruplexes are four-stranded nucleic acid structures formed in G-rich sequences. They play roles in telomere maintenance, gene regulation, and genome stability.',
+                        'Slipped_DNA': '🔄 Slipped DNA structures form in repetitive sequences and are associated with trinucleotide repeat expansion diseases like Huntington\'s disease and Fragile X syndrome.',
+                        'Z-DNA': '🌀 Z-DNA is a left-handed double helix structure that can form in alternating purine-pyrimidine sequences. It has roles in transcription regulation and chromatin remodeling.',
+                        'Cruciform': '✖️ Cruciform structures form from palindromic sequences and can cause DNA instability, potentially leading to chromosomal translocations and genomic rearrangements.',
+                        'i-Motif': '🔴 i-Motifs are four-stranded structures formed in C-rich sequences, complementary to G-quadruplexes. They are pH-sensitive and may regulate gene expression.',
+                        'R-Loop': '💫 R-loops are three-stranded structures where RNA hybridizes to DNA. They play roles in transcription, DNA damage, and gene regulation.',
+                        'Triplex': '3️⃣ Triplex DNA involves three DNA strands forming Hoogsteen base pairs. These structures can regulate gene expression and are targets for therapeutic interventions.',
+                        'Curved_DNA': '🌊 Curved DNA regions exhibit intrinsic bending, often due to A-tracts. This curvature affects nucleosome positioning, transcription factor binding, and chromatin structure.',
+                        'A-philic DNA': '🅰️ A-philic DNA regions have high A/T content and exhibit enhanced protein-DNA interaction potential, often serving as protein binding sites.',
+                    }
+                    
+                    context = context_info.get(motif_class, '📖 This Non-B DNA structure may have important biological functions including regulation of gene expression, DNA replication, and genome stability.')
+                    st.info(context)
+        
         # Enhanced motif table with new columns and pagination for large datasets
-        # Display table without header as per requirements
+        st.markdown("### 📋 All Detected Motifs")
         
         # Column selection for display using pills for a more modern, visual approach
         available_columns = df.columns.tolist()
