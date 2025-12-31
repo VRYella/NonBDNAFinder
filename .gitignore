@@ -44,3 +44,6 @@ htmlcov/
 # Temporary files
 *.tmp
 *.log
+
+# Job results storage (persisted on disk, not committed)
+results/
