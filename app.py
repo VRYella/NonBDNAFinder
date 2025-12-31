@@ -35,6 +35,7 @@ import gc  # Added for memory management with large files
 import tempfile  # For temporary file handling in downloads
 import traceback  # For error handling and debugging
 import re  # For filename sanitization
+from collections import Counter  # For counting motif distributions
 
 # Ensure the current directory is in the Python path for module imports
 # This is needed for Streamlit Cloud deployment to find local modules
