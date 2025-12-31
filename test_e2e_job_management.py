@@ -21,7 +21,7 @@ from job_manager import (
     generate_job_id, save_job_results, load_job_results,
     job_exists, get_job_summary
 )
-from email_notifier import validate_email_format
+from discord_notifier import validate_webhook_url
 
 def test_end_to_end_workflow():
     """Test complete workflow as it would happen in the app"""
@@ -122,12 +122,12 @@ def test_end_to_end_workflow():
     assert loaded_metadata['test_mode'] == True, "Metadata should match"
     print("   ✓ All data verified - perfect match!")
     
-    # Step 8: Test email validation
-    print("\n8. Testing email validation...")
-    assert validate_email_format("user@example.com") == True
-    assert validate_email_format("invalid-email") == False
-    assert validate_email_format("") == False
-    print("   ✓ Email validation working")
+    # Step 8: Test Discord webhook URL validation
+    print("\n8. Testing Discord webhook validation...")
+    assert validate_webhook_url("https://discord.com/api/webhooks/123/abc") == True
+    assert validate_webhook_url("http://discord.com/api/webhooks/123/abc") == False  # Must be HTTPS
+    assert validate_webhook_url("") == False
+    print("   ✓ Discord webhook validation working")
     
     # Cleanup
     print("\n9. Cleaning up test data...")

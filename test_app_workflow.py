@@ -14,7 +14,7 @@ import shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from job_manager import generate_job_id, save_job_results, load_job_results, job_exists
-from email_notifier import validate_email_format, send_job_notification
+from discord_notifier import validate_webhook_url, send_discord_webhook
 
 def simulate_analysis_workflow():
     """Simulate the complete analysis workflow"""
@@ -30,12 +30,12 @@ def simulate_analysis_workflow():
     job_id = generate_job_id()
     print(f"✓ Job ID generated and displayed: {job_id}")
     
-    # Optional email input
-    user_email = "test@example.com"  # Could be empty
-    if user_email and validate_email_format(user_email):
-        print(f"✓ Email provided and validated: {user_email}")
+    # Optional Discord webhook input
+    user_webhook = ""  # Could be a Discord webhook URL or empty
+    if user_webhook and validate_webhook_url(user_webhook):
+        print(f"✓ Discord webhook provided and validated")
     else:
-        print("ℹ No valid email provided - will skip notification")
+        print("ℹ No valid webhook provided - will skip notification")
     
     # ========== PHASE 2: Analysis runs ==========
     print("\n🧬 PHASE 2: Analysis executes")
@@ -66,31 +66,24 @@ def simulate_analysis_workflow():
         print("✗ Failed to save results!")
         return False
     
-    # ========== PHASE 4: Optional email notification ==========
-    print("\n📧 PHASE 4: Email notification (optional)")
+    # ========== PHASE 4: Optional Discord webhook notification ==========
+    print("\n🔔 PHASE 4: Discord webhook notification (optional)")
     print("-" * 70)
     
-    # Create mock secrets without email config (simulates missing config)
-    class MockSecrets:
-        pass
-    
-    secrets = MockSecrets()
-    
-    if user_email:
-        email_sent = send_job_notification(
-            to_email=user_email,
+    if user_webhook:
+        webhook_sent = send_discord_webhook(
+            webhook_url=user_webhook,
             job_id=job_id,
-            secrets=secrets,
             metadata=metadata
         )
         
-        if email_sent:
-            print(f"✓ Email sent to {user_email}")
+        if webhook_sent:
+            print(f"✓ Discord notification sent")
         else:
-            print(f"⚠ Email not sent (config not available) - job still successful")
+            print(f"⚠ Discord notification not sent (webhook may be invalid) - job still successful")
             print(f"  User can still retrieve results via Job ID: {job_id}")
     else:
-        print("ℹ No email provided - skipping notification")
+        print("ℹ No webhook provided - skipping notification")
     
     # ========== PHASE 5: User retrieves results later ==========
     print("\n🔍 PHASE 5: User retrieves results (Job Lookup)")
@@ -136,10 +129,10 @@ def simulate_analysis_workflow():
     print("\nKey Features Verified:")
     print("  ✓ Job ID generation and display")
     print("  ✓ Result persistence to disk")
-    print("  ✓ Optional email (graceful failure without config)")
+    print("  ✓ Optional Discord webhook (graceful failure without webhook)")
     print("  ✓ Job lookup and retrieval")
     print("  ✓ Data integrity across save/load cycle")
-    print("  ✓ App continues working even if email fails")
+    print("  ✓ App continues working even if webhook fails")
     
     return True
 
@@ -168,33 +161,33 @@ def test_invalid_job_lookup():
     print("\n✅ Invalid job lookup handled gracefully")
     return True
 
-def test_email_validation_scenarios():
-    """Test various email scenarios"""
+def test_webhook_validation_scenarios():
+    """Test various Discord webhook scenarios"""
     print("\n" + "=" * 70)
-    print("TESTING EMAIL SCENARIOS")
+    print("TESTING DISCORD WEBHOOK SCENARIOS")
     print("=" * 70)
     
     test_cases = [
-        ("", False, "Empty email"),
+        ("", False, "Empty webhook"),
         ("invalid", False, "Invalid format"),
-        ("user@example.com", True, "Valid email"),
-        ("test.user+tag@domain.co.uk", True, "Valid with special chars"),
-        ("no-at-sign.com", False, "Missing @"),
-        ("double@@example.com", False, "Double @"),
+        ("https://discord.com/api/webhooks/123/abc", True, "Valid Discord webhook"),
+        ("https://discordapp.com/api/webhooks/456/xyz", True, "Valid DiscordApp webhook"),
+        ("http://discord.com/api/webhooks/123/abc", False, "Not HTTPS"),
+        ("ftp://example.com", False, "Wrong protocol"),
     ]
     
     all_passed = True
-    for email, expected, description in test_cases:
-        result = validate_email_format(email)
+    for webhook, expected, description in test_cases:
+        result = validate_webhook_url(webhook)
         status = "✓" if result == expected else "✗"
         if result != expected:
             all_passed = False
-        print(f"  {status} {description}: '{email}' -> {result}")
+        print(f"  {status} {description}: '{webhook}' -> {result}")
     
     if all_passed:
-        print("\n✅ All email validation tests passed")
+        print("\n✅ All webhook validation tests passed")
     else:
-        print("\n✗ Some email validation tests failed")
+        print("\n✗ Some webhook validation tests failed")
     
     return all_passed
 
@@ -203,9 +196,9 @@ if __name__ == "__main__":
         # Run all test scenarios
         workflow_ok = simulate_analysis_workflow()
         invalid_lookup_ok = test_invalid_job_lookup()
-        email_ok = test_email_validation_scenarios()
+        webhook_ok = test_webhook_validation_scenarios()
         
-        if workflow_ok and invalid_lookup_ok and email_ok:
+        if workflow_ok and invalid_lookup_ok and webhook_ok:
             print("\n" + "=" * 70)
             print("🎉 ALL TESTS PASSED - READY FOR PRODUCTION")
             print("=" * 70)
