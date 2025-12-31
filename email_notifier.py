@@ -162,6 +162,7 @@ Developed by Dr. Venkata Rajesh Yella
         
         # Send email
         with smtplib.SMTP(email_config['smtp_host'], email_config['smtp_port']) as server:
+            # Use TLS for secure connection
             server.starttls()
             server.login(email_config['smtp_user'], email_config['smtp_password'])
             server.send_message(msg)

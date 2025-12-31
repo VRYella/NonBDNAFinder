@@ -2371,9 +2371,13 @@ with tab_pages["Upload & Analyze"]:
             # ============================================================
             # JOB ID GENERATION: Create unique ID immediately
             # ============================================================
-            # Generate job ID at the start of analysis
-            job_id = generate_job_id()
-            st.session_state.current_job_id = job_id
+            # Generate job ID at the start of analysis (or reuse if already exists)
+            # This prevents overwriting existing job IDs on multiple button clicks
+            if not st.session_state.get('current_job_id'):
+                job_id = generate_job_id()
+                st.session_state.current_job_id = job_id
+            else:
+                job_id = st.session_state.current_job_id
             
             # Display Job ID prominently to user
             st.markdown(f"""

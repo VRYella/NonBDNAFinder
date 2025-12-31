@@ -49,11 +49,21 @@ def get_job_directory(job_id: str) -> str:
     Get the file system path for a job's results directory.
     
     Args:
-        job_id: The job identifier
+        job_id: The job identifier (must be 10-char hex string)
         
     Returns:
         str: Absolute path to job directory
+        
+    Raises:
+        ValueError: If job_id format is invalid
     """
+    # Validate job_id to prevent path traversal attacks
+    if not job_id or len(job_id) != 10:
+        raise ValueError(f"Invalid job_id length: expected 10, got {len(job_id) if job_id else 0}")
+    
+    if not all(c in '0123456789abcdef' for c in job_id):
+        raise ValueError(f"Invalid job_id format: must contain only hexadecimal characters")
+    
     return os.path.join(RESULTS_BASE_DIR, job_id)
 
 

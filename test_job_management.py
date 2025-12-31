@@ -160,6 +160,44 @@ def test_invalid_job_lookup():
     return True
 
 
+def test_job_id_validation():
+    """Test job ID validation prevents path traversal attacks"""
+    print("\n=== Testing Job ID Validation ===")
+    
+    # Test path traversal attempts
+    malicious_ids = [
+        "../../../etc/passwd",
+        "..%2F..%2F..%2Fetc%2Fpasswd",
+        "....//....//....//etc//passwd",
+        "/absolute/path",
+        "valid12345/../../bad",
+        "abc",  # Too short
+        "abcdefghijklmnop",  # Too long
+        "gggggggggg",  # Invalid chars
+    ]
+    
+    for malicious_id in malicious_ids:
+        try:
+            job_manager.get_job_directory(malicious_id)
+            print(f"✗ Should have rejected: {malicious_id}")
+            return False
+        except ValueError:
+            # Expected - malicious ID rejected
+            pass
+    
+    # Test valid ID works
+    valid_id = "a1b2c3d4e5"
+    try:
+        job_dir = job_manager.get_job_directory(valid_id)
+        assert valid_id in job_dir, "Valid ID should be accepted"
+    except ValueError:
+        print(f"✗ Valid ID should be accepted: {valid_id}")
+        return False
+    
+    print(f"✓ Job ID validation prevents path traversal attacks")
+    return True
+
+
 def test_email_validation():
     """Test email address format validation"""
     print("\n=== Testing Email Validation ===")
@@ -225,6 +263,7 @@ def run_all_tests():
         ("Result Persistence", test_result_persistence),
         ("Job Listing", test_job_listing),
         ("Invalid Job Lookup", test_invalid_job_lookup),
+        ("Job ID Validation (Security)", test_job_id_validation),
         ("Email Validation", test_email_validation),
         ("Email Without Config", test_email_notification_without_config),
     ]
