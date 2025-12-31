@@ -17,6 +17,7 @@ Configuration (optional, via .streamlit/secrets.toml):
     smtp_user = "your-email@gmail.com"
     smtp_password = "your-app-password"
     from_address = "noreply@nbdscanner.org"
+    support_email = "raazbiochem@gmail.com"  # Support contact
 """
 
 import smtplib
@@ -26,6 +27,9 @@ from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Default support email (can be overridden in secrets)
+DEFAULT_SUPPORT_EMAIL = "raazbiochem@gmail.com"
 
 
 def get_email_config(secrets) -> Optional[dict]:
@@ -45,7 +49,8 @@ def get_email_config(secrets) -> Optional[dict]:
                 'smtp_port': secrets.email.get('smtp_port', 587),
                 'smtp_user': secrets.email.get('smtp_user'),
                 'smtp_password': secrets.email.get('smtp_password'),
-                'from_address': secrets.email.get('from_address', secrets.email.get('smtp_user'))
+                'from_address': secrets.email.get('from_address', secrets.email.get('smtp_user')),
+                'support_email': secrets.email.get('support_email', DEFAULT_SUPPORT_EMAIL)
             }
             
             # Validate required fields
@@ -111,6 +116,7 @@ def send_job_notification(
         num_sequences = metadata.get('num_sequences', 'N/A') if metadata else 'N/A'
         total_motifs = metadata.get('total_motifs', 'N/A') if metadata else 'N/A'
         timestamp = metadata.get('timestamp', 'N/A') if metadata else 'N/A'
+        support_email = email_config.get('support_email', DEFAULT_SUPPORT_EMAIL)
         
         text_body = f"""
 NBDScanner Analysis Complete
@@ -136,14 +142,14 @@ To retrieve your results:
         if job_url:
             text_body += f"\nDirect Link: {job_url}\n"
         
-        text_body += """
+        text_body += f"""
 
 Important Notes:
 - Results are stored securely and accessible only via your Job ID
 - No personal data is retained beyond job results
 - Keep your Job ID for future reference
 
-Questions or issues? Contact: raazbiochem@gmail.com
+Questions or issues? Contact: {support_email}
 
 ---
 NBDScanner - Non-B DNA Motif Detection System

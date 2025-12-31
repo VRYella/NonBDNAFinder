@@ -125,9 +125,15 @@ def save_job_results(
             "total_motifs": sum(len(motif_list) for motif_list in results)
         }
         
-        # Add any additional metadata provided
+        # Add any additional metadata provided (user metadata in separate namespace)
         if metadata:
-            job_metadata.update(metadata)
+            # Prevent overwriting critical system fields
+            reserved_keys = {'job_id', 'timestamp', 'num_sequences', 'sequence_names', 'total_bp', 'total_motifs'}
+            for key, value in metadata.items():
+                if key not in reserved_keys:
+                    job_metadata[key] = value
+                else:
+                    logger.warning(f"Ignoring metadata key '{key}' - reserved for system use")
         
         with open(metadata_path, 'w') as f:
             json.dump(job_metadata, f, indent=2)

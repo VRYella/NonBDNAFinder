@@ -10,7 +10,6 @@ import os
 import sys
 import json
 import shutil
-from pathlib import Path
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -23,13 +22,16 @@ def test_job_id_generation():
     """Test job ID generation produces valid, unique IDs"""
     print("\n=== Testing Job ID Generation ===")
     
+    # Define valid hex characters
+    HEX_CHARS = '0123456789abcdef'
+    
     # Generate multiple IDs
     job_ids = [job_manager.generate_job_id() for _ in range(100)]
     
     # Check format
     for job_id in job_ids:
         assert len(job_id) == 10, f"Job ID should be 10 chars, got {len(job_id)}"
-        assert all(c in '0123456789abcdef' for c in job_id), f"Job ID should be hex, got {job_id}"
+        assert all(c in HEX_CHARS for c in job_id), f"Job ID should be hex, got {job_id}"
     
     # Check uniqueness
     assert len(set(job_ids)) == len(job_ids), "All job IDs should be unique"

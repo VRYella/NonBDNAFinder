@@ -2936,66 +2936,72 @@ with tab_pages["Upload & Analyze"]:
                 # ============================================================
                 # RESULT PERSISTENCE: Save results to disk under job ID
                 # ============================================================
-                job_id = st.session_state.current_job_id
-                if job_id:
-                    save_status_placeholder = st.empty()
-                    save_status_placeholder.info(f"💾 Saving results for Job ID: {job_id}...")
+                job_id = st.session_state.get('current_job_id')
+                
+                # Safety check: Regenerate job ID if somehow missing
+                if not job_id:
+                    logger.warning("Job ID missing from session state, regenerating")
+                    job_id = generate_job_id()
+                    st.session_state.current_job_id = job_id
+                
+                save_status_placeholder = st.empty()
+                save_status_placeholder.info(f"💾 Saving results for Job ID: {job_id}...")
+                
+                # Prepare metadata
+                job_metadata = {
+                    'analysis_time': total_time,
+                    'speed_bp_per_sec': overall_speed,
+                    'detector_count': len(DETECTOR_PROCESSES),
+                    'visualization_count': total_viz_count,
+                    'validation_issues': len(validation_issues)
+                }
+                
+                # Save results to disk
+                save_success = save_job_results(
+                    job_id,
+                    all_results,
+                    st.session_state.seqs,
+                    st.session_state.names,
+                    job_metadata
+                )
+                
+                if save_success:
+                    save_status_placeholder.success(f"✅ Results saved successfully! Job ID: **{job_id}**")
                     
-                    # Prepare metadata
-                    job_metadata = {
-                        'analysis_time': total_time,
-                        'speed_bp_per_sec': overall_speed,
-                        'detector_count': len(DETECTOR_PROCESSES),
-                        'visualization_count': total_viz_count,
-                        'validation_issues': len(validation_issues)
-                    }
-                    
-                    # Save results to disk
-                    save_success = save_job_results(
-                        job_id,
-                        all_results,
-                        st.session_state.seqs,
-                        st.session_state.names,
-                        job_metadata
-                    )
-                    
-                    if save_success:
-                        save_status_placeholder.success(f"✅ Results saved successfully! Job ID: **{job_id}**")
+                    # ============================================================
+                    # EMAIL NOTIFICATION: Send optional notification
+                    # ============================================================
+                    job_email = st.session_state.get('job_email', '').strip()
+                    if job_email:
+                        email_status_placeholder = st.empty()
+                        email_status_placeholder.info(f"📧 Sending notification to {job_email}...")
                         
-                        # ============================================================
-                        # EMAIL NOTIFICATION: Send optional notification
-                        # ============================================================
-                        job_email = st.session_state.get('job_email', '').strip()
-                        if job_email:
-                            email_status_placeholder = st.empty()
-                            email_status_placeholder.info(f"📧 Sending notification to {job_email}...")
-                            
-                            # Get job summary for email
-                            job_summary = get_job_summary(job_id)
-                            
-                            # Attempt to send email (non-blocking, graceful failure)
-                            email_sent = send_job_notification(
-                                to_email=job_email,
-                                job_id=job_id,
-                                job_url=None,  # Could add public URL here if deployed
-                                secrets=st.secrets,
-                                metadata=job_summary
-                            )
-                            
-                            if email_sent:
-                                email_status_placeholder.success(f"✅ Notification sent to {job_email}")
-                            else:
-                                email_status_placeholder.warning(
-                                    "⚠️ Could not send email notification (email config may not be set up). "
-                                    "Your results are still saved and accessible via Job ID."
-                                )
-                        else:
-                            st.info("📧 No email provided - results are accessible via Job ID")
-                    else:
-                        save_status_placeholder.warning(
-                            "⚠️ Results could not be saved to disk, but are available in this session. "
-                            "Download your results now from the Download tab."
+                        # Get job summary for email
+                        job_summary = get_job_summary(job_id)
+                        
+                        # Attempt to send email (non-blocking, graceful failure)
+                        email_sent = send_job_notification(
+                            to_email=job_email,
+                            job_id=job_id,
+                            job_url=None,  # Could add public URL here if deployed
+                            secrets=st.secrets,
+                            metadata=job_summary
                         )
+                        
+                        if email_sent:
+                            email_status_placeholder.success(f"✅ Notification sent to {job_email}")
+                        else:
+                            email_status_placeholder.warning(
+                                "⚠️ Could not send email notification (email config may not be set up). "
+                                "Your results are still saved and accessible via Job ID."
+                            )
+                    else:
+                        st.info("📧 No email provided - results are accessible via Job ID")
+                else:
+                    save_status_placeholder.warning(
+                        "⚠️ Results could not be saved to disk, but are available in this session. "
+                        "Download your results now from the Download tab."
+                    )
                 
             except Exception as e:
                 progress_placeholder.empty()
