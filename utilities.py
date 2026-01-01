@@ -55,7 +55,6 @@ import hashlib
 import time
 import tempfile
 import zipfile
-import requests
 import logging
 from datetime import datetime
 
