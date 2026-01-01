@@ -14,7 +14,7 @@ import shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from job_manager import generate_job_id, save_job_results, load_job_results, job_exists
-from discord_notifier import validate_webhook_url, send_discord_webhook
+from ntfy_notifier import validate_topic, send_ntfy_notification
 
 def simulate_analysis_workflow():
     """Simulate the complete analysis workflow"""
@@ -30,12 +30,12 @@ def simulate_analysis_workflow():
     job_id = generate_job_id()
     print(f"✓ Job ID generated and displayed: {job_id}")
     
-    # Optional Discord webhook input
-    user_webhook = ""  # Could be a Discord webhook URL or empty
-    if user_webhook and validate_webhook_url(user_webhook):
-        print(f"✓ Discord webhook provided and validated")
+    # Optional ntfy topic input
+    user_topic = ""  # Could be a ntfy topic or empty
+    if user_topic and validate_topic(user_topic):
+        print(f"✓ ntfy topic provided and validated")
     else:
-        print("ℹ No valid webhook provided - will skip notification")
+        print("ℹ No valid topic provided - will skip notification")
     
     # ========== PHASE 2: Analysis runs ==========
     print("\n🧬 PHASE 2: Analysis executes")
@@ -66,24 +66,24 @@ def simulate_analysis_workflow():
         print("✗ Failed to save results!")
         return False
     
-    # ========== PHASE 4: Optional Discord webhook notification ==========
-    print("\n🔔 PHASE 4: Discord webhook notification (optional)")
+    # ========== PHASE 4: Optional ntfy notification ==========
+    print("\n🔔 PHASE 4: ntfy push notification (optional)")
     print("-" * 70)
     
-    if user_webhook:
-        webhook_sent = send_discord_webhook(
-            webhook_url=user_webhook,
+    if user_topic:
+        notification_sent = send_ntfy_notification(
+            topic=user_topic,
             job_id=job_id,
             metadata=metadata
         )
         
-        if webhook_sent:
-            print(f"✓ Discord notification sent")
+        if notification_sent:
+            print(f"✓ Push notification sent")
         else:
-            print(f"⚠ Discord notification not sent (webhook may be invalid) - job still successful")
+            print(f"⚠ Notification not sent (topic may be invalid) - job still successful")
             print(f"  User can still retrieve results via Job ID: {job_id}")
     else:
-        print("ℹ No webhook provided - skipping notification")
+        print("ℹ No topic provided - skipping notification")
     
     # ========== PHASE 5: User retrieves results later ==========
     print("\n🔍 PHASE 5: User retrieves results (Job Lookup)")
@@ -129,10 +129,10 @@ def simulate_analysis_workflow():
     print("\nKey Features Verified:")
     print("  ✓ Job ID generation and display")
     print("  ✓ Result persistence to disk")
-    print("  ✓ Optional Discord webhook (graceful failure without webhook)")
+    print("  ✓ Optional ntfy notification (graceful failure without topic)")
     print("  ✓ Job lookup and retrieval")
     print("  ✓ Data integrity across save/load cycle")
-    print("  ✓ App continues working even if webhook fails")
+    print("  ✓ App continues working even if notification fails")
     
     return True
 
@@ -161,33 +161,32 @@ def test_invalid_job_lookup():
     print("\n✅ Invalid job lookup handled gracefully")
     return True
 
-def test_webhook_validation_scenarios():
-    """Test various Discord webhook scenarios"""
+def test_topic_validation_scenarios():
+    """Test various ntfy topic scenarios"""
     print("\n" + "=" * 70)
-    print("TESTING DISCORD WEBHOOK SCENARIOS")
+    print("TESTING NTFY TOPIC SCENARIOS")
     print("=" * 70)
     
     test_cases = [
-        ("", False, "Empty webhook"),
-        ("invalid", False, "Invalid format"),
-        ("https://discord.com/api/webhooks/123/abc", True, "Valid Discord webhook"),
-        ("https://discordapp.com/api/webhooks/456/xyz", True, "Valid DiscordApp webhook"),
-        ("http://discord.com/api/webhooks/123/abc", False, "Not HTTPS"),
-        ("ftp://example.com", False, "Wrong protocol"),
+        ("", False, "Empty topic"),
+        ("   ", False, "Whitespace only"),
+        ("nbd-job-123", True, "Valid topic with hyphens"),
+        ("my-analysis", True, "Simple topic name"),
+        ("test_topic", True, "Topic with underscore"),
     ]
     
     all_passed = True
-    for webhook, expected, description in test_cases:
-        result = validate_webhook_url(webhook)
+    for topic, expected, description in test_cases:
+        result = validate_topic(topic)
         status = "✓" if result == expected else "✗"
         if result != expected:
             all_passed = False
-        print(f"  {status} {description}: '{webhook}' -> {result}")
+        print(f"  {status} {description}: '{topic}' -> {result}")
     
     if all_passed:
-        print("\n✅ All webhook validation tests passed")
+        print("\n✅ All topic validation tests passed")
     else:
-        print("\n✗ Some webhook validation tests failed")
+        print("\n✗ Some topic validation tests failed")
     
     return all_passed
 
@@ -196,9 +195,9 @@ if __name__ == "__main__":
         # Run all test scenarios
         workflow_ok = simulate_analysis_workflow()
         invalid_lookup_ok = test_invalid_job_lookup()
-        webhook_ok = test_webhook_validation_scenarios()
+        topic_ok = test_topic_validation_scenarios()
         
-        if workflow_ok and invalid_lookup_ok and webhook_ok:
+        if workflow_ok and invalid_lookup_ok and topic_ok:
             print("\n" + "=" * 70)
             print("🎉 ALL TESTS PASSED - READY FOR PRODUCTION")
             print("=" * 70)

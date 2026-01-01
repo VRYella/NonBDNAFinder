@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Tests for Job Management and Discord Webhook Notification
-==========================================================
+Tests for Job Management and ntfy.sh Notification
+==================================================
 
-Tests the job ID generation, result persistence, and optional Discord webhook notification.
+Tests the job ID generation, result persistence, and optional ntfy.sh notification.
 """
 
 import os
@@ -15,7 +15,7 @@ import shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import job_manager
-import discord_notifier
+import ntfy_notifier
 
 
 def test_job_id_generation():
@@ -198,55 +198,53 @@ def test_job_id_validation():
     return True
 
 
-def test_webhook_url_validation():
-    """Test Discord webhook URL format validation"""
-    print("\n=== Testing Discord Webhook URL Validation ===")
+def test_topic_validation():
+    """Test ntfy topic validation"""
+    print("\n=== Testing ntfy Topic Validation ===")
     
-    valid_webhooks = [
-        "https://discord.com/api/webhooks/123456789/abcdefghijklmnop",
-        "https://discordapp.com/api/webhooks/987654321/zyxwvutsrqponmlk",
-        "https://example.com/webhook",  # Generic HTTPS URL
+    valid_topics = [
+        "nbd-job-123",
+        "my-analysis",
+        "test_topic",
     ]
     
-    invalid_webhooks = [
+    invalid_topics = [
         "",
-        "http://discord.com/api/webhooks/123/abc",  # Not HTTPS
-        "not-a-url",
-        "ftp://example.com/webhook",
+        "   ",
     ]
     
-    for webhook in valid_webhooks:
-        assert discord_notifier.validate_webhook_url(webhook), f"{webhook} should be valid"
+    for topic in valid_topics:
+        assert ntfy_notifier.validate_topic(topic), f"{topic} should be valid"
     
-    for webhook in invalid_webhooks:
-        assert not discord_notifier.validate_webhook_url(webhook), f"{webhook} should be invalid"
+    for topic in invalid_topics:
+        assert not ntfy_notifier.validate_topic(topic), f"{topic} should be invalid"
     
-    print(f"✓ Discord webhook URL validation working correctly")
-    print(f"  Validated {len(valid_webhooks)} valid and {len(invalid_webhooks)} invalid URLs")
+    print(f"✓ ntfy topic validation working correctly")
+    print(f"  Validated {len(valid_topics)} valid and {len(invalid_topics)} invalid topics")
     return True
 
 
-def test_discord_notification_without_webhook():
-    """Test that Discord notification fails gracefully without valid webhook"""
-    print("\n=== Testing Discord Notification (No Webhook) ===")
+def test_ntfy_notification_without_topic():
+    """Test that ntfy notification fails gracefully without valid topic"""
+    print("\n=== Testing ntfy Notification (No Topic) ===")
     
-    # Try to send notification with empty webhook
-    result = discord_notifier.send_discord_webhook(
-        webhook_url="",
+    # Try to send notification with empty topic
+    result = ntfy_notifier.send_ntfy_notification(
+        topic="",
         job_id="test123456"
     )
     
     # Should fail gracefully (return False, not raise exception)
-    assert result is False, "Should return False when webhook URL is empty"
+    assert result is False, "Should return False when topic is empty"
     
-    print(f"✓ Discord notification fails gracefully without webhook")
+    print(f"✓ ntfy notification fails gracefully without topic")
     return True
 
 
 def run_all_tests():
     """Run all tests and report results"""
     print("=" * 60)
-    print("NBDScanner Job Management & Email Notification Tests")
+    print("NBDScanner Job Management & ntfy.sh Notification Tests")
     print("=" * 60)
     
     tests = [
@@ -255,8 +253,8 @@ def run_all_tests():
         ("Job Listing", test_job_listing),
         ("Invalid Job Lookup", test_invalid_job_lookup),
         ("Job ID Validation (Security)", test_job_id_validation),
-        ("Discord Webhook URL Validation", test_webhook_url_validation),
-        ("Discord Notification Without Webhook", test_discord_notification_without_webhook),
+        ("ntfy Topic Validation", test_topic_validation),
+        ("ntfy Notification Without Topic", test_ntfy_notification_without_topic),
     ]
     
     passed = 0
