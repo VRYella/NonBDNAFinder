@@ -67,12 +67,12 @@ from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
 
-# Job management and email notification modules
+# Job management and Discord notification modules
 from job_manager import (
     generate_job_id, save_job_results, load_job_results, 
     job_exists, get_job_summary, list_all_jobs
 )
-from email_notifier import send_job_notification, validate_email_format
+from discord_notifier import send_discord_webhook, validate_webhook_url
 
 # Try to import Entrez for demo functionality
 try:
@@ -1686,7 +1686,7 @@ for k, v in {
     'analysis_status': "Ready",
     'selected_classes': [],  # Initialize empty list for motif class selection
     'current_job_id': None,  # Current job ID for result delivery
-    'job_email': ''  # Optional email for notification
+    'discord_webhook_url': ''  # Optional Discord webhook for notification
 }.items():
     if k not in st.session_state:
         st.session_state[k] = v
@@ -2279,21 +2279,22 @@ with tab_pages["Upload & Analyze"]:
         # Helper text
         st.caption(UI_TEXT['upload_quick_options_note'])
         
-        # Optional email notification
+        # Optional Discord webhook notification
         st.markdown("---")
-        st.markdown("##### 📧 Optional: Email Notification")
-        job_email = st.text_input(
-            "Email Address (Optional)",
-            value=st.session_state.get('job_email', ''),
-            placeholder="your.email@example.com",
-            help="Receive notification when analysis completes. Leave blank to skip.",
-            key="job_email_input"
+        st.markdown("##### 🔔 Optional: Discord Webhook Notification")
+        discord_webhook = st.text_input(
+            "Discord Webhook URL (Optional)",
+            value=st.session_state.get('discord_webhook_url', ''),
+            placeholder="https://discord.com/api/webhooks/...",
+            help="Receive instant notification when analysis completes. Leave blank to skip.",
+            key="discord_webhook_input",
+            type="password"
         )
-        if job_email:
-            st.session_state.job_email = job_email
-            if not validate_email_format(job_email):
-                st.warning("⚠️ Email format appears invalid, but analysis will still proceed")
-        st.caption("🔒 Email is optional and only used for this notification. Not stored permanently.")
+        if discord_webhook:
+            st.session_state.discord_webhook_url = discord_webhook
+            if not validate_webhook_url(discord_webhook):
+                st.warning("⚠️ Webhook URL format appears invalid, but analysis will still proceed")
+        st.caption("🔒 Webhook URL is optional and only used for this notification. Not stored on disk.")
     
     # ----- FULL-WIDTH STICKY RUN BUTTON -----
     st.markdown("---")
@@ -2974,34 +2975,37 @@ with tab_pages["Upload & Analyze"]:
                     save_status_placeholder.success(f"✅ Results saved successfully! Job ID: **{job_id}**")
                     
                     # ============================================================
-                    # EMAIL NOTIFICATION: Send optional notification
+                    # DISCORD WEBHOOK NOTIFICATION: Send optional notification
                     # ============================================================
-                    job_email = st.session_state.get('job_email', '').strip()
-                    if job_email:
-                        email_status_placeholder = st.empty()
-                        email_status_placeholder.info(f"📧 Sending notification to {job_email}...")
+                    discord_webhook = st.session_state.get('discord_webhook_url', '').strip()
+                    if discord_webhook:
+                        webhook_status_placeholder = st.empty()
+                        webhook_status_placeholder.info(f"🔔 Sending Discord notification...")
                         
-                        # Get job summary for email
+                        # Get job summary for webhook
                         job_summary = get_job_summary(job_id)
                         
-                        # Attempt to send email (non-blocking, graceful failure)
-                        email_sent = send_job_notification(
-                            to_email=job_email,
+                        # Construct job URL if possible (for deployed apps)
+                        job_url = None
+                        # Note: In production, you could add: job_url = f"https://your-app-url/?job_id={job_id}"
+                        
+                        # Attempt to send webhook (non-blocking, graceful failure)
+                        webhook_sent = send_discord_webhook(
+                            webhook_url=discord_webhook,
                             job_id=job_id,
-                            job_url=None,  # Could add public URL here if deployed
-                            secrets=st.secrets,
+                            job_url=job_url,
                             metadata=job_summary
                         )
                         
-                        if email_sent:
-                            email_status_placeholder.success(f"✅ Notification sent to {job_email}")
+                        if webhook_sent:
+                            webhook_status_placeholder.success(f"✅ Discord notification sent successfully")
                         else:
-                            email_status_placeholder.warning(
-                                "⚠️ Could not send email notification (email config may not be set up). "
+                            webhook_status_placeholder.info(
+                                "ℹ️ Discord notification could not be sent (webhook may be invalid). "
                                 "Your results are still saved and accessible via Job ID."
                             )
                     else:
-                        st.info("📧 No email provided - results are accessible via Job ID")
+                        st.info("🔔 No webhook provided - results are accessible via Job ID")
                 else:
                     save_status_placeholder.warning(
                         "⚠️ Results could not be saved to disk, but are available in this session. "

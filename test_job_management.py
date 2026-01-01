@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Tests for Job Management and Email Notification
-================================================
+Tests for Job Management and Discord Webhook Notification
+==========================================================
 
-Tests the job ID generation, result persistence, and optional email notification.
+Tests the job ID generation, result persistence, and optional Discord webhook notification.
 """
 
 import os
@@ -15,7 +15,7 @@ import shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import job_manager
-import email_notifier
+import discord_notifier
 
 
 def test_job_id_generation():
@@ -198,57 +198,48 @@ def test_job_id_validation():
     return True
 
 
-def test_email_validation():
-    """Test email address format validation"""
-    print("\n=== Testing Email Validation ===")
+def test_webhook_url_validation():
+    """Test Discord webhook URL format validation"""
+    print("\n=== Testing Discord Webhook URL Validation ===")
     
-    valid_emails = [
-        "user@example.com",
-        "test.user@domain.org",
-        "admin@mail.university.edu",
+    valid_webhooks = [
+        "https://discord.com/api/webhooks/123456789/abcdefghijklmnop",
+        "https://discordapp.com/api/webhooks/987654321/zyxwvutsrqponmlk",
+        "https://example.com/webhook",  # Generic HTTPS URL
     ]
     
-    invalid_emails = [
+    invalid_webhooks = [
         "",
-        "notanemail",
-        "@example.com",
-        "user@",
-        "user@@example.com",
-        "user@noextension",
+        "http://discord.com/api/webhooks/123/abc",  # Not HTTPS
+        "not-a-url",
+        "ftp://example.com/webhook",
     ]
     
-    for email in valid_emails:
-        assert email_notifier.validate_email_format(email), f"{email} should be valid"
+    for webhook in valid_webhooks:
+        assert discord_notifier.validate_webhook_url(webhook), f"{webhook} should be valid"
     
-    for email in invalid_emails:
-        assert not email_notifier.validate_email_format(email), f"{email} should be invalid"
+    for webhook in invalid_webhooks:
+        assert not discord_notifier.validate_webhook_url(webhook), f"{webhook} should be invalid"
     
-    print(f"✓ Email validation working correctly")
-    print(f"  Validated {len(valid_emails)} valid and {len(invalid_emails)} invalid emails")
+    print(f"✓ Discord webhook URL validation working correctly")
+    print(f"  Validated {len(valid_webhooks)} valid and {len(invalid_webhooks)} invalid URLs")
     return True
 
 
-def test_email_notification_without_config():
-    """Test that email notification fails gracefully without config"""
-    print("\n=== Testing Email Notification (No Config) ===")
+def test_discord_notification_without_webhook():
+    """Test that Discord notification fails gracefully without valid webhook"""
+    print("\n=== Testing Discord Notification (No Webhook) ===")
     
-    # Create a mock secrets object without email config
-    class MockSecrets:
-        pass
-    
-    secrets = MockSecrets()
-    
-    # Try to send notification
-    result = email_notifier.send_job_notification(
-        to_email="test@example.com",
-        job_id="test123456",
-        secrets=secrets
+    # Try to send notification with empty webhook
+    result = discord_notifier.send_discord_webhook(
+        webhook_url="",
+        job_id="test123456"
     )
     
     # Should fail gracefully (return False, not raise exception)
-    assert result is False, "Should return False when no config available"
+    assert result is False, "Should return False when webhook URL is empty"
     
-    print(f"✓ Email notification fails gracefully without config")
+    print(f"✓ Discord notification fails gracefully without webhook")
     return True
 
 
@@ -264,8 +255,8 @@ def run_all_tests():
         ("Job Listing", test_job_listing),
         ("Invalid Job Lookup", test_invalid_job_lookup),
         ("Job ID Validation (Security)", test_job_id_validation),
-        ("Email Validation", test_email_validation),
-        ("Email Without Config", test_email_notification_without_config),
+        ("Discord Webhook URL Validation", test_webhook_url_validation),
+        ("Discord Notification Without Webhook", test_discord_notification_without_webhook),
     ]
     
     passed = 0
