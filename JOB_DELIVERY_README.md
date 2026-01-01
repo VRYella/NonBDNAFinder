@@ -1,10 +1,10 @@
 # Job-ID Based Result Delivery
 
-This document describes the new job-ID based result delivery system with optional email notification.
+This document describes the Job-ID based result delivery system.
 
 ## Overview
 
-The NBDScanner application now provides **persistent result storage** with unique Job IDs, allowing users to retrieve analysis results at any time without requiring authentication or accounts.
+The NBDScanner application provides **persistent result storage** with unique Job IDs, allowing users to retrieve analysis results at any time without requiring authentication, accounts, or notifications.
 
 ## Key Features
 
@@ -29,17 +29,11 @@ The NBDScanner application now provides **persistent result storage** with uniqu
 - **Output**: Complete job summary and downloadable results
 - **Validation**: Graceful error handling for invalid IDs
 
-### 📧 Optional Email Notification
-- **Configuration**: Via `.streamlit/secrets.toml` (optional)
-- **Behavior**: Gracefully fails if not configured
-- **Content**: Job ID, summary statistics, retrieval instructions
-- **Privacy**: Email address not stored on disk
-
 ## User Experience Flow
 
 ### 1. Submit Analysis
 ```
-User uploads sequence → Enters optional email → Clicks "Run Analysis"
+User uploads sequence → Clicks "Run Analysis"
 ```
 
 ### 2. Job ID Display
@@ -56,7 +50,7 @@ User uploads sequence → Enters optional email → Clicks "Run Analysis"
 ### 4. Result Persistence
 ```
 💾 Results saved to disk under Job ID
-📧 Optional email sent (if configured and provided)
+✅ Job ID remains the only access method
 ```
 
 ### 5. Download Results
@@ -70,33 +64,6 @@ User uploads sequence → Enters optional email → Clicks "Run Analysis"
 🔍 User returns to app → Enters Job ID on Home tab
 ✅ Previous results loaded → Can view and download
 ```
-
-## Configuration
-
-### Email Notification (Optional)
-
-Create `.streamlit/secrets.toml`:
-
-```toml
-[email]
-smtp_host = "smtp.gmail.com"
-smtp_port = 587
-smtp_user = "your-email@gmail.com"
-smtp_password = "your-app-password"
-from_address = "noreply@nbdscanner.org"
-support_email = "raazbiochem@gmail.com"  # Optional, defaults to raazbiochem@gmail.com
-```
-
-**Important**: The app works fully without this configuration. Email is completely optional.
-
-### Gmail App Password Setup
-
-If using Gmail for notifications:
-
-1. Enable 2-Factor Authentication on your Google account
-2. Go to https://myaccount.google.com/apppasswords
-3. Generate an app password for "Mail"
-4. Use this password in `smtp_password` field
 
 ## API Reference
 
@@ -128,23 +95,6 @@ Check if a job exists on disk.
 #### `get_job_summary(job_id) -> Optional[Dict]`
 Get job metadata without loading full results.
 
-### Email Notifier Module (`email_notifier.py`)
-
-#### `send_job_notification(to_email, job_id, job_url, secrets, metadata) -> bool`
-Send email notification about completed job.
-
-**Parameters**:
-- `to_email`: Recipient email address
-- `job_id`: Job identifier
-- `job_url`: Optional public URL for job lookup
-- `secrets`: Streamlit secrets object
-- `metadata`: Optional job metadata
-
-**Returns**: True if email sent, False otherwise (graceful failure)
-
-#### `validate_email_format(email) -> bool`
-Basic email format validation.
-
 ## Security & Privacy
 
 ### Job ID Security
@@ -154,7 +104,7 @@ Basic email format validation.
 - **No session binding**: Jobs accessible only via ID
 
 ### Data Privacy
-- **No PII storage**: Email addresses not saved to disk
+- **No PII storage**: No personal information collected or stored
 - **Job isolation**: Results stored in separate directories
 - **No authentication**: Access control via Job ID only
 - **Minimal metadata**: Only analysis statistics stored
@@ -171,7 +121,7 @@ Basic email format validation.
 
 Run all tests:
 ```bash
-python test_job_management.py       # Unit tests (6 tests)
+python test_job_management.py       # Unit tests (5 tests)
 python test_e2e_job_management.py   # Integration test
 python test_app_workflow.py         # Workflow simulation
 ```
@@ -179,8 +129,6 @@ python test_app_workflow.py         # Workflow simulation
 All tests should pass with "✅" indicators.
 
 ### Manual Testing
-
-See `TESTING_CHECKLIST.md` for comprehensive manual testing procedures.
 
 Quick smoke test:
 1. Load example sequence
@@ -197,11 +145,6 @@ Quick smoke test:
 - **Solution**: Check Job ID spelling (case-sensitive, 10 chars)
 - **Check**: Verify `results/<job_id>/` directory exists
 
-### Email Not Sent
-- **Cause**: Email configuration missing or invalid
-- **Solution**: Check `.streamlit/secrets.toml` exists and is valid
-- **Note**: App still works - results saved and accessible via Job ID
-
 ### Results Directory Growing
 - **Cause**: No automatic cleanup (by design)
 - **Solution**: Implement periodic cleanup script (future enhancement)
@@ -209,16 +152,15 @@ Quick smoke test:
 
 ## Future Enhancements
 
-Potential improvements (out of scope for this PR):
+Potential improvements (out of scope):
 
 1. **Job Expiry**: Auto-delete jobs after N days
 2. **Job History UI**: List all user's previous jobs
 3. **ZIP Downloads**: Bundle all formats in single download
-4. **HTML Email**: Rich-formatted email templates
-5. **Progress Tracking**: Real-time progress via WebSocket
-6. **Rate Limiting**: Prevent abuse in public deployments
-7. **Cloud Storage**: S3/Azure Blob integration for scalability
-8. **Job Sharing**: Generate shareable links with access codes
+4. **Progress Tracking**: Real-time progress via WebSocket
+5. **Rate Limiting**: Prevent abuse in public deployments
+6. **Cloud Storage**: S3/Azure Blob integration for scalability
+7. **Job Sharing**: Generate shareable links with access codes
 
 ## Architecture Decisions
 
@@ -228,11 +170,11 @@ Potential improvements (out of scope for this PR):
 - **Scalability**: Easy to migrate to cloud storage
 - **Backup**: Standard file backup tools work
 
-### Why Optional Email?
-- **Public Tool**: Many users won't provide email
-- **Privacy**: Don't force email collection
-- **Reliability**: App works even if email fails
-- **Configuration**: Avoid SMTP complexity
+### Why Job ID Only?
+- **Public Tool**: No user accounts or registration needed
+- **Privacy**: Zero personal information collected
+- **Reliability**: No dependency on external services
+- **Simplicity**: No configuration required
 
 ### Why 10-Character IDs?
 - **Balance**: Short enough to type, long enough for security
@@ -245,7 +187,7 @@ Potential improvements (out of scope for this PR):
 When extending this feature:
 
 1. **Maintain backwards compatibility**: Old job files must remain loadable
-2. **Test graceful failures**: Email, storage, etc. should fail gracefully
+2. **Test graceful failures**: Storage, etc. should fail gracefully
 3. **Preserve privacy**: Don't store unnecessary personal data
 4. **Document changes**: Update this README for API changes
 5. **Add tests**: All new functionality needs unit tests
@@ -263,6 +205,6 @@ For questions or issues:
 
 ---
 
-**Version**: 1.0
-**Last Updated**: 2025-12-31
+**Version**: 2.0
+**Last Updated**: 2026-01-01
 **Status**: Production Ready ✅
