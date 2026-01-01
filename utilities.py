@@ -4011,17 +4011,22 @@ PUBLICATION_DPI = 300
 # Each motif class has a unique color for distinguishability
 # Reference: Wong, B. (2011) Points of view: Color blindness. Nat Methods 8, 441
 MOTIF_CLASS_COLORS = {
-    'Curved_DNA': '#CC79A7',          # Reddish Purple
-    'Slipped_DNA': '#E69F00',         # Orange
-    'Cruciform': '#56B4E9',           # Sky Blue
-    'R-Loop': '#009E73',              # Bluish Green
-    'Triplex': '#F0E442',             # Yellow
-    'G-Quadruplex': '#0072B2',        # Blue
-    'i-Motif': '#D55E00',             # Vermillion
-    'Z-DNA': '#882255',               # Wine (distinct from Curved_DNA)
-    'A-philic_DNA': '#44AA99',        # Teal (distinct from Cruciform)
-    'Hybrid': '#999999',              # Gray - neutral
-    'Non-B_DNA_Clusters': '#666666'   # Dark Gray - professional
+    # Primary motif classes (6 core colors per Nature guidelines)
+    'Curved_DNA': '#CC79A7',          # Reddish Purple - Structure
+    'G-Quadruplex': '#0072B2',        # Blue - Stable structures
+    'Z-DNA': '#882255',               # Wine - Alternative helices
+    'Cruciform': '#56B4E9',           # Sky Blue - Symmetric structures
+    'Triplex': '#E69F00',             # Orange - Triple-stranded
+    'R-Loop': '#009E73',              # Bluish Green - RNA-DNA hybrids
+    
+    # Secondary classes (consolidated to reduce color count)
+    'i-Motif': '#0072B2',             # Same as G4 (complementary structures)
+    'A-philic_DNA': '#CC79A7',        # Same as Curved (structural affinity)
+    'Slipped_DNA': '#E69F00',         # Same as Triplex (repeats)
+    
+    # Meta-classes (neutral grays)
+    'Hybrid': '#888888',              # Medium gray
+    'Non-B_DNA_Clusters': '#666666'   # Dark gray
 }
 
 # Helper function to format display names

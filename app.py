@@ -66,6 +66,12 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
+# Import Nature-ready visualization standards
+from visualization_standards import (
+    NATURE_MOTIF_COLORS, PlotDominance, FigurePanel, MetricFilter,
+    LabelPolicy, UILayout, TRANSPARENCY_NOTE, SUPPLEMENTARY_NOTE,
+    should_show_plot, get_nature_style_params
+)
 
 # Job management and ntfy.sh notification modules
 from job_manager import (
@@ -3382,447 +3388,182 @@ with tab_pages["Results"]:
             display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
             st.dataframe(display_df, use_container_width=True, height=360)
         
-        # CONSOLIDATED VISUALIZATION SUITE
+        # NATURE-READY VISUALIZATION SUITE
         st.markdown(f'<h3>{UI_TEXT["heading_results_viz"]}</h3>', unsafe_allow_html=True)
         
-        # Create 3 visualization tabs (merged Coverage & Genome-Wide per requirements)
-        viz_tabs = st.tabs(["Distribution & Statistics", "Coverage & Genome-Wide Analysis", "Cluster/Hybrid"])
+        # Scientific Transparency Badge
+        st.info(TRANSPARENCY_NOTE)
         
-        with viz_tabs[0]:  # Distribution & Statistics (merged)
-            st.markdown(f"##### {UI_TEXT['heading_motif_distribution']}")
+        # Create simplified visualization tabs based on Figure Panel layout
+        viz_tabs = st.tabs([
+            "📊 Figure 1: Global Landscape", 
+            "🔗 Figure 2: Clustering & Co-occurrence",
+            "📏 Figure 3: Structural Constraints (Optional)"
+        ])
+        
+        # Check if clusters exist
+        has_clusters = any(m.get('Class') == 'Non-B_DNA_Clusters' for m in filtered_motifs)
+        
+        # =================================================================
+        # FIGURE 1: Global Non-B DNA Landscape
+        # =================================================================
+        with viz_tabs[0]:
+            st.markdown("#### Figure 1: Global Non-B DNA Landscape")
+            st.caption("*Purpose: What structures exist, and where?*")
+            
+            # Panel A: Motif Composition (nested donut only - eliminates redundancy)
+            st.markdown("##### Panel A: Motif Composition (Class → Subclass)")
             try:
-                # Show Class and Subclass distribution in 2-column layout
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Class distribution
-                    fig1 = plot_motif_distribution(filtered_motifs, by='Class', title=f"Motif Classes - {sequence_name}")
-                    st.pyplot(fig1)
-                    plt.close(fig1)
-                
-                with col2:
-                    # Subclass distribution
-                    fig2 = plot_motif_distribution(filtered_motifs, by='Subclass', title=f"Motif Subclasses - {sequence_name}")
-                    st.pyplot(fig2) 
-                    plt.close(fig2)
-                
-                # Nested pie chart (full width for better visibility)
-                fig3 = plot_nested_pie_chart(filtered_motifs, title=f"Class-Subclass Distribution - {sequence_name}")
-                st.pyplot(fig3)
-                plt.close(fig3)
+                fig_composition = plot_nested_pie_chart(
+                    filtered_motifs, 
+                    title=f"Motif Composition - {sequence_name}"
+                )
+                st.pyplot(fig_composition)
+                plt.close(fig_composition)
             except Exception as e:
-                st.error(f"Error generating distribution plots: {e}")
+                st.error(f"Error generating composition plot: {e}")
             
-            # Statistical Analysis section (from old Statistics tab)
-            st.markdown(f"##### {UI_TEXT['heading_statistical_analysis']}")
-            
-            # Density Metrics section
-            st.markdown(f"###### {UI_TEXT['heading_density_metrics']}")
+            # Panel B: Genome-Scale Localization (size-dependent: Manhattan OR Linear)
+            st.markdown("##### Panel B: Genome-Scale Localization")
             try:
-                # Check if we have cached density metrics from analysis
+                if sequence_length > 50000:
+                    # Large sequences: Manhattan plot
+                    st.caption("*Manhattan plot for large genome (>50kb)*")
+                    fig_position = plot_manhattan_motif_density(
+                        filtered_motifs, sequence_length,
+                        title=f"Motif Density Hotspots - {sequence_name}"
+                    )
+                    st.pyplot(fig_position)
+                    plt.close(fig_position)
+                else:
+                    # Small sequences: Linear track
+                    st.caption("*Linear track for short sequence (≤50kb)*")
+                    fig_position = plot_linear_motif_track(
+                        filtered_motifs, sequence_length,
+                        title=f"Motif Track - {sequence_name}"
+                    )
+                    st.pyplot(fig_position)
+                    plt.close(fig_position)
+            except Exception as e:
+                st.error(f"Error generating localization plot: {e}")
+            
+            # Panel C: Genome Coverage (compact bar chart)
+            st.markdown("##### Panel C: Genome Coverage (% per motif class)")
+            try:
+                # Calculate or retrieve density metrics
                 viz_cache_key = f"seq_{seq_idx}"
                 cached_viz = st.session_state.get('cached_visualizations', {}).get(viz_cache_key, {})
                 cached_densities = cached_viz.get('densities', {})
                 
                 if cached_densities:
-                    # Use cached density calculations
                     genomic_density = cached_densities['class_genomic']
                     positional_density_kbp = cached_densities['class_positional']
-                    genomic_density_subclass = cached_densities['subclass_genomic']
-                    positional_density_subclass = cached_densities['subclass_positional']
-                    st.info("📊 Using pre-calculated density metrics from analysis phase")
                 else:
-                    # Calculate fresh if not cached
                     genomic_density = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
                     positional_density_kbp = calculate_positional_density(filtered_motifs, sequence_length, unit='kbp', by_class=True)
-                    
-                    genomic_density_subclass = calculate_genomic_density(filtered_motifs, sequence_length, 
-                                                                        by_class=False, by_subclass=True)
-                    positional_density_subclass = calculate_positional_density(filtered_motifs, sequence_length, 
-                                                                              unit='kbp', by_class=False, by_subclass=True)
                 
-                positional_density_mbp = calculate_positional_density(filtered_motifs, sequence_length, unit='Mbp', by_class=True)
+                # Compact visualization: density comparison
+                fig_density = plot_density_comparison(
+                    genomic_density, positional_density_kbp,
+                    title="Motif Density Analysis"
+                )
+                st.pyplot(fig_density)
+                plt.close(fig_density)
                 
-                # Overall metrics in compact layout
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Genomic Density", f"{genomic_density.get('Overall', 0):.4f}%")
-                with col2:
-                    st.metric("Motifs/kbp", f"{positional_density_kbp.get('Overall', 0):.2f}")
-                
-                # Display both Class and Subclass level density analysis
-                st.markdown("**Both class and subclass level density analysis are shown below**")
-                
-                # Class Level Analysis
-                st.markdown(f"##### {UI_TEXT['heading_class_level']}")
-                
-                # Per-class density table
+                # Compact density table
                 density_data = []
                 for class_name in sorted([k for k in genomic_density.keys() if k != 'Overall']):
                     density_data.append({
                         'Motif Class': class_name.replace('_', ' '),
-                        'Genomic Density (%)': f"{genomic_density.get(class_name, 0):.4f}",
-                        'Motifs/kbp': f"{positional_density_kbp.get(class_name, 0):.2f}"
+                        'Coverage (%)': f"{genomic_density.get(class_name, 0):.3f}",
+                        'Motifs/kb': f"{positional_density_kbp.get(class_name, 0):.2f}"
                     })
                 
                 if density_data:
                     density_df = pd.DataFrame(density_data)
                     st.dataframe(density_df, use_container_width=True, height=200)
-                
-                fig_density = plot_density_comparison(genomic_density, positional_density_kbp,
-                                                      title="Motif Density Analysis (Class Level)")
-                st.pyplot(fig_density)
-                plt.close(fig_density)
-                
-                # Subclass Level Analysis
-                st.markdown(f"##### {UI_TEXT['heading_subclass_level']}")
-                
-                # Subclass densities are already calculated or loaded from cache above
-                # Per-subclass density table
-                subclass_density_data = []
-                for subclass_key in sorted([k for k in genomic_density_subclass.keys() if k != 'Overall']):
-                    # Format the subclass key for display
-                    display_key = subclass_key.replace('_', ' ').replace(':', ': ')
-                    subclass_density_data.append({
-                        'Motif Subclass': display_key,
-                        'Genomic Density (%)': f"{genomic_density_subclass.get(subclass_key, 0):.4f}",
-                        'Motifs/kbp': f"{positional_density_subclass.get(subclass_key, 0):.2f}"
-                    })
-                
-                if subclass_density_data:
-                    subclass_density_df = pd.DataFrame(subclass_density_data)
-                    st.dataframe(subclass_density_df, use_container_width=True, height=300)
-                
-                # Subclass density visualization
-                fig_density_subclass = plot_density_comparison_by_subclass(
-                    genomic_density_subclass, positional_density_subclass,
-                    title="Motif Density Analysis (Subclass Level)"
-                )
-                st.pyplot(fig_density_subclass)
-                plt.close(fig_density_subclass)
-                
-                # Additional subclass density heatmap
-                if len(filtered_motifs) > 0:
-                    st.markdown("**Subclass Density Heatmap Along Sequence**")
-                    fig_heatmap = plot_subclass_density_heatmap(
-                        filtered_motifs, sequence_length,
-                        window_size=max(500, sequence_length // 50),
-                        title="Subclass Density Distribution"
-                    )
-                    st.pyplot(fig_heatmap)
-                    plt.close(fig_heatmap)
-                
+                    
             except Exception as e:
                 st.error(f"Error calculating density metrics: {e}")
-                # Replace expander with checkbox toggle for error details (more stable)
-                show_error_details = st.checkbox("Show detailed error trace", value=False, key=f"density_error_{seq_idx}")
-                if show_error_details:
-                    with st.container():
-                        st.code(traceback.format_exc(), language="python")
-            
-            # Length/Score distributions in 2-column layout
-            st.markdown(f"###### {UI_TEXT['heading_distributions']}")
-            try:
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    fig6 = plot_length_distribution(filtered_motifs, by_class=True, 
-                                                   title="Length Distribution by Motif Class") 
-                    st.pyplot(fig6)
-                    plt.close(fig6)
-                
-                with col2:
-                    fig7 = plot_score_distribution(filtered_motifs, by_class=True,
-                                                  title="Score Distribution by Motif Class (1-3 Scale)")
-                    st.pyplot(fig7)
-                    plt.close(fig7)
-            except Exception as e:
-                st.error(f"Error generating distribution plots: {e}")
         
-        with viz_tabs[1]:  # Coverage & Genome-Wide Analysis (merged per requirements)
-            st.markdown(f"##### {UI_TEXT['heading_sequence_coverage']}")
-            try:
-                # Show Coverage and Density in 2-column layout
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Coverage map
-                    fig4 = plot_coverage_map(filtered_motifs, sequence_length, title=f"Motif Coverage - {sequence_name}")
-                    st.pyplot(fig4)
-                    plt.close(fig4)
-                
-                with col2:
-                    # Density heatmap
-                    fig5 = plot_density_heatmap(filtered_motifs, sequence_length, 
-                                               window_size=max(100, sequence_length // 20),
-                                               title=f"Motif Density - {sequence_name}")
-                    st.pyplot(fig5)
-                    plt.close(fig5)
-                
-            except Exception as e:
-                st.error(f"Error generating coverage plots: {e}")
+        # =================================================================
+        # FIGURE 2: Structural Clustering & Co-Occurrence
+        # =================================================================
+        with viz_tabs[1]:
+            st.markdown("#### Figure 2: Structural Clustering & Co-Occurrence")
+            st.caption("*Purpose: Which structures co-localize and form regulatory hotspots?*")
             
-            # Genome-Wide Analysis section (merged into same tab)
-            st.markdown(f"##### {UI_TEXT['heading_genome_wide']}")
-            st.info("📊 Publication-quality genome-scale visualizations showing motif distribution patterns across the entire sequence.")
-            
-            try:
-                # Manhattan plot and Cumulative distribution in 2-column layout
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Manhattan plot for motif density hotspots
-                    st.markdown("**Manhattan Plot - Motif Density Hotspots**")
-                    fig_manhattan = plot_manhattan_motif_density(
-                        filtered_motifs, sequence_length,
-                        title=f"Manhattan Plot - {sequence_name}"
-                    )
-                    st.pyplot(fig_manhattan)
-                    plt.close(fig_manhattan)
-                
-                with col2:
-                    # Cumulative motif distribution
-                    st.markdown("**Cumulative Motif Distribution**")
-                    fig_cumulative = plot_cumulative_motif_distribution(
-                        filtered_motifs, sequence_length,
-                        title=f"Cumulative Distribution - {sequence_name}",
-                        by_class=True
-                    )
-                    st.pyplot(fig_cumulative)
-                    plt.close(fig_cumulative)
-                
-                # Linear motif track (for smaller regions) - full width
-                if sequence_length <= 50000:  # Only for sequences < 50kb
-                    st.markdown("**Linear Motif Track Viewer**")
-                    fig_linear = plot_linear_motif_track(
-                        filtered_motifs, sequence_length,
-                        title=f"Motif Track - {sequence_name}"
-                    )
-                    st.pyplot(fig_linear)
-                    plt.close(fig_linear)
-                else:
-                    st.info("💡 Linear motif track is shown for sequences < 50kb. For large sequences, use Manhattan plot or Coverage map.")
-                
-            except Exception as e:
-                st.error(f"Error generating genome-wide plots: {e}")
-                # Replace expander with checkbox toggle for error details (more stable)
-                show_error_details = st.checkbox("Show detailed error trace", value=False, key=f"genome_error_{seq_idx}")
-                if show_error_details:
-                    with st.container():
-                        st.code(traceback.format_exc(), language="python")
-        
-        with viz_tabs[2]:  # Cluster/Hybrid & Advanced Visualizations (now tab 2 after merge)
-            st.markdown(f"##### {UI_TEXT['heading_hybrid_cluster']}")
-            
-            if hybrid_cluster_motifs:
-                # Separate hybrid and cluster motifs
-                hybrid_only = [m for m in hybrid_cluster_motifs if m.get('Class') == 'Hybrid']
-                cluster_only = [m for m in hybrid_cluster_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
-                
-                hc_df = pd.DataFrame(hybrid_cluster_motifs)
-                
-                # Summary metrics with detailed breakdown
-                st.markdown(f"""
-                <div class='progress-panel progress-panel--hybrid'>
-                    <h3 class='progress-panel__title progress-panel__title--large'>
-                        Hybrid & Cluster Motif Summary
-                    </h3>
-                    <div class='stats-grid stats-grid--extra-wide'>
-                        <div class='stat-card stat-card--large'>
-                            <h2 class='stat-card__value stat-card__value--large'>
-                                {len(hybrid_only)}
-                            </h2>
-                            <p class='stat-card__label stat-card__label--large'>
-                                Hybrid Motifs
-                            </p>
-                        </div>
-                        <div class='stat-card stat-card--large'>
-                            <h2 class='stat-card__value stat-card__value--large'>
-                                {len(cluster_only)}
-                            </h2>
-                            <p class='stat-card__label stat-card__label--large'>
-                                DNA Clusters
-                            </p>
-                        </div>
-                        <div class='stat-card stat-card--large'>
-                            <h2 class='stat-card__value stat-card__value--large'>
-                                {int(hc_df['Length'].mean()) if 'Length' in hc_df.columns else 0}
-                            </h2>
-                            <p class='stat-card__label stat-card__label--large'>
-                                Avg Length (bp)
-                            </p>
-                        </div>
-                        <div class='stat-card stat-card--large'>
-                            <h2 class='stat-card__value stat-card__value--large'>
-                                {len(hybrid_cluster_motifs)}
-                            </h2>
-                            <p class='stat-card__label stat-card__label--large'>
-                                Total
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Create sub-tabs for hybrid and cluster motifs
-                hc_subtabs = st.tabs(["All", "Hybrid Motifs", "Cluster Motifs"])
-                
-                with hc_subtabs[0]:  # All motifs
-                    st.markdown("##### All Hybrid & Cluster Motifs")
-                    display_cols = ['Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
-                    available_display_cols = [col for col in display_cols if col in hc_df.columns]
-                    display_hc_df = hc_df[available_display_cols].copy()
-                    display_hc_df.columns = [col.replace('_', ' ') for col in display_hc_df.columns]
-                    st.dataframe(display_hc_df, use_container_width=True, height=300)
-                    
-                    # Position map for all hybrid/cluster motifs (with height cap to prevent excessive memory usage)
-                    fig_height = min(20, max(4, len(hybrid_cluster_motifs) * 0.3))
-                    fig, ax = plt.subplots(figsize=(12, fig_height))
-                    colors_map = {'Hybrid': '#ff6b6b', 'Non-B_DNA_Clusters': '#4ecdc4'}
-                    for i, motif in enumerate(hybrid_cluster_motifs):
-                        color = colors_map.get(motif.get('Class'), '#95a5a6')
-                        ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
-                               height=0.8, color=color, alpha=0.7, edgecolor='black', linewidth=0.5)
-                    ax.set_xlabel("Position (bp)")
-                    ax.set_ylabel("Motif Index")
-                    ax.set_title("Hybrid & Cluster Position Map")
-                    handles = [plt.Rectangle((0,0),1,1, color=c, alpha=0.7) for c in colors_map.values()]
-                    ax.legend(handles, list(colors_map.keys()), loc='upper right')
-                    ax.grid(axis='x', alpha=0.3)
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                    plt.close(fig)
-                
-                with hc_subtabs[1]:  # Hybrid motifs only
-                    st.markdown("##### Hybrid Motifs (Overlapping Different Classes)")
-                    if hybrid_only:
-                        hybrid_df = pd.DataFrame(hybrid_only)
-                        
-                        # Show component classes information
-                        st.info(f"**Hybrid motifs** are regions where different Non-B DNA motif classes overlap. Found {len(hybrid_only)} hybrid regions.")
-                        
-                        # Extended columns for hybrid motifs
-                        extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Component_Classes']
-                        available_cols = [col for col in extended_cols if col in hybrid_df.columns]
-                        display_df = hybrid_df[available_cols].copy()
-                        display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
-                        st.dataframe(display_df, use_container_width=True, height=300)
-                        
-                        # Hybrid motif position visualization (with height cap)
-                        fig_height = min(15, max(3, len(hybrid_only) * 0.4))
-                        fig, ax = plt.subplots(figsize=(12, fig_height))
-                        for i, motif in enumerate(hybrid_only):
-                            ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
-                                   height=0.8, color='#ff6b6b', alpha=0.7, edgecolor='#c0392b', linewidth=1)
-                            # Add label with component classes
-                            subclass = motif.get('Subclass', '')
-                            label_text = f" {subclass[:30]}{'...' if len(subclass) > 30 else ''}" if subclass else ""
-                            ax.text(motif['Start'], i, label_text, va='center', fontsize=8)
-                        ax.set_xlabel("Position (bp)")
-                        ax.set_ylabel("Hybrid Index")
-                        ax.set_title("Hybrid Motif Positions (Overlapping Classes)")
-                        ax.grid(axis='x', alpha=0.3)
-                        plt.tight_layout()
-                        st.pyplot(fig)
-                        plt.close(fig)
-                    else:
-                        st.info("No hybrid motifs detected in this sequence.")
-                
-                with hc_subtabs[2]:  # Cluster motifs only
-                    st.markdown("##### Non-B DNA Clusters (High-Density Regions)")
-                    if cluster_only:
-                        cluster_df = pd.DataFrame(cluster_only)
-                        
-                        # Show cluster information
-                        st.info(f"**DNA Clusters** are high-density regions with multiple Non-B DNA motif classes. Found {len(cluster_only)} cluster regions.")
-                        
-                        # Extended columns for cluster motifs
-                        extended_cols = ['Subclass', 'Start', 'End', 'Length', 'Score', 'Motif_Count', 'Class_Diversity']
-                        available_cols = [col for col in extended_cols if col in cluster_df.columns]
-                        display_df = cluster_df[available_cols].copy()
-                        display_df.columns = [col.replace('_', ' ') for col in display_df.columns]
-                        st.dataframe(display_df, use_container_width=True, height=300)
-                        
-                        # Cluster position visualization with diversity color coding (with height cap)
-                        fig_height = min(15, max(3, len(cluster_only) * 0.4))
-                        fig, ax = plt.subplots(figsize=(12, fig_height))
-                        for i, motif in enumerate(cluster_only):
-                            diversity = motif.get('Class_Diversity', 2)
-                            # Color intensity based on diversity
-                            alpha = min(0.4 + diversity * 0.1, 0.9)
-                            ax.barh(i, motif['End'] - motif['Start'], left=motif['Start'], 
-                                   height=0.8, color='#4ecdc4', alpha=alpha, edgecolor='#16a085', linewidth=1)
-                            # Add label with motif count
-                            motif_count = motif.get('Motif_Count', 0)
-                            ax.text(motif['End'], i, f" {motif_count} motifs", va='center', fontsize=8)
-                        ax.set_xlabel("Position (bp)")
-                        ax.set_ylabel("Cluster Index")
-                        ax.set_title("Non-B DNA Cluster Positions (Color intensity = Class diversity)")
-                        ax.grid(axis='x', alpha=0.3)
-                        plt.tight_layout()
-                        st.pyplot(fig)
-                        plt.close(fig)
-                    else:
-                        st.info("No DNA clusters detected in this sequence.")
-                
-                # Advanced Statistical Visualizations Section
-                st.markdown(f"##### {UI_TEXT['heading_advanced_viz']}")
-                st.info("📊 Advanced publication-quality visualizations for in-depth analysis and manuscript figures.")
-                
+            # Panel D: Cluster Size Distribution (conditional on cluster existence)
+            if has_clusters:
+                st.markdown("##### Panel D: Cluster Size Distribution")
                 try:
-                    # Motif co-occurrence matrix
-                    st.markdown("**Motif Co-occurrence Matrix**")
-                    st.caption("Shows which motif classes tend to appear together (overlapping or within 1bp)")
-                    fig_cooccur = plot_motif_cooccurrence_matrix(
+                    fig_cluster = plot_cluster_size_distribution(
                         filtered_motifs,
-                        title=f"Co-occurrence Matrix - {sequence_name}"
+                        title=f"Cluster Statistics - {sequence_name}"
                     )
-                    st.pyplot(fig_cooccur)
-                    plt.close(fig_cooccur)
-                    
-                    # GC content correlation (if sequence available)
-                    if st.session_state.seqs[seq_idx]:
-                        st.markdown("**GC Content vs Motif Density Correlation**")
-                        st.caption("Scatter plot showing relationship between GC content and motif density")
-                        fig_gc = plot_gc_content_correlation(
-                            filtered_motifs, st.session_state.seqs[seq_idx],
-                            title=f"GC Correlation - {sequence_name}"
-                        )
-                        st.pyplot(fig_gc)
-                        plt.close(fig_gc)
-                    
-                    # Motif length KDE
-                    st.markdown("**Motif Length Distribution (Kernel Density)**")
-                    st.caption("Smooth probability density curves showing length patterns by class")
-                    fig_kde = plot_motif_length_kde(
+                    st.pyplot(fig_cluster)
+                    plt.close(fig_cluster)
+                except Exception as e:
+                    st.error(f"Error generating cluster plot: {e}")
+            else:
+                st.info("**Panel D**: No clusters detected (requires multiple motifs in close proximity)")
+            
+            # Panel E: Motif Co-occurrence Matrix (always shown)
+            st.markdown("##### Panel E: Motif Co-occurrence Matrix")
+            st.caption("*Shows which motif classes tend to appear together (overlapping or within 1bp)*")
+            try:
+                fig_cooccur = plot_motif_cooccurrence_matrix(
+                    filtered_motifs,
+                    title=f"Co-occurrence Matrix - {sequence_name}"
+                )
+                st.pyplot(fig_cooccur)
+                plt.close(fig_cooccur)
+            except Exception as e:
+                st.error(f"Error generating co-occurrence matrix: {e}")
+        
+        # =================================================================
+        # FIGURE 3: Structural Constraints (Optional/Toggle)
+        # =================================================================
+        with viz_tabs[2]:
+            st.markdown("#### Figure 3: Structural Constraints")
+            st.caption("*Purpose: What are the physical constraints shaping each motif class?*")
+            st.info("📌 **Optional Figure**: Toggle to include in main report or move to supplementary materials.")
+            
+            # User toggle for including this figure
+            show_fig3 = st.checkbox(
+                "Include Figure 3 in main report", 
+                value=False,
+                help="Enable to show structural constraint analysis in main figures"
+            )
+            
+            if show_fig3:
+                # Panel F: Length Distribution by Class (KDE only - no histogram redundancy)
+                st.markdown("##### Panel F: Length Distributions by Class")
+                try:
+                    fig_length = plot_motif_length_kde(
                         filtered_motifs,
                         by_class=True,
-                        title=f"Length KDE - {sequence_name}"
+                        title=f"Length Distribution (KDE) - {sequence_name}"
                     )
-                    st.pyplot(fig_kde)
-                    plt.close(fig_kde)
-                    
-                    # Cluster size distribution (if clusters exist)
-                    cluster_motifs_check = [m for m in filtered_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
-                    if cluster_motifs_check:
-                        st.markdown("**Cluster Size & Diversity Distribution**")
-                        st.caption("Distribution of motif counts and class diversity within clusters")
-                        fig_cluster_dist = plot_cluster_size_distribution(
-                            filtered_motifs,
-                            title=f"Cluster Statistics - {sequence_name}"
-                        )
-                        st.pyplot(fig_cluster_dist)
-                        plt.close(fig_cluster_dist)
-                    
+                    st.pyplot(fig_length)
+                    plt.close(fig_length)
                 except Exception as e:
-                    st.error(f"Error generating advanced plots: {e}")
-                    # Replace expander with checkbox toggle for error details (more stable)
-                    show_error_details = st.checkbox("Show detailed error trace", value=False, key=f"advanced_error_{seq_idx}")
-                    if show_error_details:
-                        with st.container():
-                            st.code(traceback.format_exc(), language="python")
+                    st.error(f"Error generating length KDE: {e}")
+                
+                # Optional: Score distribution
+                st.markdown("**Additional: Score Distribution by Class**")
+                try:
+                    fig_score = plot_score_distribution(
+                        filtered_motifs, by_class=True,
+                        title="Score Distribution (1-3 Scale)"
+                    )
+                    st.pyplot(fig_score)
+                    plt.close(fig_score)
+                except Exception as e:
+                    st.error(f"Error generating score distribution: {e}")
             else:
-                st.info("No hybrid or cluster motifs detected in this sequence. Hybrid motifs occur when different Non-B DNA classes overlap, and clusters form when multiple motifs are found in cl[...")
+                st.info("✓ Figure 3 hidden from main report (available in supplementary exports)")
+                st.caption(SUPPLEMENTARY_NOTE)
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
