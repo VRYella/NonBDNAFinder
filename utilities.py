@@ -4011,17 +4011,22 @@ PUBLICATION_DPI = 300
 # Each motif class has a unique color for distinguishability
 # Reference: Wong, B. (2011) Points of view: Color blindness. Nat Methods 8, 441
 MOTIF_CLASS_COLORS = {
-    'Curved_DNA': '#CC79A7',          # Reddish Purple
-    'Slipped_DNA': '#E69F00',         # Orange
-    'Cruciform': '#56B4E9',           # Sky Blue
-    'R-Loop': '#009E73',              # Bluish Green
-    'Triplex': '#F0E442',             # Yellow
-    'G-Quadruplex': '#0072B2',        # Blue
-    'i-Motif': '#D55E00',             # Vermillion
-    'Z-DNA': '#882255',               # Wine (distinct from Curved_DNA)
-    'A-philic_DNA': '#44AA99',        # Teal (distinct from Cruciform)
-    'Hybrid': '#999999',              # Gray - neutral
-    'Non-B_DNA_Clusters': '#666666'   # Dark Gray - professional
+    # Primary motif classes (6 core colors per Nature guidelines)
+    'Curved_DNA': '#CC79A7',          # Reddish Purple - Structure
+    'G-Quadruplex': '#0072B2',        # Blue - Stable structures
+    'Z-DNA': '#882255',               # Wine - Alternative helices
+    'Cruciform': '#56B4E9',           # Sky Blue - Symmetric structures
+    'Triplex': '#E69F00',             # Orange - Triple-stranded
+    'R-Loop': '#009E73',              # Bluish Green - RNA-DNA hybrids
+    
+    # Secondary classes (consolidated to reduce color count)
+    'i-Motif': '#0072B2',             # Same as G4 (complementary structures)
+    'A-philic_DNA': '#CC79A7',        # Same as Curved (structural affinity)
+    'Slipped_DNA': '#E69F00',         # Same as Triplex (repeats)
+    
+    # Meta-classes (neutral grays)
+    'Hybrid': '#888888',              # Medium gray
+    'Non-B_DNA_Clusters': '#666666'   # Dark gray
 }
 
 # Helper function to format display names
@@ -6624,6 +6629,29 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
         ax.legend(legend_elements, display_classes, loc='upper right', 
                  fontsize=8, framealpha=0.9, ncol=min(3, len(legend_elements)))
     
+    # Apply label suppression policy (Nature-ready: no individual labels)
+    # Only annotate top 5% density hotspots if requested
+    if values:
+        threshold = np.percentile(values, 95)  # Top 5%
+        hotspot_count = 0
+        max_labels = 10  # Maximum labels per plot
+        min_distance_kb = (sequence_length / 1000) / 20  # Minimum 5% sequence spacing
+        
+        last_label_pos = -float('inf')
+        for pos, val, color in sorted(zip(positions_kb, values, colors), 
+                                      key=lambda x: x[1], reverse=True):
+            if val >= threshold and hotspot_count < max_labels:
+                # Check distance from last label
+                if pos - last_label_pos >= min_distance_kb:
+                    # Subtle annotation (Nature-ready: minimal, professional)
+                    ax.annotate(f'{val:.1f}', xy=(pos, val), 
+                               xytext=(0, 5), textcoords='offset points',
+                               fontsize=6, alpha=0.7, ha='center',
+                               bbox=dict(boxstyle='round,pad=0.2', fc='white', 
+                                       ec=color, lw=0.5, alpha=0.8))
+                    last_label_pos = pos
+                    hotspot_count += 1
+    
     # Apply Nature journal style
     _apply_nature_style(ax)
     
@@ -6951,12 +6979,15 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
                             region_end: int = None,
                             title: str = "Linear Motif Track",
                             figsize: Tuple[int, int] = None,
-                            show_labels: bool = True) -> plt.Figure:
+                            show_labels: bool = False) -> plt.Figure:  # Default to False per Nature-ready standards
     """
     Create horizontal graphical track with colored blocks for motifs.
     
     Best for visualizing <10kb regions. Colored blocks show motif positions
     with class-specific colors. Publication-quality linear genome browser view.
+    
+    NATURE-READY: Individual motif labels suppressed by default for clarity.
+    Only class track labels are shown.
     
     Args:
         motifs: List of motif dictionaries
@@ -6965,7 +6996,7 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
         region_end: End position of region to display (None = full sequence)
         title: Plot title
         figsize: Figure size (width, height)
-        show_labels: Whether to show motif class labels
+        show_labels: Whether to show class labels (default False for cleaner view)
         
     Returns:
         Matplotlib figure object (publication-ready)
@@ -7019,18 +7050,13 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
             )
             ax.add_patch(rect)
             
-            # Add score if available (small label inside block)
-            if length > (region_end - region_start) * 0.02:  # Only if block is large enough
-                score = motif.get('Score')
-                if isinstance(score, (int, float)):
-                    ax.text(start + length/2, y_pos, f'{score:.2f}', 
-                           ha='center', va='center', fontsize=6, color='white', fontweight='bold')
+            # NATURE-READY: No individual motif labels
+            # Labels removed to prevent clutter and overlap per publication standards
         
-        # Add class label on the left
-        if show_labels:
-            display_name = class_name.replace('_', ' ')
-            ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
-                   display_name, ha='right', va='center', fontsize=9, fontweight='bold')
+        # Add class label on the left (always shown for track identification)
+        display_name = class_name.replace('_', ' ')
+        ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
+               display_name, ha='right', va='center', fontsize=9, fontweight='bold')
     
     # Styling
     ax.set_xlim(region_start, region_end)
