@@ -2289,8 +2289,8 @@ with tab_pages["Upload & Analyze"]:
             help="Receive instant push notification when analysis completes. No account required. Visit ntfy.sh to subscribe.",
             key="ntfy_topic_input"
         )
-        if ntfy_topic:
-            st.session_state.ntfy_topic = ntfy_topic
+        # Always update session state to handle both setting and clearing
+        st.session_state.ntfy_topic = ntfy_topic
         st.caption("💡 Create your topic: Just pick any name and subscribe at ntfy.sh. No registration needed.")
     
     # ----- FULL-WIDTH STICKY RUN BUTTON -----

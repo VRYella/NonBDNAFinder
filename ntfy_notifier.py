@@ -147,12 +147,6 @@ def validate_topic(topic: str) -> bool:
     if not topic or not topic.strip():
         return False
     
-    topic = topic.strip()
-    
-    # Minimal length check
-    if len(topic) < 1:
-        return False
-    
     # ntfy.sh accepts most reasonable topic names
     # We don't enforce strict validation per requirements
     return True

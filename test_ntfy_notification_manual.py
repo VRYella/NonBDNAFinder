@@ -140,6 +140,10 @@ def test_with_real_topic():
         print("  Attempting to send test notification...")
         print(f"  Subscribe at: https://ntfy.sh/{topic}")
         
+        # Generate current timestamp for test
+        from datetime import datetime
+        test_timestamp = datetime.now().isoformat()
+        
         result = send_ntfy_notification(
             topic=topic,
             job_id="test_manual_123",
@@ -147,7 +151,7 @@ def test_with_real_topic():
             metadata={
                 'num_sequences': 5,
                 'total_motifs': 142,
-                'timestamp': '2025-12-31T08:00:00Z'
+                'timestamp': test_timestamp
             }
         )
         
