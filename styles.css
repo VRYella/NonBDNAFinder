@@ -104,7 +104,7 @@ body, [data-testid="stAppViewContainer"], .main {
 
 /* ============================================
    FULL-WIDTH TABS: Flex-based Equal Distribution
-   Pills-style active state with gradient fill
+   Pills-style active state with VIBRANT gradient fill
    ============================================ */
 .stTabs [data-baseweb="tab-list"] {
     display: flex !important;
@@ -113,7 +113,7 @@ body, [data-testid="stAppViewContainer"], .main {
     gap: 4px !important;
     border-bottom: none !important;
     background: var(--tab-bg) !important;
-    box-shadow: 0 2px 12px var(--shadow-color), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 3px 18px var(--shadow-color), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
     margin-bottom: 1em;
     padding: 6px 8px !important;
     border-radius: var(--border-radius-lg) !important;
@@ -148,13 +148,13 @@ body, [data-testid="stAppViewContainer"], .main {
     background: rgba(255, 255, 255, 0.7) !important;
 }
 
-/* Active tab - Pill-shaped with gradient fill and subtle elevation */
+/* Active tab - Pill-shaped with VIBRANT gradient fill and stronger elevation */
 .stTabs [aria-selected="true"] {
     color: #FFFFFF !important;
     font-weight: 600 !important;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    box-shadow: 0 4px 12px var(--shadow-color), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--shadow-color), 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
 }
 
 /* Remove the default tab underline indicator */
@@ -252,7 +252,7 @@ input:focus, .stTextInput>div>div>input:focus {
 }
 
 /* ============================================
-   BUTTONS: Soft gradient with subtle shadow
+   BUTTONS: VIBRANT gradient with stronger shadow
    Using centralized button styles from UI_COMPONENT_STYLES
    ============================================ */
 .stButton>button {
@@ -264,24 +264,24 @@ input:focus, .stTextInput>div>div>input:focus {
     border-radius: var(--border-radius-md) !important;
     border: none !important;
     font-weight: var(--font-weight-medium) !important;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    box-shadow: 0 6px 20px var(--shadow-color);
     transition: var(--transition-normal);
     letter-spacing: 0.02em;
 }
 
 .stButton>button:hover {
     background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-    box-shadow: 0 6px 16px var(--shadow-color);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 28px var(--shadow-color);
+    transform: translateY(-3px);
 }
 
 .stButton>button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px var(--shadow-color);
+    box-shadow: 0 3px 12px var(--shadow-color);
 }
 
 /* ============================================
-   DATAFRAMES: Clean design with soft shadows
+   DATAFRAMES: Clean design with VIBRANT shadows
    ============================================ */
 .stDataFrame, .stTable {
     font-size: 0.92rem !important;
@@ -289,7 +289,7 @@ input:focus, .stTextInput>div>div>input:focus {
     line-height: 1.6 !important;
     border-radius: var(--border-radius-md) !important;
     overflow: hidden;
-    box-shadow: 0 2px 8px var(--shadow-color) !important;
+    box-shadow: 0 4px 16px var(--shadow-color) !important;
     border: 1px solid var(--bg-card) !important;
     animation: fade-in 0.4s ease-out;
 }
@@ -320,7 +320,7 @@ input:focus, .stTextInput>div>div>input:focus {
     background: rgba(238, 242, 255, 0.5) !important;
 }
 
-/* Tab content - Clean content card section */
+/* Tab content - Clean content card section with VIBRANT shadow */
 .stTabs [data-baseweb="tab-panel"] {
     padding-top: 1rem !important;
     padding-left: 0.8rem !important;
@@ -329,25 +329,25 @@ input:focus, .stTextInput>div>div>input:focus {
     animation: fade-in 0.3s ease-out;
     background: #FFFFFF !important;
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
-    box-shadow: 0 4px 16px var(--shadow-color) !important;
+    box-shadow: 0 6px 24px var(--shadow-color) !important;
     margin-top: -8px;
 }
 
 /* ============================================
-   CONTENT CARDS: Soft shadows and rounded corners
+   CONTENT CARDS: VIBRANT shadows and rounded corners
    ============================================ */
 .analysis-summary-card, .glassmorphism-card, .content-card {
     margin: 0.8rem 0 !important;
     padding: 1rem !important;
     background: #FFFFFF !important;
     border-radius: var(--border-radius-lg) !important;
-    box-shadow: 0 2px 12px var(--shadow-color) !important;
+    box-shadow: 0 4px 20px var(--shadow-color) !important;
     border: 1px solid #E5E7EB !important;
     animation: fade-in 0.4s ease-out;
     transition: var(--transition-normal);
 }
 .analysis-summary-card:hover, .glassmorphism-card:hover, .content-card:hover {
-    box-shadow: 0 4px 20px var(--shadow-color) !important;
+    box-shadow: 0 8px 32px var(--shadow-color) !important;
 }
 
 /* Select boxes and multiselect: Clean dropdown design */
@@ -1011,13 +1011,13 @@ details.streamlit-expander[open] {
 }
 
 .progress-panel--success {
-    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.35);
+    background: linear-gradient(135deg, #00E676 0%, #1DE9B6 100%);
+    box-shadow: 0 6px 24px rgba(0, 230, 118, 0.45);
 }
 
 .progress-panel--metrics {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    box-shadow: 0 4px 16px var(--shadow-color);
+    box-shadow: 0 6px 24px var(--shadow-color);
     margin-bottom: 1rem;
 }
 
@@ -1026,15 +1026,15 @@ details.streamlit-expander[open] {
     border-radius: var(--border-radius-lg);
     padding: 1rem;
     margin: 0.8rem 0;
-    box-shadow: 0 4px 20px var(--shadow-color);
+    box-shadow: 0 6px 28px var(--shadow-color);
 }
 
 .progress-panel--hybrid {
-    background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%);
+    background: linear-gradient(135deg, #D500F9 0%, #E040FB 100%);
     border-radius: var(--border-radius-lg);
     padding: 1rem;
     margin: 0.8rem 0;
-    box-shadow: 0 4px 20px rgba(156, 39, 176, 0.3);
+    box-shadow: 0 6px 28px rgba(213, 0, 249, 0.45);
 }
 
 .progress-panel__title {
