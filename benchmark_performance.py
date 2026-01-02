@@ -18,7 +18,6 @@ import sys
 import os
 from typing import Dict, List, Any, Tuple
 import pandas as pd
-import numpy as np
 
 # Import NonBDNAFinder modules
 try:
@@ -43,6 +42,7 @@ class PerformanceBenchmark:
         
     def generate_test_sequence(self, size: int, motif_type: str = "random") -> str:
         """Generate test sequences with known motifs"""
+        import numpy as np
         
         if motif_type == "random":
             # Random DNA sequence

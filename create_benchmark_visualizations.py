@@ -19,13 +19,16 @@ nonbdna_sizes = [1000, 5000, 10000, 50000, 100000, 500000]
 nonbdna_speeds = [4889, 11910, 13972, 12870, 13056, 17188]
 nonbdna_times = [0.20, 0.42, 0.72, 3.89, 7.66, 29.09]
 
+# Average measured speed (from empirical data)
+NONBDNAFINDER_AVG_SPEED = 13056  # bp/s from 100KB benchmark
+
 # Estimated competitor data (based on literature)
 competitor_speeds = {
     'QGRS Mapper': 8000,
     'pqsfinder': 12000,
     'gquad': 6000,
     'Z-Hunt-II': 10000,
-    'NonBDNAFinder': 13056  # Average measured
+    'NonBDNAFinder': NONBDNAFINDER_AVG_SPEED
 }
 
 motif_coverage = {
@@ -55,7 +58,7 @@ def create_comparison_charts():
     
     ax1.set_xlabel('Processing Speed (bp/s)', fontweight='bold')
     ax1.set_title('A. Processing Speed Comparison', fontweight='bold', loc='left')
-    ax1.axvline(13056, color='red', linestyle='--', alpha=0.5, label='NonBDNAFinder')
+    ax1.axvline(NONBDNAFINDER_AVG_SPEED, color='red', linestyle='--', alpha=0.5, label='NonBDNAFinder')
     
     # Add value labels
     for i, (tool, speed) in enumerate(zip(tools, speeds)):
