@@ -3556,20 +3556,7 @@ AAAAATTTTCCCCGGGG"""
 DEFAULT_FOLD_ENRICHMENT_WHEN_ZERO_BACKGROUND = 1.0  # When background is zero
 
 
-def shuffle_sequence(sequence: str, preserve_composition: bool = True) -> str:
-    """
-    Shuffle a DNA sequence while preserving nucleotide composition.
-    
-    Args:
-        sequence: DNA sequence to shuffle
-        preserve_composition: If True, maintains exact nucleotide counts
-        
-    Returns:
-        Shuffled sequence
-    """
-    seq_list = list(sequence.upper())
-    random.shuffle(seq_list)
-    return ''.join(seq_list)
+
 
 
 def calculate_genomic_density(motifs: List[Dict[str, Any]], 
