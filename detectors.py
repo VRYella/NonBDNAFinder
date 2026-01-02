@@ -2596,10 +2596,7 @@ from typing import List, Dict, Any, Tuple
 # # from .base_detector import BaseMotifDetector
 
 
-def revcomp(seq: str) -> str:
-    """Fast reverse complement using str.translate."""
-    trans = str.maketrans("ACGTacgt", "TGCAtgca")
-    return seq.translate(trans)[::-1]
+
 
 
 class CruciformDetector(BaseMotifDetector):
