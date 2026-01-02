@@ -14,7 +14,6 @@ import shutil
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from job_manager import generate_job_id, save_job_results, load_job_results, job_exists
-from ntfy_notifier import validate_topic, send_ntfy_notification
 
 def simulate_analysis_workflow():
     """Simulate the complete analysis workflow"""
@@ -29,13 +28,7 @@ def simulate_analysis_workflow():
     # Generate job ID immediately (displayed to user)
     job_id = generate_job_id()
     print(f"✓ Job ID generated and displayed: {job_id}")
-    
-    # Optional ntfy topic input
-    user_topic = ""  # Could be a ntfy topic or empty
-    if user_topic and validate_topic(user_topic):
-        print(f"✓ ntfy topic provided and validated")
-    else:
-        print("ℹ No valid topic provided - will skip notification")
+    print(f"  User can save this ID to retrieve results later")
     
     # ========== PHASE 2: Analysis runs ==========
     print("\n🧬 PHASE 2: Analysis executes")
@@ -66,27 +59,8 @@ def simulate_analysis_workflow():
         print("✗ Failed to save results!")
         return False
     
-    # ========== PHASE 4: Optional ntfy notification ==========
-    print("\n🔔 PHASE 4: ntfy push notification (optional)")
-    print("-" * 70)
-    
-    if user_topic:
-        notification_sent = send_ntfy_notification(
-            topic=user_topic,
-            job_id=job_id,
-            metadata=metadata
-        )
-        
-        if notification_sent:
-            print(f"✓ Push notification sent")
-        else:
-            print(f"⚠ Notification not sent (topic may be invalid) - job still successful")
-            print(f"  User can still retrieve results via Job ID: {job_id}")
-    else:
-        print("ℹ No topic provided - skipping notification")
-    
-    # ========== PHASE 5: User retrieves results later ==========
-    print("\n🔍 PHASE 5: User retrieves results (Job Lookup)")
+    # ========== PHASE 4: User retrieves results later ==========
+    print("\n🔍 PHASE 4: User retrieves results (Job Lookup)")
     print("-" * 70)
     
     # Check if job exists
@@ -129,10 +103,9 @@ def simulate_analysis_workflow():
     print("\nKey Features Verified:")
     print("  ✓ Job ID generation and display")
     print("  ✓ Result persistence to disk")
-    print("  ✓ Optional ntfy notification (graceful failure without topic)")
     print("  ✓ Job lookup and retrieval")
     print("  ✓ Data integrity across save/load cycle")
-    print("  ✓ App continues working even if notification fails")
+    print("  ✓ Job ID-based result access works reliably")
     
     return True
 
@@ -161,43 +134,13 @@ def test_invalid_job_lookup():
     print("\n✅ Invalid job lookup handled gracefully")
     return True
 
-def test_topic_validation_scenarios():
-    """Test various ntfy topic scenarios"""
-    print("\n" + "=" * 70)
-    print("TESTING NTFY TOPIC SCENARIOS")
-    print("=" * 70)
-    
-    test_cases = [
-        ("", False, "Empty topic"),
-        ("   ", False, "Whitespace only"),
-        ("nbd-job-123", True, "Valid topic with hyphens"),
-        ("my-analysis", True, "Simple topic name"),
-        ("test_topic", True, "Topic with underscore"),
-    ]
-    
-    all_passed = True
-    for topic, expected, description in test_cases:
-        result = validate_topic(topic)
-        status = "✓" if result == expected else "✗"
-        if result != expected:
-            all_passed = False
-        print(f"  {status} {description}: '{topic}' -> {result}")
-    
-    if all_passed:
-        print("\n✅ All topic validation tests passed")
-    else:
-        print("\n✗ Some topic validation tests failed")
-    
-    return all_passed
-
 if __name__ == "__main__":
     try:
         # Run all test scenarios
         workflow_ok = simulate_analysis_workflow()
         invalid_lookup_ok = test_invalid_job_lookup()
-        topic_ok = test_topic_validation_scenarios()
         
-        if workflow_ok and invalid_lookup_ok and topic_ok:
+        if workflow_ok and invalid_lookup_ok:
             print("\n" + "=" * 70)
             print("🎉 ALL TESTS PASSED - READY FOR PRODUCTION")
             print("=" * 70)

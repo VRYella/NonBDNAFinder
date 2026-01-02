@@ -73,12 +73,11 @@ from visualization_standards import (
     should_show_plot, get_nature_style_params
 )
 
-# Job management and ntfy.sh notification modules
+# Job management modules
 from job_manager import (
     generate_job_id, save_job_results, load_job_results, 
     job_exists, get_job_summary, list_all_jobs
 )
-from ntfy_notifier import send_ntfy_notification, validate_topic
 
 # Try to import Entrez for demo functionality
 try:
@@ -1691,8 +1690,7 @@ for k, v in {
     'summary_df': pd.DataFrame(),
     'analysis_status': "Ready",
     'selected_classes': [],  # Initialize empty list for motif class selection
-    'current_job_id': None,  # Current job ID for result delivery
-    'ntfy_topic': ''  # Optional ntfy.sh topic for notification
+    'current_job_id': None  # Current job ID for result delivery
 }.items():
     if k not in st.session_state:
         st.session_state[k] = v
@@ -2284,20 +2282,6 @@ with tab_pages["Upload & Analyze"]:
         
         # Helper text
         st.caption(UI_TEXT['upload_quick_options_note'])
-        
-        # Optional ntfy.sh notification
-        st.markdown("---")
-        st.markdown("##### 🔔 Optional: Push Notification")
-        ntfy_topic = st.text_input(
-            "ntfy Topic Name (Optional)",
-            value=st.session_state.get('ntfy_topic', ''),
-            placeholder="e.g., nbd-job-123",
-            help="Receive instant push notification when analysis completes. No account required. Visit ntfy.sh to subscribe.",
-            key="ntfy_topic_input"
-        )
-        # Always update session state to handle both setting and clearing
-        st.session_state.ntfy_topic = ntfy_topic
-        st.caption("💡 Create your topic: Just pick any name and subscribe at ntfy.sh. No registration needed.")
     
     # ----- FULL-WIDTH STICKY RUN BUTTON -----
     st.markdown("---")
@@ -2976,37 +2960,6 @@ with tab_pages["Upload & Analyze"]:
                 
                 if save_success:
                     save_status_placeholder.success(f"✅ Results saved successfully! Job ID: **{job_id}**")
-                    
-                    # ============================================================
-                    # NTFY NOTIFICATION: Send optional push notification
-                    # ============================================================
-                    ntfy_topic = st.session_state.get('ntfy_topic', '').strip()
-                    if ntfy_topic:
-                        notification_status_placeholder = st.empty()
-                        notification_status_placeholder.info(f"🔔 Sending push notification...")
-                        
-                        # Get job summary for notification
-                        job_summary = get_job_summary(job_id)
-                        
-                        # Construct app URL if possible (for deployed apps)
-                        app_url = None
-                        # Note: In production, you could add: app_url = "https://your-app-url"
-                        
-                        # Attempt to send notification (non-blocking, graceful failure)
-                        notification_sent = send_ntfy_notification(
-                            topic=ntfy_topic,
-                            job_id=job_id,
-                            app_url=app_url,
-                            metadata=job_summary
-                        )
-                        
-                        if notification_sent:
-                            notification_status_placeholder.success(f"✅ Push notification sent to topic: {ntfy_topic}")
-                        else:
-                            notification_status_placeholder.info(
-                                "ℹ️ Notification could not be sent. "
-                                "Your results are still saved and accessible via Job ID."
-                            )
                 else:
                     save_status_placeholder.warning(
                         "⚠️ Results could not be saved to disk, but are available in this session. "
