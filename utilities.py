@@ -216,6 +216,7 @@ CORE_OUTPUT_COLUMNS = [
     'End',            # Genomics: Absolute genomic context
     'Length',         # Genomics: Feature size (bp)
     'Sequence',       # Sequence: Motif sequence (always visible - critical requirement)
+    'Strand',         # Strand: DNA strand orientation (+/- indicates forward/reverse)
     'Score',          # Confidence: 0-3 normalized, cross-motif comparability
     'Method',         # Evidence: Reproducibility (Regex/k-mer/ΔG/Hyperscan)
     'Pattern_ID',     # Evidence: Pattern identifier for traceability

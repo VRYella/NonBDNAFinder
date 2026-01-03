@@ -35,6 +35,7 @@ def test_core_columns_defined():
         'Start',
         'End',
         'Length',
+        'Sequence',
         'Strand',
         'Score',
         'Method',
@@ -51,8 +52,8 @@ def test_core_columns_defined():
         else:
             print(f"✓ Found required column: {col}")
     
-    # Check that we don't have extra columns that shouldn't be there
-    deprecated_columns = ['Source', 'Sequence', 'ID']
+    # Check that we don't have deprecated columns
+    deprecated_columns = ['Source', 'ID']
     for col in deprecated_columns:
         if col in CORE_OUTPUT_COLUMNS:
             print(f"⚠ WARNING: Deprecated column '{col}' found in CORE_OUTPUT_COLUMNS")
