@@ -64,7 +64,6 @@ def test_plot_dominance():
     
     # These should be hidden
     hidden_plots = [
-        'plot_motif_distribution',
         'plot_coverage_map',
         'plot_density_heatmap',
         'plot_circos_motif_density',
@@ -76,7 +75,18 @@ def test_plot_dominance():
             f"{plot_name} should be hidden"
         print(f"  ✓ {plot_name} correctly hidden")
     
-    print(f"  ✓ PASS: Redundant plots hidden")
+    # These should be allowed
+    allowed_plots = [
+        'plot_nested_pie_chart',
+        'plot_motif_distribution',  # Bar plots for class/subclass are now retained
+    ]
+    
+    for plot_name in allowed_plots:
+        assert PlotDominance.is_plot_allowed(plot_name), \
+            f"{plot_name} should be allowed"
+        print(f"  ✓ {plot_name} correctly allowed")
+    
+    print(f"  ✓ PASS: Plot dominance rules enforced")
 
 
 def test_required_plots():

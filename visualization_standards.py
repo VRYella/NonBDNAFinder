@@ -87,7 +87,8 @@ class PlotDominance:
     # Concept → Allowed plot(s)
     DOMINANT_PLOTS = {
         PlotConcept.COMPOSITION: [
-            "nested_pie_chart"           # Class → Subclass hierarchy
+            "nested_pie_chart",          # Class → Subclass hierarchy
+            "motif_distribution"         # Bar plots for class and subclass counts
         ],
         PlotConcept.POSITION: [
             "manhattan_plot",            # Large genomes (>50kb)
@@ -115,7 +116,6 @@ class PlotDominance:
     
     # Plots automatically hidden (redundant)
     HIDDEN_PLOTS = {
-        "plot_motif_distribution",       # Redundant with nested pie
         "plot_class_subclass_sunburst",  # Redundant with nested pie
         "plot_coverage_map",             # Redundant with Manhattan/linear
         "plot_density_heatmap",          # Redundant with density_comparison
@@ -386,9 +386,9 @@ def get_plot_mapping() -> Dict[str, str]:
         'plot_gc_content_correlation': 'gc_correlation',
         'plot_motif_length_kde': 'length_kde',
         'plot_score_distribution': 'score_distribution',
+        'plot_motif_distribution': 'motif_distribution',
         
         # Hide these (redundant)
-        'plot_motif_distribution': 'HIDDEN',
         'plot_coverage_map': 'HIDDEN',
         'plot_density_heatmap': 'HIDDEN',
         'plot_circos_motif_density': 'HIDDEN',
