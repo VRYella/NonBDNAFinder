@@ -3140,7 +3140,7 @@ with tab_pages["Results"]:
         
         # Enhanced motif table with canonical core reporting schema
         st.markdown("### 📋 All Detected Motifs")
-        st.caption("**Core Reporting Schema** — Publication-grade fields aligned with Nature/NAR/Genome Biology standards")
+        st.caption("**Core Reporting Schema** -- Publication-grade fields aligned with Nature/NAR/Genome Biology standards")
         
         # Info box explaining export-only advanced features
         st.info("""
