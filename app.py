@@ -3364,8 +3364,10 @@ with tab_pages["Results"]:
             st.markdown("#### Figure 1: Global Non-B DNA Landscape")
             st.caption("*Purpose: What structures exist, and where?*")
             
-            # Panel A: Motif Composition (nested donut only - eliminates redundancy)
+            # Panel A: Motif Composition (nested donut + bar plots)
             st.markdown("##### Panel A: Motif Composition (Class → Subclass)")
+            
+            # Nested pie chart for hierarchical view
             try:
                 fig_composition = plot_nested_pie_chart(
                     filtered_motifs, 
@@ -3375,6 +3377,32 @@ with tab_pages["Results"]:
                 plt.close(fig_composition)
             except Exception as e:
                 st.error(f"Error generating composition plot: {e}")
+            
+            # Bar plots for class and subclass distributions
+            col1, col2 = st.columns(2)
+            with col1:
+                try:
+                    fig_class_bar = plot_motif_distribution(
+                        filtered_motifs,
+                        by='Class',
+                        title=f"Motif Class Distribution - {sequence_name}"
+                    )
+                    st.pyplot(fig_class_bar)
+                    plt.close(fig_class_bar)
+                except Exception as e:
+                    st.error(f"Error generating class bar plot: {e}")
+            
+            with col2:
+                try:
+                    fig_subclass_bar = plot_motif_distribution(
+                        filtered_motifs,
+                        by='Subclass',
+                        title=f"Motif Subclass Distribution - {sequence_name}"
+                    )
+                    st.pyplot(fig_subclass_bar)
+                    plt.close(fig_subclass_bar)
+                except Exception as e:
+                    st.error(f"Error generating subclass bar plot: {e}")
             
             # Panel B: Genome-Scale Localization (size-dependent: Manhattan OR Linear)
             st.markdown("##### Panel B: Genome-Scale Localization")
