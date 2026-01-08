@@ -6800,46 +6800,86 @@ def scan_genome_parallel(genome: str,
 
 
 # Example usage and testing
-if __name__ == "__main__":
+
+
+# ================================================================================
+# PERFORMANCE BENCHMARKING
+# ================================================================================
+
+def benchmark_analysis(sequence_length: int = 10000, num_runs: int = 3) -> Dict[str, Any]:
+    """
+    Benchmark the analysis performance.
+    
+    Args:
+        sequence_length: Length of test sequence in bp
+        num_runs: Number of runs to average
+        
+    Returns:
+        Dictionary with benchmark results
+    """
     import time
     
-    # Generate test sequence
-    test_genome = "GGGTTAGGGTTAGGGTTAGGG" * 1000 + "AAAAATTTTAAAAATTTT" * 500
+    # Generate test sequence with various motif patterns
+    test_seq = ("GGGTTAGGGTTAGGGTTAGGG" * 100 +  # G4 motifs
+                "AAAAATTTTAAAAATTTT" * 50 +      # A-tracts
+                "CGCGCGCGCGCGCG" * 50 +           # Z-DNA
+                "CCCCTAACCCTAACCCTAA" * 50 +     # i-Motif
+                "ACGTACGT" * 50)[:sequence_length]
     
-    print("=" * 70)
-    print("Parallel Scanner Agent - Test Run")
-    print("=" * 70)
-    print(f"Genome length: {len(test_genome):,} bp")
-    print(f"Hyperscan available: {HYPERSCAN_AVAILABLE}")
+    times = []
+    motif_counts = []
     
-    # Progress callback
-    def progress_cb(current, total):
-        percent = (current / total) * 100
-        print(f"Progress: {current}/{total} chunks ({percent:.1f}%)", end='\r')
+    for run in range(num_runs):
+        start_time = time.time()
+        motifs = analyze_sequence(test_seq, "benchmark_run_%d" % run)
+        elapsed = time.time() - start_time
+        
+        times.append(elapsed)
+        motif_counts.append(len(motifs))
     
-    # Run scan
-    scanner = ParallelScanner(test_genome, hs_db=None)
-    stats = scanner.get_statistics()
+    avg_time = sum(times) / len(times)
+    avg_motifs = sum(motif_counts) / len(motif_counts)
+    throughput = sequence_length / avg_time
     
-    print(f"\nScan configuration:")
-    for key, value in stats.items():
-        print(f"  {key}: {value}")
+    return {
+        'sequence_length': sequence_length,
+        'num_runs': num_runs,
+        'avg_time': avg_time,
+        'min_time': min(times),
+        'max_time': max(times),
+        'avg_motifs': avg_motifs,
+        'throughput_bp_per_sec': throughput,
+        'all_times': times,
+        'all_motif_counts': motif_counts
+    }
+
+
+def print_benchmark_results(results: Dict[str, Any]) -> None:
+    """Print formatted benchmark results."""
+    print("="*70)
+    print("PERFORMANCE BENCHMARK RESULTS")
+    print("="*70)
+    print("Sequence length: %d bp" % results['sequence_length'])
+    print("Number of runs:  %d" % results['num_runs'])
+    print()
+    print("Timing:")
+    print("  Average: %.3fs" % results['avg_time'])
+    print("  Min:     %.3fs" % results['min_time'])
+    print("  Max:     %.3fs" % results['max_time'])
+    print()
+    print("Throughput: %d bp/s" % int(results['throughput_bp_per_sec']))
+    print("Motifs found: %d (average)" % int(results['avg_motifs']))
+    print("="*70)
+
+
+if __name__ == "__main__":
+    """Main function for testing."""
+    print("NBDFinder Core Module - Testing")
+    print("="*70)
     
-    print(f"\nStarting parallel scan...")
-    start_time = time.time()
-    
-    motifs = scanner.run_scan(progress_callback=progress_cb)
-    
-    scan_time = time.time() - start_time
-    
-    print(f"\n\nResults:")
-    print(f"  Motifs found: {len(motifs)}")
-    print(f"  Scan time: {scan_time:.3f}s")
-    print(f"  Speed: {len(test_genome)/scan_time:,.0f} bp/s")
-    
-    # Show first few motifs
-    if motifs:
-        print(f"\nFirst 5 motifs:")
-        for i, motif in enumerate(motifs[:5]):
-            print(f"  {i+1}. Start: {motif.get('Start')}, End: {motif.get('End')}, "
-                  f"Class: {motif.get('Class')}, Length: {motif.get('Length')} bp")
+    # Simple test
+    test_seq = "GGGTTAGGGTTAGGGTTAGGG" * 5
+    motifs = analyze_sequence(test_seq, "test")
+    print("Test sequence: %d bp" % len(test_seq))
+    print("Motifs found: %d" % len(motifs))
+    print("="*70)
