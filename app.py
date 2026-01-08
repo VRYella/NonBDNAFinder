@@ -43,7 +43,7 @@ _current_dir = os.path.dirname(os.path.abspath(__file__))
 if _current_dir not in sys.path:
     sys.path.insert(0, _current_dir)
 # Import consolidated NBDScanner modules
-from nbdfinder_utils import (
+from utilities import (
     parse_fasta, parse_fasta_chunked, parse_fasta_chunked_compressed, 
     get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
     export_to_json, export_to_excel, export_statistics_to_excel, calculate_genomic_density, calculate_positional_density,
@@ -63,18 +63,18 @@ from nbdfinder_utils import (
     plot_linear_motif_track, plot_cluster_size_distribution,
     plot_motif_length_kde
 )
-from nbdfinder_core import (
+from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
 # Import Nature-ready visualization standards
-from nbdfinder_utils import (
+from visualization_standards import (
     NATURE_MOTIF_COLORS, PlotDominance, FigurePanel, MetricFilter,
     LabelPolicy, UILayout, TRANSPARENCY_NOTE, SUPPLEMENTARY_NOTE,
     should_show_plot, get_nature_style_params
 )
 
 # Job management modules
-from nbdfinder_utils import (
+from job_manager import (
     generate_job_id, save_job_results, load_job_results, 
     job_exists, get_job_summary, list_all_jobs
 )
