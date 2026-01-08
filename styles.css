@@ -1,0 +1,1282 @@
+/* 
+ * NBDScanner - Professional Stylesheet
+ * Research-quality UI styling for Non-B DNA motif detection
+ * Author: Dr. Venkata Rajesh Yella
+ */
+
+/* Import Google Fonts for professional scientific typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ============================================
+   MINIMAL ANIMATIONS FOR PERFORMANCE
+   ============================================ */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes progress-shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ============================================
+   CSS CUSTOM PROPERTIES (Variables) - CENTRALIZED DESIGN TOKENS
+   Variables are injected dynamically by Python from FONT_CONFIG, COLOR_THEMES, etc.
+   ============================================ */
+:root {
+    /* ===== Theme Colors (set dynamically) ===== */
+    --primary-color: #4A90E2;
+    --secondary-color: #6AA5F2;
+    --accent-color: #AFCBFF;
+    --bg-light: #F7FAFC;
+    --bg-card: #E8F0FF;
+    --text-color: #1E252F;
+    --tab-bg: #EDF2F7;
+    --tab-active: #4A90E2;
+    --shadow-color: rgba(74, 144, 226, 0.15);
+    
+    /* ===== RGB Values for Dynamic Opacity ===== */
+    --primary-rgb: 74, 144, 226;
+    --secondary-rgb: 106, 165, 242;
+    
+    /* ===== Typography (set dynamically from FONT_CONFIG) ===== */
+    --font-primary: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    
+    /* Font Sizes (rem units) */
+    --font-h1: 2.5rem;
+    --font-h2: 1.6rem;
+    --font-h3: 1.25rem;
+    --font-h4: 1.1rem;
+    --font-body: 0.95rem;
+    --font-small: 0.85rem;
+    --font-caption: 0.75rem;
+    
+    /* Font Weights */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    /* ===== Border Radius ===== */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-pill: 50px;
+    
+    /* ===== Spacing Scale ===== */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* ===== Transitions ===== */
+    --transition-fast: all 0.15s ease;
+    --transition-normal: all 0.2s ease;
+    --transition-slow: all 0.3s ease;
+    
+    /* ===== Theme-specific Overrides ===== */
+    --dark-mode: 0; /* 0 = light, 1 = dark */
+    --is-compact: 0; /* 0 = relaxed, 1 = compact */
+    --dna-pattern: none;
+}
+
+/* ============================================
+   ELEGANT BACKGROUND - Soothing Light Theme
+   ============================================ */
+body, [data-testid="stAppViewContainer"], .main {
+    background: 
+        var(--dna-pattern),
+        linear-gradient(180deg, var(--bg-light) 0%, #EEF2FF 100%) !important;
+    font-family: var(--font-primary) !important;
+    color: var(--text-color) !important;
+}
+
+/* ============================================
+   FULL-WIDTH TABS: Flex-based Equal Distribution
+   Pills-style active state with VIBRANT gradient fill
+   ============================================ */
+.stTabs [data-baseweb="tab-list"] {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: stretch !important;
+    gap: 4px !important;
+    border-bottom: none !important;
+    background: var(--tab-bg) !important;
+    box-shadow: 0 3px 18px var(--shadow-color), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 1em;
+    padding: 6px 8px !important;
+    border-radius: var(--border-radius-lg) !important;
+    animation: fade-in 0.5s ease-out;
+}
+
+/* Each tab takes equal width (flex: 1) for full-width distribution */
+.stTabs [data-baseweb="tab"] {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    font-family: var(--font-primary) !important;
+    padding: 8px 12px !important;
+    text-align: center !important;
+    color: #334155 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: var(--border-radius-pill) !important;
+    letter-spacing: 0.01em;
+    transition: var(--transition-normal);
+    position: relative;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tab hover state - subtle highlight */
+.stTabs [data-baseweb="tab"]:hover {
+    color: var(--primary-color) !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Active tab - Pill-shaped with VIBRANT gradient fill and stronger elevation */
+.stTabs [aria-selected="true"] {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    box-shadow: 0 6px 20px var(--shadow-color), 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
+}
+
+/* Remove the default tab underline indicator */
+.stTabs [data-baseweb="tab-highlight"] {
+    display: none !important;
+}
+
+.stTabs [data-baseweb="tab-border"] {
+    display: none !important;
+}
+
+/* ============================================
+   HEADINGS: Professional Scientific Typography
+   Using centralized font configuration
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary) !important;
+    color: var(--text-color) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    letter-spacing: -0.01em;
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    animation: fade-in 0.3s ease-out;
+}
+
+h1 { 
+    font-size: var(--font-h1) !important; 
+    font-weight: var(--font-weight-bold) !important;
+    color: var(--primary-color) !important;
+    letter-spacing: -0.02em;
+}
+
+h2 { 
+    font-size: var(--font-h2) !important; 
+    color: var(--primary-color) !important; 
+    font-weight: var(--font-weight-semibold) !important;
+    border-bottom: 2px solid var(--bg-card) !important;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+h3 { 
+    font-size: var(--font-h3) !important; 
+    color: var(--secondary-color) !important; 
+    font-weight: var(--font-weight-semibold) !important;
+}
+
+h4 { 
+    font-size: var(--font-h4) !important; 
+    color: var(--text-color) !important; 
+    font-weight: var(--font-weight-semibold) !important;
+}
+
+/* Body text: Enhanced readability for scientific content */
+.stMarkdown, .markdown-text-container, .stText, p, span, label {
+    font-size: var(--font-body) !important;
+    font-family: var(--font-primary) !important;
+    line-height: 1.6 !important;
+    color: var(--text-color) !important;
+    margin-bottom: var(--spacing-sm) !important;
+    font-weight: var(--font-weight-normal);
+    letter-spacing: 0.01em;
+}
+
+/* Small text */
+small, .caption, [data-testid="stCaptionContainer"] {
+    font-size: var(--font-small) !important;
+    color: #64748B !important;
+}
+
+/* Caption text */
+.caption, [data-testid="stCaptionContainer"] {
+    color: #64748B !important;
+    font-size: var(--font-caption) !important;
+    font-style: italic;
+}
+
+/* Input fields: Clean design with soft borders */
+input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
+.stMultiSelect>div>div>div, .stRadio>div>div>label>div {
+    font-size: var(--font-body) !important;
+    font-family: var(--font-primary) !important;
+    border-radius: var(--border-radius-md) !important;
+    border: 1.5px solid #E2E8F0 !important;
+    background: #FFFFFF !important;
+    transition: var(--transition-normal);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 0.7rem 1rem !important;
+}
+
+input:focus, .stTextInput>div>div>input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    background: #FEFEFF !important;
+}
+
+/* ============================================
+   BUTTONS: VIBRANT gradient with stronger shadow
+   Using centralized button styles from UI_COMPONENT_STYLES
+   ============================================ */
+.stButton>button {
+    font-size: var(--font-body) !important;
+    font-family: var(--font-primary) !important;
+    padding: 0.5em 1.2em !important;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    color: #FFFFFF !important;
+    border-radius: var(--border-radius-md) !important;
+    border: none !important;
+    font-weight: var(--font-weight-medium) !important;
+    box-shadow: 0 6px 20px var(--shadow-color);
+    transition: var(--transition-normal);
+    letter-spacing: 0.02em;
+}
+
+.stButton>button:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+    box-shadow: 0 8px 28px var(--shadow-color);
+    transform: translateY(-3px);
+}
+
+.stButton>button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 12px var(--shadow-color);
+}
+
+/* ============================================
+   DATAFRAMES: Clean design with VIBRANT shadows
+   ============================================ */
+.stDataFrame, .stTable {
+    font-size: 0.92rem !important;
+    font-family: var(--font-primary) !important;
+    line-height: 1.6 !important;
+    border-radius: var(--border-radius-md) !important;
+    overflow: hidden;
+    box-shadow: 0 4px 16px var(--shadow-color) !important;
+    border: 1px solid var(--bg-card) !important;
+    animation: fade-in 0.4s ease-out;
+}
+.stDataFrame thead tr th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 0.8rem !important;
+    font-size: 0.88rem !important;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary-color) !important;
+}
+.stDataFrame tbody tr {
+    transition: var(--transition-normal);
+    border-bottom: 1px solid var(--bg-card) !important;
+}
+.stDataFrame tbody tr:hover {
+    background: #F7FAFC !important;
+}
+.stDataFrame tbody tr td {
+    padding: 0.7rem !important;
+    color: var(--text-color) !important;
+}
+
+/* Highlight alternate rows */
+.stDataFrame tbody tr:nth-child(odd) {
+    background: rgba(238, 242, 255, 0.5) !important;
+}
+
+/* Tab content - Clean content card section with VIBRANT shadow */
+.stTabs [data-baseweb="tab-panel"] {
+    padding-top: 1rem !important;
+    padding-left: 0.8rem !important;
+    padding-right: 0.8rem !important;
+    padding-bottom: 1rem !important;
+    animation: fade-in 0.3s ease-out;
+    background: #FFFFFF !important;
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
+    box-shadow: 0 6px 24px var(--shadow-color) !important;
+    margin-top: -8px;
+}
+
+/* ============================================
+   CONTENT CARDS: VIBRANT shadows and rounded corners
+   ============================================ */
+.analysis-summary-card, .glassmorphism-card, .content-card {
+    margin: 0.8rem 0 !important;
+    padding: 1rem !important;
+    background: #FFFFFF !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: 0 4px 20px var(--shadow-color) !important;
+    border: 1px solid #E5E7EB !important;
+    animation: fade-in 0.4s ease-out;
+    transition: var(--transition-normal);
+}
+.analysis-summary-card:hover, .glassmorphism-card:hover, .content-card:hover {
+    box-shadow: 0 8px 32px var(--shadow-color) !important;
+}
+
+/* Select boxes and multiselect: Clean dropdown design */
+.stSelectbox > div > div > div, .stMultiSelect > div > div > div {
+    min-height: 2.8rem !important;
+    padding: 0.7rem 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: var(--border-radius-md) !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: var(--transition-normal);
+}
+.stSelectbox > div > div > div:hover, .stMultiSelect > div > div > div:hover {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Enhanced input field spacing */
+.stTextInput > div > div > input, .stTextArea textarea {
+    padding: 0.7rem 1rem !important;
+    min-height: 2.8rem !important;
+    line-height: 1.5 !important;
+    border-radius: var(--border-radius-md) !important;
+    font-size: 0.95rem !important;
+    background: #FFFFFF !important;
+}
+.stTextArea textarea {
+    min-height: 100px !important;
+}
+
+/* Number input styling */
+.stNumberInput > div > div > input {
+    padding: 0.7rem 1rem !important;
+    min-height: 2.8rem !important;
+    border-radius: var(--border-radius-md) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500;
+    background: #FFFFFF !important;
+}
+
+/* Radio buttons: Clean styling */
+.stRadio > div {
+    gap: 0.3rem !important;
+}
+.stRadio > div > div > label {
+    margin-bottom: 0.5rem !important;
+    padding: 0.5rem 0.8rem !important;
+    border-radius: var(--border-radius-sm) !important;
+    transition: var(--transition-normal);
+    border: 1.5px solid transparent;
+    background: #F8FAFC;
+    cursor: pointer;
+}
+.stRadio > div > div > label:hover {
+    background: var(--bg-card) !important;
+    border-color: var(--accent-color) !important;
+}
+.stRadio > div > div > label[data-checked="true"] {
+    background: var(--bg-card) !important;
+    border-color: var(--primary-color) !important;
+    font-weight: 500 !important;
+}
+/* Radio button circles */
+.stRadio > div > div > label > div:first-child {
+    border-width: 2px !important;
+    border-color: var(--accent-color) !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+.stRadio > div > div > label[data-checked="true"] > div:first-child {
+    border-color: var(--primary-color) !important;
+    background-color: var(--primary-color) !important;
+}
+
+/* Info boxes and alerts: Clean notification design */
+.stAlert {
+    border-radius: var(--border-radius-md) !important;
+    border-left: 4px solid var(--secondary-color) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    background: #F8FAFC !important;
+    padding: 1rem !important;
+    font-weight: 400;
+}
+.stAlert[data-baseweb="notification"] {
+    border-left-color: var(--primary-color) !important;
+}
+.stSuccess {
+    border-left-color: #4CAF50 !important;
+    background: #E8F5E9 !important;
+}
+.stWarning {
+    border-left-color: #FF9800 !important;
+    background: #FFF3E0 !important;
+}
+.stError {
+    border-left-color: #F44336 !important;
+    background: #FFEBEE !important;
+}
+
+/* Progress bars: Soft gradient design */
+.stProgress > div > div {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    border-radius: var(--border-radius-pill) !important;
+    box-shadow: 0 1px 4px var(--shadow-color);
+}
+.stProgress > div {
+    border-radius: var(--border-radius-pill) !important;
+    background: var(--bg-card) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* File uploader: Clean drag-and-drop design */
+[data-testid="stFileUploader"] {
+    border: 2px dashed var(--accent-color) !important;
+    border-radius: var(--border-radius-lg) !important;
+    background: #F8FAFC !important;
+    padding: 1.2rem !important;
+    transition: var(--transition-normal);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+[data-testid="stFileUploader"]:hover {
+    border-color: var(--primary-color) !important;
+    background: #EEF2FF !important;
+    box-shadow: 0 4px 16px var(--shadow-color);
+}
+[data-testid="stFileUploader"] section {
+    border: none !important;
+}
+[data-testid="stFileUploader"] button {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: 0.5rem 1.2rem !important;
+    font-weight: 500 !important;
+    transition: var(--transition-normal);
+}
+[data-testid="stFileUploader"] button:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Checkboxes: Clean toggle-style design */
+.stCheckbox {
+    padding: 0.3rem 0 !important;
+}
+.stCheckbox > label {
+    padding: 0.4rem 0.6rem !important;
+    border-radius: var(--border-radius-sm) !important;
+    transition: var(--transition-normal);
+    cursor: pointer;
+    background: #F8FAFC;
+    border: 1.5px solid transparent;
+}
+.stCheckbox > label:hover {
+    background: var(--bg-card) !important;
+    border-color: var(--accent-color) !important;
+}
+.stCheckbox > label > div:first-child {
+    border-width: 2px !important;
+    border-color: var(--accent-color) !important;
+    border-radius: 5px !important;
+    width: 18px !important;
+    height: 18px !important;
+    transition: all 0.3s ease;
+}
+.stCheckbox > label > div:first-child[data-checked="true"] {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Expander styling: Clean accordion design */
+.streamlit-expanderHeader {
+    border-radius: 10px !important;
+    background: #F8FAFC !important;
+    font-weight: 600 !important;
+    padding: 0.6rem 1rem !important;
+    border: 1.5px solid #E5E7EB !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px var(--shadow-color);
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+.streamlit-expanderHeader:hover {
+    background: var(--bg-card) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+.streamlit-expanderContent {
+    border-radius: 0 0 10px 10px !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #E5E7EB !important;
+    border-top: none !important;
+    padding: 0.8rem !important;
+}
+
+/* Clean chevron icon styling for expanders */
+.streamlit-expanderHeader svg {
+    margin-right: 8px !important;
+    flex-shrink: 0 !important;
+    width: 18px !important;
+    height: 18px !important;
+    color: var(--primary-color) !important;
+    transition: transform 0.3s ease !important;
+}
+
+/* Rotate chevron when expanded */
+details[open] > .streamlit-expanderHeader svg {
+    transform: rotate(90deg) !important;
+}
+
+/* Hide any raw icon text (like keyboard_arrow_right text) */
+.streamlit-expanderHeader::before {
+    display: none !important;
+}
+
+/* Hide material icon text fallback */
+.streamlit-expanderHeader span[class*="icon"],
+.streamlit-expanderHeader [data-testid*="icon"] {
+    font-size: 0 !important;
+}
+.streamlit-expanderHeader span[class*="icon"]::before,
+.streamlit-expanderHeader [data-testid*="icon"]::before {
+    font-size: 1rem !important;
+}
+
+/* Fix: keyboard_arrow_down icon text overlap */
+.streamlit-expanderHeader {
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1.5 !important;
+}
+
+/* Ensure label text doesn't overlap with icon */
+.streamlit-expanderHeader p,
+.streamlit-expanderHeader label,
+.streamlit-expanderHeader div,
+.streamlit-expanderHeader span {
+    margin-left: 0 !important;
+    flex: 1 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.5 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Hide keyboard_arrow_down text that may appear as fallback */
+.streamlit-expanderHeader span:first-child {
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    overflow: hidden !important;
+}
+
+/* ==========================================================
+   GLOBAL FIX: HIDE ALL MATERIAL ICON TEXT (expand_more, etc.)
+   ========================================================== */
+/* Hide any text content from Material Icons that appear as text fallback */
+.streamlit-expanderHeader span {
+    color: transparent !important;
+    font-size: 0 !important;
+}
+
+/* Only show the SVG icon, not the text */
+.streamlit-expanderHeader span svg {
+    color: var(--primary-color) !important;
+    font-size: inherit !important;
+}
+
+/* Additional specificity: hide text nodes in expander headers */
+.streamlit-expanderHeader::after {
+    content: none !important;
+}
+
+/* Ensure icon container shows only icons, not text like "expand_more" */
+.streamlit-expanderHeader [class*="material-icons"],
+.streamlit-expanderHeader [class*="Material"],
+.streamlit-expanderHeader span[class*="Icon"] {
+    font-size: 0 !important;
+    color: transparent !important;
+    text-indent: -9999px !important;
+    overflow: hidden !important;
+}
+
+/* Show only SVG children of icon containers */
+.streamlit-expanderHeader [class*="material-icons"] svg,
+.streamlit-expanderHeader [class*="Material"] svg,
+.streamlit-expanderHeader span[class*="Icon"] svg {
+    font-size: 18px !important;
+    color: var(--primary-color) !important;
+    text-indent: 0 !important;
+}
+
+/* Global fix for icon and label spacing across all Streamlit elements */
+[role="button"] svg,
+[role="tab"] svg,
+button svg,
+label svg {
+    margin-right: 6px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ensure all interactive elements use flex layout for proper icon/text spacing */
+[role="button"],
+[role="tab"],
+button,
+label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    line-height: 1.5 !important;
+}
+
+/* Prevent icon text from overlapping labels */
+.material-icons-text {
+    display: none !important;
+}
+
+/* Additional fix for Streamlit summary element icon text */
+summary span {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Ensure icon container doesn't show raw text like 'keyboard_arrow_down' */
+[data-testid="StyledIconContainer"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    overflow: hidden !important;
+}
+
+/* ============================================
+   POPOVER STYLING: Modern popup design
+   ============================================ */
+[data-testid="stPopover"] > button {
+    border-radius: var(--border-radius-md) !important;
+    background: #F8FAFC !important;
+    font-weight: 500 !important;
+    padding: 0.6rem 1rem !important;
+    border: 1.5px solid #E5E7EB !important;
+    transition: var(--transition-normal);
+    box-shadow: 0 1px 4px var(--shadow-color);
+    color: var(--text-color) !important;
+    font-size: 0.92rem !important;
+}
+[data-testid="stPopover"] > button:hover {
+    background: var(--bg-card) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+[data-testid="stPopover"] > div[data-baseweb="popover"] {
+    border-radius: var(--border-radius-lg) !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #E5E7EB !important;
+    box-shadow: 0 4px 20px var(--shadow-color), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 1rem !important;
+    animation: fade-in 0.2s ease-out;
+}
+
+[data-testid="stPopover"] [data-baseweb="popover"] > div:first-child {
+    background: #FFFFFF !important;
+    border-color: #E5E7EB !important;
+}
+
+/* ============================================
+   METRIC CARDS: Clean design with soft shadows
+   ============================================ */
+[data-testid="stMetric"] {
+    background: #FFFFFF !important;
+    padding: 0.8rem !important;
+    border-radius: var(--border-radius-lg) !important;
+    border: 1.5px solid #E5E7EB !important;
+    box-shadow: 0 2px 8px var(--shadow-color) !important;
+    transition: var(--transition-normal);
+    animation: fade-in 0.4s ease-out;
+}
+[data-testid="stMetric"]:hover {
+    box-shadow: 0 4px 16px var(--shadow-color) !important;
+    border-color: var(--accent-color) !important;
+}
+[data-testid="stMetricValue"] {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+[data-testid="stMetricLabel"] {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Spinner */
+.stSpinner > div {
+    border-top-color: var(--primary-color) !important;
+}
+
+/* Code blocks: Clean monospace design */
+.stCodeBlock {
+    border-radius: var(--border-radius-md) !important;
+    border: 1.5px solid #E5E7EB !important;
+    background: #F8FAFC !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    padding: var(--spacing-md) !important;
+}
+
+code, pre {
+    font-family: var(--font-monospace) !important;
+    font-size: var(--font-small) !important;
+    color: var(--primary-color) !important;
+    background: rgba(238, 242, 255, 0.6) !important;
+    padding: 0.15rem 0.4rem !important;
+    border-radius: 4px !important;
+}
+
+pre {
+    background: #F8FAFC !important;
+    border: 1px solid #E5E7EB !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: var(--spacing-md) !important;
+    overflow-x: auto;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background: #F8FAFC !important;
+    border-right: 1.5px solid #E5E7EB !important;
+}
+[data-testid="stSidebar"] .stMarkdown {
+    color: var(--primary-color) !important;
+}
+
+/* Scrollbar styling: Clean minimal design */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: var(--border-radius-pill);
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: var(--border-radius-pill);
+    border: 2px solid #F8FAFC;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+}
+
+/* Loading spinner */
+.stSpinner > div {
+    border-top-color: var(--primary-color) !important;
+    border-right-color: var(--secondary-color) !important;
+    border-bottom-color: var(--accent-color) !important;
+}
+
+/* Download buttons - clean design */
+[data-testid="stDownloadButton"] button {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    color: white !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: 0.6rem 1.2rem !important;
+    font-weight: 500 !important;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: var(--transition-normal);
+}
+[data-testid="stDownloadButton"] button:hover {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Caption text styling */
+.caption, [data-testid="stCaptionContainer"] {
+    color: #64748B !important;
+    font-size: 0.85rem !important;
+    font-style: italic;
+}
+
+/* Success/Error message boxes */
+.element-container .stMarkdown .stSuccess {
+    background: #E8F5E9 !important;
+    border-left: 3px solid #4CAF50 !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: 0.8rem !important;
+}
+.element-container .stMarkdown .stError {
+    background: #FFEBEE !important;
+    border-left: 3px solid #F44336 !important;
+    border-radius: var(--border-radius-md) !important;
+    padding: 0.8rem !important;
+}
+
+/* Links styling */
+a {
+    color: var(--secondary-color) !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: var(--transition-normal);
+}
+a:hover {
+    color: var(--primary-color) !important;
+    text-decoration: underline !important;
+}
+
+/* Tooltip improvements */
+[data-testid="stTooltipIcon"] {
+    color: var(--accent-color) !important;
+    cursor: help;
+    transition: var(--transition-normal);
+}
+[data-testid="stTooltipIcon"]:hover {
+    transform: scale(1.1);
+    color: var(--secondary-color) !important;
+}
+
+/* Enhanced hr separator */
+hr {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent 0%, var(--bg-card) 50%, transparent 100%) !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ============================================
+   STICKY RESULTS PANEL
+   ============================================ */
+.sticky-results {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.8rem;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+    box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - Consistent across screens
+   ============================================ */
+@media screen and (max-width: 1200px) {
+    .stTabs [data-baseweb="tab"] {
+        font-size: 0.88rem !important;
+        padding: 10px 12px !important;
+    }
+    h1 { font-size: 1.8rem !important; }
+    h2 { font-size: 1.4rem !important; }
+    [data-testid="stMetric"] {
+        padding: 0.9rem !important;
+    }
+    [data-testid="stMetricValue"] {
+        font-size: 1.5rem !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .stTabs [data-baseweb="tab-list"] {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        padding: 6px 8px !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-size: 0.8rem !important;
+        padding: 8px 10px !important;
+        flex: 1 1 auto !important;
+        min-width: 80px !important;
+    }
+    h1 { font-size: 1.5rem !important; }
+    h2 { font-size: 1.2rem !important; }
+    h3 { font-size: 1rem !important; }
+    .stDataFrame, .stTable {
+        font-size: 0.82rem !important;
+    }
+    [data-testid="stMetric"] {
+        padding: 0.7rem !important;
+    }
+    [data-testid="stMetricValue"] {
+        font-size: 1.3rem !important;
+    }
+    .stButton>button {
+        padding: 0.5em 1em !important;
+        font-size: 0.88rem !important;
+    }
+}
+
+/* ============================================
+   MODERN ACCORDION STYLING
+   ============================================ */
+details.streamlit-expander {
+    border-radius: var(--border-radius-md) !important;
+    overflow: hidden;
+    transition: var(--transition-normal);
+    margin-bottom: 0.6rem;
+}
+
+details.streamlit-expander[open] {
+    box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+/* ============================================
+   HIGHLIGHT SELECTED ITEMS
+   ============================================ */
+.highlighted-row {
+    background: rgba(91, 141, 239, 0.1) !important;
+    border-left: 3px solid var(--accent-color) !important;
+}
+
+/* ============================================
+   PROGRESS PANEL COMPONENTS - Enhanced Professional Design
+   ============================================ */
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes progress-shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+.progress-panel {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    color: white;
+    box-shadow: 0 4px 16px var(--shadow-color);
+    margin-bottom: 0.8rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -200%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 100%);
+    animation: progress-shimmer 3s ease-in-out infinite;
+}
+
+.progress-panel--success {
+    background: linear-gradient(135deg, #00E676 0%, #1DE9B6 100%);
+    box-shadow: 0 6px 24px rgba(0, 230, 118, 0.45);
+}
+
+.progress-panel--metrics {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    box-shadow: 0 6px 24px var(--shadow-color);
+    margin-bottom: 1rem;
+}
+
+.progress-panel--results {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    margin: 0.8rem 0;
+    box-shadow: 0 6px 28px var(--shadow-color);
+}
+
+.progress-panel--hybrid {
+    background: linear-gradient(135deg, #D500F9 0%, #E040FB 100%);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    margin: 0.8rem 0;
+    box-shadow: 0 6px 28px rgba(213, 0, 249, 0.45);
+}
+
+.progress-panel__title {
+    margin: 0 0 1rem 0;
+    color: white;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.progress-panel__title--large {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.progress-panel__status {
+    margin: 0 0 0.8rem 0;
+    text-align: center;
+    opacity: 0.95;
+    font-size: 0.92rem;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-grid--wide {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.stats-grid--extra-wide {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.8rem;
+    margin-top: 0.6rem;
+}
+
+.stat-card {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);  /* Light background */
+    padding: 0.7rem;
+    border-radius: var(--border-radius-md);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 1);  /* Fully opaque on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(74, 144, 226, 0.5);
+}
+
+.stat-card--large {
+    padding: 0.9rem;
+    border-radius: var(--border-radius-md);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);  /* Light background */
+    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
+}
+
+.stat-card__value {
+    margin: 0;
+    color: var(--primary-color);  /* Dark colored text */
+    font-size: 1.5rem;
+    font-weight: 800;  /* Extra bold */
+    text-shadow: none;  /* Remove shadow for clarity */
+}
+
+.stat-card__value--large {
+    font-size: 1.8rem;
+    font-weight: 800;  /* Extra bold */
+    margin-bottom: 0.25rem;
+    color: var(--primary-color);  /* Dark colored text */
+}
+
+.stat-card__label {
+    margin: 0.3rem 0 0 0;
+    opacity: 1;
+    color: var(--text-color);  /* Dark text */
+    font-size: 0.75rem;
+    font-weight: 600;  /* Bold */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card__label--large {
+    font-size: 0.85rem;
+    opacity: 1;
+    font-weight: 700;  /* Extra bold */
+    color: var(--text-color);  /* Dark text */
+}
+
+.sequence-info {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-md);
+    padding: 0.8rem;
+    margin-bottom: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.sequence-info__text {
+    margin: 0;
+    font-size: 0.88rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.sequence-info__subtext {
+    margin: 0.4rem 0 0 0;
+    font-size: 0.82rem;
+    opacity: 0.9;
+    text-align: center;
+}
+
+/* Pipeline/Detector Components - Enhanced Design */
+.pipeline-panel {
+    background: #FFFFFF;
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    margin-top: 0.8rem;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.pipeline-panel__title {
+    margin: 0 0 0.8rem 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.detector-item {
+    background: rgba(91, 141, 239, 0.05);
+    padding: 0.6rem;
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid var(--primary-color);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.detector-item:hover {
+    background: rgba(91, 141, 239, 0.1);
+    transform: translateX(4px);
+}
+
+.detector-item--running {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.detector-item--running::before {
+    content: '●';
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4ecdc4;
+    font-size: 0.6rem;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.detector-item__name {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-left: 0.8rem;
+}
+
+.detector-item__desc {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin-top: 0.15rem;
+    margin-left: 0.8rem;
+}
+
+.pipeline-panel__footer {
+    margin: 0.8rem 0 0 0;
+    font-size: 0.8rem;
+    color: #64748B;
+    text-align: center;
+    padding-top: 0.8rem;
+    border-top: 1px solid #E5E7EB;
+    font-style: italic;
+}
+
+/* Responsive adjustments for progress panels */
+@media screen and (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+    
+    .pipeline-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+    
+    .stat-card__value {
+        font-size: 1.3rem;
+    }
+    
+    .stat-card__label {
+        font-size: 0.7rem;
+    }
+}
+
+/* ============================================
+   PRINT STYLES FOR PUBLICATION
+   ============================================ */
+@media print {
+    body, [data-testid="stAppViewContainer"], .main {
+        background: white !important;
+    }
+    .stButton, [data-testid="stFileUploader"] {
+        display: none !important;
+    }
+    .stDataFrame {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+}
