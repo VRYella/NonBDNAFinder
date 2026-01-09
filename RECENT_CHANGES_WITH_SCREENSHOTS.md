@@ -614,9 +614,10 @@ If you use NonBDNAFinder in your research, please cite:
 @software{nonbdnafinder2025,
   author = {Yella, Venkata Rajesh},
   title = {NonBDNAFinder 2025.1: Comprehensive Non-B DNA Motif Detection with Statistical Enrichment},
-  year = {2025},
+  year = {2026},
   url = {https://github.com/VRYella/NonBDNAFinder},
-  version = {2025.1}
+  version = {2025.1},
+  note = {Released January 2026}
 }
 ```
 
