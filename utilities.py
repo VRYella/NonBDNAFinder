@@ -7805,14 +7805,15 @@ def create_collapsible_card(title: str, content: str, card_id: str = None,
         default_open: Whether the card should be open by default
         
     Returns:
-        HTML string for rendering with st.markdown(..., unsafe_allow_html=True)
+        HTML string for rendering with st.components.v1.html(..., height=None)
         
     Example:
+        >>> import streamlit.components.v1 as components
         >>> card_html = create_collapsible_card(
         ...     title="Q: What is Non-B DNA?",
         ...     content="<p>Non-B DNA refers to...</p>"
         ... )
-        >>> st.markdown(card_html, unsafe_allow_html=True)
+        >>> components.html(card_html, height=None)
     """
     import uuid
     
@@ -7824,19 +7825,140 @@ def create_collapsible_card(title: str, content: str, card_id: str = None,
     safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', card_id)
     
     # Set initial states
-    body_class = "collapsible-card-body open" if default_open else "collapsible-card-body"
-    chevron_class = "collapsible-card-chevron open" if default_open else "collapsible-card-chevron"
+    body_class = "collapsible-card-body" + (" open" if default_open else "")
+    chevron_class = "collapsible-card-chevron" + (" open" if default_open else "")
     
     html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }}
+        
+        .collapsible-card {{
+            margin: 0.75rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+            border: 2px solid rgba(96, 165, 250, 0.4);
+            background: #FFFFFF;
+        }}
+        
+        .collapsible-card:hover {{
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            border-color: rgba(37, 99, 235, 0.6);
+        }}
+        
+        .collapsible-card-header {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0F172A;
+        }}
+        
+        .collapsible-card-header:hover {{
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        }}
+        
+        .collapsible-card-chevron {{
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+            color: #2563EB;
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+        }}
+        
+        .collapsible-card-chevron.open {{
+            transform: rotate(180deg);
+        }}
+        
+        .collapsible-card-label {{
+            flex: 1;
+            margin: 0;
+            line-height: 1.5;
+            color: #0F172A;
+            font-weight: 700;
+        }}
+        
+        .collapsible-card-body {{
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1rem;
+            background: #FFFFFF;
+        }}
+        
+        .collapsible-card-body.open {{
+            max-height: 2000px;
+            padding: 0.75rem 1rem;
+        }}
+        
+        .collapsible-card-content {{
+            color: #0F172A;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }}
+        
+        .collapsible-card-content p {{
+            margin-bottom: 0.5rem;
+        }}
+        
+        .collapsible-card-content p:last-child {{
+            margin-bottom: 0;
+        }}
+        
+        .collapsible-card-content strong {{
+            font-weight: 600;
+            color: #2563EB;
+        }}
+        
+        .collapsible-card-content a {{
+            color: #3B82F6;
+            text-decoration: none;
+            font-weight: 500;
+        }}
+        
+        .collapsible-card-content a:hover {{
+            color: #2563EB;
+            text-decoration: underline;
+        }}
+    </style>
+</head>
+<body>
     <div class="collapsible-card" id="{safe_id}">
         <button class="collapsible-card-header" 
-                onclick="toggleCard_{safe_id}()" 
+                onclick="toggleCard()" 
                 aria-expanded="{str(default_open).lower()}"
                 type="button">
-            <span class="collapsible-card-chevron" id="{safe_id}-chevron">▼</span>
+            <span class="collapsible-card-chevron {chevron_class}" id="chevron">▼</span>
             <div class="collapsible-card-label">{title}</div>
         </button>
-        <div class="collapsible-card-body" id="{safe_id}-body">
+        <div class="collapsible-card-body {body_class}" id="body">
             <div class="collapsible-card-content">
                 {content}
             </div>
@@ -7844,32 +7966,24 @@ def create_collapsible_card(title: str, content: str, card_id: str = None,
     </div>
     
     <script>
-    function toggleCard_{safe_id}() {{
-        const body = document.getElementById("{safe_id}-body");
-        const chevron = document.getElementById("{safe_id}-chevron");
-        const header = document.querySelector("#{safe_id} .collapsible-card-header");
-        
-        if (body.classList.contains("open")) {{
-            body.classList.remove("open");
-            chevron.classList.remove("open");
-            header.setAttribute("aria-expanded", "false");
-        }} else {{
-            body.classList.add("open");
-            chevron.classList.add("open");
-            header.setAttribute("aria-expanded", "true");
+        function toggleCard() {{
+            const body = document.getElementById("body");
+            const chevron = document.getElementById("chevron");
+            const header = document.querySelector(".collapsible-card-header");
+            
+            if (body.classList.contains("open")) {{
+                body.classList.remove("open");
+                chevron.classList.remove("open");
+                header.setAttribute("aria-expanded", "false");
+            }} else {{
+                body.classList.add("open");
+                chevron.classList.add("open");
+                header.setAttribute("aria-expanded", "true");
+            }}
         }}
-    }}
-    
-    // Initialize state
-    (function() {{
-        const body = document.getElementById("{safe_id}-body");
-        const chevron = document.getElementById("{safe_id}-chevron");
-        if ({str(default_open).lower()}) {{
-            body.classList.add("open");
-            chevron.classList.add("open");
-        }}
-    }})();
     </script>
+</body>
+</html>
     """
     
     return html

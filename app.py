@@ -25,6 +25,7 @@ ARCHITECTURE:
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import matplotlib.pyplot as plt
 import os  # Added for image path checking
@@ -3995,11 +3996,11 @@ with tab_pages["Documentation"]:
     provides refined classification (e.g., Canonical_G4, Bulge_G4, Long_Loop_G4). Subclasses reflect 
     variations in loop length, bulge presence, or other structural nuances.</p>
     """
-    st.markdown(create_collapsible_card(
+    components.html(create_collapsible_card(
         title="<strong>Q: What's the difference between Class and Subclass?</strong>",
         content=faq1_content,
         card_id="faq-class-subclass"
-    ), unsafe_allow_html=True)
+    ), height=100)
     
     # FAQ 2: Overlapping motifs
     faq2_content = """
@@ -4007,11 +4008,11 @@ with tab_pages["Documentation"]:
     The system reports all detected structures and flags overlaps as "Hybrid Motifs" for further analysis. 
     In reality, only one structure likely forms at a time depending on cellular conditions.</p>
     """
-    st.markdown(create_collapsible_card(
+    components.html(create_collapsible_card(
         title="<strong>Q: Why are some motifs overlapping?</strong>",
         content=faq2_content,
         card_id="faq-overlapping"
-    ), unsafe_allow_html=True)
+    ), height=100)
     
     # FAQ 3: P-values interpretation
     faq3_content = """
@@ -4019,11 +4020,11 @@ with tab_pages["Documentation"]:
     expectation, suggesting biological constraint or functional relevance. A <strong>high p-value (> 0.05)</strong> 
     suggests the pattern is largely explained by sequence composition alone.</p>
     """
-    st.markdown(create_collapsible_card(
+    components.html(create_collapsible_card(
         title="<strong>Q: How should I interpret enrichment p-values?</strong>",
         content=faq3_content,
         card_id="faq-pvalues"
-    ), unsafe_allow_html=True)
+    ), height=100)
     
     # FAQ 4: Clinical genomics
     faq4_content = """
@@ -4031,11 +4032,11 @@ with tab_pages["Documentation"]:
     fragile sites. However, for clinical use, always validate findings with orthogonal methods 
     (e.g., PCR, Southern blot, sequencing).</p>
     """
-    st.markdown(create_collapsible_card(
+    components.html(create_collapsible_card(
         title="<strong>Q: Can I use NonBDNAFinder for clinical genomics?</strong>",
         content=faq4_content,
         card_id="faq-clinical"
-    ), unsafe_allow_html=True)
+    ), height=100)
     
     # FAQ 5: Citation
     faq5_content = """
@@ -4046,11 +4047,11 @@ with tab_pages["Documentation"]:
     Email: yvrajesh_bt@kluniversity.in</p>
     <p>For methodology references, see the peer-reviewed publications listed in the references section below.</p>
     """
-    st.markdown(create_collapsible_card(
+    components.html(create_collapsible_card(
         title="<strong>Q: What's the recommended citation?</strong>",
         content=faq5_content,
         card_id="faq-citation"
-    ), unsafe_allow_html=True)
+    ), height=150)
     
     # ==================================================================
     # SECTION 12: REFERENCES
