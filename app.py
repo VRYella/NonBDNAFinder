@@ -4000,7 +4000,7 @@ with tab_pages["Documentation"]:
         title="<strong>Q: What's the difference between Class and Subclass?</strong>",
         content=faq1_content,
         card_id="faq-class-subclass"
-    ), height=100)
+    ), height=None)
     
     # FAQ 2: Overlapping motifs
     faq2_content = """
@@ -4012,7 +4012,7 @@ with tab_pages["Documentation"]:
         title="<strong>Q: Why are some motifs overlapping?</strong>",
         content=faq2_content,
         card_id="faq-overlapping"
-    ), height=100)
+    ), height=None)
     
     # FAQ 3: P-values interpretation
     faq3_content = """
@@ -4024,7 +4024,7 @@ with tab_pages["Documentation"]:
         title="<strong>Q: How should I interpret enrichment p-values?</strong>",
         content=faq3_content,
         card_id="faq-pvalues"
-    ), height=100)
+    ), height=None)
     
     # FAQ 4: Clinical genomics
     faq4_content = """
@@ -4036,7 +4036,7 @@ with tab_pages["Documentation"]:
         title="<strong>Q: Can I use NonBDNAFinder for clinical genomics?</strong>",
         content=faq4_content,
         card_id="faq-clinical"
-    ), height=100)
+    ), height=None)
     
     # FAQ 5: Citation
     faq5_content = """
@@ -4051,7 +4051,7 @@ with tab_pages["Documentation"]:
         title="<strong>Q: What's the recommended citation?</strong>",
         content=faq5_content,
         card_id="faq-citation"
-    ), height=150)
+    ), height=None)
     
     # ==================================================================
     # SECTION 12: REFERENCES

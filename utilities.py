@@ -7908,13 +7908,13 @@ def create_collapsible_card(title: str, content: str, card_id: str = None,
         .collapsible-card-body {{
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            transition: max-height 0.4s ease-out, padding 0.3s ease-out;
             padding: 0 1rem;
             background: #FFFFFF;
         }}
         
         .collapsible-card-body.open {{
-            max-height: 2000px;
+            max-height: 100vh;
             padding: 0.75rem 1rem;
         }}
         
