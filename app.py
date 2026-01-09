@@ -80,6 +80,12 @@ NATURE_MOTIF_COLORS = {
 TRANSPARENCY_NOTE = "📊 **Scientific Transparency**: Only biologically interpretable metrics displayed. Full results in exports."
 SUPPLEMENTARY_NOTE = "💡 **Supplementary**: Additional visualizations available in exports."
 
+# Genomic Purple/Pink/Magenta Theme Colors for Results Tab
+GENOMIC_PURPLE = '#D500F9'      # Primary purple
+GENOMIC_MAGENTA = '#E040FB'     # Secondary magenta
+GENOMIC_PINK = '#EA80FC'        # Accent pink
+GENOMIC_DARK_PURPLE = '#4A148C' # Dark purple for contrast
+
 # Try to import Entrez for demo functionality
 try:
     from Bio import Entrez, SeqIO
@@ -3152,8 +3158,9 @@ with tab_pages["Results"]:
                     scores = [m.get('Score', 0) for m in filtered_motifs]
                     lengths = [m.get('Length', 0) for m in filtered_motifs]
                     
-                    # Create scatter with pink/purple color scheme
-                    ax.scatter(lengths, scores, alpha=0.4, c='#D500F9', s=20, edgecolors='#E040FB', linewidth=0.5)
+                    # Create scatter with purple/pink color scheme
+                    ax.scatter(lengths, scores, alpha=0.4, c=GENOMIC_PURPLE, s=20, 
+                              edgecolors=GENOMIC_MAGENTA, linewidth=0.5)
                     ax.set_xlabel('Motif Length (bp)', fontsize=11, fontweight='bold')
                     ax.set_ylabel('Score (1-3)', fontsize=11, fontweight='bold')
                     ax.set_title(f'Score vs Length - {sequence_name}', fontsize=12, fontweight='bold')
@@ -3172,7 +3179,8 @@ with tab_pages["Results"]:
                 
                 scores = [m.get('Score', 0) for m in filtered_motifs if m.get('Score', 0) > 0]
                 if scores:
-                    ax.hist(scores, bins=30, color='#D500F9', alpha=0.7, edgecolor='#4A148C', linewidth=1.2)
+                    ax.hist(scores, bins=30, color=GENOMIC_PURPLE, alpha=0.7, 
+                           edgecolor=GENOMIC_DARK_PURPLE, linewidth=1.2)
                     ax.set_xlabel('Score', fontsize=11, fontweight='bold')
                     ax.set_ylabel('Frequency', fontsize=11, fontweight='bold')
                     ax.set_title(f'Score Distribution - {sequence_name}', fontsize=12, fontweight='bold')
@@ -3224,8 +3232,8 @@ with tab_pages["Results"]:
                 
                 # Plot frequency curve with purple-pink gradient
                 x_positions = [(i + 0.5) * bin_size for i in range(num_bins)]
-                ax.plot(x_positions, bin_counts, color='#D500F9', linewidth=2, alpha=0.8)
-                ax.fill_between(x_positions, bin_counts, alpha=0.3, color='#EA80FC')
+                ax.plot(x_positions, bin_counts, color=GENOMIC_PURPLE, linewidth=2, alpha=0.8)
+                ax.fill_between(x_positions, bin_counts, alpha=0.3, color=GENOMIC_PINK)
                 
                 ax.set_xlabel('Genomic Position (bp)', fontsize=11, fontweight='bold')
                 ax.set_ylabel('Motif Count', fontsize=11, fontweight='bold')
@@ -3276,7 +3284,6 @@ with tab_pages["Results"]:
                         st.markdown("**Hybrid Motif Distribution**")
                         
                         # Count hybrids by participating classes
-                        from collections import Counter
                         hybrid_class_counts = Counter()
                         
                         for motif in hybrid_motifs:
@@ -3293,7 +3300,8 @@ with tab_pages["Results"]:
                             classes = list(hybrid_class_counts.keys())[:10]  # Top 10
                             counts = [hybrid_class_counts[c] for c in classes]
                             
-                            bars = ax.barh(classes, counts, color='#D500F9', alpha=0.7, edgecolor='#4A148C', linewidth=1.2)
+                            bars = ax.barh(classes, counts, color=GENOMIC_PURPLE, alpha=0.7, 
+                                          edgecolor=GENOMIC_DARK_PURPLE, linewidth=1.2)
                             ax.set_xlabel('Hybrid Count', fontsize=11, fontweight='bold')
                             ax.set_title(f'Hybrid Motif Class Distribution - {sequence_name}', fontsize=12, fontweight='bold')
                             ax.grid(True, alpha=0.3, linestyle='--', axis='x')
