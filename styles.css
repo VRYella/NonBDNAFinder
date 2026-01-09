@@ -30,35 +30,43 @@
    Variables are injected dynamically by Python from FONT_CONFIG, COLOR_THEMES, etc.
    ============================================ */
 :root {
-    /* ===========================
-       UNIVERSAL TEXT SETTINGS
+    /* ============================
+       TEXT — MAXIMUM CONTRAST
     ============================ */
-    --text-color: #111418;                /* Deep neutral black-blue */
-    --text-strong: #000000;               /* Ultra dark for headings */
-    --font-weight-default: 700;           /* ALL TEXT BOLD */
-    --font-weight-heading: 800;           /* Extra-bold headings */
+    --text-color: #000000;             /* pure black */
+    --text-strong: #000000;            /* pure black */
+    --font-weight-default: 700;        /* ALL TEXT BOLD */
+    --font-weight-heading: 800;        /* Headings extra bold */
     --font-weight-label: 700;
-    --font-weight-light: 600;             /* Even "light" becomes bold */
+    --font-weight-light: 600;          /* even "light" = bold */
 
-    /* Apply globally in main stylesheet:
-       * { font-weight: var(--font-weight-default); color: var(--text-color); }
-    */
-
-    /* ===========================
-       COLORFUL MEDIUM BACKGROUNDS
-       (Balanced, professional)
+    /* ============================
+       HIGH-CONTRAST BRIGHT BACKGROUNDS
+       (medium bright, not neon, not dark)
     ============================ */
+    
+    /* Default: bright bioinformatics blue → purple */
+    --bg-gradient-1: linear-gradient(
+        135deg,
+        #4A90E2 0%,
+        #8E44AD 100%
+    );
 
-    /* DEFAULT — Blue-Purple Bioinformatics Gradient */
-    --bg-gradient-1: linear-gradient(135deg, #4A90E2 0%, #8E44AD 100%);
+    /* Teal → Cyan (high clarity) */
+    --bg-gradient-2: linear-gradient(
+        135deg,
+        #00B8A9 0%,
+        #007ACC 100%
+    );
 
-    /* OPTION B — Teal–Cyan Scientific Gradient */
-    --bg-gradient-2: linear-gradient(135deg, #00AF91 0%, #007ACC 100%);
+    /* Orange → Pink (warm high contrast) */
+    --bg-gradient-3: linear-gradient(
+        135deg,
+        #FF8E53 0%,
+        #FF3D7F 100%
+    );
 
-    /* OPTION C — Warm Orange–Pink Protein Gradient */
-    --bg-gradient-3: linear-gradient(135deg, #FF8A65 0%, #FF4081 100%);
-
-    /* OPTION D — Multicolor (DNA-style) */
+    /* DNA Colors (super colorful) */
     --bg-gradient-dna: linear-gradient(
         135deg,
         #42A5F5 0%,   /* G */
@@ -67,40 +75,41 @@
         #AB47BC 100%  /* C */
     );
 
-    /* Active gradient (set this for your page background) */
+    /* Active bright background (choose one) */
     --background-active: var(--bg-gradient-1);
 
-    /* ===========================
-       SURFACES / CARDS (slightly colorful)
+    /* ============================
+       SURFACE BACKGROUNDS (high contrast)
     ============================ */
-    --bg-surface: rgba(255, 255, 255, 0.55);
-    --bg-card: rgba(255, 255, 255, 0.70);
-    --bg-panel: rgba(255, 255, 255, 0.45);
-    --bg-overlay: rgba(255, 255, 255, 0.25);
+    --bg-light: #FFFFFF;                       /* pure white */
+    --bg-surface: rgba(255,255,255,0.80);      /* ultra-high readability */
+    --bg-card: rgba(255,255,255,0.90);         /* strong readability */
+    --bg-panel: rgba(255,255,255,0.75);
+    --bg-overlay: rgba(255,255,255,0.60);
 
-    /* ===========================
-       PRIMARY COLORS (unchanged)
+    /* ============================
+       BRAND COLORS (high contrast on white)
     ============================ */
-    --primary-color: #4A90E2;
-    --secondary-color: #6AA5F2;
-    --accent-color: #AFCBFF;
+    --primary-color: #0066FF;      /* vivid blue */
+    --secondary-color: #0094FF;    /* bright blue */
+    --accent-color: #66C0FF;       /* bright ice blue */
 
-    /* ===========================
-       DNA BASE COLORS
+    /* ============================
+       DNA COLORS (scientific high contrast)
     ============================ */
-    --dna-A: #4CAF50;
-    --dna-T: #FF7043;
-    --dna-G: #42A5F5;
-    --dna-C: #AB47BC;
+    --dna-A: #21A431;   /* vivid green */
+    --dna-T: #FF4F1A;   /* vivid orange */
+    --dna-G: #007AFF;   /* vivid blue */
+    --dna-C: #B000B5;   /* vivid magenta */
     --dna-helix: #8E24AA;
 
-    /* ===========================
+    /* ============================
        TYPOGRAPHY
     ============================ */
     --font-primary: 'Inter', 'IBM Plex Sans', system-ui;
     --font-monospace: 'JetBrains Mono','Fira Code',monospace;
 
-    --font-h1: 2.5rem;
+    --font-h1: 2.6rem;
     --font-h2: 1.7rem;
     --font-h3: 1.3rem;
     --font-h4: 1.15rem;
@@ -108,22 +117,22 @@
     --font-small: 0.9rem;
     --font-caption: 0.8rem;
 
-    /* ===========================
-       SHADOWS
+    /* ============================
+       SHADOWS (bright UI only)
     ============================ */
     --shadow-1: 0 2px 6px rgba(0,0,0,0.12);
-    --shadow-2: 0 4px 12px rgba(0,0,0,0.16);
-    --shadow-3: 0 8px 24px rgba(0,0,0,0.20);
+    --shadow-2: 0 4px 12px rgba(0,0,0,0.18);
+    --shadow-3: 0 8px 24px rgba(0,0,0,0.22);
 
-    /* ===========================
+    /* ============================
        BORDERS
     ============================ */
-    --border-light: 1px solid rgba(0,0,0,0.06);
+    --border-light: 1px solid rgba(0,0,0,0.08);
     --border-medium: 1px solid rgba(0,0,0,0.15);
     --border-strong: 1px solid rgba(0,0,0,0.30);
 
-    /* ===========================
-       RADIUS + SPACING + ANIMATION
+    /* ============================
+       RADIUS + SPACING
     ============================ */
     --border-radius-sm: 8px;
     --border-radius-md: 12px;
@@ -137,6 +146,9 @@
     --spacing-xl: 2rem;
     --spacing-2xl: 3rem;
 
+    /* ============================
+       SPEED + ANIMATIONS
+    ============================ */
     --transition-fast: all 0.12s ease;
     --transition-normal: all 0.18s ease;
     --transition-slow: all 0.28s ease;
@@ -144,9 +156,12 @@
     --anim-fade: fade-in 0.3s ease-out;
     --anim-pop: pop 0.25s cubic-bezier(.18,.89,.32,1.28);
 
-    --dark-mode: 0;
-    --is-compact: 0;
+    /* ============================
+       ALWAYS LIGHT (NO DARK MODE)
+    ============================ */
+    --dark-mode: 0 !important;  
 }
+
 
 /* ============================================
    ELEGANT BACKGROUND - Soothing Light Theme
