@@ -3719,6 +3719,17 @@ def calculate_enhanced_statistics(motifs: List[Dict[str, Any]],
     Returns:
         Dictionary with comprehensive statistics
     """
+    import warnings
+    
+    # Warn about deprecated parameters
+    if include_enrichment or n_shuffles > 0:
+        warnings.warn(
+            "The 'include_enrichment' and 'n_shuffles' parameters are deprecated. "
+            "Enrichment analysis has been removed for performance optimization.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+    
     sequence_length = len(sequence)
     
     # Basic statistics

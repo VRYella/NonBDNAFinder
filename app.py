@@ -1913,7 +1913,7 @@ with tab_pages["Home"]:
                     Statistical Analysis
                 </h3>
                 <p style='color: {colors['neutral_600']}; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
-                    Density analysis, enrichment calculations, p-value computation.
+                    Density analysis, coverage metrics, statistical summaries.
                 </p>
             </div>
             <div style='background: {colors['white']}; padding: 1.5rem; border-radius: 12px; 
