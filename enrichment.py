@@ -257,6 +257,60 @@ def calculate_compositional_metrics(motifs: List[Dict[str, Any]],
     }
 
 
+def calculate_compositional_metrics_random_placement(sequence_length: int,
+                                                    num_motifs: int,
+                                                    motif_lengths: List[int],
+                                                    random_seed: Optional[int] = None) -> Dict[str, float]:
+    """
+    Calculate compositional metrics for randomly placed motifs (null model).
+    
+    This creates a null distribution by randomly placing motifs in the sequence
+    WITHOUT re-detecting them. Motif count and lengths are preserved from real data.
+    
+    Args:
+        sequence_length: Total sequence length in bp
+        num_motifs: Number of motifs (from real data)
+        motif_lengths: List of motif lengths (from real data)
+        random_seed: Random seed for placement
+        
+    Returns:
+        Dictionary of compositional metrics for randomly placed motifs
+    """
+    if num_motifs == 0:
+        return {
+            'pattern_count': 0,
+            'mean_block_size': 0.0,
+            'density_per_kb': 0.0,
+            'cooccurrence_frequency': 0.0,
+            'clustering_strength': 0.0,
+            'hybrid_frequency': 0.0,
+            'cluster_count': 0,
+            'hybrid_count': 0
+        }
+    
+    # Generate random placements for motifs
+    if random_seed is not None:
+        random.seed(random_seed)
+    
+    random_motifs = []
+    for length in motif_lengths:
+        # Random start position (ensuring motif fits in sequence)
+        max_start = max(0, sequence_length - length)
+        start = random.randint(0, max_start)
+        end = start + length
+        
+        random_motifs.append({
+            'Start': start + 1,  # 1-based
+            'End': end,
+            'Length': length,
+            'Class': 'Random',  # All same class for null model
+            'Score': 0.5  # Neutral score
+        })
+    
+    # Calculate metrics on randomly placed motifs
+    return calculate_compositional_metrics(random_motifs, sequence_length)
+
+
 # =============================================================================
 # ENRICHMENT SCORE CALCULATION
 # =============================================================================
@@ -393,18 +447,29 @@ def run_enrichment_analysis(sequence: str,
     # Calculate observed metrics from real sequence
     observed_metrics = calculate_compositional_metrics(motifs, sequence_length)
     
-    # Generate shuffled surrogates
+    # Generate shuffled surrogates (for sequence composition, not used for re-detection)
     surrogates = generate_shuffled_surrogates(sequence, n_shuffles=n_shuffles, base_seed=random_seed)
     
-    # Calculate metrics for each surrogate (NO re-detection, use observed motif positions)
-    # This creates a null distribution of what metrics would look like if motifs were random
+    # Calculate metrics for each surrogate using RANDOM PLACEMENT of motifs
+    # This creates a null distribution: "what if motifs were randomly placed?"
+    # Preserves motif count and lengths from real data, randomizes positions only
     surrogate_metrics_list = []
     
+    # Extract motif lengths from real data
+    motif_lengths = [m.get('Length', 0) for m in motifs if m.get('Length', 0) > 0]
+    num_motifs = len(motifs)
+    
     for i, shuffled_seq in enumerate(surrogates):
-        # IMPORTANT: We use the SAME motif positions from real sequence
-        # This measures the expected metric values under the null hypothesis
-        # that motifs are randomly distributed (composition-preserving)
-        surrogate_metrics = calculate_compositional_metrics(motifs, sequence_length)
+        # IMPORTANT: Per requirement "no re-detection on surrogates"
+        # We randomly place motifs with same counts/lengths as real data
+        # This provides a proper null distribution for spatial metrics
+        seed = None if random_seed is None else random_seed + i + 1000
+        surrogate_metrics = calculate_compositional_metrics_random_placement(
+            sequence_length=sequence_length,
+            num_motifs=num_motifs,
+            motif_lengths=motif_lengths,
+            random_seed=seed
+        )
         surrogate_metrics_list.append(surrogate_metrics)
         
         # Progress callback
