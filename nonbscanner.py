@@ -4,53 +4,41 @@
 ║              Professional Non-B DNA Motif Detection Suite                     ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-MODULE: nonbscanner.py  
-AUTHOR: Dr. Venkata Rajesh Yella
-VERSION: 2024.1 - Professional Edition
-LICENSE: MIT
-
-DESCRIPTION:
-    Primary API interface for NonBScanner - a computational tool for detecting
-    and analyzing Non-B DNA structures in genomic sequences.
-    
-    This module provides the main entry points for:
-    - Single sequence analysis
-    - Batch/multi-FASTA analysis  
-    - Genome-scale analysis (100MB+)
-    - Hybrid and cluster detection
-    - Results export and visualization
-
-MAIN API FUNCTIONS:
-    analyze_sequence(sequence, name) -> List[motif_dict]
-        Primary function for single sequence analysis
-        
-    analyze_fasta(fasta_content) -> Dict[name, List[motif_dict]]
-        Analyze multiple sequences from FASTA format
-        
-    analyze_file(filename) -> Dict[name, List[motif_dict]]
-        Analyze sequences from FASTA file
-        
-    get_motif_info() -> Dict
-        Get information about detected motif classes
-
-SUPPORTED MOTIF CLASSES:
-    1. Curved DNA (A-tract mediated bending)
-    2. Slipped DNA (Direct repeats, STRs)
-    3. Cruciform (Inverted repeats)
-    4. R-Loop (RNA-DNA hybrids)
-    5. Triplex (Three-stranded structures)
-    6. G-Quadruplex (Four-stranded G-rich structures, 7 subclasses)
-    7. i-Motif (C-rich structures)
-    8. Z-DNA (Left-handed helix)
-    9. A-philic DNA (A-rich structures)
-    10. Hybrid (Multi-class overlaps)
-    11. Clusters (High-density regions)
-
-PERFORMANCE:
-    - Standard: ~5,800 bp/second (10kb sequences)
-    - Optimized: ~24,674 bp/second (100K sequences, fast detectors)
-    - Genome-scale: 100MB+ sequences supported
-    - Memory efficient: ~5 MB for 100K sequences
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ MODULE:        nonbscanner.py                                                │
+│ PURPOSE:       Core detection engine and API for Non-B DNA analysis          │
+│ VERSION:       2025.1 - Modernized Edition                                   │
+│ ARCHITECTURE:  4-module consolidated system (app, detectors, scanner, utils) │
+│ PERFORMANCE:   Hyperscan-accelerated pattern matching (MANDATORY)            │
+│ AUTHOR:        Dr. Venkata Rajesh Yella                                      │
+│ LICENSE:       MIT                                                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ MAIN API FUNCTIONS:                                                          │
+│   • analyze_sequence(seq, name) → List[motif_dict]                          │
+│   • analyze_fasta(content) → Dict[name, List[motif_dict]]                   │
+│   • analyze_file(filename) → Dict[name, List[motif_dict]]                   │
+│   • get_motif_info() → Dict (motif class information)                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ SUPPORTED MOTIF CLASSES (11 total, 31 subclasses):                          │
+│   1. Curved DNA        → A-tract mediated bending (3 subtypes)              │
+│   2. Slipped DNA       → Direct repeats, STRs (2 subtypes)                  │
+│   3. Cruciform         → Inverted repeats (3 subtypes)                      │
+│   4. R-Loop            → RNA-DNA hybrids (2 subtypes)                       │
+│   5. Triplex DNA       → Three-stranded structures (2 subtypes)             │
+│   6. G-Quadruplex      → Four-stranded G-rich (7 subtypes)                  │
+│   7. i-Motif           → C-rich structures (3 subtypes)                     │
+│   8. Z-DNA             → Left-handed helix (3 subtypes)                     │
+│   9. A-philic DNA      → A-rich structural elements (2 subtypes)            │
+│   10. Hybrid           → Multi-class overlaps (1 type)                      │
+│   11. Clusters         → High-density regions (1 type)                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ PERFORMANCE METRICS:                                                         │
+│   • Standard mode:     ~5,800 bp/second (10kb sequences)                    │
+│   • Optimized mode:    ~24,674 bp/second (100K+ sequences, fast detectors)  │
+│   • Genome-scale:      100MB+ sequences supported                           │
+│   • Memory efficient:  ~5 MB for 100K sequences                             │
+│   • Requires:          Hyperscan for prefiltering (MANDATORY)               │
+└──────────────────────────────────────────────────────────────────────────────┘
 
 EXAMPLE USAGE:
     >>> import nonbscanner as nbs
