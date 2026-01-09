@@ -65,7 +65,7 @@ header, footer,
 .stTabs [data-baseweb="tab"] {
     background: #FFFFFF !important;
     color: #000000 !important;
-    font-weight: 700 !important;
+    font-weight: 900 !important;
 }
 
 .stTabs [aria-selected="true"] {
@@ -254,8 +254,8 @@ body, [data-testid="stAppViewContainer"], .main {
 .stTabs [data-baseweb="tab"] {
     flex: 1 1 0 !important;
     min-width: 0 !important;
-    font-size: 0.95rem !important;
-    font-weight: 500 !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
     font-family: var(--font-primary) !important;
     padding: 8px 12px !important;
     text-align: center !important;
