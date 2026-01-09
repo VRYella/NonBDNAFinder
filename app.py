@@ -64,7 +64,7 @@ from utilities import (
     plot_linear_motif_track, plot_cluster_size_distribution,
     plot_motif_length_kde,
     # UI Components
-    create_collapsible_card
+    create_collapsible_card, render_summary_panel
 )
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
@@ -2824,35 +2824,15 @@ with tab_pages["Upload & Analyze"]:
                 detailed_progress_placeholder.empty()
                 
                 # Show final success message with enhanced performance metrics using scientific time format
-                # Format according to requirements: Analysis Summary with chunk information
-                elapsed_mins = int(total_time // 60)
-                elapsed_secs = int(total_time % 60)
-                
-                # Calculate sequence length in appropriate units
-                if total_bp_processed >= 1_000_000:
-                    seq_length_display = f"{total_bp_processed / 1_000_000:.1f} Mb"
-                elif total_bp_processed >= 1_000:
-                    seq_length_display = f"{total_bp_processed / 1_000:.1f} kb"
-                else:
-                    seq_length_display = f"{total_bp_processed} bp"
-                
-                timer_placeholder.markdown(f"""
-                <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                            padding: 1.2rem; border-radius: 12px; color: white; 
-                            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3); margin-bottom: 1rem;'>
-                    <h3 style='margin: 0 0 1rem 0; text-align: center; font-size: 1.2rem; 
-                               border-bottom: 2px solid rgba(255, 255, 255, 0.3); padding-bottom: 0.8rem;'>
-                        ✅ Analysis Summary
-                    </h3>
-                    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.8rem; 
-                               border-radius: 8px; line-height: 1.8;'>
-                        <div style='margin-bottom: 0.4rem;'><b>Sequence length:</b> {seq_length_display}</div>
-                        {f"<div style='margin-bottom: 0.4rem;'><b>Total chunks:</b> {total_chunks_processed}</div>" if total_chunks_processed > 0 else ""}
-                        <div style='margin-bottom: 0.4rem;'><b>Processing time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</div>
-                        <div style='margin-bottom: 0.4rem;'><b>Motifs detected:</b> {sum(len(r) for r in all_results):,}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                # Use centralized render_summary_panel function for consistent styling
+                summary_html = render_summary_panel(
+                    seq_length=total_bp_processed,
+                    processing_time=total_time,
+                    motif_count=sum(len(r) for r in all_results),
+                    total_chunks=total_chunks_processed,
+                    theme_color="#10b981"  # Success green
+                )
+                timer_placeholder.markdown(summary_html, unsafe_allow_html=True)
                 
                 # Show simplified completion message
                 # GOLD STANDARD: Final time display after everything is done
