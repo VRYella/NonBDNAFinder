@@ -66,20 +66,6 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
-# Import statistical enrichment and structural analysis modules
-from enrichment import (
-    run_enrichment_analysis, add_enrichment_to_motifs, format_enrichment_summary
-)
-from structural_analysis import (
-    run_structural_analysis, identify_pattern_rich_blocks, detect_hybrid_zones,
-    calculate_cluster_metrics, calculate_compositional_skew
-)
-from visualizations_enhanced import (
-    plot_cluster_footprint_heatmap, plot_hybrid_interaction_matrix,
-    plot_observed_vs_shuffled_violin, plot_enrichment_null_distribution_panel,
-    plot_block_size_enrichment_chart, plot_hybrid_region_stability_scatter,
-    plot_inter_cluster_distance_distribution, plot_composition_vs_enrichment_contour
-)
 # Inline visualization standards (removed separate module for conciseness)
 NATURE_MOTIF_COLORS = {
     'Curved_DNA': '#CC79A7', 'G-Quadruplex': '#0072B2', 'Z-DNA': '#882255',
@@ -1927,8 +1913,7 @@ with tab_pages["Home"]:
                     Statistical Analysis
                 </h3>
                 <p style='color: {colors['neutral_600']}; font-size: 0.9rem; line-height: 1.6; margin: 0;'>
-                    Density analysis, enrichment calculations, p-value computation. 
-                    100-iteration sequence shuffling for validation.
+                    Density analysis, enrichment calculations, p-value computation.
                 </p>
             </div>
             <div style='background: {colors['white']}; padding: 1.5rem; border-radius: 12px; 
@@ -2746,42 +2731,8 @@ with tab_pages["Upload & Analyze"]:
                 # RUN ENRICHMENT & STRUCTURAL ANALYSIS
                 # ============================================================
                 # Run enrichment and structural analysis for each sequence
-                enrichment_start_time = time.time()
-                status_placeholder.info("🔬 Running statistical enrichment analysis...")
-                
-                st.session_state.enrichment_results = []
-                st.session_state.structural_results = []
-                
-                for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
-                    try:
-                        # Run enrichment analysis (100 shuffles)
-                        enrichment_result = run_enrichment_analysis(
-                            sequence=seq,
-                            motifs=motifs,
-                            n_shuffles=100,
-                            random_seed=42
-                        )
-                        st.session_state.enrichment_results.append(enrichment_result)
-                        
-                        # Run structural analysis
-                        structural_result = run_structural_analysis(
-                            sequence=seq,
-                            motifs=motifs,
-                            enable_blocks=True,
-                            enable_hybrids=True,
-                            enable_clusters=True,
-                            enable_skew=True
-                        )
-                        st.session_state.structural_results.append(structural_result)
-                        
-                    except Exception as e:
-                        logger.warning(f"Enrichment/structural analysis failed for sequence {name}: {e}")
-                        # Store empty results to maintain alignment
-                        st.session_state.enrichment_results.append(None)
-                        st.session_state.structural_results.append(None)
-                
-                enrichment_total_time = time.time() - enrichment_start_time
-                status_placeholder.success(f"✅ Statistical analysis complete in {format_time_compact(enrichment_total_time)}")
+                # Enrichment and structural analysis removed for performance optimization
+                enrichment_total_time = 0
                 
                 # Store performance metrics with enhanced details
                 st.session_state.performance_metrics = {
@@ -2795,15 +2746,12 @@ with tab_pages["Upload & Analyze"]:
                     'visualization_time': viz_total_time,  # Time spent on visualizations
                     'visualization_count': total_viz_count,  # Number of visualization components
                     'validation_issues': len(validation_issues),  # Number of validation issues
-                    'enrichment_time': enrichment_total_time,  # Time spent on enrichment analysis
                     # Derive analysis steps from DETECTOR_PROCESSES plus post-processing steps
                     'analysis_steps': [f"{name} detection" for name, _ in DETECTOR_PROCESSES] + [
                         'Hybrid/Cluster detection',
                         'Overlap resolution',
                         'Data validation',
-                        'Class/Subclass visualization generation',
-                        'Statistical enrichment analysis',
-                        'Structural pattern discovery'
+                        'Class/Subclass visualization generation'
                     ]
                 }
                 
@@ -2872,11 +2820,6 @@ with tab_pages["Upload & Analyze"]:
 - 📈 {total_viz_count} visualization components pre-generated
 - 🎯 Class-level and subclass-level analysis ready
 - ⏱️ Visualizations prepared in {format_time_scientific(viz_total_time)}
-
-**Statistical & Structural Analysis:**
-- 🔬 Enrichment analysis: 100× shuffle-based null model complete
-- 🧩 Structural pattern discovery: Blocks, hybrids, clusters analyzed
-- ⏱️ Statistical analysis completed in {format_time_scientific(enrichment_total_time)}
 
 **View detailed results in the 'Results' tab.**
 """
@@ -3066,7 +3009,7 @@ with tab_pages["Results"]:
             "📊 Figure 1: Global Landscape", 
             "🔗 Figure 2: Clustering & Co-occurrence",
             "📏 Figure 3: Structural Constraints (Optional)",
-            "🔬 Figure 4: Statistical Enrichment & Structural Analysis"
+            "ℹ️ Figure 4: Note"
         ])
         
         # Check if clusters exist
@@ -3249,180 +3192,20 @@ with tab_pages["Results"]:
                 st.caption(SUPPLEMENTARY_NOTE)
         
         # =================================================================
-        # FIGURE 4: Statistical Enrichment & Structural Analysis
+        # FIGURE 4: Removed for Performance Optimization
         # =================================================================
         with viz_tabs[3]:
-            st.markdown("#### Figure 4: Statistical Enrichment & Structural Analysis")
-            st.caption("*Purpose: Are observed patterns statistically enriched? What higher-order structures emerge?*")
+            st.markdown("#### Figure 4: Note on Statistical Analysis")
+            st.info("""
+            ℹ️ **Statistical enrichment and structural analysis have been removed** to improve performance.
             
-            # Get enrichment and structural results for current sequence
-            enrichment_result = st.session_state.enrichment_results[seq_idx] if st.session_state.get('enrichment_results') else None
-            structural_result = st.session_state.structural_results[seq_idx] if st.session_state.get('structural_results') else None
+            The tool now focuses on:
+            - Fast and accurate motif detection
+            - Core visualization and analysis
+            - Essential statistics (density, distribution, etc.)
             
-            if enrichment_result is None or structural_result is None:
-                st.warning("⚠️ Enrichment and structural analysis not yet completed. Re-run analysis to generate these results.")
-            else:
-                # ====== ENRICHMENT ANALYSIS VISUALIZATIONS ======
-                st.markdown("##### Panel G: Statistical Enrichment Analysis")
-                st.caption("*100× shuffle-based null model comparison*")
-                
-                # Show enrichment summary
-                with st.expander("📊 View Enrichment Summary Table", expanded=False):
-                    enrichment_summary = format_enrichment_summary(enrichment_result)
-                    st.code(enrichment_summary, language="text")
-                
-                # Enrichment null distribution panel (multi-metric)
-                try:
-                    st.markdown("**Multi-Metric Enrichment Analysis**")
-                    fig_enrichment_panel = plot_enrichment_null_distribution_panel(
-                        enrichment_result,
-                        metrics=['pattern_count', 'mean_block_size', 'density_per_kb', 
-                                'clustering_strength', 'hybrid_frequency'],
-                        title=f"100× Shuffle Null Distribution - {sequence_name}"
-                    )
-                    st.pyplot(fig_enrichment_panel)
-                    plt.close(fig_enrichment_panel)
-                except Exception as e:
-                    st.error(f"Error generating enrichment panel: {e}")
-                
-                # Observed vs. shuffled violin plot for key metric
-                col1, col2 = st.columns(2)
-                with col1:
-                    try:
-                        st.markdown("**Pattern Count Enrichment**")
-                        fig_violin = plot_observed_vs_shuffled_violin(
-                            enrichment_result,
-                            metric_name='pattern_count',
-                            title=f"Observed vs. Shuffled: Pattern Count"
-                        )
-                        st.pyplot(fig_violin)
-                        plt.close(fig_violin)
-                    except Exception as e:
-                        st.error(f"Error generating violin plot: {e}")
-                
-                with col2:
-                    try:
-                        st.markdown("**Density Enrichment**")
-                        fig_violin2 = plot_observed_vs_shuffled_violin(
-                            enrichment_result,
-                            metric_name='density_per_kb',
-                            title=f"Observed vs. Shuffled: Density"
-                        )
-                        st.pyplot(fig_violin2)
-                        plt.close(fig_violin2)
-                    except Exception as e:
-                        st.error(f"Error generating density violin plot: {e}")
-                
-                # ====== STRUCTURAL ANALYSIS VISUALIZATIONS ======
-                st.markdown("##### Panel H: Structural Pattern Discovery")
-                st.caption("*Pattern-rich blocks, hybrid zones, and cluster analysis*")
-                
-                # Show structural summary
-                summary = structural_result.get('summary', {})
-                col_s1, col_s2, col_s3, col_s4 = st.columns(4)
-                with col_s1:
-                    st.metric("Pattern-Rich Blocks", summary.get('num_blocks', 0))
-                with col_s2:
-                    st.metric("Hybrid Zones", summary.get('num_hybrid_zones', 0))
-                with col_s3:
-                    st.metric("Clusters", summary.get('num_clusters', 0))
-                with col_s4:
-                    mean_cluster_size = summary.get('mean_cluster_size', 0)
-                    st.metric("Avg Cluster Size", f"{mean_cluster_size:.1f}")
-                
-                # Block size enrichment chart
-                blocks = structural_result.get('blocks', [])
-                if blocks:
-                    try:
-                        st.markdown("**Pattern-Rich Block Analysis**")
-                        fig_blocks = plot_block_size_enrichment_chart(
-                            blocks,
-                            enrichment_results=enrichment_result,
-                            title=f"Block Size vs. Expected - {sequence_name}"
-                        )
-                        st.pyplot(fig_blocks)
-                        plt.close(fig_blocks)
-                    except Exception as e:
-                        st.error(f"Error generating block chart: {e}")
-                else:
-                    st.info("No pattern-rich blocks detected in this sequence")
-                
-                # Cluster footprint heatmap
-                clusters = structural_result.get('clusters', [])
-                if clusters:
-                    try:
-                        st.markdown("**Cluster Footprint Heatmap**")
-                        fig_cluster_heatmap = plot_cluster_footprint_heatmap(
-                            clusters,
-                            sequence_length,
-                            title=f"Cluster Distribution - {sequence_name}"
-                        )
-                        st.pyplot(fig_cluster_heatmap)
-                        plt.close(fig_cluster_heatmap)
-                    except Exception as e:
-                        st.error(f"Error generating cluster heatmap: {e}")
-                    
-                    # Inter-cluster distance distribution
-                    try:
-                        inter_distances = structural_result.get('inter_cluster_distances', [])
-                        if inter_distances:
-                            st.markdown("**Inter-Cluster Distance Distribution**")
-                            fig_distances = plot_inter_cluster_distance_distribution(
-                                inter_distances,
-                                title=f"Spacing Between Clusters - {sequence_name}"
-                            )
-                            st.pyplot(fig_distances)
-                            plt.close(fig_distances)
-                    except Exception as e:
-                        st.error(f"Error generating distance distribution: {e}")
-                else:
-                    st.info("No clusters detected in this sequence")
-                
-                # Hybrid zone analysis
-                hybrid_zones = structural_result.get('hybrid_zones', [])
-                if hybrid_zones:
-                    col_h1, col_h2 = st.columns(2)
-                    
-                    with col_h1:
-                        try:
-                            st.markdown("**Hybrid Interaction Matrix**")
-                            fig_hybrid_matrix = plot_hybrid_interaction_matrix(
-                                hybrid_zones,
-                                title=f"Class Interactions - {sequence_name}"
-                            )
-                            st.pyplot(fig_hybrid_matrix)
-                            plt.close(fig_hybrid_matrix)
-                        except Exception as e:
-                            st.error(f"Error generating hybrid matrix: {e}")
-                    
-                    with col_h2:
-                        try:
-                            st.markdown("**Hybrid Region Stability**")
-                            fig_hybrid_scatter = plot_hybrid_region_stability_scatter(
-                                hybrid_zones,
-                                title=f"Hybrid Stability - {sequence_name}"
-                            )
-                            st.pyplot(fig_hybrid_scatter)
-                            plt.close(fig_hybrid_scatter)
-                        except Exception as e:
-                            st.error(f"Error generating hybrid scatter: {e}")
-                else:
-                    st.info("No hybrid zones detected in this sequence")
-                
-                # Composition vs. enrichment contour
-                compositional_skew = structural_result.get('compositional_skew', {})
-                if compositional_skew:
-                    try:
-                        st.markdown("**Composition vs. Enrichment Analysis**")
-                        fig_composition_enrichment = plot_composition_vs_enrichment_contour(
-                            enrichment_result,
-                            compositional_skew,
-                            title=f"GC Skew vs. Enrichment - {sequence_name}"
-                        )
-                        st.pyplot(fig_composition_enrichment)
-                        plt.close(fig_composition_enrichment)
-                    except Exception as e:
-                        st.error(f"Error generating composition enrichment plot: {e}")
+            All other detection capabilities remain fully functional.
+            """)
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
@@ -3939,8 +3722,7 @@ with tab_pages["Documentation"]:
             <li><b>Overlap Resolution:</b> Redundant motifs within subclasses are merged</li>
             <li><b>Cluster Identification:</b> High-density regions flagged as hotspots</li>
             <li><b>Hybrid Detection:</b> Multi-class overlapping regions identified</li>
-            <li><b>Statistical Enrichment:</b> 100× shuffle-based null model comparison</li>
-            <li><b>Visualization Generation:</b> 25+ publication-quality plots created</li>
+            <li><b>Visualization Generation:</b> 20+ publication-quality plots created</li>
             <li><b>Export Preparation:</b> Results formatted for CSV, Excel, BED, JSON</li>
         </ol>
         <p style='color:#1e40af; margin:1rem 0 0 0; font-size:0.95rem;'>
@@ -4090,33 +3872,7 @@ with tab_pages["Documentation"]:
     """, unsafe_allow_html=True)
     
     # ==================================================================
-    # SECTION 7: ENRICHMENT ANALYSIS
-    # ==================================================================
-    st.markdown("## 📊 Statistical Enrichment Analysis")
-    
-    st.markdown("""
-    <div style='background:#fffbeb; border-radius:12px; padding:1.5rem; border-left:4px solid #f59e0b; margin-bottom:1.5rem;'>
-        <h3 style='color:#78350f; margin:0 0 1rem 0;'>Understanding Enrichment</h3>
-        <p style='color:#78350f; line-height:1.8;'>
-            The system automatically performs statistical enrichment analysis to determine if observed 
-            structural patterns are significantly different from random expectation:
-        </p>
-        <ul style='color:#78350f; line-height:1.8;'>
-            <li><b>Null model:</b> 100 dinucleotide-preserving shuffles of the input sequence</li>
-            <li><b>Metrics tested:</b> Pattern count, density, clustering strength, hybrid frequency, 
-            mean block size</li>
-            <li><b>Statistical tests:</b> Z-scores, p-values (two-tailed), percentile ranks</li>
-            <li><b>Significance threshold:</b> p < 0.05 (adjustable in backend)</li>
-        </ul>
-        <p style='color:#78350f; margin:1rem 0 0 0; font-size:0.95rem;'>
-            <b>Interpretation:</b> Significant enrichment (Z > 2, p < 0.05) suggests that the observed 
-            non-B DNA distribution is biologically meaningful rather than compositionally driven.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # ==================================================================
-    # SECTION 8: INTERPRETATION GUIDELINES
+    # SECTION 7: INTERPRETATION GUIDELINES
     # ==================================================================
     st.markdown("## 🎯 Interpretation Guidelines")
     
