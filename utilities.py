@@ -7999,7 +7999,7 @@ def render_summary_panel(seq_length: int,
     
     This function generates a publication-ready summary block that displays:
     - Sequence length (with appropriate units: bp, kb, or Mb)
-    - Processing time (formatted as hh:mm:ss with clock icon)
+    - Processing time (formatted as hh:mm:ss with clock icon 🕐)
     - Total motifs detected
     - Optional chunk information (for chunked processing)
     
@@ -8008,6 +8008,7 @@ def render_summary_panel(seq_length: int,
     - Bold, high-contrast text
     - Grid-based compact layout
     - Theme color tokens (customizable)
+    - Dynamic box shadows matching theme colors
     - Fully responsive formatting
     
     Args:
@@ -8015,7 +8016,11 @@ def render_summary_panel(seq_length: int,
         processing_time: Processing duration in seconds
         motif_count: Total number of motifs detected
         total_chunks: Number of chunks processed (0 if no chunking)
-        theme_color: Primary gradient color (default: success green)
+        theme_color: Primary gradient color. Supported colors:
+            - "#10b981" (success green, default)
+            - "#2563EB" (primary blue)
+            - "#9C27B0" (genomic purple)
+            Other colors will use green gradient/shadow as fallback
         
     Returns:
         HTML string ready for st.markdown(..., unsafe_allow_html=True)
@@ -8025,7 +8030,8 @@ def render_summary_panel(seq_length: int,
         ...     seq_length=1500000,
         ...     processing_time=125.5,
         ...     motif_count=342,
-        ...     total_chunks=5
+        ...     total_chunks=5,
+        ...     theme_color="#10b981"
         ... )
         >>> st.markdown(summary_html, unsafe_allow_html=True)
     """
