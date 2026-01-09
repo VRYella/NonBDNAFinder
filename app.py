@@ -2850,13 +2850,6 @@ with tab_pages["Upload & Analyze"]:
                         <div style='margin-bottom: 0.4rem;'><b>Processing time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</div>
                         <div style='margin-bottom: 0.4rem;'><b>Motifs detected:</b> {sum(len(r) for r in all_results):,}</div>
                     </div>
-                    <div style='text-align: center; margin-top: 1rem;'>
-                        <button style='background: white; color: #10b981; padding: 0.6rem 1.5rem; 
-                                      border: none; border-radius: 8px; font-weight: 700; 
-                                      cursor: pointer; font-size: 0.95rem;'>
-                            VIEW RESULTS →
-                        </button>
-                    </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
