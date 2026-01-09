@@ -26,6 +26,62 @@
 }
 
 /* ============================================
+   GLOBAL OVERRIDES — FORCE LIGHT MODE ALWAYS
+   Prevent Streamlit from applying dark theme
+=============================================== */
+html, body,
+[data-testid="stAppViewContainer"],
+[class^="css"], [class*="css"] {
+    --backgroundColor: #FFFFFF !important;
+    --secondaryBackgroundColor: #F2F6FF !important;
+    --surfaceBackgroundColor: #FFFFFF !important;
+    --textColor: #000000 !important;
+
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+/* Ensure ALL containers inherit light mode */
+div[data-testid="block-container"],
+section[data-testid="stSidebar"],
+header, footer,
+.stApp > header,
+.stApp > div,
+.stApp {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+/* ============================================
+   TABS — FIX BLACK BAR ISSUE
+   (Streamlit tries to apply dark backgrounds)
+=============================================== */
+.stTabs [data-baseweb="tab-list"] {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, #008CFF 0%, #4AB3FF 100%) !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+/* Prevent dark hover */
+.stTabs [data-baseweb="tab"]:hover {
+    background: #F2F6FF !important;
+    color: #000000 !important;
+}
+
+/* existing root variables and base theme below */
+/* ============================================
    CSS CUSTOM PROPERTIES (Variables) - CENTRALIZED DESIGN TOKENS
    Variables are injected dynamically by Python from FONT_CONFIG, COLOR_THEMES, etc.
    ============================================ */
