@@ -650,7 +650,7 @@ def _load_consolidated_registry_from_excel():
     """Load the consolidated registry from Excel file and cache it
     
     Returns:
-        dict: Registry data in the same format as consolidated_registry.json
+        dict: Registry data loaded from pattern_registry2.xlsx
     """
     global _PANDAS_WARNING_LOGGED
     
@@ -660,9 +660,10 @@ def _load_consolidated_registry_from_excel():
             _PANDAS_WARNING_LOGGED = True
         return None
     
-    # Try to load pattern_registry2.xlsx from current directory (updated with normalized scores)
+    # Load pattern_registry2.xlsx from current directory
     excel_path = "pattern_registry2.xlsx"
     if not os.path.isfile(excel_path):
+        logger.error(f"Pattern registry file not found: {excel_path}")
         return None
     
     try:
@@ -707,31 +708,10 @@ def _load_consolidated_registry_from_excel():
         return None
 
 
-def _load_consolidated_registry_from_json():
-    """Load the consolidated registry from JSON file (fallback)
-    
-    Returns:
-        dict: Registry data from consolidated_registry.json
-    """
-    # Try to load consolidated_registry.json from current directory
-    consolidated_path = "consolidated_registry.json"
-    if not os.path.isfile(consolidated_path):
-        return None
-    
-    try:
-        with open(consolidated_path, "r") as fh:
-            registry = json.load(fh)
-            logger.info("Loaded consolidated registry from consolidated_registry.json")
-            return registry
-    except Exception as e:
-        logger.error(f"Failed to load JSON registry from {consolidated_path}: {e}")
-        return None
-
-
 def _load_consolidated_registry():
     """Load the consolidated registry file once and cache it
     
-    Tries to load from Excel first (pattern_registry2.xlsx with updated normalized scores), then falls back to JSON.
+    Loads from Excel file (pattern_registry2.xlsx with updated normalized scores).
     
     Returns:
         dict: Consolidated registry data
@@ -740,21 +720,20 @@ def _load_consolidated_registry():
     if _CONSOLIDATED_REGISTRY is not None:
         return _CONSOLIDATED_REGISTRY
     
-    # Try Excel first (preferred)
+    # Load from Excel
     _CONSOLIDATED_REGISTRY = _load_consolidated_registry_from_excel()
     if _CONSOLIDATED_REGISTRY is not None:
         return _CONSOLIDATED_REGISTRY
     
-    # Fall back to JSON
-    _CONSOLIDATED_REGISTRY = _load_consolidated_registry_from_json()
-    if _CONSOLIDATED_REGISTRY is not None:
-        return _CONSOLIDATED_REGISTRY
-    
-    return None
+    # If Excel loading failed, raise an error
+    raise FileNotFoundError(
+        "Failed to load pattern registry from pattern_registry2.xlsx. "
+        "Please ensure the Excel file exists and is properly formatted."
+    )
 
 
 def _load_registry(registry_dir: str, class_name: str):
-    """Load registry from consolidated file (Excel or JSON)"""
+    """Load registry from consolidated Excel file"""
     # Load from consolidated registry
     consolidated = _load_consolidated_registry()
     if consolidated and "registries" in consolidated:
@@ -762,7 +741,7 @@ def _load_registry(registry_dir: str, class_name: str):
             logger.debug(f"Loading {class_name} from consolidated registry")
             return consolidated["registries"][class_name]
     
-    raise FileNotFoundError(f"No registry found for {class_name} in pattern registry (tried Excel and JSON)")
+    raise FileNotFoundError(f"No registry found for {class_name} in pattern registry Excel file")
 
 
 def clear_pattern_registry_cache():
