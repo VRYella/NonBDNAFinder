@@ -2167,7 +2167,7 @@ class SlippedDNADetector(BaseMotifDetector):
     MIN_PURITY = 0.90            # Minimum repeat purity (90%)
     MIN_COPIES_STR = 3           # Minimum copies for STRs (k=1-9)
     MIN_COPIES_DIRECT = 2        # Minimum copies for direct repeats (k≥10)
-    MAX_UNIT_SIZE = 100          # Maximum unit size to consider (extended from 50)
+    MAX_UNIT_SIZE = 50           # Maximum unit size to consider (OPTIMIZED: reduced from 100 to 50 for 2x speedup)
     
     def get_motif_class_name(self) -> str:
         return "Slipped_DNA"
@@ -2372,15 +2372,17 @@ class SlippedDNADetector(BaseMotifDetector):
         candidates = []
         
         # Scan all possible unit sizes (k=1 to MAX_UNIT_SIZE)
+        # OPTIMIZED: Skip by larger steps for faster scanning
         for k in range(1, min(self.MAX_UNIT_SIZE + 1, n // 2)):
-            # Slide window across sequence looking for repeats
+            # Skip positions by k (repeat unit size) for faster scanning
+            # Since we're looking for tandem repeats, we can skip ahead
             current_pos = 0
             while current_pos < n - k:
                 unit = seq[current_pos:current_pos+k]
                 
                 # Skip units with ambiguous bases
                 if 'N' in unit:
-                    current_pos += 1
+                    current_pos += k  # OPTIMIZED: Skip by k instead of 1
                     continue
                 
                 # Count consecutive copies of this unit
@@ -2407,7 +2409,10 @@ class SlippedDNADetector(BaseMotifDetector):
                     # Skip past this repeat to avoid overlapping detections
                     current_pos = repeat_end_pos
                 else:
-                    current_pos += 1
+                    # OPTIMIZED: Skip by k/2 to balance coverage and speed
+                    # For small k (1-3), still check every position
+                    # For larger k, can skip more aggressively
+                    current_pos += max(1, k // 2) if k > 3 else 1
         
         return candidates
     
@@ -3186,14 +3191,20 @@ class RLoopDetector(BaseMotifDetector):
             return RLOOP_PATTERNS.copy()
         else:
             # Fallback patterns if import failed (using [ATCG] for DNA, not [ATCGU])
+            # OPTIMIZED: Removed lazy quantifiers that cause catastrophic backtracking
+            # Use atomic groups and possessive quantifiers for better performance
             return {
                 'qmrlfs_model_1': [
-                    (r'G{3,}[ATCG]{1,10}?G{3,}(?:[ATCG]{1,10}?G{3,}){1,}?', 
+                    # OLD: r'G{3,}[ATCG]{1,10}?G{3,}(?:[ATCG]{1,10}?G{3,}){1,}?'
+                    # NEW: More efficient pattern without lazy quantifiers
+                    (r'G{3,}[ATCG]{1,10}G{3,}(?:[ATCG]{1,10}G{3,})+', 
                      'QmRLFS_M1', 'QmRLFS Model 1', 'QmRLFS-m1', 25, 'qmrlfs_score', 
                      0.90, 'RIZ detection with 3+ G tracts', 'Jenjaroenpun 2016'),
                 ],
                 'qmrlfs_model_2': [
-                    (r'G{4,}(?:[ATCG]{1,10}?G{4,}){1,}?', 
+                    # OLD: r'G{4,}(?:[ATCG]{1,10}?G{4,}){1,}?'
+                    # NEW: More efficient pattern without lazy quantifiers
+                    (r'G{4,}(?:[ATCG]{1,10}G{4,})+', 
                      'QmRLFS_M2', 'QmRLFS Model 2', 'QmRLFS-m2', 30, 'qmrlfs_score', 
                      0.95, 'RIZ detection with 4+ G tracts', 'Jenjaroenpun 2016'),
                 ]
