@@ -2205,24 +2205,21 @@ with tab_pages["Upload & Analyze"]:
         # RIGHT COLUMN: Analysis & Run
         st.markdown(f"### {UI_TEXT['heading_analysis_run']}")
         
-        # Auto-enabled Analysis Status Panel (replacing Quick Options)
+        # Analysis Mode Panel (read-only)
         st.markdown("""
         <div style='background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
-                    padding: 1.5rem; border-radius: 12px; 
+                    padding: 1rem; border-radius: 12px; 
                     border-left: 4px solid #4caf50; margin-bottom: 1rem;'>
-            <h4 style='color: #2e7d32; margin: 0 0 0.8rem 0; font-size: 1.1rem; font-weight: 600;'>
-                ✅ Enhanced Analysis Pipeline Active
+            <h4 style='color: #2e7d32; margin: 0 0 0.6rem 0; font-size: 1.05rem; font-weight: 700;
+                       text-align: center; border-bottom: 2px solid #81c784; padding-bottom: 0.5rem;'>
+                Analysis Mode
             </h4>
-            <div style='color: #1b5e20; font-size: 0.95rem; line-height: 1.7;'>
-                <p style='margin: 0.3rem 0;'>🔬 <b>All analysis modules automatically enabled</b></p>
-                <p style='margin: 0.3rem 0;'>⚡ <b>Running full high-precision pipeline</b></p>
-                <p style='margin: 0.3rem 0;'>✓ <b>Quality validation active</b></p>
-                <p style='margin: 0.3rem 0;'>🚀 <b>Parallel engine optimized</b></p>
+            <div style='color: #1b5e20; font-size: 0.9rem; line-height: 1.8;'>
+                <p style='margin: 0.25rem 0;'>• All detectors active</p>
+                <p style='margin: 0.25rem 0;'>• Full scoring enabled</p>
+                <p style='margin: 0.25rem 0;'>• Overlap resolution active</p>
+                <p style='margin: 0.25rem 0;'>• High-performance chunked processing</p>
             </div>
-            <p style='margin: 0.8rem 0 0 0; color: #388e3c; font-size: 0.85rem; font-style: italic;'>
-                The system automatically adapts: chunked processing for sequences >100kb, 
-                parallel detection with multiple CPU cores, dynamic memory optimization.
-            </p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -2442,6 +2439,7 @@ with tab_pages["Upload & Analyze"]:
                 all_hotspots = []
                 
                 total_bp_processed = 0
+                total_chunks_processed = 0  # Track total chunks for completion summary
                 
                 with progress_placeholder.container():
                     pbar = st.progress(0)
@@ -2499,18 +2497,62 @@ with tab_pages["Upload & Analyze"]:
                         
                         # Track chunk progress
                         chunk_counter = {'current': 0, 'total': 0}
+                        chunk_start_time = time.time()
                         
                         def chunk_progress_callback(chunk_num, total_chunks, bp_processed, elapsed, throughput):
-                            """Callback to update chunk progress (ephemeral)"""
+                            """Callback to update chunk progress with professional display"""
                             chunk_counter['current'] = chunk_num
                             chunk_counter['total'] = total_chunks
-                            if show_chunk_progress:
-                                # Ephemeral progress (replaces previous)
-                                chunk_progress_placeholder.info(f"⚡ Parallel chunked processing: {chunk_num}/{total_chunks} ({(chunk_num / total_chunks) * 100:.1f}%)")
+                            
+                            # Calculate elapsed time for chunks
+                            chunk_elapsed = time.time() - chunk_start_time
+                            elapsed_mins = int(chunk_elapsed // 60)
+                            elapsed_secs = int(chunk_elapsed % 60)
+                            
+                            # Determine processing stage based on chunk progress
+                            progress_ratio = chunk_num / total_chunks if total_chunks > 0 else 0
+                            if progress_ratio < 0.25:
+                                stage = "Screening"
+                            elif progress_ratio < 0.5:
+                                stage = "Detection"
+                            elif progress_ratio < 0.75:
+                                stage = "Scoring"
+                            else:
+                                stage = "Merging"
+                            
+                            # Display professional progress panel
+                            with chunk_progress_placeholder.container():
+                                st.markdown(f"""
+                                <div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
+                                            padding: 1rem; border-radius: 12px; color: white; 
+                                            box-shadow: 0 4px 15px rgba(255, 109, 0, 0.3); margin-bottom: 0.5rem;'>
+                                    <h4 style='margin: 0 0 0.8rem 0; text-align: center; font-size: 1.1rem;'>
+                                        ⚡ Analysis Progress
+                                    </h4>
+                                    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.6rem; 
+                                               border-radius: 8px; margin-bottom: 0.6rem;'>
+                                        <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+                                            <span><b>Stage:</b> {stage}</span>
+                                            <span><b>Elapsed time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</span>
+                                        </div>
+                                        <div style='margin-bottom: 0.3rem;'>
+                                            <b>Chunks processed:</b> {chunk_num} / {total_chunks}
+                                        </div>
+                                    </div>
+                                    <div style='background: rgba(255, 255, 255, 0.3); height: 8px; 
+                                               border-radius: 50px; overflow: hidden;'>
+                                        <div style='background: white; height: 100%; width: {progress_ratio * 100:.1f}%; 
+                                                   transition: width 0.3s ease;'></div>
+                                    </div>
+                                    <div style='text-align: center; margin-top: 0.4rem; font-size: 0.95rem;'>
+                                        {progress_ratio * 100:.0f}%
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
                         
                         # Run parallel chunked analysis with progress callback
                         # Use ephemeral status (replaces previous message)
-                        status_placeholder.info(f"⚡ Using parallel chunked processing for {len(seq):,} bp sequence")
+                        status_placeholder.info(f"⚡ Using high-performance chunked processing for {len(seq):,} bp sequence")
                         
                         # Use analyze_sequence with chunking enabled and parallel processing
                         results = analyze_sequence(
@@ -2521,12 +2563,15 @@ with tab_pages["Upload & Analyze"]:
                             progress_callback=chunk_progress_callback
                         )
                         
-                        # Clear chunk progress and show ephemeral success (replaces previous message)
-                        if show_chunk_progress and chunk_counter['total'] > 0:
-                            chunk_progress_placeholder.success(f"✅ Parallel chunks complete: {len(results)} motifs from {chunk_counter['total']} chunks")
+                        # Track total chunks processed
+                        if chunk_counter['total'] > 0:
+                            total_chunks_processed += chunk_counter['total']
+                        
+                        # Clear chunk progress display
+                        chunk_progress_placeholder.empty()
                         
                         # Ephemeral success message (replaces previous)
-                        status_placeholder.success(f"✅ Parallel chunked processing completed: {len(results)} motifs detected")
+                        status_placeholder.success(f"✅ Parallel chunked processing completed: {len(results)} motifs detected from {chunk_counter['total']} chunks")
                     else:
                         # Use standard consolidated NBDScanner analysis
                         results = analyze_sequence(seq, name)
@@ -2757,6 +2802,7 @@ with tab_pages["Upload & Analyze"]:
                     'speed': overall_speed,
                     'sequences': len(st.session_state.seqs),
                     'total_motifs': sum(len(r) for r in all_results),
+                    'total_chunks': total_chunks_processed,  # Track total chunks processed
                     'detector_count': len(DETECTOR_PROCESSES),  # Number of detector processes
                     'estimated_time': estimated_total_time,  # Initial estimated time
                     'visualization_time': viz_total_time,  # Time spent on visualizations
@@ -2777,69 +2823,46 @@ with tab_pages["Upload & Analyze"]:
                 detailed_progress_placeholder.empty()
                 
                 # Show final success message with enhanced performance metrics using scientific time format
+                # Format according to requirements: Analysis Summary with chunk information
+                elapsed_mins = int(total_time // 60)
+                elapsed_secs = int(total_time % 60)
+                
+                # Calculate sequence length in appropriate units
+                if total_bp_processed >= 1_000_000:
+                    seq_length_display = f"{total_bp_processed / 1_000_000:.1f} Mb"
+                elif total_bp_processed >= 1_000:
+                    seq_length_display = f"{total_bp_processed / 1_000:.1f} kb"
+                else:
+                    seq_length_display = f"{total_bp_processed} bp"
+                
                 timer_placeholder.markdown(f"""
-                <div class='progress-panel progress-panel--success'>
-                    <h3 class='progress-panel__title'>✅ Analysis Complete!</h3>
-                    <p class='progress-panel__subtitle'>All detectors, validations, and visualizations completed successfully</p>
-                    <div class='stats-grid stats-grid--wide'>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{format_time_scientific(total_time)}</h2>
-                            <p class='stat-card__label'>Analysis Time</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{format_time_scientific(viz_total_time)}</h2>
-                            <p class='stat-card__label'>Visualization Time</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{total_bp_processed:,}</h2>
-                            <p class='stat-card__label'>Base Pairs</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{overall_speed:,.0f}</h2>
-                            <p class='stat-card__label'>bp/second</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{len(DETECTOR_PROCESSES)}</h2>
-                            <p class='stat-card__label'>Detectors</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{sum(len(r) for r in all_results)}</h2>
-                            <p class='stat-card__label'>Motifs Found</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{total_viz_count}</h2>
-                            <p class='stat-card__label'>Viz Components</p>
-                        </div>
-                        <div class='stat-card'>
-                            <h2 class='stat-card__value'>{len(validation_issues)}</h2>
-                            <p class='stat-card__label'>Validation Issues</p>
-                        </div>
+                <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                            padding: 1.2rem; border-radius: 12px; color: white; 
+                            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3); margin-bottom: 1rem;'>
+                    <h3 style='margin: 0 0 1rem 0; text-align: center; font-size: 1.2rem; 
+                               border-bottom: 2px solid rgba(255, 255, 255, 0.3); padding-bottom: 0.8rem;'>
+                        ✅ Analysis Summary
+                    </h3>
+                    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.8rem; 
+                               border-radius: 8px; line-height: 1.8;'>
+                        <div style='margin-bottom: 0.4rem;'><b>Sequence length:</b> {seq_length_display}</div>
+                        {f"<div style='margin-bottom: 0.4rem;'><b>Total chunks:</b> {total_chunks_processed}</div>" if total_chunks_processed > 0 else ""}
+                        <div style='margin-bottom: 0.4rem;'><b>Processing time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</div>
+                        <div style='margin-bottom: 0.4rem;'><b>Motifs detected:</b> {sum(len(r) for r in all_results):,}</div>
+                    </div>
+                    <div style='text-align: center; margin-top: 1rem;'>
+                        <button style='background: white; color: #10b981; padding: 0.6rem 1.5rem; 
+                                      border: none; border-radius: 8px; font-weight: 700; 
+                                      cursor: pointer; font-size: 0.95rem;'>
+                            VIEW RESULTS →
+                        </button>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Show comprehensive completion summary with scientific time format
+                # Show simplified completion message
                 # GOLD STANDARD: Final time display after everything is done
-                completion_msg = f"""✅ **Analysis Complete!** All processing stages finished successfully:
-                
-**Detection & Analysis:**
-- 🧬 {len(DETECTOR_PROCESSES)} detector processes completed
-- 📊 {sum(len(r) for r in all_results)} total motifs detected across {len(st.session_state.seqs)} sequences
-- ⏱️ Analysis completed in {format_time_scientific(total_time)} ({overall_speed:,.0f} bp/s)
-
-**Quality Validation:**
-- ✅ Data consistency checks: {'PASSED' if len(validation_issues) == 0 else f'{len(validation_issues)} issues found'}
-- ✅ Non-redundancy validation: Complete
-- ✅ Position validation: Complete
-
-**Visualization Generation:**
-- 📈 {total_viz_count} visualization components pre-generated
-- 🎯 Class-level and subclass-level analysis ready
-- ⏱️ Visualizations prepared in {format_time_scientific(viz_total_time)}
-
-**View detailed results in the 'Results' tab.**
-"""
-                st.success(completion_msg)
+                st.success(f"""✅ **Analysis Complete!** View detailed results in the 'Results' tab.""")
                 st.session_state.analysis_status = "Complete"
                 
                 # Set analysis_done flag for idempotent run button
