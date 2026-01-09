@@ -704,40 +704,6 @@ summary span {
 }
 
 /* ============================================
-   POPOVER STYLING: Modern popup design
-   ============================================ */
-[data-testid="stPopover"] > button {
-    border-radius: var(--border-radius-md) !important;
-    background: #F8FAFC !important;
-    font-weight: 500 !important;
-    padding: 0.6rem 1rem !important;
-    border: 1.5px solid #E5E7EB !important;
-    transition: var(--transition-normal);
-    box-shadow: 0 1px 4px var(--shadow-color);
-    color: var(--text-color) !important;
-    font-size: 0.92rem !important;
-}
-[data-testid="stPopover"] > button:hover {
-    background: var(--bg-card) !important;
-    border-color: var(--accent-color) !important;
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-[data-testid="stPopover"] > div[data-baseweb="popover"] {
-    border-radius: var(--border-radius-lg) !important;
-    background: #FFFFFF !important;
-    border: 1.5px solid #E5E7EB !important;
-    box-shadow: 0 4px 20px var(--shadow-color), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-    padding: 1rem !important;
-    animation: fade-in 0.2s ease-out;
-}
-
-[data-testid="stPopover"] [data-baseweb="popover"] > div:first-child {
-    background: #FFFFFF !important;
-    border-color: #E5E7EB !important;
-}
-
-/* ============================================
    METRIC CARDS: Vibrant Stats Display
    ============================================ */
 [data-testid="stMetric"] {
