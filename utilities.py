@@ -8047,24 +8047,27 @@ def render_summary_panel(seq_length: int,
     else:
         time_display = f"{mins:02d}:{secs:02d}"
     
-    # Determine secondary gradient color based on theme color
-    gradient_map = {
-        "#10b981": "#059669",  # Success green
-        "#2563EB": "#3B82F6",  # Primary blue
-        "#9C27B0": "#BA68C8",  # Genomic purple
+    # Determine secondary gradient color and shadow based on theme color
+    # Maps primary color to (secondary gradient, rgba shadow)
+    theme_map = {
+        "#10b981": ("#059669", "16, 185, 129"),   # Success green
+        "#2563EB": ("#3B82F6", "37, 99, 235"),    # Primary blue
+        "#9C27B0": ("#BA68C8", "156, 39, 176"),   # Genomic purple
     }
-    secondary_color = gradient_map.get(theme_color, "#059669")
+    
+    # Get theme-specific colors or use green as default
+    secondary_color, shadow_rgb = theme_map.get(theme_color, ("#059669", "16, 185, 129"))
     
     # Build chunk info if applicable
     chunk_info = ""
     if total_chunks > 0:
         chunk_info = f"<div style='margin-bottom: 0.4rem;'><b>Total chunks:</b> {total_chunks}</div>"
     
-    # Generate HTML with modern styling
+    # Generate HTML with modern styling and dynamic theme colors
     html = f"""
     <div style='background: linear-gradient(135deg, {theme_color} 0%, {secondary_color} 100%); 
                 padding: 1.2rem; border-radius: 12px; color: white; 
-                box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3); margin-bottom: 1rem;'>
+                box-shadow: 0 5px 20px rgba({shadow_rgb}, 0.3); margin-bottom: 1rem;'>
         <h3 style='margin: 0 0 1rem 0; text-align: center; font-size: 1.2rem; 
                    border-bottom: 2px solid rgba(255, 255, 255, 0.3); padding-bottom: 0.8rem;'>
             ✅ Analysis Summary
