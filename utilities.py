@@ -5523,8 +5523,11 @@ def plot_enrichment_analysis(enrichment_results: Dict[str, Dict[str, Any]],
     """
     Plot enrichment analysis results with fold enrichment and p-values.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         figsize: Figure size
         
@@ -5618,8 +5621,11 @@ def plot_enrichment_summary_table(enrichment_results: Dict[str, Dict[str, Any]],
     """
     Create a summary table visualization for enrichment results.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         
     Returns:
@@ -6099,8 +6105,11 @@ def plot_enrichment_analysis_by_subclass(enrichment_results: Dict[str, Dict[str,
     """
     Plot enrichment analysis results at subclass level with fold enrichment and p-values.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling with by_subclass=True
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         figsize: Figure size
         
