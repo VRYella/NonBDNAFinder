@@ -55,6 +55,7 @@ import os
 import warnings
 import time
 import threading
+import gc  # For explicit garbage collection to improve memory efficiency
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -1179,7 +1180,8 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
     # Process chunks (parallel or sequential)
     if use_parallel_chunks and total_chunks > 1:
         # Parallel chunk processing using ThreadPoolExecutor
-        max_workers = min(total_chunks, os.cpu_count() or 4)
+        # Optimize worker count: use fewer workers for large chunks to reduce memory pressure
+        max_workers = min(total_chunks, min(os.cpu_count() or 4, 8))  # Cap at 8 for memory efficiency
         
         def process_chunk(chunk_info):
             chunk_idx, (chunk_start, chunk_end) = chunk_info
@@ -1195,6 +1197,9 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
                 motif['End'] = motif['End'] + chunk_start
                 motif['ID'] = motif['ID'].replace(chunk_name, sequence_name)
                 motif['Sequence_Name'] = sequence_name
+            
+            # Free chunk sequence memory immediately
+            del chunk_seq
             
             return chunk_idx, chunk_end - chunk_start, chunk_motifs
         
@@ -1213,10 +1218,18 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
                     elapsed = time.time() - start_time
                     throughput = bp_processed / elapsed if elapsed > 0 else 0
                     progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, throughput)
+                
+                # Trigger garbage collection every 10 chunks to free memory
+                if (chunk_idx + 1) % 10 == 0:
+                    gc.collect()
             
-            # Collect results in order
+            # Collect results in order and free intermediate dict
             for i in range(total_chunks):
                 all_motifs.extend(results_by_idx.get(i, []))
+            
+            # Free the results dictionary
+            del results_by_idx
+            gc.collect()
     else:
         # Sequential chunk processing
         for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
@@ -1236,6 +1249,14 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
             all_motifs.extend(chunk_motifs)
             bp_processed += chunk_end - chunk_start
             
+            # Free chunk sequence memory immediately
+            del chunk_seq
+            del chunk_motifs
+            
+            # Trigger garbage collection every 10 chunks to free memory
+            if (chunk_idx + 1) % 10 == 0:
+                gc.collect()
+            
             # Call progress callback
             if progress_callback is not None:
                 elapsed = time.time() - start_time
@@ -1244,6 +1265,10 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
     
     # Remove duplicate motifs from overlap regions
     deduplicated_motifs = _deduplicate_motifs(all_motifs)
+    
+    # Free original motifs list
+    del all_motifs
+    gc.collect()
     
     # Sort by position
     deduplicated_motifs.sort(key=lambda x: x.get('Start', 0))
@@ -1254,26 +1279,45 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str,
 def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Remove duplicate motifs that may appear from overlapping chunk regions.
+    Optimized for memory efficiency with large datasets.
     
-    Duplicates are identified by having the same Class, Start, End, and similar sequences.
+    Duplicates are identified by having the same Class, Subclass, Start, End.
     When duplicates are found, the one with the higher score is kept.
     """
     if not motifs:
         return motifs
     
-    # Sort by class, start, end, and score (descending)
-    sorted_motifs = sorted(motifs, key=lambda x: (
-        x.get('Class', ''),
-        x.get('Start', 0),
-        x.get('End', 0),
-        -x.get('Score', 0)
-    ))
+    if len(motifs) < 1000:
+        # For small datasets, use the original simple approach
+        sorted_motifs = sorted(motifs, key=lambda x: (
+            x.get('Class', ''),
+            x.get('Start', 0),
+            x.get('End', 0),
+            -x.get('Score', 0)
+        ))
+        
+        deduplicated = []
+        seen = set()
+        
+        for motif in sorted_motifs:
+            key = (
+                motif.get('Class', ''),
+                motif.get('Subclass', ''),
+                motif.get('Start', 0),
+                motif.get('End', 0)
+            )
+            
+            if key not in seen:
+                seen.add(key)
+                deduplicated.append(motif)
+        
+        return deduplicated
     
-    deduplicated = []
-    seen = set()
+    # For large datasets, use a more memory-efficient approach
+    # Build a dictionary with keys as tuples, keeping only the highest scoring motif
+    best_motifs = {}
     
-    for motif in sorted_motifs:
-        # Create a key for duplicate detection
+    for motif in motifs:
         key = (
             motif.get('Class', ''),
             motif.get('Subclass', ''),
@@ -1281,9 +1325,17 @@ def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             motif.get('End', 0)
         )
         
-        if key not in seen:
-            seen.add(key)
-            deduplicated.append(motif)
+        score = motif.get('Score', 0)
+        
+        # Keep the motif with the highest score for each key
+        if key not in best_motifs or score > best_motifs[key].get('Score', 0):
+            best_motifs[key] = motif
+    
+    # Convert back to list
+    deduplicated = list(best_motifs.values())
+    
+    # Free the dictionary
+    del best_motifs
     
     return deduplicated
 
