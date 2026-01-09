@@ -66,18 +66,16 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
-# Import Nature-ready visualization standards
-from visualization_standards import (
-    NATURE_MOTIF_COLORS, PlotDominance, FigurePanel, MetricFilter,
-    LabelPolicy, UILayout, TRANSPARENCY_NOTE, SUPPLEMENTARY_NOTE,
-    should_show_plot, get_nature_style_params
-)
+# Inline visualization standards (removed separate module for conciseness)
+NATURE_MOTIF_COLORS = {
+    'Curved_DNA': '#CC79A7', 'G-Quadruplex': '#0072B2', 'Z-DNA': '#882255',
+    'Cruciform': '#56B4E9', 'Triplex': '#E69F00', 'R-Loop': '#009E73',
+    'i-Motif': '#0072B2', 'A-philic_DNA': '#CC79A7', 'Slipped_DNA': '#E69F00',
+    'Hybrid': '#888888', 'Non-B_DNA_Clusters': '#666666'
+}
 
-# Job management modules
-from job_manager import (
-    generate_job_id, save_job_results, load_job_results, 
-    job_exists, get_job_summary, list_all_jobs
-)
+TRANSPARENCY_NOTE = "📊 **Scientific Transparency**: Only biologically interpretable metrics displayed. Full results in exports."
+SUPPLEMENTARY_NOTE = "💡 **Supplementary**: Additional visualizations available in exports."
 
 # Try to import Entrez for demo functionality
 try:
@@ -86,29 +84,35 @@ try:
 except ImportError:
     BIO_AVAILABLE = False
 
-# Try to import Hyperscan (optional for acceleration)
+# ═══════════════════════════════════════════════════════════════════════════════
+# HYPERSCAN PREFILTERING - MANDATORY FOR PERFORMANCE
+# ═══════════════════════════════════════════════════════════════════════════════
+# Hyperscan provides 10-100x speedup for pattern matching in large sequences.
+# This tool requires hyperscan for optimal performance. Install with:
+#   pip install hyperscan
+# ═══════════════════════════════════════════════════════════════════════════════
 import logging
 logger = logging.getLogger(__name__)
 
 HYPERSCAN_AVAILABLE = False
 HYPERSCAN_VERSION = None
 HYPERSCAN_ERROR = None
+HYPERSCAN_MANDATORY = True  # NEW: Force hyperscan requirement
 
 try:
     import hyperscan
     HYPERSCAN_AVAILABLE = True
-    # Try to get version, but don't fail if not available
     try:
         HYPERSCAN_VERSION = hyperscan.__version__
     except AttributeError:
         HYPERSCAN_VERSION = 'unknown'
-    logger.info(f"Hyperscan loaded successfully (version: {HYPERSCAN_VERSION})")
+    logger.info(f"✓ Hyperscan loaded (version: {HYPERSCAN_VERSION}) - High-performance mode active")
 except ImportError as e:
-    HYPERSCAN_ERROR = f"Hyperscan Python bindings not installed: {e}"
-    logger.info(f"Hyperscan not available - using pure Python fallback. {HYPERSCAN_ERROR}")
+    HYPERSCAN_ERROR = f"Hyperscan not installed. Install with: pip install hyperscan"
+    logger.error(HYPERSCAN_ERROR)
 except Exception as e:
     HYPERSCAN_ERROR = f"Hyperscan initialization failed: {e}"
-    logger.warning(f"Hyperscan not available - using pure Python fallback. {HYPERSCAN_ERROR}")
+    logger.error(HYPERSCAN_ERROR)
 
 # =============================================================================
 # CENTRALIZED PAGE-WISE COLOR TOKENS
@@ -1690,7 +1694,6 @@ for k, v in {
     'summary_df': pd.DataFrame(),
     'analysis_status': "Ready",
     'selected_classes': [],  # Initialize empty list for motif class selection
-    'current_job_id': None  # Current job ID for result delivery
 }.items():
     if k not in st.session_state:
         st.session_state[k] = v
@@ -1959,77 +1962,6 @@ with tab_pages["Home"]:
         </p>
     </div>
     """, unsafe_allow_html=True)
-    
-    # ========== JOB LOOKUP SECTION ==========
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f"""
-    <div style='background: {colors['white']}; padding: 2rem; border-radius: 16px; 
-                box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid {colors['neutral_200']}; margin-top: 2rem;'>
-        <h2 style='color: {colors['primary']}; font-size: 1.6rem; margin: 0 0 1rem 0; font-weight: 600;'>
-            🔍 Retrieve Previous Results
-        </h2>
-        <p style='color: {colors['neutral_700']}; font-size: 1rem; line-height: 1.6; margin-bottom: 1rem;'>
-            Enter your Job ID to retrieve previously completed analyses. Results are stored securely and 
-            accessible only via your unique Job ID.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Job ID input
-    col_input, col_button = st.columns([3, 1])
-    with col_input:
-        lookup_job_id = st.text_input(
-            "Job ID",
-            placeholder="Enter 10-character Job ID (e.g., a1b2c3d4e5)",
-            help="Job ID was provided when you submitted your analysis",
-            label_visibility="collapsed"
-        )
-    
-    with col_button:
-        lookup_button = st.button("Load Results", type="primary", use_container_width=True)
-    
-    # Handle job lookup
-    if lookup_button and lookup_job_id:
-        lookup_job_id = lookup_job_id.strip()
-        
-        if not lookup_job_id:
-            st.error("Please enter a Job ID")
-        elif not job_exists(lookup_job_id):
-            st.error(f"Job ID '{lookup_job_id}' not found. Please check your ID and try again.")
-        else:
-            # Load the job
-            with st.spinner(f"Loading job {lookup_job_id}..."):
-                loaded_data = load_job_results(lookup_job_id)
-                
-                if loaded_data is None:
-                    st.error("Failed to load job results. Please try again.")
-                else:
-                    results, sequences, names, metadata = loaded_data
-                    
-                    # Store in session state
-                    st.session_state.results = results
-                    st.session_state.seqs = sequences
-                    st.session_state.names = names
-                    st.session_state.current_job_id = lookup_job_id
-                    st.session_state.analysis_done = True
-                    
-                    # Display success message
-                    st.success(f"✅ Job {lookup_job_id} loaded successfully!")
-                    
-                    # Display job summary
-                    st.markdown(f"""
-                    <div style='background: {colors['neutral_50']}; padding: 1rem; border-radius: 8px; 
-                                border-left: 4px solid {colors['primary']}; margin: 1rem 0;'>
-                        <b>Job Summary:</b><br>
-                        <b>Job ID:</b> {metadata.get('job_id', 'N/A')}<br>
-                        <b>Completed:</b> {metadata.get('timestamp', 'N/A')}<br>
-                        <b>Sequences:</b> {metadata.get('num_sequences', 0)}<br>
-                        <b>Total Motifs:</b> {metadata.get('total_motifs', 0)}<br>
-                        <b>Total Base Pairs:</b> {metadata.get('total_bp', 0):,}
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.info("📥 View results in the **Results** tab or download from the **Download** tab")
 
 # Updated Streamlit layout: Input Method + Sequence Preview + Analysis side-by-side
 #  "Upload & Analyze" 
@@ -2358,33 +2290,8 @@ with tab_pages["Upload & Analyze"]:
             st.session_state.analysis_status = "Error"
         else:
             # ============================================================
-            # JOB ID GENERATION: Create unique ID immediately
+            # START ANALYSIS: All detectors running in parallel
             # ============================================================
-            # Generate job ID at the start of analysis (or reuse if already exists)
-            # This prevents overwriting existing job IDs on multiple button clicks
-            if not st.session_state.get('current_job_id'):
-                job_id = generate_job_id()
-                st.session_state.current_job_id = job_id
-            else:
-                job_id = st.session_state.current_job_id
-            
-            # Display Job ID prominently to user
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                        color: white; padding: 1.5rem; border-radius: 12px; margin: 1rem 0;
-                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); text-align: center;'>
-                <div style='font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;'>
-                    Your Job ID
-                </div>
-                <div style='font-size: 2rem; font-weight: 700; letter-spacing: 0.1em; 
-                           font-family: "Courier New", monospace;'>
-                    {job_id}
-                </div>
-                <div style='font-size: 0.85rem; opacity: 0.9; margin-top: 0.5rem;'>
-                    Save this ID to retrieve your results later
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
             
             # Sequence length limit has been removed - the system now uses automatic chunking
             # (see NonBFinder.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
@@ -2920,46 +2827,6 @@ with tab_pages["Upload & Analyze"]:
                 st.session_state.analysis_done = True
                 st.session_state.analysis_time = total_time
                 
-                # ============================================================
-                # RESULT PERSISTENCE: Save results to disk under job ID
-                # ============================================================
-                job_id = st.session_state.get('current_job_id')
-                
-                # Safety check: Regenerate job ID if somehow missing
-                if not job_id:
-                    logger.warning("Job ID missing from session state, regenerating")
-                    job_id = generate_job_id()
-                    st.session_state.current_job_id = job_id
-                
-                save_status_placeholder = st.empty()
-                save_status_placeholder.info(f"💾 Saving results for Job ID: {job_id}...")
-                
-                # Prepare metadata
-                job_metadata = {
-                    'analysis_time': total_time,
-                    'speed_bp_per_sec': overall_speed,
-                    'detector_count': len(DETECTOR_PROCESSES),
-                    'visualization_count': total_viz_count,
-                    'validation_issues': len(validation_issues)
-                }
-                
-                # Save results to disk
-                save_success = save_job_results(
-                    job_id,
-                    all_results,
-                    st.session_state.seqs,
-                    st.session_state.names,
-                    job_metadata
-                )
-                
-                if save_success:
-                    save_status_placeholder.success(f"✅ Results saved successfully! Job ID: **{job_id}**")
-                else:
-                    save_status_placeholder.warning(
-                        "⚠️ Results could not be saved to disk, but are available in this session. "
-                        "Download your results now from the Download tab."
-                    )
-                
             except Exception as e:
                 progress_placeholder.empty()
                 status_placeholder.empty()
@@ -3392,31 +3259,6 @@ with tab_pages["Download"]:
     if not st.session_state.results:
         st.info(UI_TEXT['download_no_results'])
     else:
-        # Display current Job ID prominently
-        current_job_id = st.session_state.get('current_job_id')
-        if current_job_id:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); 
-                        color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);'>
-                <div style='display: flex; justify-content: space-between; align-items: center;'>
-                    <div>
-                        <div style='font-size: 0.85rem; opacity: 0.9;'>Job ID for this analysis:</div>
-                        <div style='font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em; 
-                                   font-family: "Courier New", monospace; margin-top: 0.3rem;'>
-                            {current_job_id}
-                        </div>
-                    </div>
-                    <div style='text-align: right;'>
-                        <div style='font-size: 0.85rem; opacity: 0.9;'>
-                            💾 Results saved<br/>
-                            🔍 Retrieve anytime with this ID
-                        </div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
         primary_sequence_name = st.session_state.names[0] if st.session_state.names else "Unknown Sequence"
         analysis_time = st.session_state.get('analysis_time', 0)
         
