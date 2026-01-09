@@ -25,6 +25,7 @@ ARCHITECTURE:
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import matplotlib.pyplot as plt
 import os  # Added for image path checking
@@ -61,7 +62,9 @@ from utilities import (
     plot_manhattan_motif_density, plot_cumulative_motif_distribution,
     plot_motif_cooccurrence_matrix, plot_gc_content_correlation,
     plot_linear_motif_track, plot_cluster_size_distribution,
-    plot_motif_length_kde
+    plot_motif_length_kde,
+    # UI Components
+    create_collapsible_card
 )
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
@@ -3987,45 +3990,68 @@ with tab_pages["Documentation"]:
     # ==================================================================
     st.markdown("## ❓ Frequently Asked Questions")
     
-    with st.expander("**Q: What's the difference between Class and Subclass?**"):
-        st.markdown("""
-        **Class** refers to the major structural category (e.g., G-Quadruplex, Z-DNA), while **Subclass** 
-        provides refined classification (e.g., Canonical_G4, Bulge_G4, Long_Loop_G4). Subclasses reflect 
-        variations in loop length, bulge presence, or other structural nuances.
-        """)
+    # FAQ 1: Class vs Subclass
+    faq1_content = """
+    <p><strong>Class</strong> refers to the major structural category (e.g., G-Quadruplex, Z-DNA), while <strong>Subclass</strong> 
+    provides refined classification (e.g., Canonical_G4, Bulge_G4, Long_Loop_G4). Subclasses reflect 
+    variations in loop length, bulge presence, or other structural nuances.</p>
+    """
+    components.html(create_collapsible_card(
+        title="<strong>Q: What's the difference between Class and Subclass?</strong>",
+        content=faq1_content,
+        card_id="faq-class-subclass"
+    ), height=None)
     
-    with st.expander("**Q: Why are some motifs overlapping?**"):
-        st.markdown("""
-        Overlapping motifs occur when different structural classes or subclasses occupy the same genomic region. 
-        The system reports all detected structures and flags overlaps as "Hybrid Motifs" for further analysis. 
-        In reality, only one structure likely forms at a time depending on cellular conditions.
-        """)
+    # FAQ 2: Overlapping motifs
+    faq2_content = """
+    <p>Overlapping motifs occur when different structural classes or subclasses occupy the same genomic region. 
+    The system reports all detected structures and flags overlaps as "Hybrid Motifs" for further analysis. 
+    In reality, only one structure likely forms at a time depending on cellular conditions.</p>
+    """
+    components.html(create_collapsible_card(
+        title="<strong>Q: Why are some motifs overlapping?</strong>",
+        content=faq2_content,
+        card_id="faq-overlapping"
+    ), height=None)
     
-    with st.expander("**Q: How should I interpret enrichment p-values?**"):
-        st.markdown("""
-        A **low p-value (< 0.05)** indicates that the observed pattern is significantly different from random 
-        expectation, suggesting biological constraint or functional relevance. A **high p-value (> 0.05)** 
-        suggests the pattern is largely explained by sequence composition alone.
-        """)
+    # FAQ 3: P-values interpretation
+    faq3_content = """
+    <p>A <strong>low p-value (< 0.05)</strong> indicates that the observed pattern is significantly different from random 
+    expectation, suggesting biological constraint or functional relevance. A <strong>high p-value (> 0.05)</strong> 
+    suggests the pattern is largely explained by sequence composition alone.</p>
+    """
+    components.html(create_collapsible_card(
+        title="<strong>Q: How should I interpret enrichment p-values?</strong>",
+        content=faq3_content,
+        card_id="faq-pvalues"
+    ), height=None)
     
-    with st.expander("**Q: Can I use NonBDNAFinder for clinical genomics?**"):
-        st.markdown("""
-        Yes — the tool has been validated for detecting disease-associated repeat expansions (STRs) and 
-        fragile sites. However, for clinical use, always validate findings with orthogonal methods 
-        (e.g., PCR, Southern blot, sequencing).
-        """)
+    # FAQ 4: Clinical genomics
+    faq4_content = """
+    <p>Yes — the tool has been validated for detecting disease-associated repeat expansions (STRs) and 
+    fragile sites. However, for clinical use, always validate findings with orthogonal methods 
+    (e.g., PCR, Southern blot, sequencing).</p>
+    """
+    components.html(create_collapsible_card(
+        title="<strong>Q: Can I use NonBDNAFinder for clinical genomics?</strong>",
+        content=faq4_content,
+        card_id="faq-clinical"
+    ), height=None)
     
-    with st.expander("**Q: What's the recommended citation?**"):
-        st.markdown("""
-        If you use NonBDNAFinder in your research, please cite:
-        
-        **NonBDNAFinder: Comprehensive Detection and Analysis of Non-B DNA Motifs**  
-        Dr. Venkata Rajesh Yella  
-        GitHub: https://github.com/VRYella/NonBDNAFinder  
-        Email: yvrajesh_bt@kluniversity.in
-        
-        For methodology references, see the peer-reviewed publications listed in the references section below.
-        """)
+    # FAQ 5: Citation
+    faq5_content = """
+    <p>If you use NonBDNAFinder in your research, please cite:</p>
+    <p><strong>NonBDNAFinder: Comprehensive Detection and Analysis of Non-B DNA Motifs</strong><br>
+    Dr. Venkata Rajesh Yella<br>
+    GitHub: <a href="https://github.com/VRYella/NonBDNAFinder" target="_blank">https://github.com/VRYella/NonBDNAFinder</a><br>
+    Email: yvrajesh_bt@kluniversity.in</p>
+    <p>For methodology references, see the peer-reviewed publications listed in the references section below.</p>
+    """
+    components.html(create_collapsible_card(
+        title="<strong>Q: What's the recommended citation?</strong>",
+        content=faq5_content,
+        card_id="faq-citation"
+    ), height=None)
     
     # ==================================================================
     # SECTION 12: REFERENCES
