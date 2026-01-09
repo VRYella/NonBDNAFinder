@@ -2498,11 +2498,11 @@ with tab_pages["Upload & Analyze"]:
                             chunk_counter['total'] = total_chunks
                             if show_chunk_progress:
                                 # Ephemeral progress (replaces previous)
-                                chunk_progress_placeholder.info(f"⚡ Parallel scanner processing chunks: {chunk_num}/{total_chunks} ({(chunk_num / total_chunks) * 100:.1f}%)")
+                                chunk_progress_placeholder.info(f"⚡ Parallel chunked processing: {chunk_num}/{total_chunks} ({(chunk_num / total_chunks) * 100:.1f}%)")
                         
                         # Run parallel chunked analysis with progress callback
                         # Use ephemeral status (replaces previous message)
-                        status_placeholder.info(f"⚡ Using parallel chunked scanner for {len(seq):,} bp sequence")
+                        status_placeholder.info(f"⚡ Using parallel chunked processing for {len(seq):,} bp sequence")
                         
                         # Use analyze_sequence with chunking enabled and parallel processing
                         results = analyze_sequence(
@@ -2518,7 +2518,7 @@ with tab_pages["Upload & Analyze"]:
                             chunk_progress_placeholder.success(f"✅ Parallel chunks complete: {len(results)} motifs from {chunk_counter['total']} chunks")
                         
                         # Ephemeral success message (replaces previous)
-                        status_placeholder.success(f"✅ Parallel scanner completed: {len(results)} motifs detected")
+                        status_placeholder.success(f"✅ Parallel chunked processing completed: {len(results)} motifs detected")
                     else:
                         # Use standard consolidated NBDScanner analysis
                         results = analyze_sequence(seq, name)
