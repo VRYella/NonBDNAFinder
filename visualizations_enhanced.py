@@ -31,7 +31,9 @@ from typing import List, Dict, Any, Tuple, Optional
 from collections import defaultdict
 import warnings
 
-warnings.filterwarnings("ignore")
+# Suppress specific warnings during statistical calculations
+warnings.filterwarnings("ignore", category=RuntimeWarning)  # Numpy/Scipy runtime warnings
+warnings.filterwarnings("ignore", category=FutureWarning)   # Matplotlib deprecation warnings
 
 # Try to import plotly for interactive plots
 try:
