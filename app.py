@@ -1721,28 +1721,7 @@ with tab_pages["Home"]:
     </div>
     """, unsafe_allow_html=True)
     
-    # ========== STATUS BADGE TABS ==========
-    # Display project status information using reusable badge-tab styling
-    st.markdown("""
-    <div class="badge-tabs-container badge-tabs-container--centered">
-        <div class="badge-tab badge-tab--version badge-tab--split">
-            <span class="badge-tab__label">Version</span>
-            <span class="badge-tab__value">2025.1</span>
-        </div>
-        <div class="badge-tab badge-tab--quality badge-tab--split">
-            <span class="badge-tab__label">Quality</span>
-            <span class="badge-tab__value">Nobel-Level</span>
-        </div>
-        <div class="badge-tab badge-tab--license badge-tab--split">
-            <span class="badge-tab__label">License</span>
-            <span class="badge-tab__value">MIT</span>
-        </div>
-        <div class="badge-tab badge-tab--status badge-tab--split">
-            <span class="badge-tab__label">Status</span>
-            <span class="badge-tab__value">Production</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+
     
     # ========== MAIN CONTENT GRID ==========
     left, right = st.columns([1, 1], gap="large")
