@@ -1046,15 +1046,6 @@ UI_COMPONENT_STYLES = {
         'padding': '1.2rem',
     },
     
-    # Popover styles - Using centralized colors
-    'popover': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '16px',
-        'padding': '1rem',
-        'shadow': '0 4px 20px rgba(0,0,0,0.15)',
-    },
-    
     # Expander/Accordion styles - Using centralized colors
     'expander': {
         'header_bg': GLOBAL_COLORS['neutral_50'],
@@ -2026,15 +2017,23 @@ with tab_pages["Upload & Analyze"]:
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Show preview of first few sequences using popover for better UX
-                    with st.popover(UI_TEXT['upload_preview_button']):
-                        for prev in preview_info['previews']:
-                            st.markdown(f"**{prev['name']}**: {prev['length']:,} bp")
-                            stats = get_basic_stats(prev['preview'].replace('...', ''))
-                            st.caption(f"GC: {stats['GC%']}% | AT: {stats['AT%']}%")
-                        
-                        if preview_info['num_sequences'] > 3:
-                            st.caption(f"...and {preview_info['num_sequences']-3} more sequences.")
+                    # Show preview of first few sequences using collapsible card for better UX
+                    preview_content = ""
+                    for prev in preview_info['previews']:
+                        stats = get_basic_stats(prev['preview'].replace('...', ''))
+                        preview_content += f"<p><strong>{prev['name']}</strong>: {prev['length']:,} bp<br>"
+                        preview_content += f"<span style='font-size: 0.85em; color: #666;'>GC: {stats['GC%']}% | AT: {stats['AT%']}%</span></p>"
+                    
+                    if preview_info['num_sequences'] > 3:
+                        preview_content += f"<p style='font-size: 0.85em; color: #666;'>...and {preview_info['num_sequences']-3} more sequences.</p>"
+                    
+                    card_html = create_collapsible_card(
+                        title=UI_TEXT['upload_preview_button'],
+                        content=preview_content,
+                        card_id="preview-sequences",
+                        default_open=False
+                    )
+                    components.html(card_html, height=None)
                     
                     # Now parse all sequences using chunked parsing for memory efficiency
                     seqs, names = [], []
@@ -2178,15 +2177,23 @@ with tab_pages["Upload & Analyze"]:
             st.session_state.names = names
             st.session_state.results = []
 
-        # Compact sequence validation indicator using popover for cleaner UI
+        # Compact sequence validation indicator using collapsible card for cleaner UI
         if st.session_state.get('seqs'):
-            with st.popover("Success: Validation Summary"):
-                for i, seq in enumerate(st.session_state.seqs[:3]):
-                    stats = get_basic_stats(seq)
-                    st.markdown(f"**{st.session_state.names[i]}** ({len(seq):,} bp)")
-                    st.caption(f"GC: {stats['GC%']}% | AT: {stats['AT%']}%")
-                if len(st.session_state.seqs) > 3:
-                    st.caption(f"...and {len(st.session_state.seqs)-3} more.")
+            validation_content = ""
+            for i, seq in enumerate(st.session_state.seqs[:3]):
+                stats = get_basic_stats(seq)
+                validation_content += f"<p><strong>{st.session_state.names[i]}</strong> ({len(seq):,} bp)<br>"
+                validation_content += f"<span style='font-size: 0.85em; color: #666;'>GC: {stats['GC%']}% | AT: {stats['AT%']}%</span></p>"
+            if len(st.session_state.seqs) > 3:
+                validation_content += f"<p style='font-size: 0.85em; color: #666;'>...and {len(st.session_state.seqs)-3} more.</p>"
+            
+            card_html = create_collapsible_card(
+                title="✓ Validation Summary",
+                content=validation_content,
+                card_id="validation-summary",
+                default_open=False
+            )
+            components.html(card_html, height=None)
     
     with col2:
         # RIGHT COLUMN: Analysis & Run
