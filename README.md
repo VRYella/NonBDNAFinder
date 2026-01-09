@@ -140,41 +140,41 @@ See **[OUTPUT_SCHEMA.md](./OUTPUT_SCHEMA.md)** for complete documentation with e
 
 ## 📁 Project Structure (Modernized)
 
-The application is unified into **exactly 4 core modules** for clarity:
+The application is unified into **exactly 4 core modules** for clarity and performance:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ FILE                SIZE     PURPOSE                            │
 ├─────────────────────────────────────────────────────────────────┤
-│ app.py              184 KB   Streamlit web application UI      │
-│ detectors.py        212 KB   All motif detector classes        │
-│ nonbscanner.py       76 KB   Core detection engine & API       │
-│ utilities.py        314 KB   Export, visualization, utilities  │
+│ app.py              ~200 KB  Streamlit web application UI      │
+│ detectors.py        ~200 KB  All motif detector classes        │
+│ nonbscanner.py       ~75 KB  Core detection engine & API       │
+│ utilities.py        ~300 KB  Export, visualization, utilities  │
 ├─────────────────────────────────────────────────────────────────┤
-│ TOTAL               786 KB   4 modules (consolidated)          │
+│ TOTAL               ~775 KB  4 modules (consolidated)          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Core Files
-1. **`app.py`** (184 KB) - Streamlit web application
+1. **`app.py`** - Streamlit web application
    - Modern vibrant UI with compact layout
-   - All tunable parameters at top (lines 115-1103)
+   - All tunable parameters at top
    - No job management (session-based only)
    - Inline advanced options (no expanders)
    
-2. **`utilities.py`** (314 KB) - Utilities, export, and visualization
+2. **`utilities.py`** - Utilities, export, and visualization
    - Sequence processing functions
    - Data export (CSV, BED, JSON, Excel, PDF)
-   - 25+ publication-quality visualization functions
+   - 20+ publication-quality visualization functions
    - Memory management and optimization
    
-3. **`nonbscanner.py`** (76 KB) - Main scanner API
+3. **`nonbscanner.py`** - Main scanner API
    - Analysis orchestration with tabular annotations
    - Hybrid and cluster detection
    - Score normalization (1-3 scale)
    - Progress tracking
    
-4. **`detectors.py`** (212 KB) - All detector classes
+4. **`detectors.py`** - All detector classes
    - 11 motif detector classes consolidated
    - Pattern matching with hyperscan prefiltering
    - Component extraction and scoring
@@ -184,15 +184,14 @@ The application is unified into **exactly 4 core modules** for clarity:
 - `requirements.txt` - Python dependencies (hyperscan mandatory!)
 
 ### Documentation
-- `MODERNIZATION_SUMMARY.md` - ⭐ **NEW** - Complete modernization details
+- `MODERNIZATION_SUMMARY.md` - Complete modernization details
+- `QUICK_START_GUIDE.md` - Quick start guide
 - `README.md` - This file (updated architecture)
-- Other guides retained for reference
 
 ## 📖 Documentation
 
-- **[Benchmark Executive Summary](./BENCHMARK_EXECUTIVE_SUMMARY.md)**: ⭐ **NEW** - Performance comparison vs. competitors
-- **[Benchmarking Comparison](./BENCHMARKING_COMPARISON.md)**: ⭐ **NEW** - Comprehensive 9-section analysis
-- **[Output Schema](./OUTPUT_SCHEMA.md)**: Minimal reporting format
+- **[Quick Start Guide](./QUICK_START_GUIDE.md)**: Getting started quickly
+- **[Modernization Summary](./MODERNIZATION_SUMMARY.md)**: Architecture and improvements
 - **[API Documentation](./app.py)**: Complete function reference
 - **[Excel Registry](./pattern_registry2.xlsx)**: Pattern database
 - **[Performance Guide](./PERFORMANCE_GUIDE.md)**: Optimization tips

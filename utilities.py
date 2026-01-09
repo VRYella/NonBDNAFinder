@@ -2226,25 +2226,6 @@ def calculate_tm(sequence: str) -> float:
     
     return tm
 
-def shuffle_sequence(sequence: str, seed: Optional[int] = None) -> str:
-    """
-    Generate shuffled version of sequence (preserving composition)
-    
-    Args:
-        sequence: DNA sequence string
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Shuffled sequence
-    """
-    import random
-    if seed is not None:
-        random.seed(seed)
-    
-    seq_list = list(sequence.upper())
-    random.shuffle(seq_list)
-    return ''.join(seq_list)
-
 # =============================================================================
 # STATISTICS & ANALYSIS FUNCTIONS
 # =============================================================================
@@ -3718,168 +3699,37 @@ def calculate_positional_density(motifs: List[Dict[str, Any]],
     return density_by_class
 
 
-def calculate_enrichment_with_shuffling(motifs: List[Dict[str, Any]], 
-                                       sequence: str,
-                                       n_shuffles: int = 100,
-                                       by_class: bool = True,
-                                       by_subclass: bool = False,
-                                       progress_callback=None) -> Dict[str, Any]:
-    """
-    Calculate fold enrichment and statistical significance using sequence shuffling.
-    
-    Compares observed motif density against background (shuffled sequences).
-    
-    Fold Enrichment = D_Observed / D_Background
-    where D = Motif Density = Total bp of motif / Total bp of region
-    
-    Args:
-        motifs: List of detected motifs in original sequence
-        sequence: Original DNA sequence
-        n_shuffles: Number of shuffling iterations (default: 100)
-        by_class: If True, calculate enrichment per motif class
-        by_subclass: If True, calculate enrichment per motif subclass (takes precedence over by_class)
-        progress_callback: Optional callback function for progress updates
-        
-    Returns:
-        Dictionary with enrichment metrics including:
-        - fold_enrichment: Observed/Background ratio
-        - p_value: Statistical significance
-        - observed_density: Density in original sequence
-        - background_mean: Mean density in shuffled sequences
-        - background_std: Std deviation of background
-    """
-    # Import analyze_sequence locally to avoid circular dependency
-    # (nonbscanner imports from utilities, so we can't import at module level)
-    try:
-        from nonbscanner import analyze_sequence
-    except ImportError:
-        logger.error("Failed to import analyze_sequence from nonbscanner")
-        return {}
-    
-    if not motifs or not sequence:
-        return {}
-    
-    sequence_length = len(sequence)
-    
-    # Calculate observed densities (genomic density is used for enrichment)
-    observed_genomic_density = calculate_genomic_density(motifs, sequence_length, 
-                                                         by_class=by_class, 
-                                                         by_subclass=by_subclass)
-    
-    # Initialize background storage
-    if by_subclass:
-        # Create keys for all unique subclass combinations
-        subclass_keys = set()
-        for m in motifs:
-            class_name = m.get('Class', 'Unknown')
-            subclass_name = m.get('Subclass', 'Unknown')
-            key = f"{class_name}:{subclass_name}"
-            subclass_keys.add(key)
-        background_densities = {key: [] for key in subclass_keys}
-        background_densities['Overall'] = []
-    elif by_class:
-        class_names = set(m.get('Class', 'Unknown') for m in motifs)
-        background_densities = {cls: [] for cls in class_names}
-        background_densities['Overall'] = []
-    else:
-        background_densities = {'Overall': []}
-    
-    # Perform shuffling and detection
-    for i in range(n_shuffles):
-        if progress_callback:
-            progress_callback(i + 1, n_shuffles)
-        
-        # Shuffle sequence
-        shuffled_seq = shuffle_sequence(sequence)
-        
-        # Detect motifs in shuffled sequence
-        try:
-            shuffled_motifs = analyze_sequence(shuffled_seq, f"shuffled_{i}")
-            
-            # Calculate density for shuffled sequence
-            shuffled_density = calculate_genomic_density(shuffled_motifs, sequence_length, 
-                                                        by_class=by_class,
-                                                        by_subclass=by_subclass)
-            
-            # Store background densities
-            for key in background_densities.keys():
-                background_densities[key].append(shuffled_density.get(key, 0.0))
-        
-        except Exception as e:
-            # If shuffled analysis fails, record zero density
-            logger.warning(f"Shuffled analysis {i} failed: {e}")
-            for key in background_densities.keys():
-                background_densities[key].append(0.0)
-    
-    # Calculate enrichment statistics
-    enrichment_results = {}
-    
-    for group_name, bg_densities in background_densities.items():
-        bg_densities = [d for d in bg_densities if d is not None]
-        
-        if not bg_densities:
-            continue
-        
-        obs_density = observed_genomic_density.get(group_name, 0.0)
-        bg_mean = np.mean(bg_densities)
-        bg_std = np.std(bg_densities)
-        
-        # Calculate fold enrichment
-        if bg_mean > 0:
-            fold_enrichment = obs_density / bg_mean
-        else:
-            # When background is zero, use infinity if observed > 0, else default value
-            fold_enrichment = float('inf') if obs_density > 0 else DEFAULT_FOLD_ENRICHMENT_WHEN_ZERO_BACKGROUND
-        
-        # Calculate p-value (proportion of shuffled >= observed)
-        if bg_densities:
-            p_value = sum(1 for bg in bg_densities if bg >= obs_density) / len(bg_densities)
-        else:
-            p_value = 1.0
-        
-        # Count motifs for this group
-        if by_subclass and group_name != 'Overall':
-            # Split the key to get class and subclass
-            class_part, subclass_part = group_name.split(':', 1)
-            observed_count = len([m for m in motifs 
-                                if m.get('Class', 'Unknown') == class_part 
-                                and m.get('Subclass', 'Unknown') == subclass_part])
-        elif by_class and group_name != 'Overall':
-            observed_count = len([m for m in motifs if m.get('Class', 'Unknown') == group_name])
-        else:
-            observed_count = len(motifs)
-        
-        enrichment_results[group_name] = {
-            'observed_density': round(obs_density, 4),
-            'background_mean': round(bg_mean, 4),
-            'background_std': round(bg_std, 4),
-            'fold_enrichment': round(fold_enrichment, 2) if not np.isinf(fold_enrichment) else 'Inf',
-            'p_value': round(p_value, 4),
-            'n_shuffles': n_shuffles,
-            'observed_count': observed_count
-        }
-    
-    return enrichment_results
-
-
 def calculate_enhanced_statistics(motifs: List[Dict[str, Any]], 
                                   sequence: str,
-                                  include_enrichment: bool = True,
-                                  n_shuffles: int = 100,
+                                  include_enrichment: bool = False,
+                                  n_shuffles: int = 0,
                                   progress_callback=None) -> Dict[str, Any]:
     """
-    Calculate comprehensive statistics including density and enrichment analysis.
+    Calculate comprehensive statistics including density analysis.
+    
+    Note: Enrichment analysis has been removed for performance optimization.
     
     Args:
         motifs: List of detected motifs
         sequence: Original DNA sequence
-        include_enrichment: Whether to perform enrichment analysis (time-consuming)
-        n_shuffles: Number of shuffles for enrichment analysis
+        include_enrichment: Deprecated (kept for backward compatibility)
+        n_shuffles: Deprecated (kept for backward compatibility)
         progress_callback: Optional callback for progress updates
         
     Returns:
         Dictionary with comprehensive statistics
     """
+    import warnings
+    
+    # Warn about deprecated parameters
+    if include_enrichment or n_shuffles > 0:
+        warnings.warn(
+            "The 'include_enrichment' and 'n_shuffles' parameters are deprecated. "
+            "Enrichment analysis has been removed for performance optimization.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+    
     sequence_length = len(sequence)
     
     # Basic statistics
@@ -3896,14 +3746,6 @@ def calculate_enhanced_statistics(motifs: List[Dict[str, Any]],
         'positional_density_per_kbp': positional_density_kbp,
         'positional_density_per_mbp': positional_density_mbp
     }
-    
-    # Enrichment analysis (optional, time-consuming)
-    if include_enrichment and motifs:
-        enrichment_results = calculate_enrichment_with_shuffling(
-            motifs, sequence, n_shuffles=n_shuffles, 
-            by_class=True, progress_callback=progress_callback
-        )
-        enhanced_stats['enrichment'] = enrichment_results
     
     return enhanced_stats
 
@@ -5692,8 +5534,11 @@ def plot_enrichment_analysis(enrichment_results: Dict[str, Dict[str, Any]],
     """
     Plot enrichment analysis results with fold enrichment and p-values.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         figsize: Figure size
         
@@ -5787,8 +5632,11 @@ def plot_enrichment_summary_table(enrichment_results: Dict[str, Dict[str, Any]],
     """
     Create a summary table visualization for enrichment results.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         
     Returns:
@@ -6268,8 +6116,11 @@ def plot_enrichment_analysis_by_subclass(enrichment_results: Dict[str, Dict[str,
     """
     Plot enrichment analysis results at subclass level with fold enrichment and p-values.
     
+    Note: Enrichment analysis has been removed for performance.
+    This function is kept for backward compatibility with legacy data.
+    
     Args:
-        enrichment_results: Dictionary from calculate_enrichment_with_shuffling with by_subclass=True
+        enrichment_results: Dictionary with enrichment metrics
         title: Plot title
         figsize: Figure size
         

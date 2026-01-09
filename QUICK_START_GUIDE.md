@@ -1,98 +1,98 @@
-# Quick Start Guide: New Statistical Features
+# Quick Start Guide: NonBDNAFinder
 
-## 🎯 What's New?
+## 🎯 What's This Tool?
 
-NonBDNAFinder now includes advanced statistical enrichment and structural pattern analysis!
+NonBDNAFinder is a comprehensive tool for detecting and analyzing Non-B DNA structures in genomic sequences. It identifies 11 motif classes with high accuracy and provides publication-ready visualizations.
 
 ## 🚀 How to Use
 
-### Step 1: Run Analysis
+### Step 1: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 2: Run Analysis
 1. Open NonBDNAFinder app: `streamlit run app.py`
-2. Upload your sequence (or use example data)
+2. Upload your sequence (FASTA format) or use example data
 3. Click "Run Complete Motif Analysis"
-4. **New**: Wait ~5-10 seconds for statistical analysis to complete
+4. Wait for analysis to complete (~13,000 bp/s typical speed)
 
-### Step 2: View Statistical Results
+### Step 3: View Results
 1. Go to **"Results"** tab
-2. Click on **"Figure 4: Statistical Enrichment & Structural Analysis"**
-3. Explore two panels:
-   - **Panel G**: Statistical enrichment (p-values, z-scores)
-   - **Panel H**: Structural patterns (blocks, hybrids, clusters)
+2. Explore multiple visualization panels:
+   - **Figure 1**: Global landscape of detected motifs
+   - **Figure 2**: Clustering and co-occurrence patterns
+   - **Figure 3**: Structural constraints (optional)
 
-### Step 3: Download Enhanced Data
+### Step 4: Download Data
 1. Go to **"Download"** tab
-2. Scroll to **"Download Enrichment & Structural Analysis Data"**
-3. Choose your export:
-   - **Enrichment Analysis (CSV)**: Statistical metrics
-   - **Structural Analysis (Excel)**: Blocks, hybrids, clusters
-   - **Complete Package (Excel)**: Everything combined
+2. Choose your export format:
+   - **CSV**: Simple tabular format
+   - **BED**: Genome browser format
+   - **Excel**: Multi-sheet workbook with statistics
+   - **JSON**: Structured data format
 
 ## 📊 What You'll See
 
-### Enrichment Analysis
-- **100× shuffle-based null model** for statistical rigor
-- **P-values** showing if patterns are statistically significant
-- **Z-scores** quantifying enrichment strength
-- **Violin plots** comparing observed vs. expected distributions
+### Motif Detection
+- **11 motif classes**: A-philic, Curved DNA, G-Quadruplex, i-Motif, Z-DNA, R-loops, Cruciform, Triplex, Slipped DNA, Hybrid, and Clusters
+- **Confidence scores**: 1-3 scale for each detection
+- **Detailed annotations**: Position, length, strand, and motif-specific features
 
-### Structural Patterns
-- **Pattern-rich blocks**: High-density genomic regions
-- **Hybrid zones**: Areas where multiple motif classes overlap
-- **Clusters**: Spatial groupings of motifs
-- **Interaction matrices**: Which classes co-occur most often
+### Visualizations
+- **Distribution plots**: See where motifs are located
+- **Density heatmaps**: Identify hotspots
+- **Co-occurrence matrices**: Understand motif interactions
+- **Class/subclass breakdowns**: Detailed classification
 
 ## 💡 Quick Tips
 
-1. **Statistical Significance**:
-   - P-value < 0.05: Significant enrichment
-   - P-value < 0.01: Highly significant enrichment
+1. **File Formats**:
+   - Supports FASTA, multi-FASTA
+   - Handles large files (100+ MB) automatically
+   - Accepts compressed files (.gz)
 
-2. **Structural Insights**:
-   - Blocks show where motifs concentrate
-   - Hybrids reveal structural interactions
-   - Clusters indicate regulatory hotspots
-
-3. **Performance**:
-   - Analysis adds ~5-10 seconds per sequence
+2. **Performance**:
+   - Typical speed: ~13,000 bp/s
+   - Large sequences processed in chunks
    - All visualizations are publication-ready (300 DPI)
-   - Exports include all detailed metrics
+
+3. **Understanding Results**:
+   - Score 3.0: High confidence detection
+   - Score 2.0-2.99: Medium confidence
+   - Score 1.0-1.99: Low confidence but detectable
 
 ## 🔍 Example Interpretation
 
 **If you see**:
-- P-value = 0.02 for pattern count → Your sequence has **significantly more** motifs than expected by chance
-- 5 hybrid zones detected → Multiple motif classes **frequently overlap**
-- 3 clusters with stability > 0.8 → **Stable regulatory hotspots** identified
+- 50 G-Quadruplex motifs → Your sequence has strong G-quadruplex forming potential
+- High density in promoter region → Potential regulatory significance
+- Multiple hybrid zones → Complex structural interactions
 
 ## 📚 Learn More
 
-- **INTEGRATION_COMPLETE.md**: Full technical documentation
-- **INTEGRATION_GUIDE.md**: Developer integration guide
-- **Module documentation**: enrichment.py, structural_analysis.py, visualizations_enhanced.py
+- **README.md**: Full documentation and features
+- **MODERNIZATION_SUMMARY.md**: Architecture details
+- **Pattern registry**: pattern_registry2.xlsx
 
 ## ✅ Verification
 
 Run this test to verify installation:
 ```bash
 python3 -c "
-from enrichment import run_enrichment_analysis
-from structural_analysis import run_structural_analysis
 from nonbscanner import analyze_sequence
 
 test_seq = 'GGGTTAGGGTTAGGGTTAGGG' * 20
 motifs = analyze_sequence(test_seq, 'test')
-enr = run_enrichment_analysis(test_seq, motifs, n_shuffles=10)
-struct = run_structural_analysis(test_seq, motifs)
 
-print('✅ All modules working correctly!')
+print('✅ NonBDNAFinder working correctly!')
 print(f'Detected {len(motifs)} motifs')
-print(f'Enrichment p-value: {enr[\"enrichment_scores\"][\"pattern_count\"][\"pvalue\"]:.4f}')
-print(f'Structural features: {struct[\"summary\"][\"num_blocks\"]} blocks')
+print(f'Classes found: {set(m[\"Class\"] for m in motifs)}')
 "
 ```
 
-Expected output: No errors, motifs detected, p-value calculated
+Expected output: No errors, motifs detected successfully
 
 ---
 
-**Enjoy your enhanced NonBDNAFinder with statistical rigor!** 🎉
+**Enjoy your NonBDNAFinder analysis!** 🎉
