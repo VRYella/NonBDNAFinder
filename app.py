@@ -3008,214 +3008,334 @@ with tab_pages["Results"]:
         at the bottom of this page. The visualizations below present the key findings in a publication-ready format.
         """)
         
-        # NATURE-READY VISUALIZATION SUITE
+        # RESULTS — SUB-TABS ARCHITECTURE (Genomic Purple/Pink/Magenta Theme)
         st.markdown(f'<h3>{UI_TEXT["heading_results_viz"]}</h3>', unsafe_allow_html=True)
         
-        # Scientific Transparency Badge
-        st.info(TRANSPARENCY_NOTE)
-        
-        # Create simplified visualization tabs based on Figure Panel layout
+        # Create 5 internal sub-tabs for Results page
         viz_tabs = st.tabs([
-            "📊 Figure 1: Global Landscape", 
-            "🔗 Figure 2: Clustering & Co-occurrence",
-            "📏 Figure 3: Structural Constraints (Optional)",
-            "ℹ️ Figure 4: Note"
+            "[ Overview ]",
+            "[ Motifs ]", 
+            "[ Scores ]",
+            "[ Density ]",
+            "[ Clusters & Hybrids ]"
         ])
         
         # Check if clusters exist
         has_clusters = any(m.get('Class') == 'Non-B_DNA_Clusters' for m in filtered_motifs)
         
+        # Count unique classes and subclasses
+        unique_classes = len(set(m.get('Class', 'Unknown') for m in filtered_motifs))
+        unique_subclasses = len(set(m.get('Subclass', 'Unknown') for m in filtered_motifs))
+        
+        # Calculate hybrids and clusters count
+        hybrid_count = len([m for m in filtered_motifs if m.get('Class') == 'Hybrid'])
+        cluster_count = len([m for m in filtered_motifs if m.get('Class') == 'Non-B_DNA_Clusters'])
+        
         # =================================================================
-        # FIGURE 1: Global Non-B DNA Landscape
+        # TAB 1 — OVERVIEW (Main Dashboard)
         # =================================================================
         with viz_tabs[0]:
-            st.markdown("#### Figure 1: Global Non-B DNA Landscape")
-            st.caption("*Purpose: What structures exist, and where?*")
+            # A. Summary Metrics (6 cards) - Small, vibrant, contrasting
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
             
-            # Panel A: Motif Composition (nested donut + bar plots)
-            st.markdown("##### Panel A: Motif Composition (Class → Subclass)")
-            
-            # Nested pie chart for hierarchical view
-            try:
-                fig_composition = plot_nested_pie_chart(
-                    filtered_motifs, 
-                    title=f"Motif Composition - {sequence_name}"
-                )
-                st.pyplot(fig_composition)
-                plt.close(fig_composition)
-            except Exception as e:
-                st.error(f"Error generating composition plot: {e}")
-            
-            # Bar plots for class and subclass distributions
-            col1, col2 = st.columns(2)
             with col1:
-                try:
-                    fig_class_bar = plot_motif_distribution(
-                        filtered_motifs,
-                        by='Class',
-                        title=f"Motif Class Distribution - {sequence_name}"
-                    )
-                    st.pyplot(fig_class_bar)
-                    plt.close(fig_class_bar)
-                except Exception as e:
-                    st.error(f"Error generating class bar plot: {e}")
-            
+                st.metric("Total Motifs", f"{motif_count}")
             with col2:
-                try:
-                    fig_subclass_bar = plot_motif_distribution(
-                        filtered_motifs,
-                        by='Subclass',
-                        title=f"Motif Subclass Distribution - {sequence_name}"
-                    )
-                    st.pyplot(fig_subclass_bar)
-                    plt.close(fig_subclass_bar)
-                except Exception as e:
-                    st.error(f"Error generating subclass bar plot: {e}")
+                st.metric("Subclasses", f"{unique_subclasses}")
+            with col3:
+                st.metric("Coverage %", f"{coverage_pct:.2f}")
+            with col4:
+                st.metric("Density", f"{non_b_density:.2f}")
+            with col5:
+                st.metric("Hybrids", f"{hybrid_count}")
+            with col6:
+                st.metric("Clusters", f"{cluster_count}")
             
-            # Panel B: Genome-Scale Localization (size-dependent: Manhattan OR Linear)
-            st.markdown("##### Panel B: Genome-Scale Localization")
+            # B. Genome Motif Track (signature plot - thin, full-width, interactive)
             try:
                 if sequence_length > 50000:
-                    # Large sequences: Manhattan plot
-                    st.caption("*Manhattan plot for large genome (>50kb)*")
-                    fig_position = plot_manhattan_motif_density(
+                    fig_track = plot_manhattan_motif_density(
                         filtered_motifs, sequence_length,
-                        title=f"Motif Density Hotspots - {sequence_name}"
+                        title=f"Genome Motif Track - {sequence_name}"
                     )
-                    st.pyplot(fig_position)
-                    plt.close(fig_position)
                 else:
-                    # Small sequences: Linear track
-                    st.caption("*Linear track for short sequence (≤50kb)*")
-                    fig_position = plot_linear_motif_track(
+                    fig_track = plot_linear_motif_track(
                         filtered_motifs, sequence_length,
-                        title=f"Motif Track - {sequence_name}"
+                        title=f"Genome Motif Track - {sequence_name}"
                     )
-                    st.pyplot(fig_position)
-                    plt.close(fig_position)
+                st.pyplot(fig_track)
+                plt.close(fig_track)
             except Exception as e:
-                st.error(f"Error generating localization plot: {e}")
+                st.error(f"Error generating motif track: {e}")
             
-            # Panel C: Genome Coverage (compact bar chart)
-            st.markdown("##### Panel C: Genome Coverage (% per motif class)")
+            # C. High-level Genome Shape Plot (cumulative motif distribution)
             try:
-                # Calculate or retrieve density metrics
-                viz_cache_key = f"seq_{seq_idx}"
-                cached_viz = st.session_state.get('cached_visualizations', {}).get(viz_cache_key, {})
-                cached_densities = cached_viz.get('densities', {})
-                
-                if cached_densities:
-                    genomic_density = cached_densities['class_genomic']
-                    positional_density_kbp = cached_densities['class_positional']
-                else:
-                    genomic_density = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
-                    positional_density_kbp = calculate_positional_density(filtered_motifs, sequence_length, unit='kbp', by_class=True)
-                
-                # Compact visualization: density comparison
-                fig_density = plot_density_comparison(
-                    genomic_density, positional_density_kbp,
-                    title="Motif Density Analysis"
+                fig_cumulative = plot_cumulative_motif_distribution(
+                    filtered_motifs, sequence_length,
+                    title=f"Cumulative Motif Distribution - {sequence_name}"
                 )
-                st.pyplot(fig_density)
-                plt.close(fig_density)
-                    
+                st.pyplot(fig_cumulative)
+                plt.close(fig_cumulative)
             except Exception as e:
-                st.error(f"Error calculating density metrics: {e}")
+                st.error(f"Error generating cumulative distribution: {e}")
         
         # =================================================================
-        # FIGURE 2: Structural Clustering & Co-Occurrence
+        # TAB 2 — MOTIFS
         # =================================================================
         with viz_tabs[1]:
-            st.markdown("#### Figure 2: Structural Clustering & Co-Occurrence")
-            st.caption("*Purpose: Which structures co-localize and form regulatory hotspots?*")
-            
-            # Panel D: Cluster Size Distribution (conditional on cluster existence)
-            if has_clusters:
-                st.markdown("##### Panel D: Cluster Size Distribution")
-                try:
-                    fig_cluster = plot_cluster_size_distribution(
-                        filtered_motifs,
-                        title=f"Cluster Statistics - {sequence_name}"
-                    )
-                    st.pyplot(fig_cluster)
-                    plt.close(fig_cluster)
-                except Exception as e:
-                    st.error(f"Error generating cluster plot: {e}")
-            else:
-                st.info("**Panel D**: No clusters detected (requires multiple motifs in close proximity)")
-            
-            # Panel E: Motif Co-occurrence Matrix (always shown)
-            st.markdown("##### Panel E: Motif Co-occurrence Matrix")
-            st.caption("*Shows which motif classes tend to appear together (overlapping or within 1bp)*")
+            # A. Class Distribution (Top 10 or Top 6) - Compact bar plot
             try:
-                fig_cooccur = plot_motif_cooccurrence_matrix(
+                fig_class_dist = plot_motif_distribution(
                     filtered_motifs,
-                    title=f"Co-occurrence Matrix - {sequence_name}"
+                    by='Class',
+                    title=f"Class Distribution - {sequence_name}"
                 )
-                st.pyplot(fig_cooccur)
-                plt.close(fig_cooccur)
+                st.pyplot(fig_class_dist)
+                plt.close(fig_class_dist)
             except Exception as e:
-                st.error(f"Error generating co-occurrence matrix: {e}")
+                st.error(f"Error generating class distribution: {e}")
+            
+            # B. Subclass Distribution - Pie chart or bar
+            try:
+                fig_subclass = plot_nested_pie_chart(
+                    filtered_motifs, 
+                    title=f"Subclass Distribution - {sequence_name}"
+                )
+                st.pyplot(fig_subclass)
+                plt.close(fig_subclass)
+            except Exception as e:
+                st.error(f"Error generating subclass distribution: {e}")
+            
+            # C. Motif Length Histogram
+            try:
+                fig_length_hist = plot_length_distribution(
+                    filtered_motifs,
+                    title=f"Motif Length Distribution - {sequence_name}"
+                )
+                st.pyplot(fig_length_hist)
+                plt.close(fig_length_hist)
+            except Exception as e:
+                st.error(f"Error generating length histogram: {e}")
+            
+            # D. Mini-table (top 10 rows only) - Collapsed by default
+            with st.expander("📋 Top 10 Motifs Table", expanded=False):
+                if len(df) > 0:
+                    display_cols = ['Class', 'Subclass', 'Start', 'End', 'Length', 'Score']
+                    available_cols = [col for col in display_cols if col in df.columns]
+                    st.dataframe(df[available_cols].head(10), use_container_width=True, height=300)
+                else:
+                    st.info("No motifs to display")
         
         # =================================================================
-        # FIGURE 3: Structural Constraints (Optional/Toggle)
+        # TAB 3 — SCORES
         # =================================================================
         with viz_tabs[2]:
-            st.markdown("#### Figure 3: Structural Constraints")
-            st.caption("*Purpose: What are the physical constraints shaping each motif class?*")
-            st.info("📌 **Optional Figure**: Toggle to include in main report or move to supplementary materials.")
+            # A. Score Distribution (Violin or Box) - Split by top 3 classes or subclass groups
+            try:
+                fig_score_dist = plot_score_distribution(
+                    filtered_motifs, 
+                    by_class=True,
+                    title=f"Score Distribution by Class - {sequence_name}"
+                )
+                st.pyplot(fig_score_dist)
+                plt.close(fig_score_dist)
+            except Exception as e:
+                st.error(f"Error generating score distribution: {e}")
             
-            # User toggle for including this figure
-            show_fig3 = st.checkbox(
-                "Include Figure 3 in main report", 
-                value=True,
-                help="Enable to show structural constraint analysis in main figures"
-            )
-            
-            if show_fig3:
-                # Panel F: Length Distribution by Class (KDE only - no histogram redundancy)
-                st.markdown("##### Panel F: Length Distributions by Class")
+            # B. Score vs Length Scatter (If < 20k motifs) - Pink scatter, slight transparency
+            if len(filtered_motifs) < 20000:
                 try:
-                    fig_length = plot_motif_length_kde(
-                        filtered_motifs,
-                        by_class=True,
-                        title=f"Length Distribution (KDE) - {sequence_name}"
-                    )
-                    st.pyplot(fig_length)
-                    plt.close(fig_length)
+                    # Create scatter plot with score vs length
+                    fig_scatter, ax = plt.subplots(figsize=(10, 6))
+                    
+                    # Extract scores and lengths
+                    scores = [m.get('Score', 0) for m in filtered_motifs]
+                    lengths = [m.get('Length', 0) for m in filtered_motifs]
+                    
+                    # Create scatter with pink/purple color scheme
+                    ax.scatter(lengths, scores, alpha=0.4, c='#D500F9', s=20, edgecolors='#E040FB', linewidth=0.5)
+                    ax.set_xlabel('Motif Length (bp)', fontsize=11, fontweight='bold')
+                    ax.set_ylabel('Score (1-3)', fontsize=11, fontweight='bold')
+                    ax.set_title(f'Score vs Length - {sequence_name}', fontsize=12, fontweight='bold')
+                    ax.grid(True, alpha=0.3, linestyle='--')
+                    
+                    st.pyplot(fig_scatter)
+                    plt.close(fig_scatter)
                 except Exception as e:
-                    st.error(f"Error generating length KDE: {e}")
-                
-                # Optional: Score distribution
-                st.markdown("**Additional: Score Distribution by Class**")
-                try:
-                    fig_score = plot_score_distribution(
-                        filtered_motifs, by_class=True,
-                        title="Score Distribution (1-3 Scale)"
-                    )
-                    st.pyplot(fig_score)
-                    plt.close(fig_score)
-                except Exception as e:
-                    st.error(f"Error generating score distribution: {e}")
+                    st.error(f"Error generating score vs length scatter: {e}")
             else:
-                st.info("✓ Figure 3 hidden from main report (available in supplementary exports)")
-                st.caption(SUPPLEMENTARY_NOTE)
+                st.info(f"Score vs Length scatter skipped ({len(filtered_motifs):,} motifs > 20k threshold)")
+            
+            # C. Score Histogram - To show motif scoring behavior
+            try:
+                fig_score_hist, ax = plt.subplots(figsize=(10, 5))
+                
+                scores = [m.get('Score', 0) for m in filtered_motifs if m.get('Score', 0) > 0]
+                if scores:
+                    ax.hist(scores, bins=30, color='#D500F9', alpha=0.7, edgecolor='#4A148C', linewidth=1.2)
+                    ax.set_xlabel('Score', fontsize=11, fontweight='bold')
+                    ax.set_ylabel('Frequency', fontsize=11, fontweight='bold')
+                    ax.set_title(f'Score Distribution - {sequence_name}', fontsize=12, fontweight='bold')
+                    ax.grid(True, alpha=0.3, linestyle='--', axis='y')
+                    
+                    st.pyplot(fig_score_hist)
+                    plt.close(fig_score_hist)
+                else:
+                    st.info("No scores available for histogram")
+            except Exception as e:
+                st.error(f"Error generating score histogram: {e}")
         
         # =================================================================
-        # FIGURE 4: Removed for Performance Optimization
+        # TAB 4 — DENSITY
         # =================================================================
         with viz_tabs[3]:
-            st.markdown("#### Figure 4: Note on Statistical Analysis")
-            st.info("""
-            ℹ️ **Statistical enrichment and structural analysis have been removed** to improve performance.
+            # A. Density Heatmap - Genome broken into 50-200 bins, purple-pink gradient
+            try:
+                fig_density_heat = plot_density_heatmap(
+                    filtered_motifs, sequence_length,
+                    title=f"Density Heatmap - {sequence_name}"
+                )
+                st.pyplot(fig_density_heat)
+                plt.close(fig_density_heat)
+            except Exception as e:
+                st.error(f"Error generating density heatmap: {e}")
             
-            The tool now focuses on:
-            - Fast and accurate motif detection
-            - Core visualization and analysis
-            - Essential statistics (density, distribution, etc.)
+            # B. Chromosomal/sequence regional map (if region annotations available)
+            # This would require additional region annotation data - skipping if not available
+            st.info("ℹ️ Regional annotation mapping requires additional chromosome/region metadata")
             
-            All other detection capabilities remain fully functional.
-            """)
+            # C. Motif Frequency Curve - Rolling 200bp window (or scaled)
+            try:
+                # Calculate motif frequency using rolling window
+                window_size = min(200, max(50, sequence_length // 100))  # Adaptive window size
+                
+                fig_freq, ax = plt.subplots(figsize=(12, 4))
+                
+                # Create bins for frequency calculation
+                num_bins = max(50, min(200, sequence_length // window_size))
+                bin_size = sequence_length / num_bins
+                
+                # Count motifs per bin
+                bin_counts = [0] * num_bins
+                for motif in filtered_motifs:
+                    start = motif.get('Start', 0)
+                    bin_idx = min(int(start / bin_size), num_bins - 1)
+                    bin_counts[bin_idx] += 1
+                
+                # Plot frequency curve with purple-pink gradient
+                x_positions = [(i + 0.5) * bin_size for i in range(num_bins)]
+                ax.plot(x_positions, bin_counts, color='#D500F9', linewidth=2, alpha=0.8)
+                ax.fill_between(x_positions, bin_counts, alpha=0.3, color='#EA80FC')
+                
+                ax.set_xlabel('Genomic Position (bp)', fontsize=11, fontweight='bold')
+                ax.set_ylabel('Motif Count', fontsize=11, fontweight='bold')
+                ax.set_title(f'Motif Frequency Curve (Window: {window_size}bp) - {sequence_name}', 
+                            fontsize=12, fontweight='bold')
+                ax.grid(True, alpha=0.3, linestyle='--', axis='y')
+                
+                st.pyplot(fig_freq)
+                plt.close(fig_freq)
+            except Exception as e:
+                st.error(f"Error generating frequency curve: {e}")
+        
+        # =================================================================
+        # TAB 5 — CLUSTERS & HYBRIDS
+        # =================================================================
+        with viz_tabs[4]:
+            # Get hybrid and cluster motifs
+            hybrid_motifs = [m for m in filtered_motifs if m.get('Class') == 'Hybrid']
+            cluster_motifs = [m for m in filtered_motifs if m.get('Class') == 'Non-B_DNA_Clusters']
+            
+            if not hybrid_motifs and not cluster_motifs:
+                st.info("ℹ️ No hybrid or cluster motifs detected in this sequence")
+            else:
+                # A. Cluster Mini-Heatmap (10×N) - Compact, light, fast
+                if cluster_motifs and len(cluster_motifs) > 0:
+                    try:
+                        # Show top 10 clusters in a compact heatmap format
+                        st.markdown("**Cluster Distribution Heatmap**")
+                        
+                        # Extract cluster info for heatmap
+                        cluster_data = []
+                        for i, cluster in enumerate(cluster_motifs[:10]):  # Top 10 only
+                            cluster_data.append({
+                                'Position': cluster.get('Start', 0),
+                                'Length': cluster.get('Length', 0),
+                                'Score': cluster.get('Score', 0)
+                            })
+                        
+                        if cluster_data:
+                            cluster_df = pd.DataFrame(cluster_data)
+                            st.dataframe(cluster_df, use_container_width=True, height=300)
+                    except Exception as e:
+                        st.error(f"Error generating cluster heatmap: {e}")
+                
+                # B. Hybrid Radar Plot - Axes = motif classes, Radius = hybrid count, Gradient fill
+                if hybrid_motifs and len(hybrid_motifs) > 0:
+                    try:
+                        st.markdown("**Hybrid Motif Distribution**")
+                        
+                        # Count hybrids by participating classes
+                        from collections import Counter
+                        hybrid_class_counts = Counter()
+                        
+                        for motif in hybrid_motifs:
+                            # Hybrids may contain multiple class info
+                            classes = motif.get('Participating_Classes', motif.get('Class', 'Unknown'))
+                            if isinstance(classes, str):
+                                for cls in classes.split(','):
+                                    hybrid_class_counts[cls.strip()] += 1
+                        
+                        # Display as simple bar chart (radar requires more complex setup)
+                        if hybrid_class_counts:
+                            fig_hybrid, ax = plt.subplots(figsize=(10, 5))
+                            
+                            classes = list(hybrid_class_counts.keys())[:10]  # Top 10
+                            counts = [hybrid_class_counts[c] for c in classes]
+                            
+                            bars = ax.barh(classes, counts, color='#D500F9', alpha=0.7, edgecolor='#4A148C', linewidth=1.2)
+                            ax.set_xlabel('Hybrid Count', fontsize=11, fontweight='bold')
+                            ax.set_title(f'Hybrid Motif Class Distribution - {sequence_name}', fontsize=12, fontweight='bold')
+                            ax.grid(True, alpha=0.3, linestyle='--', axis='x')
+                            
+                            st.pyplot(fig_hybrid)
+                            plt.close(fig_hybrid)
+                    except Exception as e:
+                        st.error(f"Error generating hybrid plot: {e}")
+                
+                # C. Co-occurrence Matrix (10×10) - Tiny, compact, meaningful
+                try:
+                    st.markdown("**Co-occurrence Matrix**")
+                    
+                    fig_cooccur = plot_motif_cooccurrence_matrix(
+                        filtered_motifs,
+                        title=f"Co-occurrence Matrix - {sequence_name}"
+                    )
+                    st.pyplot(fig_cooccur)
+                    plt.close(fig_cooccur)
+                except Exception as e:
+                    st.error(f"Error generating co-occurrence matrix: {e}")
+                
+                # D. Top 10 cluster table - Collapsed by default
+                with st.expander("📋 Top 10 Clusters Table", expanded=False):
+                    if cluster_motifs:
+                        cluster_df_data = []
+                        for cluster in cluster_motifs[:10]:
+                            cluster_df_data.append({
+                                'Start': cluster.get('Start', 0),
+                                'End': cluster.get('End', 0),
+                                'Length': cluster.get('Length', 0),
+                                'Score': cluster.get('Score', 0),
+                                'Motif_Count': cluster.get('Motif_Count', 0)
+                            })
+                        
+                        if cluster_df_data:
+                            cluster_table = pd.DataFrame(cluster_df_data)
+                            st.dataframe(cluster_table, use_container_width=True, height=300)
+                        else:
+                            st.info("No cluster data available")
+                    else:
+                        st.info("No clusters detected")
 
 # ---------- DOWNLOAD ----------
 with tab_pages["Download"]:
