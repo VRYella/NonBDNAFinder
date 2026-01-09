@@ -2219,7 +2219,8 @@ with tab_pages["Upload & Analyze"]:
                 <p style='margin: 0.3rem 0;'>🚀 <b>Parallel engine optimized</b></p>
             </div>
             <p style='margin: 0.8rem 0 0 0; color: #388e3c; font-size: 0.85rem; font-style: italic;'>
-                The engine adapts internally based on sequence size and motif density.
+                The system automatically adapts: chunked processing for sequences >100kb, 
+                parallel detection with multiple CPU cores, dynamic memory optimization.
             </p>
         </div>
         """, unsafe_allow_html=True)
