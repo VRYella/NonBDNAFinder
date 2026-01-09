@@ -1608,3 +1608,141 @@ html, body, [data-testid="stAppViewContainer"] {
     background: #FFFFFF !important;
     color: #000000 !important;
 }
+
+/* ============================================
+   COLLAPSIBLE CARD COMPONENT
+   Professional card-based accordion with smooth animations
+   ============================================ */
+
+/* Keyframes for smooth animations */
+@keyframes chevron-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(180deg); }
+}
+
+@keyframes content-fade-in {
+    from { 
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Collapsible card container */
+.collapsible-card {
+    margin: var(--spacing-md) 0 !important;
+    border-radius: var(--border-radius-lg) !important;
+    overflow: hidden;
+    transition: var(--transition-normal);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+    border: 2px solid rgba(96, 165, 250, 0.4) !important;
+    background: #FFFFFF !important;
+}
+
+.collapsible-card:hover {
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25) !important;
+    border-color: rgba(37, 99, 235, 0.6) !important;
+}
+
+/* Card header - clickable */
+.collapsible-card-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0.75rem 1rem !important;
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    transition: var(--transition-normal) !important;
+    border: none !important;
+    width: 100% !important;
+    text-align: left !important;
+    font-family: var(--font-primary) !important;
+    font-size: var(--font-body) !important;
+    font-weight: var(--font-weight-bold) !important;
+    color: var(--text-color) !important;
+}
+
+.collapsible-card-header:hover {
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
+}
+
+.collapsible-card-header:active {
+    transform: scale(0.99);
+}
+
+/* Chevron icon */
+.collapsible-card-chevron {
+    flex-shrink: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    transition: transform 0.3s ease !important;
+    color: var(--primary-color) !important;
+    font-weight: bold !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+}
+
+.collapsible-card-chevron.open {
+    transform: rotate(180deg);
+}
+
+/* Card label/title */
+.collapsible-card-label {
+    flex: 1 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;
+    color: var(--text-color) !important;
+    font-weight: var(--font-weight-bold) !important;
+}
+
+/* Card body - collapsible content */
+.collapsible-card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding: 0 1rem;
+    background: #FFFFFF !important;
+}
+
+.collapsible-card-body.open {
+    max-height: 2000px;
+    padding: 0.75rem 1rem !important;
+    animation: content-fade-in 0.3s ease-out;
+}
+
+/* Content inside the body */
+.collapsible-card-content {
+    color: var(--text-color) !important;
+    font-size: var(--font-body) !important;
+    line-height: 1.6 !important;
+    font-family: var(--font-primary) !important;
+}
+
+.collapsible-card-content p {
+    margin-bottom: var(--spacing-sm) !important;
+}
+
+.collapsible-card-content p:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .collapsible-card-header {
+        padding: 0.6rem 0.85rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .collapsible-card-body.open {
+        padding: 0.6rem 0.85rem !important;
+    }
+    
+    .collapsible-card-chevron {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}

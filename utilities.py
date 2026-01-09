@@ -7781,5 +7781,99 @@ def create_zip_package(
 # =============================================================================
 
 
+# =============================================================================
+# COLLAPSIBLE CARD COMPONENT
+# =============================================================================
+def create_collapsible_card(title: str, content: str, card_id: str = None, 
+                            default_open: bool = False) -> str:
+    """
+    Create a collapsible card component with smooth animations.
+    
+    This component replaces the standard Streamlit expander with a more 
+    professional, customizable card design that integrates with the global
+    CSS design system. Features include:
+    - Smooth expand/collapse animations
+    - Chevron rotation on toggle
+    - Hover and focus effects
+    - Full theme integration
+    - Mobile responsive design
+    
+    Args:
+        title: The card header/title text
+        content: The HTML content to display when expanded
+        card_id: Unique identifier for the card (auto-generated if None)
+        default_open: Whether the card should be open by default
+        
+    Returns:
+        HTML string for rendering with st.markdown(..., unsafe_allow_html=True)
+        
+    Example:
+        >>> card_html = create_collapsible_card(
+        ...     title="Q: What is Non-B DNA?",
+        ...     content="<p>Non-B DNA refers to...</p>"
+        ... )
+        >>> st.markdown(card_html, unsafe_allow_html=True)
+    """
+    import uuid
+    
+    # Generate unique ID if not provided
+    if card_id is None:
+        card_id = f"card-{uuid.uuid4().hex[:8]}"
+    
+    # Sanitize IDs for HTML/JavaScript
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '', card_id)
+    
+    # Set initial states
+    body_class = "collapsible-card-body open" if default_open else "collapsible-card-body"
+    chevron_class = "collapsible-card-chevron open" if default_open else "collapsible-card-chevron"
+    
+    html = f"""
+    <div class="collapsible-card" id="{safe_id}">
+        <button class="collapsible-card-header" 
+                onclick="toggleCard_{safe_id}()" 
+                aria-expanded="{str(default_open).lower()}"
+                type="button">
+            <span class="collapsible-card-chevron" id="{safe_id}-chevron">▼</span>
+            <div class="collapsible-card-label">{title}</div>
+        </button>
+        <div class="collapsible-card-body" id="{safe_id}-body">
+            <div class="collapsible-card-content">
+                {content}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    function toggleCard_{safe_id}() {{
+        const body = document.getElementById("{safe_id}-body");
+        const chevron = document.getElementById("{safe_id}-chevron");
+        const header = document.querySelector("#{safe_id} .collapsible-card-header");
+        
+        if (body.classList.contains("open")) {{
+            body.classList.remove("open");
+            chevron.classList.remove("open");
+            header.setAttribute("aria-expanded", "false");
+        }} else {{
+            body.classList.add("open");
+            chevron.classList.add("open");
+            header.setAttribute("aria-expanded", "true");
+        }}
+    }}
+    
+    // Initialize state
+    (function() {{
+        const body = document.getElementById("{safe_id}-body");
+        const chevron = document.getElementById("{safe_id}-chevron");
+        if ({str(default_open).lower()}) {{
+            body.classList.add("open");
+            chevron.classList.add("open");
+        }}
+    }})();
+    </script>
+    """
+    
+    return html
+
+
 if __name__ == "__main__":
     test_visualizations()
