@@ -26,244 +26,113 @@
 }
 
 /* ============================================
-   GLOBAL OVERRIDES — FORCE LIGHT MODE ALWAYS
-   Prevent Streamlit from applying dark theme
-=============================================== */
-html, body,
-[data-testid="stAppViewContainer"],
-[class^="css"], [class*="css"] {
-    --backgroundColor: #FFFFFF !important;
-    --secondaryBackgroundColor: #F2F6FF !important;
-    --surfaceBackgroundColor: #FFFFFF !important;
-    --textColor: #000000 !important;
-
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-}
-
-/* Ensure ALL containers inherit light mode */
-div[data-testid="block-container"],
-section[data-testid="stSidebar"],
-header, footer,
-.stApp > header,
-.stApp > div,
-.stApp {
-    background: #FFFFFF !important;
-    color: #000000 !important;
-}
-
-/* ============================================
-   TABS — FIX BLACK BAR ISSUE
-   (Streamlit tries to apply dark backgrounds)
-=============================================== */
-.stTabs [data-baseweb="tab-list"] {
-    background: #FFFFFF !important;
-    border-radius: 20px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-}
-
-.stTabs [data-baseweb="tab"] {
-    background: #FFFFFF !important;
-    color: #000000 !important;
-    font-weight: 900 !important;
-}
-
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(135deg, #008CFF 0%, #4AB3FF 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 800 !important;
-}
-
-/* Prevent dark hover */
-.stTabs [data-baseweb="tab"]:hover {
-    background: #F2F6FF !important;
-    color: #000000 !important;
-}
-
-/* existing root variables and base theme below */
-/* ============================================
    CSS CUSTOM PROPERTIES (Variables) - CENTRALIZED DESIGN TOKENS
    Variables are injected dynamically by Python from FONT_CONFIG, COLOR_THEMES, etc.
    ============================================ */
 :root {
-    /* ============================
-       TEXT — MAXIMUM CONTRAST
-    ============================ */
-    --text-color: #000000;             /* pure black */
-    --text-strong: #000000;            /* pure black */
-    --font-weight-default: 700;        /* ALL TEXT BOLD */
-    --font-weight-heading: 800;        /* Headings extra bold */
-    --font-weight-label: 700;
-    --font-weight-light: 600;          /* even "light" = bold */
-    --tab-bg: #E8E6FF;
-
-
-    /* ============================
-       HIGH-CONTRAST BRIGHT BACKGROUNDS
-       (medium bright, not neon, not dark)
-    ============================ */
+    /* ===== Theme Colors (set dynamically) - ENHANCED VIBRANCY ===== */
+    --primary-color: #2563EB;
+    --secondary-color: #3B82F6;
+    --accent-color: #60A5FA;
+    --bg-light: #F8FAFC;
+    --bg-card: #DBEAFE;
+    --text-color: #0F172A;
+    --tab-bg: #E0E7FF;
+    --tab-active: #2563EB;
+    --shadow-color: rgba(37, 99, 235, 0.2);
     
-    /* Default: bright bioinformatics blue → purple */
-    --bg-gradient-1: linear-gradient(
-        135deg,
-        #4A90E2 0%,
-        #8E44AD 100%
-    );
-
-    /* Teal → Cyan (high clarity) */
-    --bg-gradient-2: linear-gradient(
-        135deg,
-        #00B8A9 0%,
-        #007ACC 100%
-    );
-
-    /* Orange → Pink (warm high contrast) */
-    --bg-gradient-3: linear-gradient(
-        135deg,
-        #FF8E53 0%,
-        #FF3D7F 100%
-    );
-
-    /* DNA Colors (super colorful) */
-    --bg-gradient-dna: linear-gradient(
-        135deg,
-        #42A5F5 0%,   /* G */
-        #4CAF50 33%,  /* A */
-        #FF7043 66%,  /* T */
-        #AB47BC 100%  /* C */
-    );
-
-    /* Active bright background (choose one) */
-    --background-active: var(--bg-gradient-1);
-
-    /* ============================
-       SURFACE BACKGROUNDS (high contrast)
-    ============================ */
-    --bg-light: #FFFFFF;                       /* pure white */
-    --bg-surface: rgba(255,255,255,0.80);      /* ultra-high readability */
-    --bg-card: rgba(255,255,255,0.90);         /* strong readability */
-    --bg-panel: rgba(255,255,255,0.75);
-    --bg-overlay: rgba(255,255,255,0.60);
-
-    /* ============================
-       BRAND COLORS (high contrast on white)
-    ============================ */
-    --primary-color: #0066FF;      /* vivid blue */
-    --secondary-color: #0094FF;    /* bright blue */
-    --accent-color: #66C0FF;       /* bright ice blue */
-
-    /* ============================
-       DNA COLORS (scientific high contrast)
-    ============================ */
-    --dna-A: #21A431;   /* vivid green */
-    --dna-T: #FF4F1A;   /* vivid orange */
-    --dna-G: #007AFF;   /* vivid blue */
-    --dna-C: #B000B5;   /* vivid magenta */
-    --dna-helix: #8E24AA;
-
-    /* ============================
-       TYPOGRAPHY
-    ============================ */
-    --font-primary: 'Inter', 'IBM Plex Sans', system-ui;
-    --font-monospace: 'JetBrains Mono','Fira Code',monospace;
-
-    --font-h1: 2.6rem;
-    --font-h2: 1.7rem;
-    --font-h3: 1.3rem;
-    --font-h4: 1.15rem;
-    --font-body: 1rem;
-    --font-small: 0.9rem;
-    --font-caption: 0.8rem;
-
-    /* ============================
-       SHADOWS (bright UI only)
-    ============================ */
-    --shadow-1: 0 2px 6px rgba(0,0,0,0.12);
-    --shadow-2: 0 4px 12px rgba(0,0,0,0.18);
-    --shadow-3: 0 8px 24px rgba(0,0,0,0.22);
-
-    /* ============================
-       BORDERS
-    ============================ */
-    --border-light: 1px solid rgba(0,0,0,0.08);
-    --border-medium: 1px solid rgba(0,0,0,0.15);
-    --border-strong: 1px solid rgba(0,0,0,0.30);
-
-    /* ============================
-       RADIUS + SPACING
-    ============================ */
+    /* ===== RGB Values for Dynamic Opacity ===== */
+    --primary-rgb: 37, 99, 235;
+    --secondary-rgb: 59, 130, 246;
+    
+    /* ===== Typography (set dynamically from FONT_CONFIG) ===== */
+    --font-primary: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-monospace: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    
+    /* Font Sizes (rem units) */
+    --font-h1: 2.5rem;
+    --font-h2: 1.6rem;
+    --font-h3: 1.25rem;
+    --font-h4: 1.1rem;
+    --font-body: 0.95rem;
+    --font-small: 0.85rem;
+    --font-caption: 0.75rem;
+    
+    /* Font Weights */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    /* ===== Border Radius ===== */
     --border-radius-sm: 8px;
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
     --border-radius-pill: 50px;
-
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-
-    /* ============================
-       SPEED + ANIMATIONS
-    ============================ */
-    --transition-fast: all 0.12s ease;
-    --transition-normal: all 0.18s ease;
-    --transition-slow: all 0.28s ease;
-
-    --anim-fade: fade-in 0.3s ease-out;
-    --anim-pop: pop 0.25s cubic-bezier(.18,.89,.32,1.28);
-
-    /* ============================
-       ALWAYS LIGHT (NO DARK MODE)
-    ============================ */
-    --dark-mode: 0 !important;  
+    
+    /* ===== Spacing Scale - CONCISE ELEGANT SPACING ===== */
+    --spacing-xs: 0.2rem;
+    --spacing-sm: 0.4rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1.25rem;
+    --spacing-xl: 1.75rem;
+    --spacing-2xl: 2.5rem;
+    
+    /* ===== Transitions ===== */
+    --transition-fast: all 0.15s ease;
+    --transition-normal: all 0.2s ease;
+    --transition-slow: all 0.3s ease;
+    
+    /* ===== Theme-specific Overrides ===== */
+    --dark-mode: 0; /* 0 = light, 1 = dark */
+    --is-compact: 0; /* 0 = relaxed, 1 = compact */
+    --dna-pattern: none;
 }
 
-
 /* ============================================
-   ELEGANT BACKGROUND - Soothing Light Theme
+   ELEGANT BACKGROUND - Vibrant Light Theme
    ============================================ */
 body, [data-testid="stAppViewContainer"], .main {
     background: 
         var(--dna-pattern),
-        linear-gradient(180deg, var(--bg-light) 0%, #EEF2FF 100%) !important;
+        linear-gradient(180deg, #F1F5F9 0%, #E0E7FF 100%) !important;
     font-family: var(--font-primary) !important;
     color: var(--text-color) !important;
 }
 
 /* ============================================
-   FULL-WIDTH TABS: Flex-based Equal Distribution
-   Pills-style active state with VIBRANT gradient fill
+   FULL-WIDTH TABS: Vibrant Pills Design
    ============================================ */
 .stTabs [data-baseweb="tab-list"] {
     display: flex !important;
     width: 100% !important;
     justify-content: stretch !important;
-    gap: 4px !important;
+    gap: 6px !important;
     border-bottom: none !important;
-    background: var(--tab-bg) !important;
-    box-shadow: 0 3px 18px var(--shadow-color), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-    margin-bottom: 1em;
-    padding: 6px 8px !important;
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%) !important;
+    box-shadow: 0 3px 15px var(--shadow-color), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 0.8rem;
+    padding: 8px 10px !important;
     border-radius: var(--border-radius-lg) !important;
     animation: fade-in 0.5s ease-out;
 }
 
-/* Each tab takes equal width (flex: 1) for full-width distribution */
+/* Each tab - Concise padding, vibrant on active */
 .stTabs [data-baseweb="tab"] {
     flex: 1 1 0 !important;
     min-width: 0 !important;
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
     font-family: var(--font-primary) !important;
-    padding: 8px 12px !important;
+    padding: 10px 16px !important;
     text-align: center !important;
-    color: #334155 !important;
+    color: #475569 !important;
     background: transparent !important;
     border: none !important;
     border-radius: var(--border-radius-pill) !important;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
     transition: var(--transition-normal);
     position: relative;
     cursor: pointer;
@@ -272,18 +141,19 @@ body, [data-testid="stAppViewContainer"], .main {
     text-overflow: ellipsis;
 }
 
-/* Tab hover state - subtle highlight */
+/* Tab hover state - vibrant highlight */
 .stTabs [data-baseweb="tab"]:hover {
     color: var(--primary-color) !important;
-    background: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
 }
 
-/* Active tab - Pill-shaped with VIBRANT gradient fill and stronger elevation */
+/* Active tab - Vibrant gradient with strong elevation */
 .stTabs [aria-selected="true"] {
     color: #FFFFFF !important;
-    font-weight: 600 !important;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    box-shadow: 0 6px 20px var(--shadow-color), 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.35), 0 3px 6px rgba(0, 0, 0, 0.15) !important;
     transform: translateY(-2px);
 }
 
@@ -297,14 +167,13 @@ body, [data-testid="stAppViewContainer"], .main {
 }
 
 /* ============================================
-   HEADINGS: Professional Scientific Typography
-   Using centralized font configuration
+   HEADINGS: Bold, Vibrant Typography
    ============================================ */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-primary) !important;
     color: var(--text-color) !important;
-    font-weight: var(--font-weight-semibold) !important;
-    letter-spacing: -0.01em;
+    font-weight: var(--font-weight-bold) !important;
+    letter-spacing: -0.015em;
     margin-top: var(--spacing-md);
     margin-bottom: var(--spacing-sm);
     animation: fade-in 0.3s ease-out;
@@ -312,16 +181,19 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 { 
     font-size: var(--font-h1) !important; 
-    font-weight: var(--font-weight-bold) !important;
-    color: var(--primary-color) !important;
-    letter-spacing: -0.02em;
+    font-weight: var(--font-weight-extrabold) !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.025em;
 }
 
 h2 { 
     font-size: var(--font-h2) !important; 
     color: var(--primary-color) !important; 
-    font-weight: var(--font-weight-semibold) !important;
-    border-bottom: 2px solid var(--bg-card) !important;
+    font-weight: var(--font-weight-bold) !important;
+    border-bottom: 3px solid var(--accent-color) !important;
     padding-bottom: var(--spacing-sm);
     margin-bottom: var(--spacing-md);
 }
@@ -329,7 +201,7 @@ h2 {
 h3 { 
     font-size: var(--font-h3) !important; 
     color: var(--secondary-color) !important; 
-    font-weight: var(--font-weight-semibold) !important;
+    font-weight: var(--font-weight-bold) !important;
 }
 
 h4 { 
@@ -362,122 +234,128 @@ small, .caption, [data-testid="stCaptionContainer"] {
     font-style: italic;
 }
 
-/* Input fields: Clean design with soft borders */
+/* Input fields: Clean design with vibrant focus */
 input, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
 .stMultiSelect>div>div>div, .stRadio>div>div>label>div {
     font-size: var(--font-body) !important;
     font-family: var(--font-primary) !important;
     border-radius: var(--border-radius-md) !important;
-    border: 1.5px solid #E2E8F0 !important;
+    border: 2px solid #CBD5E1 !important;
     background: #FFFFFF !important;
     transition: var(--transition-normal);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    padding: 0.7rem 1rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 0.6rem 0.9rem !important;
 }
 
 input:focus, .stTextInput>div>div>input:focus {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 3px 8px rgba(37, 99, 235, 0.2) !important;
     background: #FEFEFF !important;
 }
 
 /* ============================================
-   BUTTONS: VIBRANT gradient with stronger shadow
-   Using centralized button styles from UI_COMPONENT_STYLES
+   BUTTONS: Vibrant Gradient Design
    ============================================ */
 .stButton>button {
     font-size: var(--font-body) !important;
     font-family: var(--font-primary) !important;
-    padding: 0.5em 1.2em !important;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    padding: 0.6em 1.4em !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
     color: #FFFFFF !important;
     border-radius: var(--border-radius-md) !important;
     border: none !important;
-    font-weight: var(--font-weight-medium) !important;
-    box-shadow: 0 6px 20px var(--shadow-color);
+    font-weight: var(--font-weight-semibold) !important;
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
     transition: var(--transition-normal);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    font-size: 0.9rem !important;
 }
 
 .stButton>button:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-    box-shadow: 0 8px 28px var(--shadow-color);
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+    box-shadow: 0 7px 20px rgba(37, 99, 235, 0.4);
     transform: translateY(-3px);
 }
 
 .stButton>button:active {
-    transform: translateY(0);
-    box-shadow: 0 3px 12px var(--shadow-color);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
 }
 
 /* ============================================
-   DATAFRAMES: Clean design with VIBRANT shadows
+   DATAFRAMES: Vibrant Table Design
    ============================================ */
 .stDataFrame, .stTable {
     font-size: 0.92rem !important;
     font-family: var(--font-primary) !important;
-    line-height: 1.6 !important;
+    line-height: 1.5 !important;
     border-radius: var(--border-radius-md) !important;
     overflow: hidden;
-    box-shadow: 0 4px 16px var(--shadow-color) !important;
-    border: 1px solid var(--bg-card) !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.2) !important;
+    border: 2px solid var(--accent-color) !important;
     animation: fade-in 0.4s ease-out;
 }
 .stDataFrame thead tr th {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
     color: white !important;
-    font-weight: 600 !important;
-    padding: 0.8rem !important;
+    font-weight: 700 !important;
+    padding: 0.7rem !important;
     font-size: 0.88rem !important;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
-    border-bottom: 2px solid var(--primary-color) !important;
+    border-bottom: 3px solid #1D4ED8 !important;
 }
 .stDataFrame tbody tr {
     transition: var(--transition-normal);
-    border-bottom: 1px solid var(--bg-card) !important;
+    border-bottom: 1px solid #E0E7FF !important;
 }
 .stDataFrame tbody tr:hover {
-    background: #F7FAFC !important;
+    background: #EEF2FF !important;
+    transform: scale(1.005);
 }
 .stDataFrame tbody tr td {
-    padding: 0.7rem !important;
+    padding: 0.6rem !important;
     color: var(--text-color) !important;
 }
 
-/* Highlight alternate rows */
+/* Highlight alternate rows with vibrant tint */
 .stDataFrame tbody tr:nth-child(odd) {
-    background: rgba(238, 242, 255, 0.5) !important;
+    background: rgba(219, 234, 254, 0.4) !important;
 }
 
-/* Tab content - Clean content card section with VIBRANT shadow */
+/* Tab content - Vibrant card with strong shadow */
 .stTabs [data-baseweb="tab-panel"] {
-    padding-top: 1rem !important;
-    padding-left: 0.8rem !important;
-    padding-right: 0.8rem !important;
-    padding-bottom: 1rem !important;
+    padding-top: 0.9rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    padding-bottom: 0.9rem !important;
     animation: fade-in 0.3s ease-out;
     background: #FFFFFF !important;
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg) !important;
-    box-shadow: 0 6px 24px var(--shadow-color) !important;
+    box-shadow: 0 5px 20px rgba(37, 99, 235, 0.2) !important;
     margin-top: -8px;
+    border: 2px solid rgba(96, 165, 250, 0.3) !important;
+    border-top: none !important;
 }
 
 /* ============================================
-   CONTENT CARDS: VIBRANT shadows and rounded corners
+   CONTENT CARDS: Vibrant, Elevated Design
    ============================================ */
 .analysis-summary-card, .glassmorphism-card, .content-card {
-    margin: 0.8rem 0 !important;
-    padding: 1rem !important;
-    background: #FFFFFF !important;
+    margin: 0.7rem 0 !important;
+    padding: 0.9rem !important;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%) !important;
     border-radius: var(--border-radius-lg) !important;
-    box-shadow: 0 4px 20px var(--shadow-color) !important;
-    border: 1px solid #E5E7EB !important;
+    box-shadow: 0 3px 15px rgba(37, 99, 235, 0.18) !important;
+    border: 2px solid rgba(96, 165, 250, 0.4) !important;
     animation: fade-in 0.4s ease-out;
     transition: var(--transition-normal);
 }
 .analysis-summary-card:hover, .glassmorphism-card:hover, .content-card:hover {
-    box-shadow: 0 8px 32px var(--shadow-color) !important;
+    box-shadow: 0 6px 25px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-3px);
+    border-color: rgba(37, 99, 235, 0.5) !important;
 }
 
 /* Select boxes and multiselect: Clean dropdown design */
@@ -553,72 +431,77 @@ input:focus, .stTextInput>div>div>input:focus {
     background-color: var(--primary-color) !important;
 }
 
-/* Info boxes and alerts: Clean notification design */
+/* Info boxes and alerts: Vibrant notification design */
 .stAlert {
     border-radius: var(--border-radius-md) !important;
-    border-left: 4px solid var(--secondary-color) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-    background: #F8FAFC !important;
-    padding: 1rem !important;
-    font-weight: 400;
+    border-left: 5px solid var(--secondary-color) !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.15) !important;
+    background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%) !important;
+    padding: 0.9rem !important;
+    font-weight: 500 !important;
 }
 .stAlert[data-baseweb="notification"] {
     border-left-color: var(--primary-color) !important;
 }
 .stSuccess {
-    border-left-color: #4CAF50 !important;
-    background: #E8F5E9 !important;
+    border-left-color: #10B981 !important;
+    background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;
 }
 .stWarning {
-    border-left-color: #FF9800 !important;
-    background: #FFF3E0 !important;
+    border-left-color: #F59E0B !important;
+    background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%) !important;
 }
 .stError {
-    border-left-color: #F44336 !important;
-    background: #FFEBEE !important;
+    border-left-color: #EF4444 !important;
+    background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%) !important;
 }
 
-/* Progress bars: Soft gradient design */
+/* Progress bars: Vibrant gradient design */
 .stProgress > div > div {
-    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    background: linear-gradient(90deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%) !important;
     border-radius: var(--border-radius-pill) !important;
-    box-shadow: 0 1px 4px var(--shadow-color);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 .stProgress > div {
     border-radius: var(--border-radius-pill) !important;
-    background: var(--bg-card) !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: #E0E7FF !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* File uploader: Clean drag-and-drop design */
+/* File uploader: Vibrant drag-and-drop design */
 [data-testid="stFileUploader"] {
-    border: 2px dashed var(--accent-color) !important;
+    border: 3px dashed var(--accent-color) !important;
     border-radius: var(--border-radius-lg) !important;
-    background: #F8FAFC !important;
-    padding: 1.2rem !important;
+    background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%) !important;
+    padding: 1.1rem !important;
     transition: var(--transition-normal);
-    box-shadow: 0 2px 8px var(--shadow-color);
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.15);
 }
 [data-testid="stFileUploader"]:hover {
     border-color: var(--primary-color) !important;
-    background: #EEF2FF !important;
-    box-shadow: 0 4px 16px var(--shadow-color);
+    background: linear-gradient(135deg, #EEF2FF 0%, #DBEAFE 100%) !important;
+    box-shadow: 0 5px 20px rgba(37, 99, 235, 0.25);
+    transform: scale(1.01);
 }
 [data-testid="stFileUploader"] section {
     border: none !important;
 }
 [data-testid="stFileUploader"] button {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
     color: white !important;
     border: none !important;
     border-radius: var(--border-radius-md) !important;
-    padding: 0.5rem 1.2rem !important;
-    font-weight: 500 !important;
+    padding: 0.6rem 1.3rem !important;
+    font-weight: 600 !important;
     transition: var(--transition-normal);
+    text-transform: uppercase;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.03em;
 }
 [data-testid="stFileUploader"] button:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.35);
+    transform: translateY(-2px);
 }
 
 /* Checkboxes: Clean toggle-style design */
@@ -650,30 +533,31 @@ input:focus, .stTextInput>div>div>input:focus {
     border-color: var(--primary-color) !important;
 }
 
-/* Expander styling: Clean accordion design */
+/* Expander styling: Vibrant accordion design */
 .streamlit-expanderHeader {
     border-radius: 10px !important;
-    background: #F8FAFC !important;
-    font-weight: 600 !important;
-    padding: 0.6rem 1rem !important;
-    border: 1.5px solid #E5E7EB !important;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 4px var(--shadow-color);
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%) !important;
+    font-weight: 700 !important;
+    padding: 0.65rem 1rem !important;
+    border: 2px solid rgba(96, 165, 250, 0.5) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
 }
 .streamlit-expanderHeader:hover {
-    background: var(--bg-card) !important;
-    border-color: var(--accent-color) !important;
-    box-shadow: 0 2px 8px var(--shadow-color);
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%) !important;
+    border-color: rgba(37, 99, 235, 0.6) !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25) !important;
+    transform: translateX(2px);
 }
 .streamlit-expanderContent {
     border-radius: 0 0 10px 10px !important;
     background: #FFFFFF !important;
-    border: 1.5px solid #E5E7EB !important;
+    border: 2px solid rgba(96, 165, 250, 0.5) !important;
     border-top: none !important;
-    padding: 0.8rem !important;
+    padding: 0.75rem !important;
 }
 
 /* Clean chevron icon styling for expanders */
@@ -854,35 +738,36 @@ summary span {
 }
 
 /* ============================================
-   METRIC CARDS: Clean design with soft shadows
+   METRIC CARDS: Vibrant Stats Display
    ============================================ */
 [data-testid="stMetric"] {
-    background: #FFFFFF !important;
-    padding: 0.8rem !important;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%) !important;
+    padding: 0.75rem !important;
     border-radius: var(--border-radius-lg) !important;
-    border: 1.5px solid #E5E7EB !important;
-    box-shadow: 0 2px 8px var(--shadow-color) !important;
+    border: 2px solid rgba(96, 165, 250, 0.4) !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.2) !important;
     transition: var(--transition-normal);
     animation: fade-in 0.4s ease-out;
 }
 [data-testid="stMetric"]:hover {
-    box-shadow: 0 4px 16px var(--shadow-color) !important;
-    border-color: var(--accent-color) !important;
+    box-shadow: 0 5px 20px rgba(37, 99, 235, 0.3) !important;
+    border-color: rgba(37, 99, 235, 0.6) !important;
+    transform: translateY(-3px) scale(1.02);
 }
 [data-testid="stMetricValue"] {
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    font-size: 1.8rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 [data-testid="stMetricLabel"] {
     font-size: 0.8rem !important;
-    font-weight: 500 !important;
-    color: #64748B !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
 }
 
 /* Spinner */
@@ -925,22 +810,23 @@ pre {
     color: var(--primary-color) !important;
 }
 
-/* Scrollbar styling: Clean minimal design */
+/* Scrollbar styling: Vibrant minimal design */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
 }
 ::-webkit-scrollbar-track {
-    background: #F1F5F9;
+    background: #E0E7FF;
     border-radius: var(--border-radius-pill);
 }
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
     border-radius: var(--border-radius-pill);
-    border: 2px solid #F8FAFC;
+    border: 2px solid #F1F5F9;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 /* Loading spinner */
@@ -950,19 +836,23 @@ pre {
     border-bottom-color: var(--accent-color) !important;
 }
 
-/* Download buttons - clean design */
+/* Download buttons - vibrant design */
 [data-testid="stDownloadButton"] button {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
     color: white !important;
     border-radius: var(--border-radius-md) !important;
-    padding: 0.6rem 1.2rem !important;
-    font-weight: 500 !important;
-    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0.65rem 1.3rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.3);
     transition: var(--transition-normal);
+    text-transform: uppercase;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.03em;
 }
 [data-testid="stDownloadButton"] button:hover {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.4);
+    transform: translateY(-2px);
 }
 
 /* Caption text styling */
@@ -1116,14 +1006,14 @@ details.streamlit-expander[open] {
 }
 
 .progress-panel {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    border-radius: var(--border-radius-lg);
-    padding: 1rem;
-    color: white;
-    box-shadow: 0 4px 16px var(--shadow-color);
-    margin-bottom: 0.8rem;
-    position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
+    border-radius: var(--border-radius-lg) !important;
+    padding: 0.9rem !important;
+    color: white !important;
+    box-shadow: 0 5px 20px rgba(37, 99, 235, 0.3) !important;
+    margin-bottom: 0.75rem !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .progress-panel::before {
@@ -1141,30 +1031,30 @@ details.streamlit-expander[open] {
 }
 
 .progress-panel--success {
-    background: linear-gradient(135deg, #00E676 0%, #1DE9B6 100%);
-    box-shadow: 0 6px 24px rgba(0, 230, 118, 0.45);
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.35);
 }
 
 .progress-panel--metrics {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    box-shadow: 0 6px 24px var(--shadow-color);
-    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
+    box-shadow: 0 5px 20px rgba(37, 99, 235, 0.3) !important;
+    margin-bottom: 0.9rem !important;
 }
 
 .progress-panel--results {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    border-radius: var(--border-radius-lg);
-    padding: 1rem;
-    margin: 0.8rem 0;
-    box-shadow: 0 6px 28px var(--shadow-color);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%) !important;
+    border-radius: var(--border-radius-lg) !important;
+    padding: 0.9rem !important;
+    margin: 0.75rem 0 !important;
+    box-shadow: 0 5px 25px rgba(37, 99, 235, 0.3) !important;
 }
 
 .progress-panel--hybrid {
-    background: linear-gradient(135deg, #D500F9 0%, #E040FB 100%);
+    background: linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%);
     border-radius: var(--border-radius-lg);
     padding: 1rem;
     margin: 0.8rem 0;
-    box-shadow: 0 6px 28px rgba(213, 0, 249, 0.45);
+    box-shadow: 0 4px 20px rgba(156, 39, 176, 0.3);
 }
 
 .progress-panel__title {
@@ -1218,59 +1108,63 @@ details.streamlit-expander[open] {
 
 .stat-card {
     text-align: center;
-    background: rgba(255, 255, 255, 0.95);  /* Light background */
-    padding: 0.7rem;
-    border-radius: var(--border-radius-md);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.98) !important;  /* Slightly more opaque */
+    padding: 0.65rem !important;
+    border-radius: var(--border-radius-md) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 3px solid rgba(37, 99, 235, 0.4) !important;  /* Thicker, more vibrant border */
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15) !important;
 }
 
 .stat-card:hover {
-    background: rgba(255, 255, 255, 1);  /* Fully opaque on hover */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: rgba(74, 144, 226, 0.5);
+    background: rgba(255, 255, 255, 1) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25) !important;
+    border-color: rgba(37, 99, 235, 0.7) !important;
 }
 
 .stat-card--large {
-    padding: 0.9rem;
-    border-radius: var(--border-radius-md);
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);  /* Light background */
-    border: 2px solid rgba(74, 144, 226, 0.3);  /* Thicker colored border */
+    padding: 0.85rem !important;
+    border-radius: var(--border-radius-md) !important;
+    backdrop-filter: blur(10px) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 3px solid rgba(37, 99, 235, 0.4) !important;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15) !important;
 }
 
 .stat-card__value {
-    margin: 0;
-    color: var(--primary-color);  /* Dark colored text */
-    font-size: 1.5rem;
-    font-weight: 800;  /* Extra bold */
-    text-shadow: none;  /* Remove shadow for clarity */
+    margin: 0 !important;
+    color: #2563EB !important;  /* Vibrant blue */
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;  /* Extra bold */
+    text-shadow: 0 1px 2px rgba(37, 99, 235, 0.1) !important;
 }
 
 .stat-card__value--large {
-    font-size: 1.8rem;
-    font-weight: 800;  /* Extra bold */
-    margin-bottom: 0.25rem;
-    color: var(--primary-color);  /* Dark colored text */
+    font-size: 1.9rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0.2rem !important;
+    color: #2563EB !important;
+    text-shadow: 0 1px 3px rgba(37, 99, 235, 0.15) !important;
 }
 
 .stat-card__label {
-    margin: 0.3rem 0 0 0;
-    opacity: 1;
-    color: var(--text-color);  /* Dark text */
-    font-size: 0.75rem;
-    font-weight: 600;  /* Bold */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin: 0.25rem 0 0 0 !important;
+    opacity: 1 !important;
+    color: #0F172A !important;  /* Dark text */
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;  /* Bold */
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
 }
 
 .stat-card__label--large {
-    font-size: 0.85rem;
-    opacity: 1;
-    font-weight: 700;  /* Extra bold */
-    color: var(--text-color);  /* Dark text */
+    font-size: 0.85rem !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    letter-spacing: 0.5px !important;
 }
 
 .sequence-info {
@@ -1409,4 +1303,308 @@ details.streamlit-expander[open] {
         box-shadow: none !important;
         border: 1px solid #ccc !important;
     }
+}
+
+
+/* ============================================
+   PROGRESS PANELS (Hybrid / Results / Running)
+   ============================================ */
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes progress-shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+.progress-panel {
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--secondary-color)
+    );
+    border-radius: 18px;
+    padding: 1rem;
+    color: #FFFFFF;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -200%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.15),
+        transparent
+    );
+    animation: progress-shimmer 2.8s linear infinite;
+}
+
+.progress-panel--success {
+    background: linear-gradient(135deg, #00D47A, #00B56A);
+}
+
+.progress-panel--hybrid {
+    background: linear-gradient(135deg, #D500F9, #E040FB);
+}
+
+.progress-panel__title {
+    color: white;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.progress-panel__status {
+    text-align: center;
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+
+/* ============================================
+   GRID STATS (Counts)
+   ============================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.92);
+    padding: 0.8rem;
+    border-radius: 14px;
+    text-align: center;
+    border: 2px solid var(--accent-color);
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+.stat-card__value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.stat-card__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* ============================================
+   PIPELINE PANEL (Detector List)
+   ============================================ */
+
+.pipeline-panel {
+    background: var(--page-card, #FFFFFF);
+    border: 2px solid var(--page-border, var(--accent-color));
+    border-radius: 16px;
+    padding: 1rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.12);
+}
+
+.pipeline-panel__title {
+    text-align: center;
+    font-weight: 800;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+}
+
+.pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem;
+}
+
+.detector-item {
+    background: rgba(0,0,0,0.04);
+    padding: 0.8rem;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.detector-item:hover {
+    background: rgba(0,0,0,0.08);
+    transform: translateX(6px);
+}
+
+.detector-item--running {
+    animation: pulse-glow 1.8s ease-in-out infinite;
+}
+
+.detector-item--running::before {
+    content: '●';
+    font-size: 0.5rem;
+    color: #00E676;
+    margin-right: 8px;
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: pulse-dot 1.5s ease infinite;
+}
+
+.detector-item__name {
+    font-weight: 800;
+    color: black;
+    margin-left: 1.2rem;
+}
+
+.detector-item__desc {
+    font-size: 0.75rem;
+    margin-left: 1.2rem;
+    opacity: 0.7;
+}
+
+/* ============================================
+   PRINT MODE FOR PUBLICATION OUTPUT
+   ============================================ */
+
+@media print {
+    body {
+        background: #FFFFFF !important;
+    }
+    .stButton,
+    [data-testid="stFileUploader"],
+    [data-testid="stDownloadButton"] {
+        display: none !important;
+    }
+    .stDataFrame {
+        border: 1px solid #999 !important;
+        box-shadow: none !important;
+    }
+}
+
+
+/* ============================================================
+   THEME-TABLE ENGINE (PAGE-SPECIFIC COLORS)
+   ============================================================ */
+
+/*
+HOW IT WORKS:
+---------------
+At the top of each Streamlit tab/page:
+
+<table class="theme-table" data-theme="pink"></table>
+
+Supported theme values:
+    pink, blue, purple, green, orange
+
+This CSS reads that attribute and overrides:
+    --primary-color
+    --secondary-color
+    --accent-color
+    --page-card
+    --page-border
+    --tab-bg
+*/
+
+/* Hide theme table (it only sets variables) */
+.theme-table {
+    display: none !important;
+}
+
+/* -------------------------------
+   1. PINK THEME
+   ------------------------------- */
+.theme-table[data-theme="pink"] ~ * {
+    --primary-color: #FF2E7E !important;
+    --secondary-color: #FF72B6 !important;
+    --accent-color: #FFC4DD !important;
+
+    --page-card: #FFF2F7 !important;
+    --page-border: #FF8BBF !important;
+
+    --tab-bg: #FFE5F1 !important;
+}
+
+/* -------------------------------
+   2. BLUE THEME
+   ------------------------------- */
+.theme-table[data-theme="blue"] ~ * {
+    --primary-color: #005EFF !important;
+    --secondary-color: #4AA2FF !important;
+    --accent-color: #A6CEFF !important;
+
+    --page-card: #EBF3FF !important;
+    --page-border: #66A7FF !important;
+
+    --tab-bg: #DDEAFF !important;
+}
+
+/* -------------------------------
+   3. PURPLE THEME
+   ------------------------------- */
+.theme-table[data-theme="purple"] ~ * {
+    --primary-color: #7B2CFF !important;
+    --secondary-color: #B088FF !important;
+    --accent-color: #DCC7FF !important;
+
+    --page-card: #F4EDFF !important;
+    --page-border: #C29BFF !important;
+
+    --tab-bg: #EAD9FF !important;
+}
+
+/* -------------------------------
+   4. GREEN THEME
+   ------------------------------- */
+.theme-table[data-theme="green"] ~ * {
+    --primary-color: #00A76C !important;
+    --secondary-color: #32C69A !important;
+    --accent-color: #9AE5C7 !important;
+
+    --page-card: #EBFFF6 !important;
+    --page-border: #67DDB2 !important;
+
+    --tab-bg: #D7FFF0 !important;
+}
+
+/* -------------------------------
+   5. ORANGE THEME
+   ------------------------------- */
+.theme-table[data-theme="orange"] ~ * {
+    --primary-color: #FF7A00 !important;
+    --secondary-color: #FFAA4D !important;
+    --accent-color: #FFD6A8 !important;
+
+    --page-card: #FFF4E8 !important;
+    --page-border: #FFB46A !important;
+
+    --tab-bg: #FFE7D1 !important;
+}
+
+/* ============================================================
+   THEME-TABLE ENGINE END
+   ============================================================ */
+
+/* FINAL SAFETY OVERRIDE — NO DARK COLORS EVER */
+html, body, [data-testid="stAppViewContainer"] {
+    background: #FFFFFF !important;
+    color: #000000 !important;
 }
