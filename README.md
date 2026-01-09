@@ -142,8 +142,7 @@ The application is unified into **4 core scripts** for clarity and maintainabili
    - Component extraction
 
 ### Data Files
-- `consolidated_registry.json` - Pattern database
-- `pattern_registry2.xlsx` - Pattern registry with scores
+- `pattern_registry2.xlsx` - Pattern registry with scores (Excel format)
 - `requirements.txt` - Python dependencies
 
 ### Archived Files
@@ -161,7 +160,7 @@ See `archive/README.md` for details on archived content.
 - **[Benchmarking Comparison](./BENCHMARKING_COMPARISON.md)**: ⭐ **NEW** - Comprehensive 9-section analysis
 - **[Output Schema](./OUTPUT_SCHEMA.md)**: Minimal reporting format
 - **[API Documentation](./app.py)**: Complete function reference
-- **[JSON Registry](./consolidated_registry.json)**: Pattern database
+- **[Excel Registry](./pattern_registry2.xlsx)**: Pattern database
 - **[Performance Guide](./PERFORMANCE_GUIDE.md)**: Optimization tips
 - **[Improvements Summary](./IMPROVEMENTS_SUMMARY.md)**: What's new in 2025.1
 
