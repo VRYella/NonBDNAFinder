@@ -602,7 +602,7 @@ UI_TEXT = {
     'upload_ncbi_error': 'NCBI fetch failed: {error}',
     'upload_ncbi_empty_warning': 'Enter a query before fetching.',
     'upload_quick_options_note': 'All 11 motif classes with 22+ subclasses are detected automatically',
-    'upload_parallel_note': 'Parallel scanner works best on sequences >100kb with multiple CPU cores',
+    'upload_parallel_note': 'Parallel chunked processing works best on sequences >100kb with multiple CPU cores',
     'upload_run_analysis_button': 'Run Complete Motif Analysis',
     'upload_no_sequences_error': 'Please upload or input sequences before running analysis.',
     
@@ -786,7 +786,7 @@ UI_TEXT = {
     'tooltip_detailed_analysis': 'Include comprehensive motif metadata',
     'tooltip_quality_validation': 'Validate detected motifs',
     'tooltip_chunk_progress': 'Display detailed progress for each processing chunk',
-    'tooltip_parallel_scanner': 'Enable experimental parallel chunk-based scanner (>100kb sequences)',
+    'tooltip_parallel_scanner': 'Enable parallel chunk-based processing (>100kb sequences)',
     
     # ===== Headings for Results Page =====
     'heading_results_viz': 'Visualizations',
@@ -2214,7 +2214,7 @@ with tab_pages["Upload & Analyze"]:
         # Advanced Options - now visible by default
         show_chunk_progress = st.checkbox("Show Chunk-Level Progress", value=False,
                                          help=UI_TEXT['tooltip_chunk_progress'])
-        use_parallel_scanner = st.checkbox("Use Experimental Parallel Scanner", value=True,
+        use_parallel_scanner = st.checkbox("Use Parallel Chunked Processing", value=True,
                                           help=UI_TEXT['tooltip_parallel_scanner'])
         show_memory_usage = st.checkbox("Show Memory Usage", value=False,
                                         help="Display real-time memory usage during analysis")
@@ -2485,50 +2485,40 @@ with tab_pages["Upload & Analyze"]:
                     # No per-sequence timing - total time captured once at end
                     
                     if use_parallel_scanner and len(seq) > 100000:
-                        # NOTE: scanner_agent.py has been archived - parallel scanning experimental
-                        # Use experimental parallel scanner for large sequences
-                        try:
-                            from scanner_agent import ParallelScanner
-                            
-                            # Create chunk progress placeholder
-                            chunk_progress_placeholder = st.empty()
-                            
-                            # Track chunk progress
-                            chunk_counter = {'current': 0, 'total': 0}
-                            
-                            def chunk_progress_callback(current, total):
-                                """Callback to update chunk progress (ephemeral)"""
-                                chunk_counter['current'] = current
-                                chunk_counter['total'] = total
-                                if show_chunk_progress:
-                                    # Ephemeral progress (replaces previous)
-                                    chunk_progress_placeholder.info(f"⚡ Parallel scanner processing chunks: {current}/{total} ({(current / total) * 100:.1f}%)")
-                            
-                            # Run parallel scanner with progress callback
-                            # Use ephemeral status (replaces previous message)
-                            status_placeholder.info(f"⚡ Using parallel scanner for {len(seq):,} bp sequence (est. chunks: ~{len(seq)//50000 + 1})")
-                            
-                            scanner = ParallelScanner(seq, hs_db=None)
-                            
-                            # The parallel scanner internally calls analyze_sequence on each chunk
-                            # and returns full motif dictionaries with deduplication
-                            results = scanner.run_scan(progress_callback=chunk_progress_callback)
-                            
-                            # Update sequence names for all motifs
-                            for motif in results:
-                                motif['Sequence_Name'] = name
-                            
-                            # Clear chunk progress and show ephemeral success (replaces previous message)
+                        # Use parallel chunked processing for large sequences
+                        # Create chunk progress placeholder
+                        chunk_progress_placeholder = st.empty()
+                        
+                        # Track chunk progress
+                        chunk_counter = {'current': 0, 'total': 0}
+                        
+                        def chunk_progress_callback(chunk_num, total_chunks, bp_processed, elapsed, throughput):
+                            """Callback to update chunk progress (ephemeral)"""
+                            chunk_counter['current'] = chunk_num
+                            chunk_counter['total'] = total_chunks
                             if show_chunk_progress:
-                                chunk_progress_placeholder.success(f"✅ Parallel chunks complete: {len(results)} motifs from {chunk_counter['total']} chunks")
-                            
-                            # Ephemeral success message (replaces previous)
-                            status_placeholder.success(f"✅ Parallel scanner completed: {len(results)} motifs detected")
-                            
-                        except Exception as e:
-                            # Fallback to standard scanner on error (ephemeral warning)
-                            status_placeholder.warning(f"⚠️ Parallel scanner failed, falling back to standard: {e}")
-                            results = analyze_sequence(seq, name)
+                                # Ephemeral progress (replaces previous)
+                                chunk_progress_placeholder.info(f"⚡ Parallel chunked processing: {chunk_num}/{total_chunks} ({(chunk_num / total_chunks) * 100:.1f}%)")
+                        
+                        # Run parallel chunked analysis with progress callback
+                        # Use ephemeral status (replaces previous message)
+                        status_placeholder.info(f"⚡ Using parallel chunked processing for {len(seq):,} bp sequence")
+                        
+                        # Use analyze_sequence with chunking enabled and parallel processing
+                        results = analyze_sequence(
+                            seq, 
+                            name,
+                            use_chunking=True,
+                            use_parallel_chunks=True,
+                            progress_callback=chunk_progress_callback
+                        )
+                        
+                        # Clear chunk progress and show ephemeral success (replaces previous message)
+                        if show_chunk_progress and chunk_counter['total'] > 0:
+                            chunk_progress_placeholder.success(f"✅ Parallel chunks complete: {len(results)} motifs from {chunk_counter['total']} chunks")
+                        
+                        # Ephemeral success message (replaces previous)
+                        status_placeholder.success(f"✅ Parallel chunked processing completed: {len(results)} motifs detected")
                     else:
                         # Use standard consolidated NBDScanner analysis
                         results = analyze_sequence(seq, name)
