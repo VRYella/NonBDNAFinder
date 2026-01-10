@@ -7989,5 +7989,107 @@ def create_collapsible_card(title: str, content: str, card_id: str = None,
     return html
 
 
+def render_summary_panel(seq_length: int, 
+                        processing_time: float, 
+                        motif_count: int,
+                        total_chunks: int = 0,
+                        theme_color: str = "#10b981") -> str:
+    """
+    Create a modern, compact scientific summary panel with theme-aware styling.
+    
+    This function generates a publication-ready summary block that displays:
+    - Sequence length (with appropriate units: bp, kb, or Mb)
+    - Processing time (formatted as hh:mm:ss with clock icon 🕐)
+    - Total motifs detected
+    - Optional chunk information (for chunked processing)
+    
+    The panel uses:
+    - Rounded borders and soft gradients
+    - Bold, high-contrast text
+    - Grid-based compact layout
+    - Theme color tokens (customizable)
+    - Dynamic box shadows matching theme colors
+    - Fully responsive formatting
+    
+    Args:
+        seq_length: Total sequence length in base pairs
+        processing_time: Processing duration in seconds
+        motif_count: Total number of motifs detected
+        total_chunks: Number of chunks processed (0 if no chunking)
+        theme_color: Primary gradient color. Supported colors:
+            - "#10b981" (success green, default)
+            - "#2563EB" (primary blue)
+            - "#9C27B0" (genomic purple)
+            Other colors will use green gradient/shadow as fallback
+        
+    Returns:
+        HTML string ready for st.markdown(..., unsafe_allow_html=True)
+        
+    Example:
+        >>> summary_html = render_summary_panel(
+        ...     seq_length=1500000,
+        ...     processing_time=125.5,
+        ...     motif_count=342,
+        ...     total_chunks=5,
+        ...     theme_color="#10b981"
+        ... )
+        >>> st.markdown(summary_html, unsafe_allow_html=True)
+    """
+    # Calculate sequence length display with appropriate units
+    if seq_length >= 1_000_000:
+        seq_length_display = f"{seq_length / 1_000_000:.1f} Mb"
+    elif seq_length >= 1_000:
+        seq_length_display = f"{seq_length / 1_000:.1f} kb"
+    else:
+        seq_length_display = f"{seq_length:,} bp"
+    
+    # Format processing time as hh:mm:ss or mm:ss
+    hours = int(processing_time // 3600)
+    mins = int((processing_time % 3600) // 60)
+    secs = int(processing_time % 60)
+    
+    if hours > 0:
+        time_display = f"{hours:02d}:{mins:02d}:{secs:02d}"
+    else:
+        time_display = f"{mins:02d}:{secs:02d}"
+    
+    # Determine secondary gradient color and shadow based on theme color
+    # Maps primary color to (secondary gradient, rgba shadow)
+    theme_map = {
+        "#10b981": ("#059669", "16, 185, 129"),   # Success green
+        "#2563EB": ("#3B82F6", "37, 99, 235"),    # Primary blue
+        "#9C27B0": ("#BA68C8", "156, 39, 176"),   # Genomic purple
+    }
+    
+    # Get theme-specific colors or use green as default
+    secondary_color, shadow_rgb = theme_map.get(theme_color, ("#059669", "16, 185, 129"))
+    
+    # Build chunk info if applicable
+    chunk_info = ""
+    if total_chunks > 0:
+        chunk_info = f"<div style='margin-bottom: 0.4rem;'><b>Total chunks:</b> {total_chunks}</div>"
+    
+    # Generate HTML with modern styling and dynamic theme colors
+    html = f"""
+    <div style='background: linear-gradient(135deg, {theme_color} 0%, {secondary_color} 100%); 
+                padding: 1.2rem; border-radius: 12px; color: white; 
+                box-shadow: 0 5px 20px rgba({shadow_rgb}, 0.3); margin-bottom: 1rem;'>
+        <h3 style='margin: 0 0 1rem 0; text-align: center; font-size: 1.2rem; 
+                   border-bottom: 2px solid rgba(255, 255, 255, 0.3); padding-bottom: 0.8rem;'>
+            ✅ Analysis Summary
+        </h3>
+        <div style='background: rgba(255, 255, 255, 0.15); padding: 0.8rem; 
+                   border-radius: 8px; line-height: 1.8;'>
+            <div style='margin-bottom: 0.4rem;'><b>Sequence length:</b> {seq_length_display}</div>
+            {chunk_info}
+            <div style='margin-bottom: 0.4rem;'><b>🕐 Processing time:</b> {time_display}</div>
+            <div style='margin-bottom: 0.4rem;'><b>Motifs detected:</b> {motif_count:,}</div>
+        </div>
+    </div>
+    """
+    
+    return html
+
+
 if __name__ == "__main__":
     test_visualizations()
