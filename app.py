@@ -69,6 +69,10 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
+# Import summary renderer utilities for safe HTML rendering and progress bars
+from summary_renderer import (
+    render_summary_block, render_progress, render_metric_card, render_info_box
+)
 # Inline visualization standards (removed separate module for conciseness)
 NATURE_MOTIF_COLORS = {
     'Curved_DNA': '#CC79A7', 'G-Quadruplex': '#0072B2', 'Z-DNA': '#882255',
@@ -2119,7 +2123,7 @@ with tab_pages["Upload & Analyze"]:
                                 </div>
                             </div>
                             <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
-                                Valid Valid
+                                {UI_TEXT['label_valid']}
                             </div>
                         </div>
                     </div>
@@ -2521,35 +2525,30 @@ with tab_pages["Upload & Analyze"]:
                             else:
                                 stage = "Merging"
                             
-                            # Display professional progress panel
+                            # Display professional progress panel using render_summary_block
                             with chunk_progress_placeholder.container():
-                                st.markdown(f"""
-                                <div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
-                                            padding: 1rem; border-radius: 12px; color: white; 
-                                            box-shadow: 0 4px 15px rgba(255, 109, 0, 0.3); margin-bottom: 0.5rem;'>
-                                    <h4 style='margin: 0 0 0.8rem 0; text-align: center; font-size: 1.1rem;'>
-                                        ⚡ Analysis Progress
-                                    </h4>
-                                    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.6rem; 
-                                               border-radius: 8px; margin-bottom: 0.6rem;'>
-                                        <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
-                                            <span><b>Stage:</b> {stage}</span>
-                                            <span><b>Elapsed time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</span>
-                                        </div>
-                                        <div style='margin-bottom: 0.3rem;'>
-                                            <b>Chunks processed:</b> {chunk_num} / {total_chunks}
-                                        </div>
-                                    </div>
-                                    <div style='background: rgba(255, 255, 255, 0.3); height: 8px; 
-                                               border-radius: 50px; overflow: hidden;'>
-                                        <div style='background: white; height: 100%; width: {progress_ratio * 100:.1f}%; 
-                                                   transition: width 0.3s ease;'></div>
-                                    </div>
-                                    <div style='text-align: center; margin-top: 0.4rem; font-size: 0.95rem;'>
-                                        {progress_ratio * 100:.0f}%
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
+                                # Use render_summary_block for the info panel
+                                render_summary_block(f"""
+<div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
+            padding: 1rem; border-radius: 12px; color: white; 
+            box-shadow: 0 4px 15px rgba(255, 109, 0, 0.3); margin-bottom: 0.5rem;'>
+    <h4 style='margin: 0 0 0.8rem 0; text-align: center; font-size: 1.1rem;'>
+        ⚡ Analysis Progress
+    </h4>
+    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.6rem; 
+               border-radius: 8px; margin-bottom: 0.6rem;'>
+        <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+            <span><b>Stage:</b> {stage}</span>
+            <span><b>Elapsed time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</span>
+        </div>
+        <div style='margin-bottom: 0.3rem;'>
+            <b>Chunks processed:</b> {chunk_num} / {total_chunks}
+        </div>
+    </div>
+</div>
+""")
+                                # Use native Streamlit progress bar for guaranteed visibility
+                                st.progress(progress_ratio, text=f"{progress_ratio * 100:.0f}% Complete")
                         
                         # Run parallel chunked analysis with progress callback
                         # Use ephemeral status (replaces previous message)
@@ -2869,37 +2868,38 @@ with tab_pages["Results"]:
     # Performance metrics display if available
     if st.session_state.get('performance_metrics'):
         metrics = st.session_state.performance_metrics
-        st.markdown(f"""
-        <div class='progress-panel progress-panel--metrics'>
-            <h3 class='progress-panel__title'>Performance Metrics</h3>
-            <div class='stats-grid stats-grid--wide'>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
-                    <p class='stat-card__label'>Processing Time</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_bp']:,}</h2>
-                    <p class='stat-card__label'>Base Pairs</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['speed']:,.0f}</h2>
-                    <p class='stat-card__label'>bp/second</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics.get('detector_count', 9)}</h2>
-                    <p class='stat-card__label'>Detector Processes</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['sequences']}</h2>
-                    <p class='stat-card__label'>Sequences</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_motifs']}</h2>
-                    <p class='stat-card__label'>Total Motifs</p>
-                </div>
-            </div>
+        # Use render_summary_block for consistent HTML rendering
+        render_summary_block(f"""
+<div class='progress-panel progress-panel--metrics'>
+    <h3 class='progress-panel__title'>Performance Metrics</h3>
+    <div class='stats-grid stats-grid--wide'>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
+            <p class='stat-card__label'>Processing Time</p>
         </div>
-        """, unsafe_allow_html=True)
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_bp']:,}</h2>
+            <p class='stat-card__label'>Base Pairs</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['speed']:,.0f}</h2>
+            <p class='stat-card__label'>bp/second</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics.get('detector_count', 9)}</h2>
+            <p class='stat-card__label'>Detector Processes</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['sequences']}</h2>
+            <p class='stat-card__label'>Sequences</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_motifs']}</h2>
+            <p class='stat-card__label'>Total Motifs</p>
+        </div>
+    </div>
+</div>
+""")
     
     
     # Sequence selection for detailed analysis using pills for better UX
@@ -2948,47 +2948,48 @@ with tab_pages["Results"]:
         non_b_density = (motif_count / sequence_length * 1000) if sequence_length > 0 else 0
         
         # Enhanced summary card with modern research-quality styling
-        st.markdown(f"""
-        <div class='progress-panel progress-panel--results'>
-            <h3 class='progress-panel__title progress-panel__title--large'>
-                NBDScanner Analysis Results
-            </h3>
-            <div class='stats-grid stats-grid--extra-wide'>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat_card_value_large'>
-                        {stats.get("Coverage%", 0):.2f}%
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Sequence Coverage
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {stats.get("Density", 0):.2f}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Motif Density<br>(motifs/kb)
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {motif_count}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Total Motifs
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {sequence_length:,}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Sequence Length (bp)
-                    </p>
-                </div>
-            </div>
+        # Use render_summary_block for safe HTML rendering
+        render_summary_block(f"""
+<div class='progress-panel progress-panel--results'>
+    <h3 class='progress-panel__title progress-panel__title--large'>
+        NBDScanner Analysis Results
+    </h3>
+    <div class='stats-grid stats-grid--extra-wide'>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat_card_value_large'>
+                {stats.get("Coverage%", 0):.2f}%
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Sequence Coverage
+            </p>
         </div>
-        """, unsafe_allow_html=True)
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {stats.get("Density", 0):.2f}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Motif Density<br>(motifs/kb)
+            </p>
+        </div>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {motif_count}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Total Motifs
+            </p>
+        </div>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {sequence_length:,}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Sequence Length (bp)
+            </p>
+        </div>
+    </div>
+</div>
+""")
         
         # Add info about hybrid/cluster motifs being shown separately
         if hybrid_cluster_count > 0:
@@ -3369,14 +3370,11 @@ with tab_pages["Download"]:
         
         # Individual file downloads as main option
         st.markdown("### 📥 Download Results")
-        st.markdown("""
-        <div style='background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #0ea5e9;'>
-            <p style='color: #0c4a6e; margin: 0;'>
-                💡 <strong>Download your results</strong> in different file formats
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Download Options",
+            "Download your results in different file formats",
+            box_type="info"
+        )
         
         col1, col2, col3, col4, col5 = st.columns(5)
         
@@ -3464,14 +3462,11 @@ with tab_pages["Download"]:
         # Add Distribution & Statistics Tables Download Section
         st.markdown("---")
         st.markdown("### 📊 Download Distribution & Statistics Tables")
-        st.markdown("""
-        <div style='background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #22c55e;'>
-            <p style='color: #14532d; margin: 0;'>
-                📈 <strong>Download detailed distribution and density statistics</strong> for publication and analysis
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Statistics Tables",
+            "Download detailed distribution and density statistics for publication and analysis",
+            box_type="success"
+        )
         
         # Calculate distribution and density statistics for all sequences
         if all_motifs and st.session_state.seqs:
@@ -3600,14 +3595,11 @@ with tab_pages["Download"]:
         # Add Enrichment & Structural Analysis Data Downloads
         st.markdown("---")
         st.markdown("### 🔬 Download Enrichment & Structural Analysis Data")
-        st.markdown("""
-        <div style='background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #f59e0b;'>
-            <p style='color: #78350f; margin: 0;'>
-                🧬 <strong>Download statistical enrichment and structural pattern analysis results</strong>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Advanced Analysis Data",
+            "Download statistical enrichment and structural pattern analysis results",
+            box_type="warning"
+        )
         
         # Check if enrichment and structural results are available
         if st.session_state.get('enrichment_results') and st.session_state.get('structural_results'):
