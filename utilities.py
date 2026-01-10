@@ -1,5 +1,40 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
+║                    DEPRECATED: LEGACY MONOLITHIC FILE                         ║
+║                    Use Modular Architecture Instead                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+⚠️  DEPRECATION NOTICE ⚠️
+
+This monolithic file is DEPRECATED and maintained for backward compatibility only.
+
+MIGRATION GUIDE:
+Please migrate to the modular architecture located in:
+  - utils/ - Shared utilities (fasta, export, validation, etc.)
+  - utils/plotting/ - Visualization functions
+  - ui/ - User interface components
+
+OLD (Deprecated):
+    from utilities import parse_fasta, export_to_csv, plot_motif_distribution
+
+NEW (Recommended):
+    from utils.fasta import parse_fasta
+    from utils.export import export_to_csv
+    from utils.plotting import plot_motif_distribution
+
+BENEFITS OF MODULAR ARCHITECTURE:
+  ✅ Better code organization and maintainability
+  ✅ Easier testing and debugging
+  ✅ Clearer dependency management
+  ✅ Follows Python best practices
+  ✅ Enables selective imports
+  ✅ Reduces coupling between components
+
+See MODULAR_ARCHITECTURE_STATUS.md for complete migration guide.
+
+════════════════════════════════════════════════════════════════════════════════
+
+╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    CONSOLIDATED UTILITIES MODULE                              ║
 ║     Utility Functions for Sequence Processing, Export, and Visualization     ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -45,6 +80,16 @@ MAIN FUNCTIONS:
     - plot_manhattan_motif_density(): Manhattan plots
     - and 20+ more visualization functions
 """
+
+import warnings
+warnings.warn(
+    "DEPRECATED: Importing from 'utilities.py' is deprecated. "
+    "Please use the modular architecture instead: "
+    "from utils.fasta import ..., from utils.export import ..., from utils.plotting import ... "
+    "See MODULAR_ARCHITECTURE_STATUS.md for migration guide.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from typing import Dict, Any, List, Optional, Tuple, Union
 import json

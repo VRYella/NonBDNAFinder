@@ -1,5 +1,36 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
+║                    DEPRECATED: LEGACY MONOLITHIC FILE                         ║
+║                    Use Modular Architecture Instead                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+⚠️  DEPRECATION NOTICE ⚠️
+
+This monolithic file is DEPRECATED and maintained for backward compatibility only.
+
+MIGRATION GUIDE:
+Please migrate to the modular architecture located in:
+  - engine/detection.py - Core NonBScanner class and analyze_sequence function
+  - engine/detectors/ - Individual detector classes
+
+OLD (Deprecated):
+    from nonbscanner import analyze_sequence, get_motif_info
+
+NEW (Recommended):
+    from engine.detection import analyze_sequence, NonBScanner
+
+BENEFITS OF MODULAR ARCHITECTURE:
+  ✅ Better code organization and maintainability
+  ✅ Easier testing and debugging
+  ✅ Clearer dependency management
+  ✅ Follows Python best practices
+  ✅ Enables selective imports
+
+See MODULAR_ARCHITECTURE_STATUS.md for complete migration guide.
+
+════════════════════════════════════════════════════════════════════════════════
+
+╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    NONBSCANNER - MAIN API MODULE                              ║
 ║              Professional Non-B DNA Motif Detection Suite                     ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -60,6 +91,16 @@ from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
+
+# Emit deprecation warning
+warnings.warn(
+    "DEPRECATED: Importing from 'nonbscanner.py' is deprecated. "
+    "Please use the modular architecture instead: "
+    "from engine.detection import analyze_sequence, NonBScanner "
+    "See MODULAR_ARCHITECTURE_STATUS.md for migration guide.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 warnings.filterwarnings("ignore")
 
