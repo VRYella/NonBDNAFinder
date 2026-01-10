@@ -58,9 +58,17 @@ from engine.detectors import (
 )
 
 # Utils imports - Shared utilities
-from utils.fasta import parse_fasta, read_fasta_file
+from utils.fasta import (
+    parse_fasta, read_fasta_file,
+    parse_fasta_chunked, parse_fasta_chunked_compressed,
+    get_file_preview, wrap
+)
 from utils.export import export_to_csv, export_to_bed, export_to_json, export_to_excel
 from utils.constants import CORE_OUTPUT_COLUMNS
+from utils.stats import (
+    get_basic_stats,
+    trigger_garbage_collection, optimize_dataframe_memory, get_memory_usage_mb
+)
 from utils.plotting import (
     plot_motif_distribution, plot_nested_pie_chart,
     plot_score_distribution, plot_length_distribution,
@@ -79,14 +87,10 @@ from utils.plotting.genomic import (
     plot_motif_length_kde
 )
 
-# TEMPORARY: Import functions not yet migrated to modular architecture
-# TODO: Migrate these to appropriate modules in utils/
-from utilities import (
-    parse_fasta_chunked, parse_fasta_chunked_compressed,
-    get_file_preview, wrap, get_basic_stats,
+# App-specific helper functions
+from app_helpers import (
     export_statistics_to_excel, calculate_genomic_density, calculate_positional_density,
     export_results_to_dataframe, export_to_pdf,
-    trigger_garbage_collection, optimize_dataframe_memory, get_memory_usage_mb,
     create_collapsible_card, render_summary_panel
 )
 
