@@ -16,6 +16,12 @@ import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
+from collections import Counter
+from .styles import (
+    MOTIF_CLASS_COLORS,
+    PUBLICATION_DPI,
+    set_scientific_style,
+)
 
 def plot_class_analysis_comprehensive(motifs: List[Dict[str, Any]], 
                                      figsize: Tuple[int, int] = (16, 12)) -> plt.Figure:

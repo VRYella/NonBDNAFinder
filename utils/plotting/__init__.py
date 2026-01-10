@@ -56,7 +56,11 @@ from .styles import (
     MOTIF_CLASS_COLORS,
     NATURE_MOTIF_COLORS,
     VISUALIZATION_PALETTE,
-    PLOT_DPI
+    PLOT_DPI,
+    PUBLICATION_DPI,
+    FIGURE_SIZES,
+    CIRCOS_EXCLUDED_CLASSES,
+    set_scientific_style,
 )
 
 __all__ = [
@@ -98,4 +102,8 @@ __all__ = [
     'NATURE_MOTIF_COLORS',
     'VISUALIZATION_PALETTE',
     'PLOT_DPI',
+    'PUBLICATION_DPI',
+    'FIGURE_SIZES',
+    'CIRCOS_EXCLUDED_CLASSES',
+    'set_scientific_style',
 ]
