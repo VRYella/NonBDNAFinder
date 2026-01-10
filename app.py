@@ -69,6 +69,10 @@ from utilities import (
 from nonbscanner import (
     analyze_sequence, get_motif_info as get_motif_classification_info
 )
+# Import summary renderer utilities for safe HTML rendering and progress bars
+from summary_renderer import (
+    render_summary_block, render_progress, render_metric_card, render_info_box
+)
 # Inline visualization standards (removed separate module for conciseness)
 NATURE_MOTIF_COLORS = {
     'Curved_DNA': '#CC79A7', 'G-Quadruplex': '#0072B2', 'Z-DNA': '#882255',
@@ -2869,37 +2873,38 @@ with tab_pages["Results"]:
     # Performance metrics display if available
     if st.session_state.get('performance_metrics'):
         metrics = st.session_state.performance_metrics
-        st.markdown(f"""
-        <div class='progress-panel progress-panel--metrics'>
-            <h3 class='progress-panel__title'>Performance Metrics</h3>
-            <div class='stats-grid stats-grid--wide'>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
-                    <p class='stat-card__label'>Processing Time</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_bp']:,}</h2>
-                    <p class='stat-card__label'>Base Pairs</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['speed']:,.0f}</h2>
-                    <p class='stat-card__label'>bp/second</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics.get('detector_count', 9)}</h2>
-                    <p class='stat-card__label'>Detector Processes</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['sequences']}</h2>
-                    <p class='stat-card__label'>Sequences</p>
-                </div>
-                <div class='stat-card'>
-                    <h2 class='stat-card__value'>{metrics['total_motifs']}</h2>
-                    <p class='stat-card__label'>Total Motifs</p>
-                </div>
-            </div>
+        # Use render_summary_block for consistent HTML rendering
+        render_summary_block(f"""
+<div class='progress-panel progress-panel--metrics'>
+    <h3 class='progress-panel__title'>Performance Metrics</h3>
+    <div class='stats-grid stats-grid--wide'>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_time']:.2f}s</h2>
+            <p class='stat-card__label'>Processing Time</p>
         </div>
-        """, unsafe_allow_html=True)
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_bp']:,}</h2>
+            <p class='stat-card__label'>Base Pairs</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['speed']:,.0f}</h2>
+            <p class='stat-card__label'>bp/second</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics.get('detector_count', 9)}</h2>
+            <p class='stat-card__label'>Detector Processes</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['sequences']}</h2>
+            <p class='stat-card__label'>Sequences</p>
+        </div>
+        <div class='stat-card'>
+            <h2 class='stat-card__value'>{metrics['total_motifs']}</h2>
+            <p class='stat-card__label'>Total Motifs</p>
+        </div>
+    </div>
+</div>
+""")
     
     
     # Sequence selection for detailed analysis using pills for better UX
@@ -2948,47 +2953,48 @@ with tab_pages["Results"]:
         non_b_density = (motif_count / sequence_length * 1000) if sequence_length > 0 else 0
         
         # Enhanced summary card with modern research-quality styling
-        st.markdown(f"""
-        <div class='progress-panel progress-panel--results'>
-            <h3 class='progress-panel__title progress-panel__title--large'>
-                NBDScanner Analysis Results
-            </h3>
-            <div class='stats-grid stats-grid--extra-wide'>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat_card_value_large'>
-                        {stats.get("Coverage%", 0):.2f}%
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Sequence Coverage
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {stats.get("Density", 0):.2f}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Motif Density<br>(motifs/kb)
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {motif_count}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Total Motifs
-                    </p>
-                </div>
-                <div class='stat-card stat-card--large'>
-                    <h2 class='stat-card__value stat-card__value--large'>
-                        {sequence_length:,}
-                    </h2>
-                    <p class='stat-card__label stat-card__label--large'>
-                        Sequence Length (bp)
-                    </p>
-                </div>
-            </div>
+        # Use render_summary_block for safe HTML rendering
+        render_summary_block(f"""
+<div class='progress-panel progress-panel--results'>
+    <h3 class='progress-panel__title progress-panel__title--large'>
+        NBDScanner Analysis Results
+    </h3>
+    <div class='stats-grid stats-grid--extra-wide'>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat_card_value_large'>
+                {stats.get("Coverage%", 0):.2f}%
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Sequence Coverage
+            </p>
         </div>
-        """, unsafe_allow_html=True)
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {stats.get("Density", 0):.2f}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Motif Density<br>(motifs/kb)
+            </p>
+        </div>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {motif_count}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Total Motifs
+            </p>
+        </div>
+        <div class='stat-card stat-card--large'>
+            <h2 class='stat-card__value stat-card__value--large'>
+                {sequence_length:,}
+            </h2>
+            <p class='stat-card__label stat-card__label--large'>
+                Sequence Length (bp)
+            </p>
+        </div>
+    </div>
+</div>
+""")
         
         # Add info about hybrid/cluster motifs being shown separately
         if hybrid_cluster_count > 0:
