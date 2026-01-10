@@ -14,6 +14,12 @@ from typing import List, Dict, Any, Tuple, Optional
 
 from .base import BaseMotifDetector
 
+# Try importing patterns from motif_patterns module
+try:
+    from motif_patterns import G4_PATTERNS
+except ImportError:
+    G4_PATTERNS = {}
+
 # G-Quadruplex detection constants
 WINDOW_SIZE_DEFAULT = 25
 MIN_REGION_LEN = 8

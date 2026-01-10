@@ -14,6 +14,12 @@ from typing import List, Dict, Any, Tuple, Optional
 
 from .base import BaseMotifDetector
 
+# Try importing patterns from motif_patterns module
+try:
+    from motif_patterns import CRUCIFORM_PATTERNS
+except ImportError:
+    CRUCIFORM_PATTERNS = {}
+
 import logging
 logger = logging.getLogger(__name__)
 

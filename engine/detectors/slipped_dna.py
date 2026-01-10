@@ -14,6 +14,12 @@ from typing import List, Dict, Any, Tuple, Optional
 
 from .base import BaseMotifDetector
 
+# Try importing patterns from motif_patterns module
+try:
+    from motif_patterns import SLIPPED_DNA_PATTERNS
+except ImportError:
+    SLIPPED_DNA_PATTERNS = {}
+
 class SlippedDNADetector(BaseMotifDetector):
     """
     Mechanism-Driven Slipped DNA Detector (Publication-Grade, 2024)

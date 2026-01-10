@@ -14,6 +14,12 @@ from typing import List, Dict, Any, Tuple, Optional
 
 from .base import BaseMotifDetector
 
+# Try importing patterns from motif_patterns module
+try:
+    from motif_patterns import IMOTIF_PATTERNS
+except ImportError:
+    IMOTIF_PATTERNS = {}
+
 def revcomp(seq: str) -> str:
     trans = str.maketrans("ACGTacgt", "TGCAtgca")
     return seq.translate(trans)[::-1]
