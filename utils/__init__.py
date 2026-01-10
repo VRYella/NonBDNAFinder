@@ -20,7 +20,6 @@ from . import validation
 from . import export
 from . import constants
 from . import registry
-from . import plotting
 from . import caching
 from . import state
 
@@ -39,9 +38,18 @@ from .registry import load_registry_for_class
 from .caching import get_cached_scanner
 from .state import initialize_session_state, get_state, set_state
 
-# Import from plotting styles
-from .plotting.styles import MOTIF_CLASS_COLORS, NATURE_MOTIF_COLORS
+# Import plotting module (optional - requires matplotlib)
+try:
+    from . import plotting
+    from .plotting.styles import MOTIF_CLASS_COLORS, NATURE_MOTIF_COLORS
+    _plotting_available = True
+except ImportError:
+    plotting = None
+    MOTIF_CLASS_COLORS = None
+    NATURE_MOTIF_COLORS = None
+    _plotting_available = False
 
+# Base exports (always available)
 __all__ = [
     # Modules
     'fasta',
@@ -49,7 +57,6 @@ __all__ = [
     'export',
     'constants',
     'registry',
-    'plotting',
     'caching',
     'state',
     # Functions
@@ -74,6 +81,12 @@ __all__ = [
     'MOTIF_SPECIFIC_COLUMNS',
     'CHUNK_THRESHOLD',
     'DEFAULT_CHUNK_SIZE',
-    'MOTIF_CLASS_COLORS',
-    'NATURE_MOTIF_COLORS',
 ]
+
+# Add plotting-related exports if available
+if _plotting_available:
+    __all__.extend([
+        'plotting',
+        'MOTIF_CLASS_COLORS',
+        'NATURE_MOTIF_COLORS',
+    ])
