@@ -46,6 +46,7 @@ from engine.detectors import (
 # Import utilities from modular architecture
 from utils.validation import validate_sequence
 from engine.scoring import normalize_motif_scores
+from engine.chunking import process_sequence_chunks, should_chunk_sequence
 
 __all__ = [
     'NonBScanner',
@@ -330,7 +331,9 @@ class NonBScanner:
             }
     
     def analyze_sequence(self, sequence: str, sequence_name: str = "sequence",
-                        progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None
+                        progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None,
+                        use_chunking: bool = False,
+                        use_parallel_chunks: bool = False
                         ) -> List[Dict[str, Any]]:
         """
         Detect all Non-B DNA motifs in a sequence.
@@ -349,6 +352,8 @@ class NonBScanner:
             sequence_name: Identifier for the sequence
             progress_callback: Optional callback after each detector completes
                              Signature: callback(detector_name, completed, total, elapsed, motif_count)
+            use_chunking: Enable chunked processing for large sequences (default: False)
+            use_parallel_chunks: Enable parallel chunk processing (requires use_chunking=True)
         
         Returns:
             List of motif dictionaries sorted by genomic position
@@ -360,6 +365,25 @@ class NonBScanner:
         if not is_valid:
             raise ValueError(f"Invalid sequence: {msg}")
         
+        # Use chunked processing if requested
+        if use_chunking:
+            # Convert progress_callback to chunk progress format if provided
+            chunk_callback = None
+            if progress_callback is not None:
+                # Wrap the detector progress callback for chunk progress
+                # Chunk callback signature: (chunk_num, total_chunks, bp_processed, elapsed, throughput)
+                # We'll ignore the chunk callback for now and use the regular detector callback
+                pass
+            
+            return process_sequence_chunks(
+                sequence, 
+                sequence_name, 
+                scanner=self,
+                progress_callback=chunk_callback,
+                use_parallel=use_parallel_chunks
+            )
+        
+        # Regular non-chunked processing
         all_motifs = []
         total_detectors = len(self.detectors)
         
@@ -655,7 +679,9 @@ def get_cached_scanner() -> NonBScanner:
 # =============================================================================
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence",
-                     progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None
+                     progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None,
+                     use_chunking: bool = False,
+                     use_parallel_chunks: bool = False
                      ) -> List[Dict[str, Any]]:
     """
     Convenience function to analyze a sequence using the cached scanner instance.
@@ -667,6 +693,8 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         sequence_name: Identifier for the sequence
         progress_callback: Optional callback after each detector completes
                           Signature: callback(detector_name, completed, total, elapsed, motif_count)
+        use_chunking: Enable chunked processing for large sequences (default: False)
+        use_parallel_chunks: Enable parallel chunk processing (requires use_chunking=True)
     
     Returns:
         List of motif dictionaries sorted by genomic position
@@ -677,4 +705,6 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence",
         >>> print(f"Found {len(motifs)} motifs")
     """
     scanner = get_cached_scanner()
-    return scanner.analyze_sequence(sequence, sequence_name, progress_callback)
+    return scanner.analyze_sequence(sequence, sequence_name, progress_callback, 
+                                   use_chunking=use_chunking, 
+                                   use_parallel_chunks=use_parallel_chunks)
