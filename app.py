@@ -2525,35 +2525,30 @@ with tab_pages["Upload & Analyze"]:
                             else:
                                 stage = "Merging"
                             
-                            # Display professional progress panel
+                            # Display professional progress panel using render_summary_block
                             with chunk_progress_placeholder.container():
-                                st.markdown(f"""
-                                <div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
-                                            padding: 1rem; border-radius: 12px; color: white; 
-                                            box-shadow: 0 4px 15px rgba(255, 109, 0, 0.3); margin-bottom: 0.5rem;'>
-                                    <h4 style='margin: 0 0 0.8rem 0; text-align: center; font-size: 1.1rem;'>
-                                        ⚡ Analysis Progress
-                                    </h4>
-                                    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.6rem; 
-                                               border-radius: 8px; margin-bottom: 0.6rem;'>
-                                        <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
-                                            <span><b>Stage:</b> {stage}</span>
-                                            <span><b>Elapsed time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</span>
-                                        </div>
-                                        <div style='margin-bottom: 0.3rem;'>
-                                            <b>Chunks processed:</b> {chunk_num} / {total_chunks}
-                                        </div>
-                                    </div>
-                                    <div style='background: rgba(255, 255, 255, 0.3); height: 8px; 
-                                               border-radius: 50px; overflow: hidden;'>
-                                        <div style='background: white; height: 100%; width: {progress_ratio * 100:.1f}%; 
-                                                   transition: width 0.3s ease;'></div>
-                                    </div>
-                                    <div style='text-align: center; margin-top: 0.4rem; font-size: 0.95rem;'>
-                                        {progress_ratio * 100:.0f}%
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
+                                # Use render_summary_block for the info panel
+                                render_summary_block(f"""
+<div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
+            padding: 1rem; border-radius: 12px; color: white; 
+            box-shadow: 0 4px 15px rgba(255, 109, 0, 0.3); margin-bottom: 0.5rem;'>
+    <h4 style='margin: 0 0 0.8rem 0; text-align: center; font-size: 1.1rem;'>
+        ⚡ Analysis Progress
+    </h4>
+    <div style='background: rgba(255, 255, 255, 0.15); padding: 0.6rem; 
+               border-radius: 8px; margin-bottom: 0.6rem;'>
+        <div style='display: flex; justify-content: space-between; margin-bottom: 0.3rem;'>
+            <span><b>Stage:</b> {stage}</span>
+            <span><b>Elapsed time:</b> {elapsed_mins:02d}:{elapsed_secs:02d}</span>
+        </div>
+        <div style='margin-bottom: 0.3rem;'>
+            <b>Chunks processed:</b> {chunk_num} / {total_chunks}
+        </div>
+    </div>
+</div>
+""")
+                                # Use native Streamlit progress bar for guaranteed visibility
+                                st.progress(progress_ratio, text=f"{progress_ratio * 100:.0f}% Complete")
                         
                         # Run parallel chunked analysis with progress callback
                         # Use ephemeral status (replaces previous message)
