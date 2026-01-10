@@ -206,19 +206,22 @@ def get_system_info():
 
 
 # ---------- PAGE CONFIG ----------
-st.set_page_config(
-    page_title=f"{UI_TEXT['app_title']} - Non-B DNA Motif Finder",
-    layout=LAYOUT_CONFIG['layout_mode'],
-    page_icon=None,
-    menu_items={'About': f"NBDScanner | Developed by {UI_TEXT['author']}"}
-)
+# Note: Page configuration should be done in the main app, not at module level
+# st.set_page_config(
+#     page_title=f"{UI_TEXT['app_title']} - Non-B DNA Motif Finder",
+#     layout=LAYOUT_CONFIG['layout_mode'],
+#     page_icon=None,
+#     menu_items={'About': f"NBDScanner | Developed by {UI_TEXT['author']}"}
+# )
+
 
 def format_sequence_limit():
     """Format the sequence limit for display - now shows 'unlimited' since limit is removed"""
     return "unlimited (chunked processing enabled)"
 
 # Get motif classification info
-CLASSIFICATION_INFO = get_motif_classification_info()
+# Note: Should be obtained when needed, not at module level
+# CLASSIFICATION_INFO = get_motif_classification_info()
 
 # ---------- PATCH: Ensure every motif has Subclass ----------
 def ensure_subclass(motif):

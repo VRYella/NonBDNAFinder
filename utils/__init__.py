@@ -21,6 +21,8 @@ from . import export
 from . import constants
 from . import registry
 from . import plotting
+from . import caching
+from . import state
 
 __all__ = [
     'fasta',
@@ -29,4 +31,6 @@ __all__ = [
     'constants',
     'registry',
     'plotting',
+    'caching',
+    'state',
 ]

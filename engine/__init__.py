@@ -19,6 +19,8 @@ from . import merging
 from . import chunking
 from . import sequence_ops
 from . import detectors
+from . import detection
+from . import patterns
 
 __all__ = [
     'scoring',
@@ -26,4 +28,6 @@ __all__ = [
     'chunking',
     'sequence_ops',
     'detectors',
+    'detection',
+    'patterns',
 ]

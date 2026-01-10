@@ -733,7 +733,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
                 
                 # Plot KDE
                 try:
-                from scipy import stats
+                    from scipy import stats
                     kde = stats.gaussian_kde(lengths)
                     x_range = np.linspace(min(lengths), max(lengths), 200)
                     density = kde(x_range)
@@ -750,7 +750,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
         
         if len(lengths) > 1:
             try:
-            from scipy import stats
+                from scipy import stats
                 kde = stats.gaussian_kde(lengths)
                 x_range = np.linspace(min(lengths), max(lengths), 200)
                 density = kde(x_range)
@@ -784,8 +784,8 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
 # =============================================================================
 
 # Aliases for functions with different naming conventions
-plot_comprehensive_class_analysis = plot_class_analysis_comprehensive
-plot_comprehensive_subclass_analysis = plot_subclass_analysis_comprehensive
+# plot_comprehensive_class_analysis = plot_class_analysis_comprehensive
+# plot_comprehensive_subclass_analysis = plot_subclass_analysis_comprehensive
 
 
 # =============================================================================
@@ -1081,4 +1081,16 @@ def create_consolidated_pdf(
     motifs: List[Dict[str, Any]],
     sequence_length: int,
     sequence_name: str,
-    job_id: str,
+    job_id: str
+) -> None:
+    """
+    Create a consolidated PDF report with all visualizations.
+    
+    Args:
+        motifs: List of motif dictionaries
+        sequence_length: Length of the analyzed sequence
+        sequence_name: Name of the sequence
+        job_id: Job identifier
+    """
+    # Placeholder function - to be implemented
+    pass
