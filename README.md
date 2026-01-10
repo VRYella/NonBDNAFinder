@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-2025.1-blue.svg)](https://github.com/VRYella/NonBDNAFinder)
 [![Quality](https://img.shields.io/badge/quality-Publication--Ready-gold.svg)](./MODERNIZATION_SUMMARY.md)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
-[![Architecture](https://img.shields.io/badge/architecture-4%20modules-brightgreen.svg)](./MODERNIZATION_SUMMARY.md)
+[![Architecture](https://img.shields.io/badge/architecture-24%20modules-brightgreen.svg)](./REFACTORING_COMPLETE.md)
 
 ## 🚀 What's New in 2025.1
 
@@ -283,6 +283,56 @@ streamlit run app.py
 ```
 
 **Note**: Hyperscan is required (not optional). The tool enforces hyperscan for 10-100x faster pattern matching.
+
+## 🏗️ Modular Architecture (New in 2025.1)
+
+NonBDNAFinder now features a **modular architecture** with 24+ focused modules for improved maintainability and extensibility:
+
+### 📦 Module Structure
+
+```
+NonBDNAFinder/
+├── engine/              # Core detection engine
+│   ├── detectors/      # Individual detector classes (9 modules)
+│   │   ├── curved_dna.py
+│   │   ├── z_dna.py
+│   │   ├── g_quadruplex.py
+│   │   └── ... (6 more)
+│   ├── scoring.py      # Score normalization
+│   ├── merging.py      # Overlap resolution
+│   └── chunking.py     # Parallel processing
+├── utils/              # Shared utilities
+│   ├── plotting/       # Visualization modules (5 modules)
+│   ├── registry.py     # Pattern management
+│   ├── export.py       # Data export
+│   └── validation.py   # Input validation
+└── ui/                 # UI components
+    ├── formatting.py
+    └── downloads.py
+```
+
+### 💡 Usage Examples
+
+```python
+# Import specific detectors
+from engine.detectors import CurvedDNADetector, ZDNADetector
+
+# Import utilities
+from utils.export import export_to_csv, export_to_excel
+from utils.plotting.distributions import plot_motif_distribution
+
+# Use modular components
+detector = CurvedDNADetector()
+motifs = detector.detect_motifs(sequence, "chr1")
+```
+
+### 📊 Benefits
+- **15,000+ lines** organized into focused modules
+- **Easy to extend**: Add new detectors without touching core code
+- **Better testing**: Test individual components in isolation
+- **Clear structure**: Find functionality quickly
+
+See [REFACTORING_COMPLETE.md](./REFACTORING_COMPLETE.md) for full details.
 
 ## 🤝 Contributing
 
