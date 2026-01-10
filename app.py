@@ -2123,7 +2123,7 @@ with tab_pages["Upload & Analyze"]:
                                 </div>
                             </div>
                             <div style='background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 12px; font-weight: 600;'>
-                                Valid Valid
+                                {UI_TEXT['label_valid']}
                             </div>
                         </div>
                     </div>
@@ -3370,14 +3370,11 @@ with tab_pages["Download"]:
         
         # Individual file downloads as main option
         st.markdown("### 📥 Download Results")
-        st.markdown("""
-        <div style='background: #f0f9ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #0ea5e9;'>
-            <p style='color: #0c4a6e; margin: 0;'>
-                💡 <strong>Download your results</strong> in different file formats
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Download Options",
+            "Download your results in different file formats",
+            box_type="info"
+        )
         
         col1, col2, col3, col4, col5 = st.columns(5)
         
@@ -3465,14 +3462,11 @@ with tab_pages["Download"]:
         # Add Distribution & Statistics Tables Download Section
         st.markdown("---")
         st.markdown("### 📊 Download Distribution & Statistics Tables")
-        st.markdown("""
-        <div style='background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #22c55e;'>
-            <p style='color: #14532d; margin: 0;'>
-                📈 <strong>Download detailed distribution and density statistics</strong> for publication and analysis
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Statistics Tables",
+            "Download detailed distribution and density statistics for publication and analysis",
+            box_type="success"
+        )
         
         # Calculate distribution and density statistics for all sequences
         if all_motifs and st.session_state.seqs:
@@ -3601,14 +3595,11 @@ with tab_pages["Download"]:
         # Add Enrichment & Structural Analysis Data Downloads
         st.markdown("---")
         st.markdown("### 🔬 Download Enrichment & Structural Analysis Data")
-        st.markdown("""
-        <div style='background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;
-                    border-left: 4px solid #f59e0b;'>
-            <p style='color: #78350f; margin: 0;'>
-                🧬 <strong>Download statistical enrichment and structural pattern analysis results</strong>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        render_info_box(
+            "Advanced Analysis Data",
+            "Download statistical enrichment and structural pattern analysis results",
+            box_type="warning"
+        )
         
         # Check if enrichment and structural results are available
         if st.session_state.get('enrichment_results') and st.session_state.get('structural_results'):
