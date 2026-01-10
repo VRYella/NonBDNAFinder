@@ -30,8 +30,8 @@ import bisect
 from typing import List, Dict, Any, Optional, Callable
 from collections import defaultdict
 
-# Import detector classes
-from detectors import (
+# Import detector classes from modular architecture
+from .detectors import (
     CurvedDNADetector,
     SlippedDNADetector,
     CruciformDetector,
@@ -43,8 +43,9 @@ from detectors import (
     APhilicDetector
 )
 
-# Import utilities
-from utilities import validate_sequence, normalize_motif_scores
+# Import utilities from modular architecture
+from ..utils.validation import validate_sequence
+from .scoring import normalize_motif_scores
 
 __all__ = [
     'NonBScanner',
