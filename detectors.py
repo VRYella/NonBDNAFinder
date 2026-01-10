@@ -1,5 +1,36 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
+║                    DEPRECATED: LEGACY MONOLITHIC FILE                         ║
+║                    Use Modular Architecture Instead                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+⚠️  DEPRECATION NOTICE ⚠️
+
+This monolithic file is DEPRECATED and maintained for backward compatibility only.
+
+MIGRATION GUIDE:
+Please migrate to the modular architecture located in:
+  - engine/detectors/ - Individual detector classes
+  - engine/detectors/__init__.py - Unified detector exports
+
+OLD (Deprecated):
+    from detectors import CurvedDNADetector, ZDNADetector
+
+NEW (Recommended):
+    from engine.detectors import CurvedDNADetector, ZDNADetector
+
+BENEFITS OF MODULAR ARCHITECTURE:
+  ✅ Better code organization and maintainability
+  ✅ Easier testing and debugging
+  ✅ Clearer dependency management
+  ✅ Follows Python best practices
+  ✅ Enables selective imports
+
+See MODULAR_ARCHITECTURE_STATUS.md for complete migration guide.
+
+════════════════════════════════════════════════════════════════════════════════
+
+╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    CONSOLIDATED MOTIF DETECTORS MODULE                        ║
 ║             Non-B DNA Motif Detection Classes - All in One                   ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -37,6 +68,16 @@ USAGE:
     detector = CurvedDNADetector()
     motifs = detector.detect(sequence)
 """
+
+import warnings
+warnings.warn(
+    "DEPRECATED: Importing from 'detectors.py' is deprecated. "
+    "Please use the modular architecture instead: "
+    "from engine.detectors import CurvedDNADetector, ZDNADetector, etc. "
+    "See MODULAR_ARCHITECTURE_STATUS.md for migration guide.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import re
 from abc import ABC, abstractmethod

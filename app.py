@@ -43,36 +43,84 @@ from collections import Counter  # For counting motif distributions
 _current_dir = os.path.dirname(os.path.abspath(__file__))
 if _current_dir not in sys.path:
     sys.path.insert(0, _current_dir)
-# Import consolidated NBDScanner modules
-from utilities import (
-    parse_fasta, parse_fasta_chunked, parse_fasta_chunked_compressed, 
-    get_file_preview, wrap, get_basic_stats, export_to_bed, export_to_csv,
-    export_to_json, export_to_excel, export_statistics_to_excel, calculate_genomic_density, calculate_positional_density,
-    export_results_to_dataframe, CORE_OUTPUT_COLUMNS, export_to_pdf,
-    # Performance & Memory Management
-    trigger_garbage_collection, optimize_dataframe_memory, get_memory_usage_mb,
-    # Visualization functions (now consolidated in utilities.py)
-    plot_motif_distribution, plot_coverage_map, plot_density_heatmap,
-    plot_length_distribution, plot_score_distribution, plot_nested_pie_chart, 
-    MOTIF_CLASS_COLORS, plot_density_comparison,
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MODULAR ARCHITECTURE IMPORTS
+# ═══════════════════════════════════════════════════════════════════════════════
+# Using modular architecture from engine/, utils/, ui/ directories
+
+# Engine imports - Core detection logic
+from engine.detection import analyze_sequence, NonBScanner, get_cached_scanner
+from engine.detectors import (
+    CurvedDNADetector, ZDNADetector, APhilicDetector,
+    SlippedDNADetector, CruciformDetector, RLoopDetector,
+    TriplexDetector, GQuadruplexDetector, IMotifDetector
+)
+
+# Utils imports - Shared utilities
+from utils.fasta import parse_fasta, read_fasta_file
+from utils.export import export_to_csv, export_to_bed, export_to_json, export_to_excel
+from utils.constants import CORE_OUTPUT_COLUMNS
+from utils.plotting import (
+    plot_motif_distribution, plot_nested_pie_chart,
+    plot_score_distribution, plot_length_distribution,
+    MOTIF_CLASS_COLORS
+)
+from utils.plotting.coverage import plot_coverage_map, plot_density_heatmap
+from utils.plotting.density import (
     plot_circos_motif_density,
-    plot_density_comparison_by_subclass, plot_enrichment_analysis_by_subclass,
-    plot_subclass_density_heatmap,
-    # New Nature-quality visualizations
+    plot_density_comparison, plot_density_comparison_by_subclass,
+    plot_subclass_density_heatmap, plot_enrichment_analysis_by_subclass
+)
+from utils.plotting.genomic import (
     plot_manhattan_motif_density, plot_cumulative_motif_distribution,
     plot_motif_cooccurrence_matrix, plot_gc_content_correlation,
     plot_linear_motif_track, plot_cluster_size_distribution,
-    plot_motif_length_kde,
-    # UI Components
+    plot_motif_length_kde
+)
+
+# TEMPORARY: Import functions not yet migrated to modular architecture
+# TODO: Migrate these to appropriate modules in utils/
+from utilities import (
+    parse_fasta_chunked, parse_fasta_chunked_compressed,
+    get_file_preview, wrap, get_basic_stats,
+    export_statistics_to_excel, calculate_genomic_density, calculate_positional_density,
+    export_results_to_dataframe, export_to_pdf,
+    trigger_garbage_collection, optimize_dataframe_memory, get_memory_usage_mb,
     create_collapsible_card, render_summary_panel
 )
-from nonbscanner import (
-    analyze_sequence, get_motif_info as get_motif_classification_info
-)
+
 # Import summary renderer utilities for safe HTML rendering and progress bars
 from summary_renderer import (
     render_summary_block, render_progress, render_metric_card, render_info_box
 )
+
+# Helper function for motif classification info (inline for now)
+def get_motif_classification_info():
+    """Get motif classification information."""
+    return {
+        'version': '2025.1',
+        'total_classes': 11,
+        'total_subclasses': '22+',
+        'classification': {
+            1: {'name': 'Curved DNA', 'subclasses': ['Global Curvature', 'Local Curvature']},
+            2: {'name': 'Slipped DNA', 'subclasses': ['Direct Repeat', 'STR']},
+            3: {'name': 'Cruciform DNA', 'subclasses': ['Inverted Repeats']},
+            4: {'name': 'R-loop', 'subclasses': ['R-loop formation sites', 'QmRLFS-m1', 'QmRLFS-m2']},
+            5: {'name': 'Triplex', 'subclasses': ['Triplex', 'Sticky DNA']},
+            6: {'name': 'G-Quadruplex Family', 'subclasses': [
+                'Telomeric G4', 'Stacked canonical G4s', 'Stacked G4s with linker',
+                'Canonical intramolecular G4', 'Extended-loop canonical',
+                'Higher-order G4 array/G4-wire', 'Intramolecular G-triplex', 'Two-tetrad weak PQS'
+            ]},
+            7: {'name': 'i-Motif Family', 'subclasses': ['Canonical i-motif', 'Relaxed i-motif', 'AC-motif']},
+            8: {'name': 'Z-DNA', 'subclasses': ['Z-DNA', 'eGZ (Extruded-G) DNA']},
+            9: {'name': 'A-philic DNA', 'subclasses': ['A-philic DNA']},
+            10: {'name': 'Hybrid', 'subclasses': ['Dynamic overlaps']},
+            11: {'name': 'Non-B DNA Clusters', 'subclasses': ['Dynamic clusters']}
+        }
+    }
+
 # Inline visualization standards (removed separate module for conciseness)
 NATURE_MOTIF_COLORS = {
     'Curved_DNA': '#CC79A7', 'G-Quadruplex': '#0072B2', 'Z-DNA': '#882255',

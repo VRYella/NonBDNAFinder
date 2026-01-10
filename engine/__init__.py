@@ -22,7 +22,15 @@ from . import detectors
 from . import detection
 from . import patterns
 
+# Export key classes and functions for direct access
+from .detection import NonBScanner, AnalysisProgress, get_cached_scanner, analyze_sequence
+from .scoring import normalize_motif_scores, calculate_motif_statistics
+from .merging import remove_overlaps, detect_hybrid_motifs, detect_cluster_motifs
+from .chunking import process_sequence_chunks, should_chunk_sequence
+from .sequence_ops import reverse_complement, gc_content
+
 __all__ = [
+    # Modules
     'scoring',
     'merging',
     'chunking',
@@ -30,4 +38,18 @@ __all__ = [
     'detectors',
     'detection',
     'patterns',
+    # Key functions and classes
+    'NonBScanner',
+    'AnalysisProgress',
+    'get_cached_scanner',
+    'analyze_sequence',
+    'normalize_motif_scores',
+    'calculate_motif_statistics',
+    'remove_overlaps',
+    'detect_hybrid_motifs',
+    'detect_cluster_motifs',
+    'process_sequence_chunks',
+    'should_chunk_sequence',
+    'reverse_complement',
+    'gc_content',
 ]
