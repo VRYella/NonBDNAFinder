@@ -16,8 +16,16 @@ __version__ = "2025.1"
 # Import UI modules
 from . import formatting
 from . import downloads
+from . import layout
+from . import metrics
+from . import progress
+from . import inputs
 
 __all__ = [
     'formatting',
     'downloads',
+    'layout',
+    'metrics',
+    'progress',
+    'inputs',
 ]

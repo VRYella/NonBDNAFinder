@@ -75,34 +75,35 @@ def get_dna_pattern_svg(stroke_color: str) -> str:
     return f"url(\"data:image/svg+xml,{svg}\")"
 
 # Get current theme colors (using configuration from top)
-current_theme = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])
-is_dark_mode = st.session_state.theme_mode == 'dark'
-is_compact = st.session_state.table_density == 'compact'
+# Note: These should be accessed when needed, not at module level
+# current_theme = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])
+# is_dark_mode = st.session_state.theme_mode == 'dark'
+# is_compact = st.session_state.table_density == 'compact'
 
 # Dark mode color overrides - Soothing dark palette
-if is_dark_mode:
-    # Use the primary color from the base theme for consistency
-    base_primary = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])['primary']
-    current_theme = {
-        **current_theme,
-        'bg_light': '#1A1F2E',        # Soft dark blue-gray
-        'bg_card': '#252B3B',          # Slightly lighter dark
-        'text': '#E5E7EB',             # Softer white for dark mode
-        'tab_bg': '#1F2937',           # Dark slate for tab bar
-        'tab_active': current_theme.get('primary', base_primary),
-        'shadow': 'rgba(0, 0, 0, 0.25)'
-    }
-
-# Pre-calculate RGB values for all theme colors (performance optimization)
-rgb = {key: hex_to_rgb(value) if key not in ['shadow'] else (0, 0, 0) for key, value in current_theme.items()}
-
-# Additional color calculations for new soothing theme
-tab_bg_color = current_theme.get('tab_bg', current_theme['bg_card'])
-tab_active_color = current_theme.get('tab_active', current_theme['primary'])
-shadow_color = current_theme.get('shadow', f"rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15)")
-
-# Generate SVG pattern based on theme
-dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
+# if is_dark_mode:
+#     # Use the primary color from the base theme for consistency
+#     base_primary = COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES['scientific_blue'])['primary']
+#     current_theme = {
+#         **current_theme,
+#         'bg_light': '#1A1F2E',        # Soft dark blue-gray
+#         'bg_card': '#252B3B',          # Slightly lighter dark
+#         'text': '#E5E7EB',             # Softer white for dark mode
+#         'tab_bg': '#1F2937',           # Dark slate for tab bar
+#         'tab_active': current_theme.get('primary', base_primary),
+#         'shadow': 'rgba(0, 0, 0, 0.25)'
+#     }
+#
+# # Pre-calculate RGB values for all theme colors (performance optimization)
+# rgb = {key: hex_to_rgb(value) if key not in ['shadow'] else (0, 0, 0) for key, value in current_theme.items()}
+#
+# # Additional color calculations for new soothing theme
+# tab_bg_color = current_theme.get('tab_bg', current_theme['bg_card'])
+# tab_active_color = current_theme.get('tab_active', current_theme['primary'])
+# shadow_color = current_theme.get('shadow', f"rgba({rgb['primary'][0]}, {rgb['primary'][1]}, {rgb['primary'][2]}, 0.15)")
+#
+# # Generate SVG pattern based on theme
+# dna_pattern = get_dna_pattern_svg('1e3a5f' if is_dark_mode else 'bbdefb')
 
 def load_css(theme_name=None):
     """
