@@ -59,7 +59,7 @@ class RLoopDetector(BaseMotifDetector):
         # Compile hyperscan database if available
         self.hs_db = None
         self.hs_id_to_model = {}
-        if HS_AVAILABLE:
+        if _HYPERSCAN_AVAILABLE:
             self._compile_hyperscan_patterns()
     
     def get_motif_class_name(self) -> str:
@@ -96,7 +96,7 @@ class RLoopDetector(BaseMotifDetector):
     
     def _compile_hyperscan_patterns(self):
         """Compile patterns for hyperscan if available"""
-        if not HS_AVAILABLE:
+        if not _HYPERSCAN_AVAILABLE:
             return
         
         try:
@@ -124,7 +124,7 @@ class RLoopDetector(BaseMotifDetector):
     
     def _riz_search_hyperscan(self, seq: str, model: str) -> List[Dict[str, Any]]:
         """Search for RIZ regions using Hyperscan (fast path)"""
-        if not HS_AVAILABLE or self.hs_db is None:
+        if not _HYPERSCAN_AVAILABLE or self.hs_db is None:
             return []
         
         result_list = []
@@ -179,7 +179,7 @@ class RLoopDetector(BaseMotifDetector):
         Uses Hyperscan if available, otherwise falls back to regex.
         """
         # Try hyperscan first
-        if HS_AVAILABLE and self.hs_db is not None:
+        if _HYPERSCAN_AVAILABLE and self.hs_db is not None:
             results = self._riz_search_hyperscan(seq, model)
             if results:
                 return results
