@@ -61,6 +61,7 @@ from .styles import (
     FIGURE_SIZES,
     CIRCOS_EXCLUDED_CLASSES,
     set_scientific_style,
+    _apply_nature_style,
 )
 
 __all__ = [

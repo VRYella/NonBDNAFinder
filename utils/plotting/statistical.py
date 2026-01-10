@@ -16,7 +16,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 from .styles import (
     MOTIF_CLASS_COLORS,
     PUBLICATION_DPI,

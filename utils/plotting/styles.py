@@ -30,6 +30,7 @@ __all__ = [
     'set_scientific_style',
     'get_matplotlib_style',
     'get_color_for_motif',
+    '_apply_nature_style',
 ]
 
 # =============================================================================
@@ -286,3 +287,53 @@ def set_scientific_style(style: str = 'nature') -> None:
     else:  # 'default' or any other value
         # Standard improved matplotlib style
         plt.rcParams.update(get_matplotlib_style())
+
+
+def _apply_nature_style(ax) -> None:
+    """
+    Apply Nature journal styling to a matplotlib axes object.
+    
+    This function applies publication-quality styling consistent with
+    Nature and Science journal guidelines to an existing axes object.
+    
+    Args:
+        ax: Matplotlib axes object to style
+    
+    Example:
+        >>> import matplotlib.pyplot as plt
+        >>> fig, ax = plt.subplots()
+        >>> # ... create your plot ...
+        >>> _apply_nature_style(ax)
+    """
+    # Grid styling
+    ax.grid(True, alpha=PLOT_GRID_ALPHA, linewidth=PLOT_GRID_LINEWIDTH, 
+            linestyle=PLOT_GRID_LINESTYLE, zorder=0)
+    ax.set_axisbelow(True)
+    
+    # Spines styling
+    for spine in ax.spines.values():
+        spine.set_linewidth(1.5)
+        spine.set_color('black')
+    
+    # Tick parameters
+    ax.tick_params(axis='both', which='major', labelsize=PLOT_FONT_SIZE - 1,
+                   width=1.5, length=5, color='black')
+    ax.tick_params(axis='both', which='minor', width=1.0, length=3, color='black')
+    
+    # Title and labels
+    if ax.get_title():
+        ax.set_title(ax.get_title(), fontsize=PLOT_TITLE_SIZE, fontweight='bold', pad=10)
+    if ax.get_xlabel():
+        ax.set_xlabel(ax.get_xlabel(), fontsize=PLOT_AXIS_LABEL_SIZE, fontweight='normal')
+    if ax.get_ylabel():
+        ax.set_ylabel(ax.get_ylabel(), fontsize=PLOT_AXIS_LABEL_SIZE, fontweight='normal')
+    
+    # Legend styling (if present)
+    legend = ax.get_legend()
+    if legend:
+        legend.set_frame_on(True)
+        legend.get_frame().set_linewidth(1.5)
+        legend.get_frame().set_edgecolor('black')
+        legend.get_frame().set_alpha(0.9)
+        for text in legend.get_texts():
+            text.set_fontsize(PLOT_LEGEND_SIZE)

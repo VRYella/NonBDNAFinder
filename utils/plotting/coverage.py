@@ -16,11 +16,13 @@ import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
+from collections import defaultdict
 from .styles import (
     MOTIF_CLASS_COLORS,
     PUBLICATION_DPI,
     FIGURE_SIZES,
     set_scientific_style,
+    _apply_nature_style,
 )
 
 def plot_coverage_map(motifs: List[Dict[str, Any]], 
