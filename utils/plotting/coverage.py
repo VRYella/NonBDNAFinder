@@ -7,13 +7,13 @@ Creates coverage maps and position-based visualizations.
 Extracted from utilities.py for modular architecture.
 """
 
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib
-    import matplotlib.patches as patches
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import pandas as pd
-    import plotly.graph_objects as go
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
 

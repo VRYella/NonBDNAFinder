@@ -7,13 +7,13 @@ Includes Manhattan plots, landscape tracks, and genomic overview visualizations.
 Extracted from utilities.py for modular architecture.
 """
 
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib
-    import matplotlib.patches as patches
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import pandas as pd
-    import plotly.graph_objects as go
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
 
@@ -733,7 +733,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
                 
                 # Plot KDE
                 try:
-                    from scipy import stats
+                from scipy import stats
                     kde = stats.gaussian_kde(lengths)
                     x_range = np.linspace(min(lengths), max(lengths), 200)
                     density = kde(x_range)
@@ -750,7 +750,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
         
         if len(lengths) > 1:
             try:
-                from scipy import stats
+            from scipy import stats
                 kde = stats.gaussian_kde(lengths)
                 x_range = np.linspace(min(lengths), max(lengths), 200)
                 density = kde(x_range)
