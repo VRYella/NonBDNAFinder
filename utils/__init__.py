@@ -37,7 +37,7 @@ from .constants import (
 )
 from .registry import load_registry_for_class
 from .caching import get_cached_scanner
-from .state import initialize_state
+from .state import initialize_session_state, get_state, set_state
 
 # Import from plotting styles
 from .plotting.styles import MOTIF_CLASS_COLORS, NATURE_MOTIF_COLORS
@@ -66,7 +66,9 @@ __all__ = [
     'export_to_gff3',
     'load_registry_for_class',
     'get_cached_scanner',
-    'initialize_state',
+    'initialize_session_state',
+    'get_state',
+    'set_state',
     # Constants
     'CORE_OUTPUT_COLUMNS',
     'MOTIF_SPECIFIC_COLUMNS',

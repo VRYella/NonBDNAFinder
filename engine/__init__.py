@@ -23,7 +23,7 @@ from . import detection
 from . import patterns
 
 # Export key classes and functions for direct access
-from .detection import NonBScanner, AnalysisProgress, get_cached_scanner
+from .detection import NonBScanner, AnalysisProgress, get_cached_scanner, analyze_sequence
 from .scoring import normalize_motif_scores, calculate_motif_statistics
 from .merging import remove_overlaps, detect_hybrid_motifs, detect_cluster_motifs
 from .chunking import process_sequence_chunks, should_chunk_sequence
@@ -42,6 +42,7 @@ __all__ = [
     'NonBScanner',
     'AnalysisProgress',
     'get_cached_scanner',
+    'analyze_sequence',
     'normalize_motif_scores',
     'calculate_motif_statistics',
     'remove_overlaps',

@@ -31,7 +31,7 @@ from typing import List, Dict, Any, Optional, Callable
 from collections import defaultdict
 
 # Import detector classes from modular architecture
-from .detectors import (
+from engine.detectors import (
     CurvedDNADetector,
     SlippedDNADetector,
     CruciformDetector,
@@ -44,8 +44,8 @@ from .detectors import (
 )
 
 # Import utilities from modular architecture
-from ..utils.validation import validate_sequence
-from .scoring import normalize_motif_scores
+from utils.validation import validate_sequence
+from engine.scoring import normalize_motif_scores
 
 __all__ = [
     'NonBScanner',
@@ -54,7 +54,8 @@ __all__ = [
     'create_enhanced_progress_callback',
     'get_last_detector_timings',
     'get_detector_display_names',
-    'get_cached_scanner'
+    'get_cached_scanner',
+    'analyze_sequence',  # Convenience function
 ]
 
 # =============================================================================
@@ -647,3 +648,33 @@ def get_cached_scanner() -> NonBScanner:
             if _CACHED_SCANNER is None:
                 _CACHED_SCANNER = NonBScanner(enable_all_detectors=True)
     return _CACHED_SCANNER
+
+
+# =============================================================================
+# CONVENIENCE API FUNCTION
+# =============================================================================
+
+def analyze_sequence(sequence: str, sequence_name: str = "sequence",
+                     progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None
+                     ) -> List[Dict[str, Any]]:
+    """
+    Convenience function to analyze a sequence using the cached scanner instance.
+    
+    This provides a simple functional API without needing to manage scanner instances.
+    
+    Args:
+        sequence: DNA sequence to analyze (ATGC characters)
+        sequence_name: Identifier for the sequence
+        progress_callback: Optional callback after each detector completes
+                          Signature: callback(detector_name, completed, total, elapsed, motif_count)
+    
+    Returns:
+        List of motif dictionaries sorted by genomic position
+    
+    Example:
+        >>> from engine.detection import analyze_sequence
+        >>> motifs = analyze_sequence("GGGTTAGGGTTAGGGTTAGGG", "test_seq")
+        >>> print(f"Found {len(motifs)} motifs")
+    """
+    scanner = get_cached_scanner()
+    return scanner.analyze_sequence(sequence, sequence_name, progress_callback)

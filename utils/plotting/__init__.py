@@ -30,17 +30,18 @@ from .distributions import (
     plot_score_distribution,
     plot_length_distribution
 )
-from .coverage import plot_coverage_map
+from .coverage import plot_coverage_map, plot_density_heatmap
 from .density import (
-    plot_density_heatmap,
     plot_circos_motif_density,
     plot_density_comparison,
     plot_density_comparison_by_subclass,
-    plot_subclass_density_heatmap
-)
-from .statistical import (
+    plot_subclass_density_heatmap,
     plot_enrichment_analysis,
     plot_enrichment_analysis_by_subclass
+)
+from .statistical import (
+    plot_class_analysis_comprehensive,
+    plot_subclass_analysis_comprehensive
 )
 from .genomic import (
     plot_manhattan_motif_density,
@@ -73,15 +74,17 @@ __all__ = [
     'plot_length_distribution',
     # Coverage functions
     'plot_coverage_map',
-    # Density functions
     'plot_density_heatmap',
+    # Density functions
     'plot_circos_motif_density',
     'plot_density_comparison',
     'plot_density_comparison_by_subclass',
     'plot_subclass_density_heatmap',
-    # Statistical functions
     'plot_enrichment_analysis',
     'plot_enrichment_analysis_by_subclass',
+    # Statistical functions
+    'plot_class_analysis_comprehensive',
+    'plot_subclass_analysis_comprehensive',
     # Genomic functions
     'plot_manhattan_motif_density',
     'plot_cumulative_motif_distribution',
