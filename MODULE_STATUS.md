@@ -4,7 +4,7 @@
 
 This document tracks the progress of the modular architecture refactoring for NonBDNAFinder. The goal is to transform ~19K lines in 4 monolithic files into 80+ focused, maintainable modules.
 
-## Current Status: 29% Complete (9 of 31 modules)
+## Current Status: 69% Complete (24 of 35 modules)
 
 ### ✅ Phase 1: Foundation (100% Complete)
 
@@ -28,24 +28,24 @@ Critical engine components have been extracted from `nonbscanner.py`:
 | `engine/detection.py` | ⏳ Pending | ~200 | NonBScanner class core logic |
 | `engine/patterns.py` | ⏳ Pending | ~150 | Pattern definitions & registry |
 
-### ⏳ Phase 3: Individual Detectors (10% Complete - 1 of 10 modules)
+### ⏳ Phase 3: Individual Detectors (100% Complete - 10 of 10 modules)
 
-Base detector established, individual detectors pending extraction from `detectors.py`:
+Base detector and all individual detectors extracted from detectors.py:
 
 | Module | Status | Lines | Description |
 |--------|--------|-------|-------------|
 | `engine/detectors/base.py` | ✅ Complete | 190 | BaseMotifDetector abstract class |
-| `engine/detectors/curved_dna.py` | ⏳ Pending | ~200 | CurvedDNADetector implementation |
-| `engine/detectors/z_dna.py` | ⏳ Pending | ~200 | ZDNADetector implementation |
-| `engine/detectors/a_philic.py` | ⏳ Pending | ~150 | APhilicDetector implementation |
-| `engine/detectors/slipped_dna.py` | ⏳ Pending | ~200 | SlippedDNADetector implementation |
-| `engine/detectors/cruciform.py` | ⏳ Pending | ~180 | CruciformDetector implementation |
-| `engine/detectors/r_loop.py` | ⏳ Pending | ~180 | RLoopDetector implementation |
-| `engine/detectors/triplex.py` | ⏳ Pending | ~200 | TriplexDetector implementation |
-| `engine/detectors/g_quadruplex.py` | ⏳ Pending | ~250 | GQuadruplexDetector implementation |
-| `engine/detectors/i_motif.py` | ⏳ Pending | ~200 | IMotifDetector implementation |
+| `engine/detectors/curved_dna.py` | ✅ Complete | 559 | CurvedDNADetector implementation |
+| `engine/detectors/z_dna.py` | ✅ Complete | 626 | ZDNADetector implementation |
+| `engine/detectors/a_philic.py` | ✅ Complete | 536 | APhilicDetector implementation |
+| `engine/detectors/slipped_dna.py` | ✅ Complete | 544 | SlippedDNADetector implementation |
+| `engine/detectors/cruciform.py` | ✅ Complete | 511 | CruciformDetector implementation |
+| `engine/detectors/r_loop.py` | ✅ Complete | 516 | RLoopDetector implementation |
+| `engine/detectors/triplex.py` | ✅ Complete | 485 | TriplexDetector implementation |
+| `engine/detectors/g_quadruplex.py` | ✅ Complete | 421 | GQuadruplexDetector implementation |
+| `engine/detectors/i_motif.py` | ✅ Complete | 280 | IMotifDetector implementation |
 
-### ⏳ Phase 4: Utility Modules (40% Complete - 4 of 10 modules)
+### ⏳ Phase 4: Utility Modules (70% Complete - 7 of 10 modules)
 
 Utility functions extracted from `utilities.py`:
 
@@ -55,28 +55,28 @@ Utility functions extracted from `utilities.py`:
 | `utils/constants.py` | ✅ Complete | 80 | Shared constants & configuration |
 | `utils/fasta.py` | ✅ Complete | 101 | FASTA parsing & formatting (Phase 1) |
 | `utils/validation.py` | ✅ Complete | 260 | Input validation suite (Phase 1) |
-| `utils/registry.py` | ⏳ Pending | ~200 | Pattern registry loading |
+| `utils/registry.py` | ✅ Complete | 1106 | Pattern registry loading |
+| `utils/plotting/distributions.py` | ✅ Complete | 735 | Distribution plots |
+| `utils/plotting/coverage.py` | ✅ Complete | 191 | Coverage maps |
+| `utils/plotting/density.py` | ✅ Complete | 879 | Density heatmaps |
+| `utils/plotting/statistical.py` | ✅ Complete | 468 | Statistical plots |
+| `utils/plotting/genomic.py` | ✅ Complete | 1065 | Genomic visualizations |
 | `utils/caching.py` | ⏳ Pending | ~100 | Scanner instance caching |
 | `utils/state.py` | ⏳ Pending | ~100 | Application state management |
-| `utils/plotting/distributions.py` | ⏳ Pending | ~200 | Distribution plots |
-| `utils/plotting/coverage.py` | ⏳ Pending | ~150 | Coverage maps |
-| `utils/plotting/density.py` | ⏳ Pending | ~200 | Density heatmaps |
-| `utils/plotting/statistical.py` | ⏳ Pending | ~200 | Statistical plots |
-| `utils/plotting/genomic.py` | ⏳ Pending | ~250 | Genomic visualizations |
 | `utils/plotting/styles.py` | ⏳ Pending | ~150 | Style configurations |
 
-### ⏳ Phase 5: UI Modules (0% Complete - 0 of 6 modules)
+### ⏳ Phase 5: UI Modules (33% Complete - 2 of 6 modules)
 
 UI components to be extracted from `app.py`:
 
 | Module | Status | Lines | Description |
 |--------|--------|-------|-------------|
+| `ui/formatting.py` | ✅ Complete | 247 | Text formatting helpers |
+| `ui/downloads.py` | ✅ Complete | 173 | Download buttons & packaging |
 | `ui/layout.py` | ⏳ Pending | ~300 | Page structure & sidebar |
-| `ui/formatting.py` | ⏳ Pending | ~200 | Text formatting helpers |
 | `ui/metrics.py` | ⏳ Pending | ~200 | Metric displays |
 | `ui/progress.py` | ⏳ Pending | ~150 | Progress bars & indicators |
 | `ui/inputs.py` | ⏳ Pending | ~250 | Input widgets & forms |
-| `ui/downloads.py` | ⏳ Pending | ~200 | Download buttons & packaging |
 
 ### ⏳ Phase 6: Integration & Testing (Not Started)
 
@@ -192,11 +192,19 @@ For complex modules requiring manual extraction:
 ## Migration Timeline
 
 - **Phase 1**: ✅ Complete (Foundation)
-- **Phase 2**: 🔄 80% Complete (Core Engine)
-- **Phase 3**: 🔄 10% Complete (Detectors)
-- **Phase 4**: 🔄 40% Complete (Utilities)
-- **Phase 5**: ⏳ Not Started (UI)
+- **Phase 2**: 🔄 80% Complete (Core Engine) - 2 modules pending
+- **Phase 3**: ✅ Complete (Detectors) - All 10 modules extracted
+- **Phase 4**: ✅ Mostly Complete (Utilities) - 10 of 13 modules extracted
+- **Phase 5**: 🔄 33% Complete (UI) - 2 of 6 modules extracted
 - **Phase 6**: ⏳ Not Started (Integration)
+
+## Summary Statistics
+
+- **Total Modules Planned**: 35
+- **Modules Completed**: 24 (69%)
+- **Modules Remaining**: 11 (31%)
+- **Code Extracted**: ~15,000 lines organized into focused modules
+- **Original Monolithic Files**: ~19,000 lines across 4 files
 
 ## Contributors
 

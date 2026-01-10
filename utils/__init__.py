@@ -19,6 +19,7 @@ from . import fasta
 from . import validation
 from . import export
 from . import constants
+from . import registry
 from . import plotting
 
 __all__ = [
@@ -26,5 +27,6 @@ __all__ = [
     'validation',
     'export',
     'constants',
+    'registry',
     'plotting',
 ]
