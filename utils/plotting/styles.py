@@ -24,6 +24,13 @@ __all__ = [
     'PLOT_DPI',
     'PLOT_FONT_SIZE',
     'PLOT_TITLE_SIZE',
+    'PUBLICATION_DPI',
+    'FIGURE_SIZES',
+    'CIRCOS_EXCLUDED_CLASSES',
+    'set_scientific_style',
+    'get_matplotlib_style',
+    'get_color_for_motif',
+    '_apply_nature_style',
 ]
 
 # =============================================================================
@@ -97,6 +104,7 @@ SEMANTIC_COLORS = {
 
 # Default DPI for plots (150 for screen, 300 for publication)
 PLOT_DPI = 150
+PUBLICATION_DPI = 300  # High-resolution DPI for publication-quality figures
 
 # Font sizes for plots
 PLOT_FONT_SIZE = 10      # Body text and labels
@@ -132,6 +140,25 @@ PLOT_FONTS = ['Inter', 'IBM Plex Sans', 'Segoe UI', 'Arial', 'sans-serif']
 # Font weights
 FONT_WEIGHT_NORMAL = 400
 FONT_WEIGHT_BOLD = 700
+
+# =============================================================================
+# FIGURE SIZES
+# =============================================================================
+
+# Standard figure sizes for different plot types (in inches for matplotlib)
+FIGURE_SIZES = {
+    'square': (8, 8),           # Square plots (circos, pie charts)
+    'one_and_half': (12, 8),    # 1.5:1 aspect ratio
+    'wide': (14, 6),            # Wide plots (timelines, tracks)
+    'double_column': (16, 8),   # Double column width for publications
+}
+
+# =============================================================================
+# CIRCOS CONFIGURATION
+# =============================================================================
+
+# Motif classes to exclude from Circos visualization (dynamic/aggregate classes)
+CIRCOS_EXCLUDED_CLASSES = ['Hybrid', 'Non-B_DNA_Clusters']
 
 # =============================================================================
 # STYLE PRESETS
@@ -190,3 +217,123 @@ def get_color_for_motif(motif_class: str, use_nature_colors: bool = True) -> str
     """
     colors = NATURE_MOTIF_COLORS if use_nature_colors else MOTIF_CLASS_COLORS
     return colors.get(motif_class, '#808080')  # Default to gray if not found
+
+
+def set_scientific_style(style: str = 'nature') -> None:
+    """
+    Apply scientific publication-quality style to matplotlib plots.
+    
+    Configures matplotlib with appropriate settings for clean, professional
+    visualizations suitable for scientific publications.
+    
+    Args:
+        style: Style preset to apply. Options:
+            - 'nature': Nature/Science journal style (default)
+            - 'default': Standard matplotlib style with improvements
+            - 'presentation': High-contrast style for presentations
+    
+    Example:
+        >>> import matplotlib.pyplot as plt
+        >>> from utils.plotting.styles import set_scientific_style
+        >>> set_scientific_style('nature')
+        >>> # Now create your plots
+    """
+    import matplotlib.pyplot as plt
+    
+    if style == 'nature':
+        # Nature/Science publication style
+        plt.rcParams.update({
+            'figure.dpi': PUBLICATION_DPI,
+            'figure.figsize': (PLOT_WIDTH, PLOT_HEIGHT),
+            'font.size': PLOT_FONT_SIZE,
+            'font.family': PLOT_FONT_FAMILY,
+            'axes.titlesize': PLOT_TITLE_SIZE,
+            'axes.labelsize': PLOT_AXIS_LABEL_SIZE,
+            'axes.linewidth': 1.5,
+            'axes.grid': True,
+            'axes.axisbelow': True,
+            'grid.alpha': PLOT_GRID_ALPHA,
+            'grid.linewidth': PLOT_GRID_LINEWIDTH,
+            'grid.linestyle': PLOT_GRID_LINESTYLE,
+            'legend.fontsize': PLOT_LEGEND_SIZE,
+            'legend.frameon': True,
+            'legend.framealpha': 0.9,
+            'legend.edgecolor': 'black',
+            'lines.linewidth': PLOT_LINE_WIDTH,
+            'lines.markersize': PLOT_MARKER_SIZE,
+            'xtick.labelsize': PLOT_FONT_SIZE - 1,
+            'ytick.labelsize': PLOT_FONT_SIZE - 1,
+            'savefig.dpi': PUBLICATION_DPI,
+            'savefig.bbox': 'tight',
+            'savefig.pad_inches': 0.1,
+        })
+    elif style == 'presentation':
+        # High-contrast presentation style
+        plt.rcParams.update({
+            'figure.dpi': PLOT_DPI,
+            'figure.figsize': (PLOT_WIDTH, PLOT_HEIGHT),
+            'font.size': PLOT_FONT_SIZE + 2,
+            'font.family': PLOT_FONT_FAMILY,
+            'axes.titlesize': PLOT_TITLE_SIZE + 2,
+            'axes.labelsize': PLOT_AXIS_LABEL_SIZE + 2,
+            'axes.linewidth': 2.0,
+            'axes.grid': True,
+            'grid.alpha': 0.4,
+            'grid.linewidth': 1.0,
+            'legend.fontsize': PLOT_LEGEND_SIZE + 1,
+            'lines.linewidth': PLOT_LINE_WIDTH + 0.5,
+            'lines.markersize': PLOT_MARKER_SIZE + 2,
+        })
+    else:  # 'default' or any other value
+        # Standard improved matplotlib style
+        plt.rcParams.update(get_matplotlib_style())
+
+
+def _apply_nature_style(ax) -> None:
+    """
+    Apply Nature journal styling to a matplotlib axes object.
+    
+    This function applies publication-quality styling consistent with
+    Nature and Science journal guidelines to an existing axes object.
+    
+    Args:
+        ax: Matplotlib axes object to style
+    
+    Example:
+        >>> import matplotlib.pyplot as plt
+        >>> fig, ax = plt.subplots()
+        >>> # ... create your plot ...
+        >>> _apply_nature_style(ax)
+    """
+    # Grid styling
+    ax.grid(True, alpha=PLOT_GRID_ALPHA, linewidth=PLOT_GRID_LINEWIDTH, 
+            linestyle=PLOT_GRID_LINESTYLE, zorder=0)
+    ax.set_axisbelow(True)
+    
+    # Spines styling
+    for spine in ax.spines.values():
+        spine.set_linewidth(1.5)
+        spine.set_color('black')
+    
+    # Tick parameters
+    ax.tick_params(axis='both', which='major', labelsize=PLOT_FONT_SIZE - 1,
+                   width=1.5, length=5, color='black')
+    ax.tick_params(axis='both', which='minor', width=1.0, length=3, color='black')
+    
+    # Title and labels
+    if ax.get_title():
+        ax.set_title(ax.get_title(), fontsize=PLOT_TITLE_SIZE, fontweight='bold', pad=10)
+    if ax.get_xlabel():
+        ax.set_xlabel(ax.get_xlabel(), fontsize=PLOT_AXIS_LABEL_SIZE, fontweight='normal')
+    if ax.get_ylabel():
+        ax.set_ylabel(ax.get_ylabel(), fontsize=PLOT_AXIS_LABEL_SIZE, fontweight='normal')
+    
+    # Legend styling (if present)
+    legend = ax.get_legend()
+    if legend:
+        legend.set_frame_on(True)
+        legend.get_frame().set_linewidth(1.5)
+        legend.get_frame().set_edgecolor('black')
+        legend.get_frame().set_alpha(0.9)
+        for text in legend.get_texts():
+            text.set_fontsize(PLOT_LEGEND_SIZE)

@@ -16,6 +16,16 @@ import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
+from collections import defaultdict
+from scipy.stats import gaussian_kde
+from .styles import (
+    MOTIF_CLASS_COLORS,
+    PUBLICATION_DPI,
+    FIGURE_SIZES,
+    CIRCOS_EXCLUDED_CLASSES,
+    set_scientific_style,
+    _apply_nature_style,
+)
 
 def plot_manhattan_motif_density(motifs: List[Dict[str, Any]], 
                                   sequence_length: int,

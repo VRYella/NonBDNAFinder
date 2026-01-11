@@ -16,6 +16,15 @@ import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, Any, List, Optional, Tuple, Union
 import os
+from collections import Counter, defaultdict
+from .styles import (
+    MOTIF_CLASS_COLORS,
+    PUBLICATION_DPI,
+    FIGURE_SIZES,
+    CIRCOS_EXCLUDED_CLASSES,
+    set_scientific_style,
+    _apply_nature_style,
+)
 
 def plot_density_comparison(genomic_density: Dict[str, float],
                             positional_density: Dict[str, float],
@@ -279,9 +288,6 @@ def plot_enrichment_summary_table(enrichment_results: Dict[str, Dict[str, Any]],
 # =============================================================================
 # CIRCOS PLOT FOR NON-B DNA MOTIF DENSITY
 # =============================================================================
-
-# Motif classes to exclude from Circos visualization (dynamic classes)
-CIRCOS_EXCLUDED_CLASSES = ['Hybrid', 'Non-B_DNA_Clusters']
 
 
 def plot_circos_motif_density(motifs: List[Dict[str, Any]], 
