@@ -212,179 +212,38 @@ except Exception as e:
 # =============================================================================
 
 # ==================== GLOBAL BASE COLORS ====================
-# Foundation colors used throughout the application
-# These provide the core visual structure and hierarchy
 GLOBAL_COLORS = {
-    # Neutral backgrounds - Light mode foundation
-    'neutral_50': '#FAFAFA',      # Lightest background for page base
-    'neutral_100': '#F5F5F5',     # Very light background for sections
-    'neutral_200': '#E5E5E5',     # Light borders and dividers
-    'neutral_300': '#D4D4D4',     # Medium borders
-    'neutral_400': '#A3A3A3',     # Disabled/muted elements
-    'neutral_500': '#737373',     # Secondary text
-    'neutral_600': '#525252',     # Body text
-    'neutral_700': '#404040',     # Primary text
-    'neutral_800': '#262626',     # Headers and emphasis
-    'neutral_900': '#171717',     # Maximum contrast text
-    
-    # Dark mode backgrounds
-    'dark_50': '#18181B',         # Darkest background for dark mode
-    'dark_100': '#1F1F23',        # Very dark background
-    'dark_200': '#27272A',        # Dark card background
-    'dark_300': '#3F3F46',        # Dark borders
-    'dark_400': '#52525B',        # Dark muted elements
-    
-    # White and black
-    'white': '#FFFFFF',           # Pure white for cards and highlights
-    'black': '#000000',           # Pure black for maximum contrast
+    'neutral_50': '#FAFAFA', 'neutral_100': '#F5F5F5', 'neutral_200': '#E5E5E5',
+    'neutral_300': '#D4D4D4', 'neutral_400': '#A3A3A3', 'neutral_500': '#737373',
+    'neutral_600': '#525252', 'neutral_700': '#404040', 'neutral_800': '#262626', 'neutral_900': '#171717',
+    'dark_50': '#18181B', 'dark_100': '#1F1F23', 'dark_200': '#27272A',
+    'dark_300': '#3F3F46', 'dark_400': '#52525B',
+    'white': '#FFFFFF', 'black': '#000000',
 }
 
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
-# Each page/workflow has a distinct color identity while maintaining consistency
-# These colors provide subtle visual navigation cues
-
-# HOME / OVERVIEW PAGE - Confident Scientific Blue (Trust, Clarity, Science)
-# HIGHLY VIBRANT blue palette for eye-catching professional impact
-HOME_COLORS = {
-    'primary': '#0091FF',         # ELECTRIC BLUE - ultra vibrant primary actions
-    'secondary': '#00B4FF',       # CYAN ELECTRIC - super bright hover states
-    'accent': '#66D9FF',          # BRILLIANT SKY - vivid emphasis
-    'light': '#CCF2FF',           # BRIGHT CYAN TINT - energetic backgrounds
-    'lighter': '#E5F9FF',         # ULTRA LIGHT CYAN - vibrant page base
-    'border': '#80E5FF',          # VIVID CYAN borders
-    'text': '#003D82',            # DEEP VIBRANT BLUE - strong readability
-    'shadow': 'rgba(0, 145, 255, 0.35)',  # STRONGER blue shadow for depth
-}
-
-# INPUT / UPLOAD PAGE - Fresh Natural Green (Growth, Initiation, Start)
-# HIGHLY VIBRANT green palette for explosive fresh energy
-INPUT_COLORS = {
-    'primary': '#00E676',         # NEON GREEN - ultra vivid primary actions
-    'secondary': '#1DE9B6',       # ELECTRIC MINT - brilliant hover states
-    'accent': '#69F0AE',          # BRIGHT LIME - energetic emphasis
-    'light': '#B9F6CA',           # VIVID MINT TINT - fresh backgrounds
-    'lighter': '#E0FFF4',         # ULTRA LIGHT MINT - vibrant page base
-    'border': '#7FFF9F',          # BRILLIANT GREEN borders
-    'text': '#00612E',            # DEEP FOREST - strong readability
-    'shadow': 'rgba(0, 230, 118, 0.35)',  # STRONGER green shadow for depth
-}
-
-# ANALYSIS / COMPUTATION PAGE - Energetic Orange (Energy, Processing, Activity)
-# EXPLOSIVE orange palette for maximum energy and dynamism
-ANALYSIS_COLORS = {
-    'primary': '#FF6D00',         # BLAZING ORANGE - ultra bold primary actions
-    'secondary': '#FF9100',       # ELECTRIC GOLD - brilliant hover states
-    'accent': '#FFAB00',          # VIVID AMBER - striking emphasis
-    'light': '#FFE57F',           # BRIGHT YELLOW TINT - energetic backgrounds
-    'lighter': '#FFF9E6',         # ULTRA LIGHT GOLD - vibrant page base
-    'border': '#FFCA28',          # BRILLIANT GOLD borders
-    'text': '#BF360C',            # DEEP FLAME - strong readability
-    'shadow': 'rgba(255, 109, 0, 0.4)',  # INTENSE orange shadow for depth
-}
-
-# RESULTS / TABLES PAGE - Refined Vibrant Purple (Insight, Data, Discovery)
-# ELECTRIC purple palette for maximum visual impact and insight
-RESULTS_COLORS = {
-    'primary': '#D500F9',         # ELECTRIC PURPLE - ultra vivid primary actions
-    'secondary': '#E040FB',       # NEON MAGENTA - brilliant hover states
-    'accent': '#EA80FC',          # BRIGHT VIOLET - striking emphasis
-    'light': '#F3E5F5',           # ELEGANT LAVENDER TINT - refined backgrounds
-    'lighter': '#FCF2FF',         # ULTRA LIGHT VIOLET - vibrant page base
-    'border': '#E1BEE7',          # VIVID LILAC borders
-    'text': '#4A148C',            # DEEP ROYAL PURPLE - strong readability
-    'shadow': 'rgba(213, 0, 249, 0.35)',  # INTENSE purple shadow for depth
-}
-
-# VISUALIZATION / PLOTS PAGE - Clinical Vibrant Teal (Precision, Clarity, Analysis)
-# BRILLIANT teal palette for maximum clarity and visual precision
-VISUALIZATION_COLORS = {
-    'primary': '#00E5FF',         # NEON CYAN - ultra brilliant primary actions
-    'secondary': '#18FFFF',       # ELECTRIC AQUA - super bright hover states
-    'accent': '#84FFFF',          # VIVID SKY CYAN - striking emphasis
-    'light': '#B2FFFF',           # BRIGHT AQUA TINT - energetic backgrounds
-    'lighter': '#E0FFFF',         # ULTRA LIGHT CYAN - vibrant page base
-    'border': '#76FFE7',          # BRILLIANT CYAN borders
-    'text': '#004D5A',            # DEEP TEAL - strong readability
-    'shadow': 'rgba(0, 229, 255, 0.4)',  # INTENSE cyan shadow for depth
-}
-
-# DOWNLOAD / EXPORT PAGE - Professional Vibrant Indigo (Completion, Authority, Final)
-# BOLD indigo palette for commanding authority and completion
-DOWNLOAD_COLORS = {
-    'primary': '#536DFE',         # ELECTRIC INDIGO - ultra bold primary actions
-    'secondary': '#5E72FF',       # NEON PERIWINKLE - brilliant hover states
-    'accent': '#8C9EFF',          # BRIGHT LAVENDER BLUE - vivid emphasis
-    'light': '#C5CAE9',           # VIVID INDIGO TINT - strong backgrounds
-    'lighter': '#E8EAFF',         # ULTRA LIGHT INDIGO - vibrant page base
-    'border': '#9FA8DA',          # BRILLIANT IRIS borders
-    'text': '#1A237E',            # DEEP NAVY - strong readability
-    'shadow': 'rgba(83, 109, 254, 0.4)',  # INTENSE indigo shadow for depth
-}
-
-# DOCUMENTATION PAGE - Vibrant Deep Purple Theme (Depth, Reference, Technical)
-# Rich purple theme for technical documentation with high contrast
-DOCUMENTATION_COLORS = {
-    'primary': '#7C4DFF',         # Vivid electric purple - primary actions (Material Deep Purple A200)
-    'secondary': '#B388FF',       # Bright lavender - hover states (Material Deep Purple A100)
-    'accent': '#D1C4E9',          # Soft periwinkle - emphasis (Material Deep Purple 100)
-    'light': '#0E1726',           # Dark background for documentation
-    'lighter': '#0B1220',         # Darkest background for page base
-    'border': '#1F2937',          # Dark borders
-    'text': '#E5E7EB',            # Light text for dark background
-    'shadow': 'rgba(0, 0, 0, 0.5)',  # Strong shadow for dark mode depth
-}
+HOME_COLORS = {'primary': '#0091FF', 'secondary': '#00B4FF', 'accent': '#66D9FF', 'light': '#CCF2FF', 'lighter': '#E5F9FF', 'border': '#80E5FF', 'text': '#003D82', 'shadow': 'rgba(0, 145, 255, 0.35)'}
+INPUT_COLORS = {'primary': '#00E676', 'secondary': '#1DE9B6', 'accent': '#69F0AE', 'light': '#B9F6CA', 'lighter': '#E0FFF4', 'border': '#7FFF9F', 'text': '#00612E', 'shadow': 'rgba(0, 230, 118, 0.35)'}
+ANALYSIS_COLORS = {'primary': '#FF6D00', 'secondary': '#FF9100', 'accent': '#FFAB00', 'light': '#FFE57F', 'lighter': '#FFF9E6', 'border': '#FFCA28', 'text': '#BF360C', 'shadow': 'rgba(255, 109, 0, 0.4)'}
+RESULTS_COLORS = {'primary': '#D500F9', 'secondary': '#E040FB', 'accent': '#EA80FC', 'light': '#F3E5F5', 'lighter': '#FCF2FF', 'border': '#E1BEE7', 'text': '#4A148C', 'shadow': 'rgba(213, 0, 249, 0.35)'}
+VISUALIZATION_COLORS = {'primary': '#00E5FF', 'secondary': '#18FFFF', 'accent': '#84FFFF', 'light': '#B2FFFF', 'lighter': '#E0FFFF', 'border': '#76FFE7', 'text': '#004D5A', 'shadow': 'rgba(0, 229, 255, 0.4)'}
+DOWNLOAD_COLORS = {'primary': '#536DFE', 'secondary': '#5E72FF', 'accent': '#8C9EFF', 'light': '#C5CAE9', 'lighter': '#E8EAFF', 'border': '#9FA8DA', 'text': '#1A237E', 'shadow': 'rgba(83, 109, 254, 0.4)'}
+DOCUMENTATION_COLORS = {'primary': '#7C4DFF', 'secondary': '#B388FF', 'accent': '#D1C4E9', 'light': '#0E1726', 'lighter': '#0B1220', 'border': '#1F2937', 'text': '#E5E7EB', 'shadow': 'rgba(0, 0, 0, 0.5)'}
 
 # ==================== SEMANTIC STATUS COLORS ====================
-# Consistent meaning across all pages - Universal visual language (ULTRA VIBRANT)
-# EXPLOSIVE vibrant colors for immediate, unmistakable visual feedback
 SEMANTIC_COLORS = {
-    # Success states - Positive outcomes, completion, validation
-    'success': '#00E676',         # NEON SUCCESS GREEN - ultra vivid
-    'success_light': '#B9F6CA',   # BRIGHT success background
-    'success_dark': '#00612E',    # DEEP success text
-    'success_border': '#69F0AE',  # BRILLIANT success border
-    
-    # Warning states - Caution, important notices, attention needed
-    'warning': '#FF9100',         # BLAZING WARNING ORANGE - maximum attention
-    'warning_light': '#FFE57F',   # VIVID warning background
-    'warning_dark': '#BF360C',    # DEEP warning text
-    'warning_border': '#FFAB00',  # ELECTRIC warning border
-    
-    # Error states - Problems, failures, invalid inputs
-    'error': '#FF1744',           # NEON ERROR RED - ultra striking
-    'error_light': '#FFCDD2',     # BRIGHT error background
-    'error_dark': '#B71C1C',      # DEEP error text
-    'error_border': '#FF5252',    # BRILLIANT error border
-    
-    # Info states - Neutral information, tips, explanations
-    'info': '#00B4FF',            # ELECTRIC INFO BLUE - ultra vivid
-    'info_light': '#CCF2FF',      # BRIGHT info background
-    'info_dark': '#003D82',       # DEEP info text
-    'info_border': '#66D9FF',     # BRILLIANT info border
-    
-    # Progress states - Processing, loading, intermediate states
-    'progress': '#E040FB',        # NEON PROGRESS PURPLE - ultra striking
-    'progress_light': '#F3E5F5',  # Light progress background
-    'progress_dark': '#4A148C',   # DEEP progress text
-    'progress_border': '#EA80FC', # BRILLIANT progress border
+    'success': '#00E676', 'success_light': '#B9F6CA', 'success_dark': '#00612E', 'success_border': '#69F0AE',
+    'warning': '#FF9100', 'warning_light': '#FFE57F', 'warning_dark': '#BF360C', 'warning_border': '#FFAB00',
+    'error': '#FF1744', 'error_light': '#FFCDD2', 'error_dark': '#B71C1C', 'error_border': '#FF5252',
+    'info': '#00B4FF', 'info_light': '#CCF2FF', 'info_dark': '#003D82', 'info_border': '#66D9FF',
+    'progress': '#E040FB', 'progress_light': '#F3E5F5', 'progress_dark': '#4A148C', 'progress_border': '#EA80FC',
 }
 
 # ==================== VISUALIZATION COLOR PALETTE ====================
-# Scientific color scheme for charts and plots - ULTRA VIBRANT & ACCESSIBLE
-# EXPLOSIVE colorblind-friendly palette with maximum saturation and visual impact
 VISUALIZATION_PALETTE = {
-    'chart_1': '#FF6D00',         # BLAZING ORANGE - Ultra high contrast
-    'chart_2': '#0091FF',         # ELECTRIC BLUE - Ultra distinct
-    'chart_3': '#00E676',         # NEON GREEN - Ultra clear
-    'chart_4': '#FFEA00',         # BRILLIANT YELLOW - Ultra striking
-    'chart_5': '#0043A8',         # DEEP ELECTRIC BLUE - Ultra professional
-    'chart_6': '#FF1744',         # NEON RED - Ultra energetic
-    'chart_7': '#FF00AA',         # ELECTRIC PINK - Ultra unique
-    'chart_8': '#76FF03',         # VIVID LIME - Ultra natural
-    'chart_9': '#D500F9',         # ELECTRIC PURPLE - Ultra elegant
-    'chart_10': '#00E5FF',        # NEON CYAN - Ultra fresh
-    'chart_11': '#FFC400',        # GOLD FLASH - Ultra warm
-    'chart_12': '#546E7A',        # STEEL BLUE - Balanced contrast
+    'chart_1': '#FF6D00', 'chart_2': '#0091FF', 'chart_3': '#00E676', 'chart_4': '#FFEA00',
+    'chart_5': '#0043A8', 'chart_6': '#FF1744', 'chart_7': '#FF00AA', 'chart_8': '#76FF03',
+    'chart_9': '#D500F9', 'chart_10': '#00E5FF', 'chart_11': '#FFC400', 'chart_12': '#546E7A',
 }
 
 # =============================================================================
@@ -415,31 +274,13 @@ VISUALIZATION_PALETTE = {
 # =============================================================================
 
 # ==================== TYPOGRAPHY & FONTS ====================
-# Control all font settings for the application - MODERN & READABLE
-# Optimized for modern high-resolution displays with excellent readability
 FONT_CONFIG = {
-    # Primary font families (in order of preference)
-    # The browser will use the first available font in the list
     'primary_font': "'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif",
     'monospace_font': "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-    
-    # Font sizes (in rem units, where 1rem ≈ 16px in most browsers)
-    # Enhanced sizes for modern, bold, research-quality appearance
-    'h1_size': '2.75rem',     # Main page headers - bold, impactful
-    'h2_size': '2.0rem',      # Section headers - clear hierarchy
-    'h3_size': '1.5rem',      # Subsection headers - organized structure
-    'h4_size': '1.25rem',     # Small headers - subtle distinction
-    'body_size': '1.0rem',    # Body text, paragraphs - optimal readability
-    'small_size': '0.9rem',   # Small text, notes - clear but compact
-    'caption_size': '0.8rem', # Captions, footnotes - supporting information
-    
-    # Font weights (100-900, where 400 is normal and 700 is bold)
-    'light_weight': 300,
-    'normal_weight': 400,
-    'medium_weight': 500,
-    'semibold_weight': 600,
-    'bold_weight': 700,
-    'extrabold_weight': 800,
+    'h1_size': '2.75rem', 'h2_size': '2.0rem', 'h3_size': '1.5rem', 'h4_size': '1.25rem',
+    'body_size': '1.0rem', 'small_size': '0.9rem', 'caption_size': '0.8rem',
+    'light_weight': 300, 'normal_weight': 400, 'medium_weight': 500,
+    'semibold_weight': 600, 'bold_weight': 700, 'extrabold_weight': 800,
 }
 
 # ==================== COLOR THEMES ====================
@@ -876,291 +717,62 @@ UI_TEXT = {
 }
 
 # ==================== LAYOUT & SPACING ====================
-# Control spacing, padding, and visual structure
 LAYOUT_CONFIG = {
-    # Streamlit layout mode
-    # 'wide': Uses full browser width (recommended for data apps)
-    # 'centered': Centers content with maximum width
     'layout_mode': 'wide',
-    
-    # Border radius values (in pixels) for rounded corners
-    'border_radius': {
-        'small': '8px',    # Small elements (buttons, tags)
-        'medium': '12px',  # Medium elements (cards, inputs)
-        'large': '16px',   # Large elements (panels, sections)
-        'pill': '50px',    # Fully rounded (pills, progress bars)
-    },
-    
-    # Padding and margins (in rem units)
-    'padding': {
-        'small': '0.5rem',   # Tight spacing
-        'medium': '1rem',    # Standard spacing
-        'large': '1.5rem',   # Generous spacing
-        'xlarge': '2rem',    # Extra spacing for sections
-    },
-    
-    # Margins (in rem units)
-    'margin': {
-        'none': '0',
-        'small': '0.5rem',
-        'medium': '1rem',
-        'large': '1.5rem',
-        'xlarge': '2rem',
-    },
-    
-    # Column gaps for multi-column layouts
-    # Options: 'small', 'medium', 'large'
+    'border_radius': {'small': '8px', 'medium': '12px', 'large': '16px', 'pill': '50px'},
+    'padding': {'small': '0.5rem', 'medium': '1rem', 'large': '1.5rem', 'xlarge': '2rem'},
+    'margin': {'none': '0', 'small': '0.5rem', 'medium': '1rem', 'large': '1.5rem', 'xlarge': '2rem'},
     'column_gap': 'large',
-    
-    # Card styling for panels and containers
-    'card_shadow': '0 4px 20px rgba(0,0,0,0.08)',  # Soft shadow for depth
-    'card_border': '1px solid #e5e7eb',             # Subtle border
-    'card_shadow_hover': '0 8px 30px rgba(0,0,0,0.12)',  # Elevated shadow on hover
-    
-    # Section spacing
-    'section_spacing': '2rem',      # Space between major sections
-    'subsection_spacing': '1.5rem', # Space between subsections
-    'element_spacing': '1rem',      # Space between UI elements
-    
-    # Container widths
-    'container_max_width': '1400px',  # Maximum width for centered content
-    'sidebar_width': '300px',          # Sidebar width
-    
-    # Z-index layers (for stacking context)
-    'z_index': {
-        'base': 1,
-        'dropdown': 100,
-        'sticky': 200,
-        'modal': 1000,
-        'tooltip': 2000,
-    },
+    'card_shadow': '0 4px 20px rgba(0,0,0,0.08)', 'card_border': '1px solid #e5e7eb',
+    'card_shadow_hover': '0 8px 30px rgba(0,0,0,0.12)',
+    'section_spacing': '2rem', 'subsection_spacing': '1.5rem', 'element_spacing': '1rem',
+    'container_max_width': '1400px', 'sidebar_width': '300px',
+    'z_index': {'base': 1, 'dropdown': 100, 'sticky': 200, 'modal': 1000, 'tooltip': 2000},
 }
 
 # ==================== ANALYSIS PARAMETERS ====================
-# Control sequence processing and analysis behavior
-# OPTIMIZED FOR 50-100X PERFORMANCE IMPROVEMENT
 ANALYSIS_CONFIG = {
-    # Sequence processing thresholds
-    'chunk_threshold': 100_000,     # Sequences > 100KB use chunking (bp)
-    'default_chunk_size': 500_000,  # 500KB chunks for optimal performance (bp)
-    'default_chunk_overlap': 1_000,  # 1KB overlap captures 99.9% of boundary motifs (bp)
-    
-    # Performance and display settings
-    'max_sequences_preview': 3,    # Number of sequences to show in file preview
-    'rows_per_page': 100,          # Pagination size for large result tables
-    'update_interval': 5,          # Progress update frequency (in sequences)
-    
-    # Motif filtering and display
-    'min_score_threshold': 0.0,    # Minimum score to display (0 = show all)
-    
-    # *** IMPORTANT: Control which motifs appear in distributions ***
-    # Set to True to include Hybrid and Cluster motifs in all visualizations
-    # Set to False to exclude them from distribution plots (they'll still appear in dedicated tab)
-    'include_hybrid_in_distribution': True,   # Include Hybrid motifs in plots
-    'include_clusters_in_distribution': True, # Include Cluster motifs in plots
-    
-    # File upload limits
-    'max_file_size_mb': 1024,      # Maximum file size in MB (1 GB default)
+    'chunk_threshold': 100_000, 'default_chunk_size': 500_000, 'default_chunk_overlap': 1_000,
+    'max_sequences_preview': 3, 'rows_per_page': 100, 'update_interval': 5,
+    'min_score_threshold': 0.0,
+    'include_hybrid_in_distribution': True, 'include_clusters_in_distribution': True,
+    'max_file_size_mb': 1024,
 }
 
 # ==================== EXPORT FORMATS ====================
-# Control data export options and default settings
 EXPORT_CONFIG = {
-    # Available export formats
-    # Add or remove formats as needed
     'available_formats': ['CSV', 'Excel', 'JSON', 'BED'],
-    
-    # Default export options (can be overridden by user)
-    'include_sequences': True,     # Include full motif sequences in exports
-    'excel_multi_sheet': True,     # Create multi-sheet Excel workbooks (one per motif class)
-    'json_pretty': True,           # Pretty-print JSON exports (more readable)
-    
-    # Column selection for exports
-    # These are the core columns that appear in all export formats
-    'core_columns': [
-        'Sequence_Name',  # Name or accession of the sequence
-        'Source',         # Source database or experiment
-        'Class',          # Motif class (G4, Z-DNA, etc.)
-        'Subclass',       # Motif subclass or subtype
-        'Start',          # Start position (bp)
-        'End',            # End position (bp)
-        'Length',         # Motif length (bp)
-        'Sequence',       # DNA sequence of motif
-        'Score',          # Confidence score (0-3 scale)
-    ],
+    'include_sequences': True, 'excel_multi_sheet': True, 'json_pretty': True,
+    'core_columns': ['Sequence_Name', 'Source', 'Class', 'Subclass', 'Start', 'End', 'Length', 'Sequence', 'Score'],
 }
 
 # ==================== PERFORMANCE MONITORING ====================
-# Control performance tracking and system monitoring
 PERFORMANCE_CONFIG = {
-    'enable_monitoring': True,  # Enable performance metrics collection
-    'show_system_info': True,   # Show system resource information in logs
-    'log_timing': True,         # Log timing information for analysis steps
+    'enable_monitoring': True, 'show_system_info': True, 'log_timing': True,
 }
 
 # ==================== UI COMPONENT STYLES ====================
-# Centralized styling parameters for all UI components
-# These values are used throughout the application for consistent styling
 UI_COMPONENT_STYLES = {
-    # Button styles - Using centralized colors
-    'button': {
-        'primary_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'primary_color': GLOBAL_COLORS['white'],
-        'padding': '0.5em 1.2em',
-        'font_size': '0.92rem',
-        'font_weight': 500,
-        'border_radius': '12px',
-        'shadow': '0 4px 12px rgba(0,0,0,0.15)',
-        'shadow_hover': '0 6px 16px rgba(0,0,0,0.2)',
-    },
-    
-    # Input field styles - Using centralized colors
-    'input': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_focus': '1.5px solid var(--primary-color)',
-        'border_radius': '12px',
-        'padding': '0.7rem 1rem',
-        'font_size': '0.95rem',
-        'shadow': '0 1px 3px rgba(0, 0, 0, 0.05)',
-        'shadow_focus': '0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08)',
-    },
-    
-    # Card/Panel styles - Using centralized colors
-    'card': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '16px',
-        'padding': '1.5rem',
-        'shadow': '0 2px 12px rgba(0,0,0,0.08)',
-        'shadow_hover': '0 4px 20px rgba(0,0,0,0.12)',
-    },
-    
-    # Alert/Notification styles - Now using centralized SEMANTIC_COLORS
-    'alert': {
-        'success_bg': SEMANTIC_COLORS['success_light'],
-        'success_border': SEMANTIC_COLORS['success'],
-        'info_bg': SEMANTIC_COLORS['info_light'],
-        'info_border': SEMANTIC_COLORS['info'],
-        'warning_bg': SEMANTIC_COLORS['warning_light'],
-        'warning_border': SEMANTIC_COLORS['warning'],
-        'error_bg': SEMANTIC_COLORS['error_light'],
-        'error_border': SEMANTIC_COLORS['error'],
-        'border_width': '4px',
-        'border_radius': '12px',
-        'padding': '1rem',
-    },
-    
-    # Table/DataFrame styles - Using centralized colors
-    'table': {
-        'header_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'header_color': GLOBAL_COLORS['white'],
-        'header_font_weight': 600,
-        'header_padding': '0.8rem',
-        'row_padding': '0.7rem',
-        'row_hover_bg': GLOBAL_COLORS['neutral_50'],
-        'alt_row_bg': 'rgba(238, 242, 255, 0.5)',
-        'border': '1px solid var(--bg-card)',
-        'border_radius': '12px',
-    },
-    
-    # Tab styles - Using centralized colors
-    'tabs': {
-        'bg': 'var(--tab-bg)',
-        'active_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'active_color': GLOBAL_COLORS['white'],
-        'inactive_color': GLOBAL_COLORS['neutral_600'],
-        'hover_bg': 'rgba(255, 255, 255, 0.7)',
-        'border_radius': '50px',  # Pill-shaped
-        'padding': '8px 12px',
-        'font_size': '0.95rem',
-        'font_weight': 500,
-    },
-    
-    # Progress bar styles
-    'progress': {
-        'bg': 'var(--bg-card)',
-        'fill_bg': 'linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'height': '8px',
-        'border_radius': '50px',
-        'shadow': '0 1px 4px rgba(0,0,0,0.1)',
-    },
-    
-    # Metric card styles - Using centralized colors
-    'metric': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '16px',
-        'padding': '0.8rem',
-        'value_size': '1.5rem',
-        'value_weight': 700,
-        'label_size': '0.8rem',
-        'label_weight': 500,
-        'shadow': '0 2px 8px rgba(0,0,0,0.08)',
-    },
-    
-    # File uploader styles - Using centralized colors
-    'file_uploader': {
-        'border': '2px dashed var(--accent-color)',
-        'border_hover': '2px dashed var(--primary-color)',
-        'bg': GLOBAL_COLORS['neutral_50'],
-        'bg_hover': HOME_COLORS['light'],
-        'border_radius': '16px',
-        'padding': '1.2rem',
-    },
-    
-    # Expander/Accordion styles - Using centralized colors
-    'expander': {
-        'header_bg': GLOBAL_COLORS['neutral_50'],
-        'header_bg_hover': 'var(--bg-card)',
-        'content_bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '10px',
-        'padding': '0.6rem 1rem',
-        'shadow': '0 1px 4px rgba(0,0,0,0.08)',
-    },
-    
-    # Scrollbar styles - Using centralized colors
-    'scrollbar': {
-        'width': '8px',
-        'track_bg': GLOBAL_COLORS['neutral_100'],
-        'thumb_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'border_radius': '50px',
-    },
-    
-    # Tooltip styles - Using centralized colors
-    'tooltip': {
-        'bg': 'rgba(0, 0, 0, 0.9)',
-        'color': GLOBAL_COLORS['white'],
-        'font_size': '0.85rem',
-        'padding': '0.5rem 0.75rem',
-        'border_radius': '8px',
-        'shadow': '0 2px 8px rgba(0,0,0,0.2)',
-    },
+    'button': {'primary_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'primary_color': GLOBAL_COLORS['white'], 'padding': '0.5em 1.2em', 'font_size': '0.92rem', 'font_weight': 500, 'border_radius': '12px', 'shadow': '0 4px 12px rgba(0,0,0,0.15)', 'shadow_hover': '0 6px 16px rgba(0,0,0,0.2)'},
+    'input': {'bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_focus': '1.5px solid var(--primary-color)', 'border_radius': '12px', 'padding': '0.7rem 1rem', 'font_size': '0.95rem', 'shadow': '0 1px 3px rgba(0, 0, 0, 0.05)', 'shadow_focus': '0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08)'},
+    'card': {'bg': GLOBAL_COLORS['white'], 'border': f"1px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '16px', 'padding': '1.5rem', 'shadow': '0 2px 12px rgba(0,0,0,0.08)', 'shadow_hover': '0 4px 20px rgba(0,0,0,0.12)'},
+    'alert': {'success_bg': SEMANTIC_COLORS['success_light'], 'success_border': SEMANTIC_COLORS['success'], 'info_bg': SEMANTIC_COLORS['info_light'], 'info_border': SEMANTIC_COLORS['info'], 'warning_bg': SEMANTIC_COLORS['warning_light'], 'warning_border': SEMANTIC_COLORS['warning'], 'error_bg': SEMANTIC_COLORS['error_light'], 'error_border': SEMANTIC_COLORS['error'], 'border_width': '4px', 'border_radius': '12px', 'padding': '1rem'},
+    'table': {'header_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'header_color': GLOBAL_COLORS['white'], 'header_font_weight': 600, 'header_padding': '0.8rem', 'row_padding': '0.7rem', 'row_hover_bg': GLOBAL_COLORS['neutral_50'], 'alt_row_bg': 'rgba(238, 242, 255, 0.5)', 'border': '1px solid var(--bg-card)', 'border_radius': '12px'},
+    'tabs': {'bg': 'var(--tab-bg)', 'active_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'active_color': GLOBAL_COLORS['white'], 'inactive_color': GLOBAL_COLORS['neutral_600'], 'hover_bg': 'rgba(255, 255, 255, 0.7)', 'border_radius': '50px', 'padding': '8px 12px', 'font_size': '0.95rem', 'font_weight': 500},
+    'progress': {'bg': 'var(--bg-card)', 'fill_bg': 'linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'height': '8px', 'border_radius': '50px', 'shadow': '0 1px 4px rgba(0,0,0,0.1)'},
+    'metric': {'bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '16px', 'padding': '0.8rem', 'value_size': '1.5rem', 'value_weight': 700, 'label_size': '0.8rem', 'label_weight': 500, 'shadow': '0 2px 8px rgba(0,0,0,0.08)'},
+    'file_uploader': {'border': '2px dashed var(--accent-color)', 'border_hover': '2px dashed var(--primary-color)', 'bg': GLOBAL_COLORS['neutral_50'], 'bg_hover': HOME_COLORS['light'], 'border_radius': '16px', 'padding': '1.2rem'},
+    'expander': {'header_bg': GLOBAL_COLORS['neutral_50'], 'header_bg_hover': 'var(--bg-card)', 'content_bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '10px', 'padding': '0.6rem 1rem', 'shadow': '0 1px 4px rgba(0,0,0,0.08)'},
+    'scrollbar': {'width': '8px', 'track_bg': GLOBAL_COLORS['neutral_100'], 'thumb_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'border_radius': '50px'},
+    'tooltip': {'bg': 'rgba(0, 0, 0, 0.9)', 'color': GLOBAL_COLORS['white'], 'font_size': '0.85rem', 'padding': '0.5rem 0.75rem', 'border_radius': '8px', 'shadow': '0 2px 8px rgba(0,0,0,0.2)'},
 }
 
 # ==================== ANIMATION & TRANSITION SETTINGS ====================
-# Control animation timing and effects for smooth UI interactions
 ANIMATION_CONFIG = {
-    # Transition durations (in seconds)
-    'transition_fast': '0.15s',
-    'transition_normal': '0.2s',
-    'transition_slow': '0.3s',
-    
-    # Easing functions
-    'easing_smooth': 'ease',
-    'easing_in': 'ease-in',
-    'easing_out': 'ease-out',
-    'easing_in_out': 'ease-in-out',
-    
-    # Animation names (CSS keyframes defined in styles.css)
-    'fade_in': 'fade-in',
-    'pulse': 'pulse-dot',
-    'shimmer': 'progress-shimmer',
-    
-    # Enable/disable animations globally
-    'enable_animations': True,
-    'reduce_motion': False,  # Respect user's prefers-reduced-motion setting
+    'transition_fast': '0.15s', 'transition_normal': '0.2s', 'transition_slow': '0.3s',
+    'easing_smooth': 'ease', 'easing_in': 'ease-in', 'easing_out': 'ease-out', 'easing_in_out': 'ease-in-out',
+    'fade_in': 'fade-in', 'pulse': 'pulse-dot', 'shimmer': 'progress-shimmer',
+    'enable_animations': True, 'reduce_motion': False,
 }
 
 # =============================================================================
@@ -1172,120 +784,44 @@ ANIMATION_CONFIG = {
 # =============================================================================
 
 def format_time_scientific(seconds: float) -> str:
-    """
-    Format elapsed time in simple MM:SS format.
-    
-    This format provides:
-    - Human-readable minutes and seconds
-    - No hours or microseconds (simplified display)
-    - Consistent display across all workflows
-    
-    Args:
-        seconds: Elapsed time in seconds (float)
-        
-    Returns:
-        Formatted time string (e.g., "02:15" or "125:32")
-        
-    Examples:
-        >>> format_time_scientific(0.234)
-        "00:00"
-        >>> format_time_scientific(135.678)
-        "02:15"
-        >>> format_time_scientific(5432.123)
-        "90:32"
-    """
-    minutes = int(seconds // 60)
-    secs = int(seconds % 60)
-    
+    """Format elapsed time in MM:SS format."""
+    minutes, secs = int(seconds // 60), int(seconds % 60)
     return f"{minutes:02d}:{secs:02d}"
-
 
 def format_time_compact(seconds: float) -> str:
-    """
-    Format elapsed time in MM:SS format for compact displays.
-    
-    Simple minutes:seconds format for all durations.
-    
-    Args:
-        seconds: Elapsed time in seconds (float)
-        
-    Returns:
-        Formatted time string (e.g., "02:15" or "125:32")
-    """
-    minutes = int(seconds // 60)
-    secs = int(seconds % 60)
-    return f"{minutes:02d}:{secs:02d}"
-
+    """Format elapsed time in MM:SS format for compact displays."""
+    return format_time_scientific(seconds)
 
 # ---------- CACHING FUNCTIONS (Memory-Efficient) ----------
 @st.cache_resource(show_spinner=False)
 def cache_genome_as_numpy(sequence: str) -> np.ndarray:
-    """
-    Cache genome sequence as NumPy byte array for memory efficiency.
-    
-    This prevents reloading large genomes and reduces memory footprint
-    when using Streamlit on free tier (1GB limit).
-    
-    Args:
-        sequence: DNA sequence string
-        
-    Returns:
-        NumPy array of sequence bytes
-    """
+    """Cache genome sequence as NumPy byte array for memory efficiency."""
     return np.frombuffer(sequence.encode('utf-8'), dtype=np.uint8)
-
 
 @st.cache_resource(show_spinner=False)
 def cache_hyperscan_database(_patterns: list = None):
-    """
-    Cache compiled Hyperscan database for pattern matching.
-    
-    The underscore prefix on _patterns parameter is used by Streamlit
-    to indicate the parameter should not be hashed for caching purposes.
-    This prevents Streamlit from attempting to hash complex pattern objects.
-    
-    Args:
-        _patterns: List of (pattern, pattern_id) tuples to compile
-        
-    Returns:
-        Compiled Hyperscan database or None
-    """
+    """Cache compiled Hyperscan database for pattern matching."""
     if not HYPERSCAN_AVAILABLE or _patterns is None or len(_patterns) == 0:
         logger.debug("Hyperscan not available or no patterns provided")
         return None
     
     try:
-        # Compile patterns into Hyperscan database
         logger.debug(f"Compiling Hyperscan database with {len(_patterns)} patterns...")
-        
-        expressions = []
-        ids = []
-        flags = []
+        expressions, ids, flags = [], [], []
         
         for pattern, pattern_id in _patterns:
-            # Encode pattern with error handling
-            # Note: DNA patterns should normally be ASCII (ATGC), but we provide
-            # UTF-8 fallback for robustness in case patterns contain metadata or
-            # special characters. A warning is logged to help identify data quality issues.
             try:
                 pattern_bytes = pattern.encode('ascii')
             except UnicodeEncodeError:
-                # Fall back to UTF-8 if ASCII fails
                 pattern_bytes = pattern.encode('utf-8')
-                logger.warning(f"Pattern {pattern_id} contains non-ASCII characters (expected ATGC). Using UTF-8 encoding.")
+                logger.warning(f"Pattern {pattern_id} contains non-ASCII characters. Using UTF-8 encoding.")
             
             expressions.append(pattern_bytes)
             ids.append(pattern_id)
-            # Use CASELESS and DOTALL flags for DNA matching
             flags.append(hyperscan.HS_FLAG_CASELESS | hyperscan.HS_FLAG_DOTALL)
         
         db = hyperscan.Database()
-        db.compile(
-            expressions=expressions,
-            ids=ids,
-            elements=len(expressions),
-            flags=flags
-        )
+        db.compile(expressions=expressions, ids=ids, elements=len(expressions), flags=flags)
         
         logger.info(f"Successfully compiled Hyperscan database with {len(expressions)} patterns")
         return db

@@ -1,97 +1,48 @@
-"""
-App Helper Functions
-====================
-
-Helper functions specifically for the Streamlit app.
-These functions support the web interface and are extracted from utilities.py
-to enable removal of deprecated files while maintaining app functionality.
-"""
+"""App Helper Functions - Streamlit web interface support functions."""
 
 from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 from collections import Counter, defaultdict
 import re
-
-
-# Import constants from utils.constants
 from utils.constants import CORE_OUTPUT_COLUMNS, DEFAULT_COLUMN_VALUES, EXCLUDED_FROM_CONSOLIDATED
 
-
 def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
-    """Convert motif results to pandas DataFrame with CORE fields only for display tables.
-    
-    Per Task 1 & 2 requirements, output tables should only show mandatory, universal columns:
-    - Sequence_Name, Class, Subclass, Start, End, Length, Strand, Score, Method, Pattern_ID
-    
-    Additional motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only shown 
-    in Excel download class-specific sheets, not in display tables.
-    
-    This ensures publication-grade clarity per Nature/NAR/Genome Research standards.
-    """
+    """Convert motif results to pandas DataFrame with CORE fields only."""
     if not motifs:
         return pd.DataFrame()
     
     df = pd.DataFrame(motifs)
-    
-    # Use core columns constant
     core_columns = CORE_OUTPUT_COLUMNS
     
-    # Ensure all core columns are present with appropriate defaults
     for col in core_columns:
         if col not in df.columns:
-            # Set appropriate defaults for missing columns using constants
             df[col] = DEFAULT_COLUMN_VALUES.get(col, 'NA')
     
-    # Fill all NaN/None values with appropriate defaults
     result_df = df[core_columns].copy()
     for col in core_columns:
-        default_val = DEFAULT_COLUMN_VALUES.get(col, 'NA')
-        result_df[col] = result_df[col].fillna(default_val)
+        result_df[col] = result_df[col].fillna(DEFAULT_COLUMN_VALUES.get(col, 'NA'))
     
     return result_df
-
 
 def calculate_genomic_density(motifs: List[Dict[str, Any]], 
                                sequence_length: int,
                                by_class: bool = True,
                                by_subclass: bool = False) -> Dict[str, float]:
-    """
-    Calculate genomic density (coverage) for motifs.
-    
-    Genomic Density (σ_G) = (Total unique bp covered by motifs / 
-                             Total length in bp of analyzed region) × 100
-    
-    IMPORTANT: Uses set-based overlap handling to ensure coverage never exceeds 100%.
-    If motifs overlap, only unique positions are counted.
-    
-    Args:
-        motifs: List of motif dictionaries
-        sequence_length: Total length of analyzed sequence
-        by_class: If True, calculate density per motif class
-        by_subclass: If True, calculate density per motif subclass (takes precedence over by_class)
-        
-    Returns:
-        Dictionary with density metrics (percentage, capped at 100%)
-        - If by_subclass=True: keys are 'Class:Subclass' format
-        - If by_class=True: keys are class names
-        - Otherwise: key is 'Overall'
-    """
+    """Calculate genomic density (coverage %) for motifs using set-based overlap handling."""
     if not motifs or sequence_length == 0:
         return {'Overall': 0.0}
     
     if not by_class and not by_subclass:
-        # Overall density using set-based coverage (handles overlaps correctly)
         covered_positions = set()
         for motif in motifs:
-            start = motif.get('Start', 0) - 1  # Convert to 0-based
+            start = motif.get('Start', 0) - 1
             end = motif.get('End', 0)
             covered_positions.update(range(start, end))
         
         overall_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
         return {'Overall': round(overall_density, 4)}
     
-    # Density per subclass using set-based coverage
     if by_subclass:
         density_by_subclass = {}
         subclass_groups = defaultdict(list)
@@ -102,21 +53,19 @@ def calculate_genomic_density(motifs: List[Dict[str, Any]],
             key = f"{class_name}:{subclass_name}"
             subclass_groups[key].append(motif)
         
-        # Calculate per-subclass density with overlap handling
         for subclass_key, subclass_motifs in subclass_groups.items():
             covered_positions = set()
             for motif in subclass_motifs:
-                start = motif.get('Start', 0) - 1  # Convert to 0-based
+                start = motif.get('Start', 0) - 1
                 end = motif.get('End', 0)
                 covered_positions.update(range(start, end))
             
             subclass_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
             density_by_subclass[subclass_key] = round(subclass_density, 4)
         
-        # Calculate overall density (all motifs combined)
         all_covered_positions = set()
         for motif in motifs:
-            start = motif.get('Start', 0) - 1  # Convert to 0-based
+            start = motif.get('Start', 0) - 1
             end = motif.get('End', 0)
             all_covered_positions.update(range(start, end))
         
