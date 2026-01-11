@@ -752,168 +752,27 @@ PERFORMANCE_CONFIG = {
 }
 
 # ==================== UI COMPONENT STYLES ====================
-# Centralized styling parameters for all UI components
-# These values are used throughout the application for consistent styling
 UI_COMPONENT_STYLES = {
-    # Button styles - Using centralized colors
-    'button': {
-        'primary_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'primary_color': GLOBAL_COLORS['white'],
-        'padding': '0.5em 1.2em',
-        'font_size': '0.92rem',
-        'font_weight': 500,
-        'border_radius': '12px',
-        'shadow': '0 4px 12px rgba(0,0,0,0.15)',
-        'shadow_hover': '0 6px 16px rgba(0,0,0,0.2)',
-    },
-    
-    # Input field styles - Using centralized colors
-    'input': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_focus': '1.5px solid var(--primary-color)',
-        'border_radius': '12px',
-        'padding': '0.7rem 1rem',
-        'font_size': '0.95rem',
-        'shadow': '0 1px 3px rgba(0, 0, 0, 0.05)',
-        'shadow_focus': '0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08)',
-    },
-    
-    # Card/Panel styles - Using centralized colors
-    'card': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '16px',
-        'padding': '1.5rem',
-        'shadow': '0 2px 12px rgba(0,0,0,0.08)',
-        'shadow_hover': '0 4px 20px rgba(0,0,0,0.12)',
-    },
-    
-    # Alert/Notification styles - Now using centralized SEMANTIC_COLORS
-    'alert': {
-        'success_bg': SEMANTIC_COLORS['success_light'],
-        'success_border': SEMANTIC_COLORS['success'],
-        'info_bg': SEMANTIC_COLORS['info_light'],
-        'info_border': SEMANTIC_COLORS['info'],
-        'warning_bg': SEMANTIC_COLORS['warning_light'],
-        'warning_border': SEMANTIC_COLORS['warning'],
-        'error_bg': SEMANTIC_COLORS['error_light'],
-        'error_border': SEMANTIC_COLORS['error'],
-        'border_width': '4px',
-        'border_radius': '12px',
-        'padding': '1rem',
-    },
-    
-    # Table/DataFrame styles - Using centralized colors
-    'table': {
-        'header_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'header_color': GLOBAL_COLORS['white'],
-        'header_font_weight': 600,
-        'header_padding': '0.8rem',
-        'row_padding': '0.7rem',
-        'row_hover_bg': GLOBAL_COLORS['neutral_50'],
-        'alt_row_bg': 'rgba(238, 242, 255, 0.5)',
-        'border': '1px solid var(--bg-card)',
-        'border_radius': '12px',
-    },
-    
-    # Tab styles - Using centralized colors
-    'tabs': {
-        'bg': 'var(--tab-bg)',
-        'active_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'active_color': GLOBAL_COLORS['white'],
-        'inactive_color': GLOBAL_COLORS['neutral_600'],
-        'hover_bg': 'rgba(255, 255, 255, 0.7)',
-        'border_radius': '50px',  # Pill-shaped
-        'padding': '8px 12px',
-        'font_size': '0.95rem',
-        'font_weight': 500,
-    },
-    
-    # Progress bar styles
-    'progress': {
-        'bg': 'var(--bg-card)',
-        'fill_bg': 'linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'height': '8px',
-        'border_radius': '50px',
-        'shadow': '0 1px 4px rgba(0,0,0,0.1)',
-    },
-    
-    # Metric card styles - Using centralized colors
-    'metric': {
-        'bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '16px',
-        'padding': '0.8rem',
-        'value_size': '1.5rem',
-        'value_weight': 700,
-        'label_size': '0.8rem',
-        'label_weight': 500,
-        'shadow': '0 2px 8px rgba(0,0,0,0.08)',
-    },
-    
-    # File uploader styles - Using centralized colors
-    'file_uploader': {
-        'border': '2px dashed var(--accent-color)',
-        'border_hover': '2px dashed var(--primary-color)',
-        'bg': GLOBAL_COLORS['neutral_50'],
-        'bg_hover': HOME_COLORS['light'],
-        'border_radius': '16px',
-        'padding': '1.2rem',
-    },
-    
-    # Expander/Accordion styles - Using centralized colors
-    'expander': {
-        'header_bg': GLOBAL_COLORS['neutral_50'],
-        'header_bg_hover': 'var(--bg-card)',
-        'content_bg': GLOBAL_COLORS['white'],
-        'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}",
-        'border_radius': '10px',
-        'padding': '0.6rem 1rem',
-        'shadow': '0 1px 4px rgba(0,0,0,0.08)',
-    },
-    
-    # Scrollbar styles - Using centralized colors
-    'scrollbar': {
-        'width': '8px',
-        'track_bg': GLOBAL_COLORS['neutral_100'],
-        'thumb_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        'border_radius': '50px',
-    },
-    
-    # Tooltip styles - Using centralized colors
-    'tooltip': {
-        'bg': 'rgba(0, 0, 0, 0.9)',
-        'color': GLOBAL_COLORS['white'],
-        'font_size': '0.85rem',
-        'padding': '0.5rem 0.75rem',
-        'border_radius': '8px',
-        'shadow': '0 2px 8px rgba(0,0,0,0.2)',
-    },
+    'button': {'primary_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'primary_color': GLOBAL_COLORS['white'], 'padding': '0.5em 1.2em', 'font_size': '0.92rem', 'font_weight': 500, 'border_radius': '12px', 'shadow': '0 4px 12px rgba(0,0,0,0.15)', 'shadow_hover': '0 6px 16px rgba(0,0,0,0.2)'},
+    'input': {'bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_focus': '1.5px solid var(--primary-color)', 'border_radius': '12px', 'padding': '0.7rem 1rem', 'font_size': '0.95rem', 'shadow': '0 1px 3px rgba(0, 0, 0, 0.05)', 'shadow_focus': '0 0 0 3px var(--shadow-color), 0 2px 6px rgba(0, 0, 0, 0.08)'},
+    'card': {'bg': GLOBAL_COLORS['white'], 'border': f"1px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '16px', 'padding': '1.5rem', 'shadow': '0 2px 12px rgba(0,0,0,0.08)', 'shadow_hover': '0 4px 20px rgba(0,0,0,0.12)'},
+    'alert': {'success_bg': SEMANTIC_COLORS['success_light'], 'success_border': SEMANTIC_COLORS['success'], 'info_bg': SEMANTIC_COLORS['info_light'], 'info_border': SEMANTIC_COLORS['info'], 'warning_bg': SEMANTIC_COLORS['warning_light'], 'warning_border': SEMANTIC_COLORS['warning'], 'error_bg': SEMANTIC_COLORS['error_light'], 'error_border': SEMANTIC_COLORS['error'], 'border_width': '4px', 'border_radius': '12px', 'padding': '1rem'},
+    'table': {'header_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'header_color': GLOBAL_COLORS['white'], 'header_font_weight': 600, 'header_padding': '0.8rem', 'row_padding': '0.7rem', 'row_hover_bg': GLOBAL_COLORS['neutral_50'], 'alt_row_bg': 'rgba(238, 242, 255, 0.5)', 'border': '1px solid var(--bg-card)', 'border_radius': '12px'},
+    'tabs': {'bg': 'var(--tab-bg)', 'active_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'active_color': GLOBAL_COLORS['white'], 'inactive_color': GLOBAL_COLORS['neutral_600'], 'hover_bg': 'rgba(255, 255, 255, 0.7)', 'border_radius': '50px', 'padding': '8px 12px', 'font_size': '0.95rem', 'font_weight': 500},
+    'progress': {'bg': 'var(--bg-card)', 'fill_bg': 'linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'height': '8px', 'border_radius': '50px', 'shadow': '0 1px 4px rgba(0,0,0,0.1)'},
+    'metric': {'bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '16px', 'padding': '0.8rem', 'value_size': '1.5rem', 'value_weight': 700, 'label_size': '0.8rem', 'label_weight': 500, 'shadow': '0 2px 8px rgba(0,0,0,0.08)'},
+    'file_uploader': {'border': '2px dashed var(--accent-color)', 'border_hover': '2px dashed var(--primary-color)', 'bg': GLOBAL_COLORS['neutral_50'], 'bg_hover': HOME_COLORS['light'], 'border_radius': '16px', 'padding': '1.2rem'},
+    'expander': {'header_bg': GLOBAL_COLORS['neutral_50'], 'header_bg_hover': 'var(--bg-card)', 'content_bg': GLOBAL_COLORS['white'], 'border': f"1.5px solid {GLOBAL_COLORS['neutral_200']}", 'border_radius': '10px', 'padding': '0.6rem 1rem', 'shadow': '0 1px 4px rgba(0,0,0,0.08)'},
+    'scrollbar': {'width': '8px', 'track_bg': GLOBAL_COLORS['neutral_100'], 'thumb_bg': 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)', 'border_radius': '50px'},
+    'tooltip': {'bg': 'rgba(0, 0, 0, 0.9)', 'color': GLOBAL_COLORS['white'], 'font_size': '0.85rem', 'padding': '0.5rem 0.75rem', 'border_radius': '8px', 'shadow': '0 2px 8px rgba(0,0,0,0.2)'},
 }
 
 # ==================== ANIMATION & TRANSITION SETTINGS ====================
-# Control animation timing and effects for smooth UI interactions
 ANIMATION_CONFIG = {
-    # Transition durations (in seconds)
-    'transition_fast': '0.15s',
-    'transition_normal': '0.2s',
-    'transition_slow': '0.3s',
-    
-    # Easing functions
-    'easing_smooth': 'ease',
-    'easing_in': 'ease-in',
-    'easing_out': 'ease-out',
-    'easing_in_out': 'ease-in-out',
-    
-    # Animation names (CSS keyframes defined in styles.css)
-    'fade_in': 'fade-in',
-    'pulse': 'pulse-dot',
-    'shimmer': 'progress-shimmer',
-    
-    # Enable/disable animations globally
-    'enable_animations': True,
-    'reduce_motion': False,  # Respect user's prefers-reduced-motion setting
+    'transition_fast': '0.15s', 'transition_normal': '0.2s', 'transition_slow': '0.3s',
+    'easing_smooth': 'ease', 'easing_in': 'ease-in', 'easing_out': 'ease-out', 'easing_in_out': 'ease-in-out',
+    'fade_in': 'fade-in', 'pulse': 'pulse-dot', 'shimmer': 'progress-shimmer',
+    'enable_animations': True, 'reduce_motion': False,
 }
 
 # =============================================================================
@@ -925,120 +784,44 @@ ANIMATION_CONFIG = {
 # =============================================================================
 
 def format_time_scientific(seconds: float) -> str:
-    """
-    Format elapsed time in simple MM:SS format.
-    
-    This format provides:
-    - Human-readable minutes and seconds
-    - No hours or microseconds (simplified display)
-    - Consistent display across all workflows
-    
-    Args:
-        seconds: Elapsed time in seconds (float)
-        
-    Returns:
-        Formatted time string (e.g., "02:15" or "125:32")
-        
-    Examples:
-        >>> format_time_scientific(0.234)
-        "00:00"
-        >>> format_time_scientific(135.678)
-        "02:15"
-        >>> format_time_scientific(5432.123)
-        "90:32"
-    """
-    minutes = int(seconds // 60)
-    secs = int(seconds % 60)
-    
+    """Format elapsed time in MM:SS format."""
+    minutes, secs = int(seconds // 60), int(seconds % 60)
     return f"{minutes:02d}:{secs:02d}"
-
 
 def format_time_compact(seconds: float) -> str:
-    """
-    Format elapsed time in MM:SS format for compact displays.
-    
-    Simple minutes:seconds format for all durations.
-    
-    Args:
-        seconds: Elapsed time in seconds (float)
-        
-    Returns:
-        Formatted time string (e.g., "02:15" or "125:32")
-    """
-    minutes = int(seconds // 60)
-    secs = int(seconds % 60)
-    return f"{minutes:02d}:{secs:02d}"
-
+    """Format elapsed time in MM:SS format for compact displays."""
+    return format_time_scientific(seconds)
 
 # ---------- CACHING FUNCTIONS (Memory-Efficient) ----------
 @st.cache_resource(show_spinner=False)
 def cache_genome_as_numpy(sequence: str) -> np.ndarray:
-    """
-    Cache genome sequence as NumPy byte array for memory efficiency.
-    
-    This prevents reloading large genomes and reduces memory footprint
-    when using Streamlit on free tier (1GB limit).
-    
-    Args:
-        sequence: DNA sequence string
-        
-    Returns:
-        NumPy array of sequence bytes
-    """
+    """Cache genome sequence as NumPy byte array for memory efficiency."""
     return np.frombuffer(sequence.encode('utf-8'), dtype=np.uint8)
-
 
 @st.cache_resource(show_spinner=False)
 def cache_hyperscan_database(_patterns: list = None):
-    """
-    Cache compiled Hyperscan database for pattern matching.
-    
-    The underscore prefix on _patterns parameter is used by Streamlit
-    to indicate the parameter should not be hashed for caching purposes.
-    This prevents Streamlit from attempting to hash complex pattern objects.
-    
-    Args:
-        _patterns: List of (pattern, pattern_id) tuples to compile
-        
-    Returns:
-        Compiled Hyperscan database or None
-    """
+    """Cache compiled Hyperscan database for pattern matching."""
     if not HYPERSCAN_AVAILABLE or _patterns is None or len(_patterns) == 0:
         logger.debug("Hyperscan not available or no patterns provided")
         return None
     
     try:
-        # Compile patterns into Hyperscan database
         logger.debug(f"Compiling Hyperscan database with {len(_patterns)} patterns...")
-        
-        expressions = []
-        ids = []
-        flags = []
+        expressions, ids, flags = [], [], []
         
         for pattern, pattern_id in _patterns:
-            # Encode pattern with error handling
-            # Note: DNA patterns should normally be ASCII (ATGC), but we provide
-            # UTF-8 fallback for robustness in case patterns contain metadata or
-            # special characters. A warning is logged to help identify data quality issues.
             try:
                 pattern_bytes = pattern.encode('ascii')
             except UnicodeEncodeError:
-                # Fall back to UTF-8 if ASCII fails
                 pattern_bytes = pattern.encode('utf-8')
-                logger.warning(f"Pattern {pattern_id} contains non-ASCII characters (expected ATGC). Using UTF-8 encoding.")
+                logger.warning(f"Pattern {pattern_id} contains non-ASCII characters. Using UTF-8 encoding.")
             
             expressions.append(pattern_bytes)
             ids.append(pattern_id)
-            # Use CASELESS and DOTALL flags for DNA matching
             flags.append(hyperscan.HS_FLAG_CASELESS | hyperscan.HS_FLAG_DOTALL)
         
         db = hyperscan.Database()
-        db.compile(
-            expressions=expressions,
-            ids=ids,
-            elements=len(expressions),
-            flags=flags
-        )
+        db.compile(expressions=expressions, ids=ids, elements=len(expressions), flags=flags)
         
         logger.info(f"Successfully compiled Hyperscan database with {len(expressions)} patterns")
         return db
