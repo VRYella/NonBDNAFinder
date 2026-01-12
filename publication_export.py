@@ -28,6 +28,7 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.cell.cell import MergedCell
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -97,11 +98,17 @@ def create_summary_sheet(wb: Workbook, batch_summary: Dict, comparative_results:
     # Auto-size columns
     for column in ws.columns:
         max_length = 0
-        column_letter = column[0].column_letter
+        column_letter = None
         for cell in column:
+            # Skip merged cells
+            if isinstance(cell, MergedCell):
+                continue
+            if column_letter is None:
+                column_letter = cell.column_letter
             if cell.value:
                 max_length = max(max_length, len(str(cell.value)))
-        ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
+        if column_letter:
+            ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
 
 
 def create_genome_sheets(wb: Workbook, batch_results: Dict, comparative_results: Dict):

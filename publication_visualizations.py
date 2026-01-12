@@ -235,6 +235,12 @@ def plot_enrichment_patterns(comparative_results: Dict, output_dir: str):
     # Sort by mean frequency
     sorted_data = sorted(zip(class_names, mean_frequencies, std_frequencies, has_enrichment),
                         key=lambda x: x[1], reverse=True)
+    
+    # Handle case where there's no data
+    if not sorted_data:
+        print(f"  ⚠ Skipped: enrichment_patterns.png (no data available)")
+        return
+    
     class_names, mean_frequencies, std_frequencies, has_enrichment = zip(*sorted_data)
     
     # Create bar plot with error bars
