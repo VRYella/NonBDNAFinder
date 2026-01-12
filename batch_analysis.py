@@ -147,7 +147,7 @@ def analyze_genome_file(genome_path: str, progress: BatchAnalysisProgress) -> Di
     all_motifs = []
     sequence_info = []
     
-    for seq_name, seq_data in sequences:
+    for seq_name, seq_data in sequences.items():
         sequence = seq_data.upper()
         print(f"  → Analyzing sequence: {seq_name} ({len(sequence):,} bp)")
         

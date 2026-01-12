@@ -267,8 +267,8 @@ def calculate_cross_genome_correlations(genome_stats: Dict[str, Any],
     
     feature_matrix = []
     for genome_name in genome_names:
-        stats = genome_stats[genome_name]
-        feature_vector = [stats[f] for f in features]
+        genome_stat = genome_stats[genome_name]
+        feature_vector = [genome_stat[f] for f in features]
         feature_matrix.append(feature_vector)
     
     feature_matrix = np.array(feature_matrix)
@@ -352,10 +352,21 @@ def save_comparative_results(comparative_results: Dict[str, Any], output_dir: st
     """
     os.makedirs(output_dir, exist_ok=True)
     
+    # Custom JSON encoder to handle numpy types
+    class NumpyEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, (np.integer, np.floating)):
+                return float(obj)
+            elif isinstance(obj, np.bool_):
+                return bool(obj)
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super().default(obj)
+    
     # Save complete results as JSON
     results_file = os.path.join(output_dir, 'comparative_analysis.json')
     with open(results_file, 'w') as f:
-        json.dump(comparative_results, f, indent=2)
+        json.dump(comparative_results, f, indent=2, cls=NumpyEncoder)
     
     print(f"Saved comparative analysis: {results_file}")
     

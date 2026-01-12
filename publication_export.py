@@ -95,13 +95,20 @@ def create_summary_sheet(wb: Workbook, batch_summary: Dict, comparative_results:
         row += 1
     
     # Auto-size columns
+    from openpyxl.cell.cell import MergedCell
     for column in ws.columns:
         max_length = 0
-        column_letter = column[0].column_letter
+        column_letter = None
         for cell in column:
+            # Skip merged cells
+            if isinstance(cell, MergedCell):
+                continue
+            if column_letter is None:
+                column_letter = cell.column_letter
             if cell.value:
                 max_length = max(max_length, len(str(cell.value)))
-        ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
+        if column_letter:
+            ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
 
 
 def create_genome_sheets(wb: Workbook, batch_results: Dict, comparative_results: Dict):
