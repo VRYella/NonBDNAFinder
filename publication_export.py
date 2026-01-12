@@ -28,6 +28,7 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.cell.cell import MergedCell
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -95,7 +96,6 @@ def create_summary_sheet(wb: Workbook, batch_summary: Dict, comparative_results:
         row += 1
     
     # Auto-size columns
-    from openpyxl.cell.cell import MergedCell
     for column in ws.columns:
         max_length = 0
         column_letter = None
