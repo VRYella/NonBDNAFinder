@@ -1,0 +1,949 @@
+{
+  "genome_statistics": {
+    "Buchnera aphidicola.fna": {
+      "total_length": 452078,
+      "total_motifs": 4690,
+      "unique_classes": 7,
+      "unique_subclasses": 9,
+      "coverage_percent": 9.819765615668093,
+      "density_per_kb": 10.374315936630405,
+      "avg_motif_length": 9.46545842217484,
+      "avg_score": 2.106735607675906,
+      "class_diversity": 0.13981295513052602,
+      "class_counts": {
+        "Curved_DNA": 4618,
+        "G-Quadruplex": 35,
+        "Hybrid": 6,
+        "Slipped_DNA": 27,
+        "A-philic_DNA": 1,
+        "Non-B_DNA_Clusters": 2,
+        "R-Loop": 1
+      },
+      "subclass_counts": {
+        "Local Curvature": 4486,
+        "Two-tetrad weak PQS": 35,
+        "Global Curvature": 132,
+        "Curved_DNA_Slipped_DNA_Overlap": 4,
+        "Slipped_DNA": 27,
+        "A-philic DNA": 1,
+        "Mixed_Cluster_3_classes": 2,
+        "Slipped_DNA_Curved_DNA_Overlap": 2,
+        "QmRLFS-m2": 1
+      }
+    },
+    "Candidatus Carsonella ruddii.fna": {
+      "total_length": 174014,
+      "total_motifs": 1791,
+      "unique_classes": 5,
+      "unique_subclasses": 7,
+      "coverage_percent": 10.003218131874448,
+      "density_per_kb": 10.292275334168515,
+      "avg_motif_length": 9.719151312116136,
+      "avg_score": 2.110323841429369,
+      "class_diversity": 0.11299555168296613,
+      "class_counts": {
+        "Curved_DNA": 1769,
+        "G-Quadruplex": 14,
+        "Slipped_DNA": 5,
+        "Non-B_DNA_Clusters": 1,
+        "R-Loop": 2
+      },
+      "subclass_counts": {
+        "Local Curvature": 1704,
+        "Global Curvature": 65,
+        "Two-tetrad weak PQS": 13,
+        "Slipped_DNA": 5,
+        "Mixed_Cluster_3_classes": 1,
+        "QmRLFS-m2": 2,
+        "Intramolecular G-triplex": 1
+      }
+    },
+    "Cellulomonas shaoxiangyii.fna": {
+      "total_length": 3909366,
+      "total_motifs": 41758,
+      "unique_classes": 8,
+      "unique_subclasses": 32,
+      "coverage_percent": 163.70490764998723,
+      "density_per_kb": 10.68152738832844,
+      "avg_motif_length": 153.25983045164998,
+      "avg_score": 1.4038854830212175,
+      "class_diversity": 1.669220090573742,
+      "class_counts": {
+        "G-Quadruplex": 24566,
+        "R-Loop": 1478,
+        "Z-DNA": 11206,
+        "Hybrid": 1082,
+        "A-philic_DNA": 1524,
+        "Non-B_DNA_Clusters": 1661,
+        "Slipped_DNA": 240,
+        "Curved_DNA": 1
+      },
+      "subclass_counts": {
+        "Two-tetrad weak PQS": 22635,
+        "QmRLFS-m1": 949,
+        "Z-DNA": 8552,
+        "eGZ": 2654,
+        "Z-DNA_G-Quadruplex_Overlap": 306,
+        "Intramolecular G-triplex": 860,
+        "A-philic DNA": 1524,
+        "Mixed_Cluster_3_classes": 1408,
+        "Extended-loop canonical": 881,
+        "G-Quadruplex_R-Loop_Overlap": 164,
+        "A-philic_DNA_G-Quadruplex_Overlap": 138,
+        "QmRLFS-m2": 529,
+        "Canonical intramolecular G4": 154,
+        "Slipped_DNA": 240,
+        "Mixed_Cluster_4_classes": 249,
+        "G-Quadruplex_A-philic_DNA_Overlap": 104,
+        "R-Loop_G-Quadruplex_Overlap": 58,
+        "G-Quadruplex_Slipped_DNA_Overlap": 27,
+        "G-Quadruplex_Z-DNA_Overlap": 200,
+        "Slipped_DNA_G-Quadruplex_Overlap": 26,
+        "Higher-order G4 array/G4-wire": 20,
+        "R-Loop_Slipped_DNA_Overlap": 3,
+        "A-philic_DNA_R-Loop_Overlap": 12,
+        "Stacked G4s with linker": 16,
+        "Mixed_Cluster_5_classes": 4,
+        "Z-DNA_R-Loop_Overlap": 11,
+        "R-Loop_A-philic_DNA_Overlap": 17,
+        "Slipped_DNA_A-philic_DNA_Overlap": 1,
+        "R-Loop_Z-DNA_Overlap": 11,
+        "Slipped_DNA_Z-DNA_Overlap": 3,
+        "Local Curvature": 1,
+        "Z-DNA_Slipped_DNA_Overlap": 1
+      }
+    },
+    "Miltoncostaea marina.fna": {
+      "total_length": 3370274,
+      "total_motifs": 43297,
+      "unique_classes": 8,
+      "unique_subclasses": 32,
+      "coverage_percent": 181.039761158885,
+      "density_per_kb": 12.84672996913604,
+      "avg_motif_length": 140.92283530036724,
+      "avg_score": 1.4041210707439313,
+      "class_diversity": 1.6770127065453178,
+      "class_counts": {
+        "G-Quadruplex": 25587,
+        "R-Loop": 1294,
+        "Non-B_DNA_Clusters": 1783,
+        "Z-DNA": 11132,
+        "A-philic_DNA": 1954,
+        "Hybrid": 1471,
+        "Slipped_DNA": 74,
+        "Curved_DNA": 2
+      },
+      "subclass_counts": {
+        "Two-tetrad weak PQS": 23927,
+        "QmRLFS-m1": 774,
+        "Mixed_Cluster_4_classes": 267,
+        "Z-DNA": 7428,
+        "Mixed_Cluster_3_classes": 1514,
+        "A-philic DNA": 1954,
+        "eGZ": 3704,
+        "Intramolecular G-triplex": 806,
+        "QmRLFS-m2": 520,
+        "G-Quadruplex_Z-DNA_Overlap": 342,
+        "Z-DNA_G-Quadruplex_Overlap": 420,
+        "Extended-loop canonical": 704,
+        "A-philic_DNA_G-Quadruplex_Overlap": 194,
+        "G-Quadruplex_A-philic_DNA_Overlap": 189,
+        "G-Quadruplex_R-Loop_Overlap": 162,
+        "R-Loop_G-Quadruplex_Overlap": 59,
+        "Canonical intramolecular G4": 130,
+        "Slipped_DNA": 74,
+        "G-Quadruplex_Slipped_DNA_Overlap": 13,
+        "A-philic_DNA_R-Loop_Overlap": 25,
+        "R-Loop_A-philic_DNA_Overlap": 28,
+        "Slipped_DNA_G-Quadruplex_Overlap": 8,
+        "Slipped_DNA_R-Loop_Overlap": 2,
+        "Z-DNA_R-Loop_Overlap": 12,
+        "Higher-order G4 array/G4-wire": 15,
+        "A-philic_DNA_Slipped_DNA_Overlap": 2,
+        "Slipped_DNA_Z-DNA_Overlap": 2,
+        "Stacked G4s with linker": 5,
+        "Z-DNA_Slipped_DNA_Overlap": 4,
+        "R-Loop_Z-DNA_Overlap": 9,
+        "Global Curvature": 2,
+        "Mixed_Cluster_5_classes": 2
+      }
+    },
+    "Scer.fna": {
+      "total_length": 12157105,
+      "total_motifs": 24950,
+      "unique_classes": 8,
+      "unique_subclasses": 32,
+      "coverage_percent": 4.888384200021304,
+      "density_per_kb": 2.0522978126782654,
+      "avg_motif_length": 23.819078156312624,
+      "avg_score": 1.9355018036072147,
+      "class_diversity": 1.4417359985535545,
+      "class_counts": {
+        "R-Loop": 878,
+        "Slipped_DNA": 861,
+        "Curved_DNA": 16666,
+        "Z-DNA": 151,
+        "G-Quadruplex": 5717,
+        "Non-B_DNA_Clusters": 262,
+        "A-philic_DNA": 239,
+        "Hybrid": 176
+      },
+      "subclass_counts": {
+        "QmRLFS-m1": 479,
+        "Slipped_DNA": 861,
+        "Global Curvature": 3380,
+        "Z-DNA": 105,
+        "Local Curvature": 13286,
+        "Two-tetrad weak PQS": 5531,
+        "Mixed_Cluster_3_classes": 203,
+        "A-philic DNA": 239,
+        "Mixed_Cluster_4_classes": 55,
+        "QmRLFS-m2": 399,
+        "Intramolecular G-triplex": 118,
+        "R-Loop_A-philic_DNA_Overlap": 7,
+        "G-Quadruplex_A-philic_DNA_Overlap": 6,
+        "G-Quadruplex_R-Loop_Overlap": 18,
+        "R-Loop_Slipped_DNA_Overlap": 6,
+        "R-Loop_G-Quadruplex_Overlap": 13,
+        "Extended-loop canonical": 61,
+        "eGZ": 46,
+        "Slipped_DNA_G-Quadruplex_Overlap": 20,
+        "Canonical intramolecular G4": 7,
+        "G-Quadruplex_Slipped_DNA_Overlap": 21,
+        "Slipped_DNA_R-Loop_Overlap": 4,
+        "A-philic_DNA_G-Quadruplex_Overlap": 40,
+        "Curved_DNA_G-Quadruplex_Overlap": 7,
+        "A-philic_DNA_R-Loop_Overlap": 7,
+        "G-Quadruplex_Curved_DNA_Overlap": 7,
+        "Curved_DNA_Slipped_DNA_Overlap": 7,
+        "G-Quadruplex_Z-DNA_Overlap": 5,
+        "R-Loop_Curved_DNA_Overlap": 1,
+        "Mixed_Cluster_5_classes": 4,
+        "Z-DNA_G-Quadruplex_Overlap": 2,
+        "Slipped_DNA_Curved_DNA_Overlap": 5
+      }
+    },
+    "Streptococcus pneumoniae.fna": {
+      "total_length": 2110968,
+      "total_motifs": 3011,
+      "unique_classes": 8,
+      "unique_subclasses": 14,
+      "coverage_percent": 3.590674988915038,
+      "density_per_kb": 1.426359850078258,
+      "avg_motif_length": 25.173696446363333,
+      "avg_score": 1.696768515443374,
+      "class_diversity": 1.3099728152824246,
+      "class_counts": {
+        "Curved_DNA": 1675,
+        "G-Quadruplex": 1173,
+        "R-Loop": 111,
+        "A-philic_DNA": 7,
+        "Z-DNA": 12,
+        "Non-B_DNA_Clusters": 4,
+        "Slipped_DNA": 26,
+        "Hybrid": 3
+      },
+      "subclass_counts": {
+        "Global Curvature": 648,
+        "Two-tetrad weak PQS": 1157,
+        "Local Curvature": 1027,
+        "QmRLFS-m1": 57,
+        "Intramolecular G-triplex": 13,
+        "QmRLFS-m2": 54,
+        "A-philic DNA": 7,
+        "Z-DNA": 10,
+        "Mixed_Cluster_3_classes": 4,
+        "Slipped_DNA": 26,
+        "eGZ": 2,
+        "R-Loop_G-Quadruplex_Overlap": 2,
+        "Extended-loop canonical": 3,
+        "Slipped_DNA_G-Quadruplex_Overlap": 1
+      }
+    },
+    "ecoli.fna": {
+      "total_length": 4641652,
+      "total_motifs": 10622,
+      "unique_classes": 8,
+      "unique_subclasses": 28,
+      "coverage_percent": 12.823300842027797,
+      "density_per_kb": 2.2884093852792065,
+      "avg_motif_length": 56.03586895123329,
+      "avg_score": 1.3725305968744115,
+      "class_diversity": 1.6814073407625496,
+      "class_counts": {
+        "Curved_DNA": 1760,
+        "Non-B_DNA_Clusters": 96,
+        "G-Quadruplex": 6550,
+        "R-Loop": 728,
+        "Z-DNA": 1298,
+        "A-philic_DNA": 67,
+        "Hybrid": 115,
+        "Slipped_DNA": 8
+      },
+      "subclass_counts": {
+        "Local Curvature": 1171,
+        "Mixed_Cluster_4_classes": 12,
+        "Two-tetrad weak PQS": 6386,
+        "QmRLFS-m2": 281,
+        "eGZ": 406,
+        "Z-DNA": 892,
+        "QmRLFS-m1": 447,
+        "Global Curvature": 589,
+        "Mixed_Cluster_3_classes": 83,
+        "A-philic DNA": 67,
+        "Intramolecular G-triplex": 123,
+        "G-Quadruplex_Z-DNA_Overlap": 29,
+        "R-Loop_G-Quadruplex_Overlap": 17,
+        "Canonical intramolecular G4": 20,
+        "Slipped_DNA": 8,
+        "Z-DNA_G-Quadruplex_Overlap": 29,
+        "G-Quadruplex_R-Loop_Overlap": 20,
+        "Extended-loop canonical": 21,
+        "R-Loop_Z-DNA_Overlap": 2,
+        "Curved_DNA_G-Quadruplex_Overlap": 3,
+        "A-philic_DNA_R-Loop_Overlap": 2,
+        "A-philic_DNA_G-Quadruplex_Overlap": 2,
+        "Mixed_Cluster_5_classes": 1,
+        "G-Quadruplex_Curved_DNA_Overlap": 5,
+        "R-Loop_A-philic_DNA_Overlap": 3,
+        "R-Loop_Curved_DNA_Overlap": 1,
+        "Curved_DNA_R-Loop_Overlap": 1,
+        "Slipped_DNA_G-Quadruplex_Overlap": 1
+      }
+    },
+    "mtb.fasta": {
+      "total_length": 4411532,
+      "total_motifs": 29638,
+      "unique_classes": 8,
+      "unique_subclasses": 33,
+      "coverage_percent": 83.86136607418919,
+      "density_per_kb": 6.718301034651907,
+      "avg_motif_length": 124.82525811458262,
+      "avg_score": 1.3415915378905459,
+      "class_diversity": 1.4461926782961663,
+      "class_counts": {
+        "R-Loop": 1824,
+        "Z-DNA": 3992,
+        "Curved_DNA": 66,
+        "G-Quadruplex": 21281,
+        "Non-B_DNA_Clusters": 855,
+        "A-philic_DNA": 799,
+        "Hybrid": 720,
+        "Slipped_DNA": 101
+      },
+      "subclass_counts": {
+        "QmRLFS-m1": 1256,
+        "eGZ": 1750,
+        "Local Curvature": 23,
+        "Two-tetrad weak PQS": 20360,
+        "Canonical intramolecular G4": 90,
+        "QmRLFS-m2": 568,
+        "Mixed_Cluster_3_classes": 760,
+        "Z-DNA": 2242,
+        "A-philic DNA": 799,
+        "G-Quadruplex_R-Loop_Overlap": 146,
+        "Intramolecular G-triplex": 483,
+        "Extended-loop canonical": 342,
+        "Mixed_Cluster_4_classes": 94,
+        "Slipped_DNA": 101,
+        "R-Loop_A-philic_DNA_Overlap": 18,
+        "R-Loop_G-Quadruplex_Overlap": 87,
+        "G-Quadruplex_Z-DNA_Overlap": 112,
+        "Z-DNA_G-Quadruplex_Overlap": 187,
+        "G-Quadruplex_Slipped_DNA_Overlap": 12,
+        "Slipped_DNA_G-Quadruplex_Overlap": 22,
+        "A-philic_DNA_G-Quadruplex_Overlap": 49,
+        "Global Curvature": 43,
+        "R-Loop_Z-DNA_Overlap": 6,
+        "G-Quadruplex_A-philic_DNA_Overlap": 55,
+        "A-philic_DNA_R-Loop_Overlap": 13,
+        "Z-DNA_R-Loop_Overlap": 7,
+        "Z-DNA_Slipped_DNA_Overlap": 1,
+        "G-Quadruplex_Curved_DNA_Overlap": 2,
+        "Curved_DNA_G-Quadruplex_Overlap": 2,
+        "Higher-order G4 array/G4-wire": 4,
+        "Stacked G4s with linker": 2,
+        "R-Loop_Slipped_DNA_Overlap": 1,
+        "Mixed_Cluster_5_classes": 1
+      }
+    },
+    "saureus.fna": {
+      "total_length": 2821361,
+      "total_motifs": 2982,
+      "unique_classes": 8,
+      "unique_subclasses": 12,
+      "coverage_percent": 2.265679578047616,
+      "density_per_kb": 1.0569367053702097,
+      "avg_motif_length": 21.43628437290409,
+      "avg_score": 1.9314587525150908,
+      "class_diversity": 1.0267799574140795,
+      "class_counts": {
+        "G-Quadruplex": 518,
+        "Curved_DNA": 2317,
+        "R-Loop": 41,
+        "Slipped_DNA": 26,
+        "Hybrid": 1,
+        "Non-B_DNA_Clusters": 2,
+        "A-philic_DNA": 68,
+        "Z-DNA": 9
+      },
+      "subclass_counts": {
+        "Two-tetrad weak PQS": 516,
+        "Global Curvature": 963,
+        "Local Curvature": 1354,
+        "QmRLFS-m2": 29,
+        "Intramolecular G-triplex": 2,
+        "Slipped_DNA": 26,
+        "Slipped_DNA_G-Quadruplex_Overlap": 1,
+        "Mixed_Cluster_3_classes": 2,
+        "A-philic DNA": 68,
+        "Z-DNA": 7,
+        "QmRLFS-m1": 12,
+        "eGZ": 2
+      }
+    }
+  },
+  "class_frequencies": {
+    "A-philic_DNA": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.00021321961620469082,
+        "count": 1
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0,
+        "count": 0
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.03649600076632022,
+        "count": 1524
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.04513014758528305,
+        "count": 1954
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.009579158316633267,
+        "count": 239
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.002324809033543673,
+        "count": 7
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.006307663340237244,
+        "count": 67
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.0269586341858425,
+        "count": 799
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.022803487592219986,
+        "count": 68
+      }
+    ],
+    "Curved_DNA": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.9846481876332622,
+        "count": 4618
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.9877163595756561,
+        "count": 1769
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 2.3947507064514583e-05,
+        "count": 1
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 4.619257685289974e-05,
+        "count": 2
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.6679759519038077,
+        "count": 16666
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.556293590169379,
+        "count": 1675
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.1656938429674261,
+        "count": 1760
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.0022268709089682164,
+        "count": 66
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.7769953051643192,
+        "count": 2317
+      }
+    ],
+    "G-Quadruplex": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.007462686567164179,
+        "count": 35
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.007816862088218872,
+        "count": 14
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.5882944585468652,
+        "count": 24566
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.5909647319675728,
+        "count": 25587
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.2291382765531062,
+        "count": 5717
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.38957157090667555,
+        "count": 1173
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.6166446996799096,
+        "count": 6550
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.718030906268979,
+        "count": 21281
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.17370892018779344,
+        "count": 518
+      }
+    ],
+    "R-Loop": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.00021321961620469082,
+        "count": 1
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0011166945840312675,
+        "count": 2
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.03539441544135256,
+        "count": 1478
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.029886597223826132,
+        "count": 1294
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.035190380761523046,
+        "count": 878
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.03686482896047825,
+        "count": 111
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.06853699868198079,
+        "count": 728
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.061542614211485255,
+        "count": 1824
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.01374916163648558,
+        "count": 41
+      }
+    ],
+    "Slipped_DNA": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.005756929637526652,
+        "count": 27
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0027917364600781687,
+        "count": 5
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.0057474016954835,
+        "count": 240
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.0017091253435572904,
+        "count": 74
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.03450901803607215,
+        "count": 861
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.008635004981733644,
+        "count": 26
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.0007531538316701186,
+        "count": 8
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.0034077873000877253,
+        "count": 101
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.008718980549966466,
+        "count": 26
+      }
+    ],
+    "Hybrid": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.001279317697228145,
+        "count": 6
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0,
+        "count": 0
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.02591120264380478,
+        "count": 1082
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.033974640275307756,
+        "count": 1471
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.0070541082164328655,
+        "count": 176
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.0009963467286615742,
+        "count": 3
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.010826586330257956,
+        "count": 115
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.02429313718874418,
+        "count": 720
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.00033534540576794097,
+        "count": 1
+      }
+    ],
+    "Z-DNA": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.0,
+        "count": 0
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0,
+        "count": 0
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.26835576416495044,
+        "count": 11206
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.2571078827632399,
+        "count": 11132
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.006052104208416833,
+        "count": 151
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.003985386914646297,
+        "count": 12
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.12219920918847675,
+        "count": 1298
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.1346919495242594,
+        "count": 3992
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.0030181086519114686,
+        "count": 9
+      }
+    ],
+    "Non-B_DNA_Clusters": [
+      {
+        "genome": "Buchnera aphidicola.fna",
+        "frequency": 0.00042643923240938164,
+        "count": 2
+      },
+      {
+        "genome": "Candidatus Carsonella ruddii.fna",
+        "frequency": 0.0005583472920156337,
+        "count": 1
+      },
+      {
+        "genome": "Cellulomonas shaoxiangyii.fna",
+        "frequency": 0.03977680923415872,
+        "count": 1661
+      },
+      {
+        "genome": "Miltoncostaea marina.fna",
+        "frequency": 0.04118068226436012,
+        "count": 1783
+      },
+      {
+        "genome": "Scer.fna",
+        "frequency": 0.010501002004008017,
+        "count": 262
+      },
+      {
+        "genome": "Streptococcus pneumoniae.fna",
+        "frequency": 0.001328462304882099,
+        "count": 4
+      },
+      {
+        "genome": "ecoli.fna",
+        "frequency": 0.009037845980041424,
+        "count": 96
+      },
+      {
+        "genome": "mtb.fasta",
+        "frequency": 0.028848100411633715,
+        "count": 855
+      },
+      {
+        "genome": "saureus.fna",
+        "frequency": 0.0006706908115358819,
+        "count": 2
+      }
+    ]
+  },
+  "enrichment_patterns": {
+    "A-philic_DNA": {
+      "mean_frequency": 0.01664590227069829,
+      "std_frequency": 0.015841849728574463,
+      "coefficient_variation": 0.951696668101963,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "Curved_DNA": {
+      "mean_frequency": 0.4601800276007484,
+      "std_frequency": 0.39805922039182806,
+      "coefficient_variation": 0.8650075981506606,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "G-Quadruplex": {
+      "mean_frequency": 0.36907034586292053,
+      "std_frequency": 0.25815465073086785,
+      "coefficient_variation": 0.6994727526192288,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "R-Loop": {
+      "mean_frequency": 0.03138832345748529,
+      "std_frequency": 0.02248815903896872,
+      "coefficient_variation": 0.7164498310790118,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "Slipped_DNA": {
+      "mean_frequency": 0.008003237537352857,
+      "std_frequency": 0.009741434875745771,
+      "coefficient_variation": 1.21718677351264,
+      "enriched_genomes": [
+        {
+          "genome": "Scer.fna",
+          "frequency": 0.03450901803607215,
+          "z_score": 2.720931858274123
+        }
+      ],
+      "depleted_genomes": []
+    },
+    "Hybrid": {
+      "mean_frequency": 0.011630076054022801,
+      "std_frequency": 0.01232978475510886,
+      "coefficient_variation": 1.0601637253132177,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "Z-DNA": {
+      "mean_frequency": 0.08837893393510012,
+      "std_frequency": 0.1059129328557638,
+      "coefficient_variation": 1.1983956825451134,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    },
+    "Non-B_DNA_Clusters": {
+      "mean_frequency": 0.01470315328167167,
+      "std_frequency": 0.016190784544762533,
+      "coefficient_variation": 1.1011777021290583,
+      "enriched_genomes": [],
+      "depleted_genomes": []
+    }
+  },
+  "correlations": {
+    "total_length_vs_total_motifs": {
+      "correlation": 0.4032875784177026,
+      "p_value": 0.28179091079972335,
+      "significant": false
+    },
+    "total_length_vs_density_per_kb": {
+      "correlation": -0.4165427991371223,
+      "p_value": 0.26474272782571195,
+      "significant": false
+    },
+    "total_length_vs_coverage_percent": {
+      "correlation": -0.01290867562347571,
+      "p_value": 0.9737063133779701,
+      "significant": false
+    },
+    "total_length_vs_class_diversity": {
+      "correlation": 0.5605542715525637,
+      "p_value": 0.1164220524613591,
+      "significant": false
+    },
+    "total_length_vs_avg_score": {
+      "correlation": -0.1631912664598127,
+      "p_value": 0.6748393599040082,
+      "significant": false
+    },
+    "total_motifs_vs_density_per_kb": {
+      "correlation": 0.4743946440296712,
+      "p_value": 0.19696499214362584,
+      "significant": false
+    },
+    "total_motifs_vs_coverage_percent": {
+      "correlation": 0.902983974969678,
+      "p_value": 0.0008507431088205493,
+      "significant": true
+    },
+    "total_motifs_vs_class_diversity": {
+      "correlation": 0.6654083203582803,
+      "p_value": 0.050459183050829345,
+      "significant": false
+    },
+    "total_motifs_vs_avg_score": {
+      "correlation": -0.6751816702673257,
+      "p_value": 0.04597799609130798,
+      "significant": true
+    },
+    "density_per_kb_vs_coverage_percent": {
+      "correlation": 0.6749213144188527,
+      "p_value": 0.04609392833162953,
+      "significant": true
+    },
+    "density_per_kb_vs_class_diversity": {
+      "correlation": -0.2495179151727006,
+      "p_value": 0.5173255811022398,
+      "significant": false
+    },
+    "density_per_kb_vs_avg_score": {
+      "correlation": -0.0785557651669585,
+      "p_value": 0.8407881938337376,
+      "significant": false
+    },
+    "coverage_percent_vs_class_diversity": {
+      "correlation": 0.5091340799934663,
+      "p_value": 0.16154405697420418,
+      "significant": false
+    },
+    "coverage_percent_vs_avg_score": {
+      "correlation": -0.666985422838891,
+      "p_value": 0.04971798823450366,
+      "significant": true
+    },
+    "class_diversity_vs_avg_score": {
+      "correlation": -0.8473577866747959,
+      "p_value": 0.00392757756088272,
+      "significant": true
+    }
+  },
+  "summary": {
+    "total_genomes": 9,
+    "total_sequence_length": 34048350,
+    "total_motifs_detected": 162739,
+    "average_density_per_kb": 6.415239268480139,
+    "average_coverage_percent": 52.44411758217953,
+    "average_class_diversity": 1.167236677137925,
+    "highest_density_genome": {
+      "name": "Miltoncostaea marina.fna",
+      "density": 12.84672996913604
+    },
+    "lowest_density_genome": {
+      "name": "saureus.fna",
+      "density": 1.0569367053702097
+    },
+    "highest_diversity_genome": {
+      "name": "ecoli.fna",
+      "diversity": 1.6814073407625496
+    },
+    "lowest_diversity_genome": {
+      "name": "Candidatus Carsonella ruddii.fna",
+      "diversity": 0.11299555168296613
+    }
+  }
+}

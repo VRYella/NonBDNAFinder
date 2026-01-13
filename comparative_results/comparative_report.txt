@@ -1,0 +1,94 @@
+================================================================================
+COMPARATIVE GENOME ANALYSIS REPORT
+================================================================================
+
+SUMMARY STATISTICS
+--------------------------------------------------------------------------------
+Total genomes analyzed: 9
+Total sequence length: 34,048,350 bp
+Total motifs detected: 162,739
+Average motif density: 6.42 motifs/kb
+Average coverage: 52.44%
+Average class diversity: 1.167
+
+NOTABLE PATTERNS
+--------------------------------------------------------------------------------
+Highest density: Miltoncostaea marina.fna (12.85 motifs/kb)
+Lowest density: saureus.fna (1.06 motifs/kb)
+Highest diversity: ecoli.fna (H=1.681)
+Lowest diversity: Candidatus Carsonella ruddii.fna (H=0.113)
+
+PER-GENOME STATISTICS
+--------------------------------------------------------------------------------
+
+Buchnera aphidicola.fna:
+  Length: 452,078 bp
+  Motifs: 4,690
+  Density: 10.37 motifs/kb
+  Coverage: 9.82%
+  Classes: 7
+  Diversity: 0.140
+
+Candidatus Carsonella ruddii.fna:
+  Length: 174,014 bp
+  Motifs: 1,791
+  Density: 10.29 motifs/kb
+  Coverage: 10.00%
+  Classes: 5
+  Diversity: 0.113
+
+Cellulomonas shaoxiangyii.fna:
+  Length: 3,909,366 bp
+  Motifs: 41,758
+  Density: 10.68 motifs/kb
+  Coverage: 163.70%
+  Classes: 8
+  Diversity: 1.669
+
+Miltoncostaea marina.fna:
+  Length: 3,370,274 bp
+  Motifs: 43,297
+  Density: 12.85 motifs/kb
+  Coverage: 181.04%
+  Classes: 8
+  Diversity: 1.677
+
+Scer.fna:
+  Length: 12,157,105 bp
+  Motifs: 24,950
+  Density: 2.05 motifs/kb
+  Coverage: 4.89%
+  Classes: 8
+  Diversity: 1.442
+
+Streptococcus pneumoniae.fna:
+  Length: 2,110,968 bp
+  Motifs: 3,011
+  Density: 1.43 motifs/kb
+  Coverage: 3.59%
+  Classes: 8
+  Diversity: 1.310
+
+ecoli.fna:
+  Length: 4,641,652 bp
+  Motifs: 10,622
+  Density: 2.29 motifs/kb
+  Coverage: 12.82%
+  Classes: 8
+  Diversity: 1.681
+
+mtb.fasta:
+  Length: 4,411,532 bp
+  Motifs: 29,638
+  Density: 6.72 motifs/kb
+  Coverage: 83.86%
+  Classes: 8
+  Diversity: 1.446
+
+saureus.fna:
+  Length: 2,821,361 bp
+  Motifs: 2,982
+  Density: 1.06 motifs/kb
+  Coverage: 2.27%
+  Classes: 8
+  Diversity: 1.027
