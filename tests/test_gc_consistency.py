@@ -138,7 +138,9 @@ class TestGCConsistency(unittest.TestCase):
                 
                 # For disk storage, we need a non-empty sequence
                 if seq:
-                    seq_id = self.storage.save_sequence(seq, f"test_{seq[:5]}")
+                    # Use hash for sequence name to avoid issues with short/empty sequences
+                    seq_name = f"test_{hash(seq)}"
+                    seq_id = self.storage.save_sequence(seq, seq_name)
                     metadata = self.storage.get_metadata(seq_id)
                     result3 = metadata['gc_content']
                     

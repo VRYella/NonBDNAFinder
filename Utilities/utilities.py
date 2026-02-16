@@ -2320,6 +2320,9 @@ def gc_content(sequence: str) -> float:
     """
     Calculate GC content of sequence using standardized method.
     
+    This function delegates to calc_gc_content() from detectors_utils.py
+    to ensure consistency across all GC content calculations in the codebase.
+    
     Args:
         sequence: DNA sequence string
         
