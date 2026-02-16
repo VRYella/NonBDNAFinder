@@ -80,9 +80,9 @@ Implemented three-tier hierarchical chunking for **6-15x faster** genome-scale a
 - **Micro-tier (50KB)**: Fast analysis with 2KB overlap
 
 **Adaptive Strategy:**
-- < 1MB: Direct analysis (no chunking)
-- 1-10MB: Single-tier (micro only)
-- 10-100MB: Double-tier (meso + micro)
+- < 50KB: Direct analysis (no chunking)
+- 50KB-1MB: Single-tier (micro only)
+- 1MB-100MB: Double-tier (meso + micro)
 - \> 100MB: Triple-tier (macro + meso + micro)
 
 **Previous Enhancement (v2025.1.1)**

@@ -62,10 +62,14 @@ CHUNKING_CONFIG = {
     'macro_overlap': 10_000,           # 10KB overlap between macro-chunks
     
     # Adaptive thresholds for automatic strategy selection
-    'direct_threshold': 1_000_000,           # <1MB: direct analysis (no chunking)
-    'single_tier_threshold': 10_000_000,     # 1-10MB: micro-tier only
-    'double_tier_threshold': 100_000_000,    # 10-100MB: meso+micro tiers
+    'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED
+    'single_tier_threshold': 1_000_000,      # 50KB-1MB: micro-tier only - CORRECTED
+    'double_tier_threshold': 100_000_000,    # 1MB-100MB: meso+micro tiers - CORRECTED
     # >100MB: macro+meso+micro tiers (triple-tier)
+    
+    # Parallel detector execution
+    'enable_parallel_detectors': True,       # Run detectors in parallel
+    'detectors_per_chunk_parallel': True,    # Parallel per-chunk execution
     
     # Performance tuning
     'enable_adaptive': True,          # Enable adaptive strategy selection
