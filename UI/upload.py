@@ -923,7 +923,9 @@ def render():
         st.session_state.analysis_done = False
     
     # Check if valid input is present (sequences AND at least one class selected)
-    has_valid_input = bool(st.session_state.get('seqs')) and bool(st.session_state.get('selected_classes'))
+    # Support both disk storage and legacy in-memory mode
+    has_sequences = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
+    has_valid_input = has_sequences and bool(st.session_state.get('selected_classes'))
     
     # Create a full-width container for the run button
     run_button_container = st.container()
