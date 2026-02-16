@@ -229,10 +229,30 @@ class NonBScanner:
         return info
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mode: bool = True, use_chunking: bool = None, chunk_size: int = None, chunk_overlap: int = None, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-    """Analyze DNA sequence for non-B DNA motifs with robust error handling"""
-    # Validate input
-    if not sequence or len(sequence) == 0:
-        logger.warning(f"Empty sequence provided for {sequence_name}")
+    """
+    Analyze DNA sequence for non-B DNA motifs with robust error handling.
+    
+    Args:
+        sequence: DNA sequence string to analyze
+        sequence_name: Name/identifier for the sequence
+        use_fast_mode: Whether to use parallel scanner if available
+        use_chunking: Whether to use chunked analysis (auto-enabled for large sequences if None)
+        chunk_size: Size of chunks for chunked analysis (default: DEFAULT_CHUNK_SIZE)
+        chunk_overlap: Overlap between chunks (default: DEFAULT_CHUNK_OVERLAP)
+        progress_callback: Callback function for progress updates (chunk_num, total_chunks, bp_processed, elapsed, throughput)
+        use_parallel_chunks: Whether to process chunks in parallel
+        enabled_classes: List of motif classes to detect (None = all classes)
+    
+    Returns:
+        List of detected motif dictionaries
+        Returns empty list if sequence is None, empty, or invalid
+    
+    Raises:
+        TypeError: If sequence is not a string or None
+    """
+    # Validate input - check type first before attempting len()
+    if sequence is None or not sequence or len(sequence) == 0:
+        logger.warning(f"Empty or None sequence provided for {sequence_name}")
         return []
     if not isinstance(sequence, str):
         raise TypeError(f"Sequence must be string, got {type(sequence)}")
@@ -248,9 +268,9 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
 
 def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """Optimized chunked analysis with ThreadPoolExecutor (Python GIL limits true parallelism)."""
-    # Validate input
-    if not sequence or len(sequence) == 0:
-        logger.warning(f"Empty sequence provided for chunked analysis: {sequence_name}")
+    # Validate input - check for None and empty sequences
+    if sequence is None or not sequence or len(sequence) == 0:
+        logger.warning(f"Empty or None sequence provided for chunked analysis: {sequence_name}")
         return []
     
     def _throughput(bp, elapsed): return bp / elapsed if elapsed > 0 else 0

@@ -60,7 +60,7 @@ class TestChunkingThreshold(unittest.TestCase):
     
     def test_small_sequence_no_chunking(self):
         """Sequences < 50KB should not use chunking by default"""
-        # 10KB sequence (20,000 bp < 50KB)
+        # 20KB sequence (20,000 bp < 50KB)
         seq = "ATCG" * 5000  # 20,000 bp
         result = analyze_sequence(seq, "small_seq", use_chunking=None)
         self.assertIsInstance(result, list)
