@@ -216,6 +216,9 @@ class NonBScanner:
             if len(window_motifs_data) >= CLUSTER_MIN_MOTIFS:
                 classes = set(p[2] for p in window_motifs_data)
                 if len(classes) >= CLUSTER_MIN_CLASSES:
+                    # Ensure window_motifs_data is not empty before accessing min/max
+                    if not window_motifs_data:
+                        continue
                     actual_start = min(p[0] for p in window_motifs_data); actual_end = max(p[1] for p in window_motifs_data)
                     detected_window_starts.add(window_start); avg_score = sum(p[3] for p in window_motifs_data) / len(window_motifs_data)
                     seq_text = sequence[actual_start-1:actual_end] if 0 <= actual_start - 1 < seq_len and 0 < actual_end <= seq_len else 'CLUSTER_REGION'
@@ -293,7 +296,13 @@ def _analyze_sequence_worker(args: Tuple[str, str]) -> Tuple[str, List[Dict[str,
 
 def analyze_multiple_sequences_parallel(sequences: Dict[str, str], num_processes: Optional[int] = None, preserve_order: bool = True) -> Dict[str, List[Dict[str, Any]]]:
     if not sequences: return {}
-    if len(sequences) == 1: name, seq = next(iter(sequences.items())); return {name: _get_cached_scanner().analyze_sequence(seq, name)}
+    # Safely handle single sequence case
+    if len(sequences) == 1:
+        try:
+            name, seq = next(iter(sequences.items()))
+            return {name: _get_cached_scanner().analyze_sequence(seq, name)}
+        except StopIteration:
+            return {}
     num_processes = num_processes or min(multiprocessing.cpu_count(), len(sequences))
     try:
         sequence_items = list(sequences.items())

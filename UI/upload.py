@@ -1515,9 +1515,12 @@ def render():
                     
                     # Check for overlaps within each subclass
                     for subclass, motifs in subclass_motifs.items():
+                        if len(motifs) < 2:
+                            continue  # Skip if less than 2 motifs
                         sorted_motifs = sorted(motifs, key=lambda m: m.get('Start', 0))
                         for j in range(len(sorted_motifs) - 1):
-                            if sorted_motifs[j].get('End', 0) > sorted_motifs[j+1].get('Start', 0):
+                            # Extra defensive check even though loop should be safe
+                            if j + 1 < len(sorted_motifs) and sorted_motifs[j].get('End', 0) > sorted_motifs[j+1].get('Start', 0):
                                 validation_issues.append(f"Note: Sequence {i+1}: Overlapping motifs in {subclass}")
                                 break
                 

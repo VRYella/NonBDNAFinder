@@ -55,8 +55,12 @@ class CurvedDNADetector(BaseMotifDetector):
 
         for i, apr in enumerate(annotation.get('aprs', [])):
             if apr.get('score', 0) > self.SCORE_THRESHOLD:
-                start_pos = max(0, int(min(apr['center_positions'])) - 10)
-                end_pos = min(len(sequence), int(max(apr['center_positions'])) + 10)
+                # Ensure center_positions is not empty before accessing
+                center_positions = apr.get('center_positions', [])
+                if not center_positions:
+                    continue
+                start_pos = max(0, int(min(center_positions)) - 10)
+                end_pos = min(len(sequence), int(max(center_positions)) + 10)
                 motif_seq = sequence[start_pos:end_pos]
                 a_tracts = re.findall(r'A{3,}', motif_seq); t_tracts = re.findall(r'T{3,}', motif_seq)
                 gc_total = self._calc_gc(motif_seq); at_content = self._calc_at(motif_seq)
