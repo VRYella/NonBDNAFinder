@@ -233,7 +233,10 @@ class BatchedStatusDisplay:
 
 def get_session_value(key: str, default=None):
     """
-    Optimized session state access with caching.
+    Get value from session state with default fallback.
+    
+    If the key doesn't exist in session state, sets it to the default value
+    before returning. This ensures the key exists after the call.
     
     Args:
         key: Session state key
@@ -1339,10 +1342,10 @@ def render():
                                 )
                                 
                                 # Smart update: only update UI on milestones to reduce reruns
-                                if should_update_ui(current_chunk, total_chunks, update_frequency=20):
-                                    batched_status.update(status_msg, force=True)
-                                else:
-                                    batched_status.update(status_msg, force=False)
+                                batched_status.update(
+                                    status_msg, 
+                                    force=should_update_ui(current_chunk, total_chunks, update_frequency=20)
+                                )
                             
                             # Analyze using ChunkAnalyzer with enhanced progress tracking
                             analyzer = ChunkAnalyzer(

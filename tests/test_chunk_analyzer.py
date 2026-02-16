@@ -137,7 +137,7 @@ class TestChunkAnalyzer(unittest.TestCase):
         
         # Verify chunk numbers are valid
         for update in progress_data:
-            self.assertGreater(update['current'], 0, "Chunk number should be >= 1")
+            self.assertGreaterEqual(update['current'], 1, "Chunk number should be >= 1")
             self.assertGreater(update['total'], 0, "Total chunks should be > 0")
             self.assertLessEqual(update['current'], update['total'], 
                                "Current chunk should not exceed total")
