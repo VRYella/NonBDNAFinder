@@ -490,3 +490,98 @@ The universal disk-based storage architecture enables NonBDNAFinder to analyze g
 ---
 
 *For questions or issues, please file a GitHub issue or contact the development team.*
+
+## Triple Adaptive Chunking (2024.2)
+
+### Architecture
+
+The system implements a **three-tier hierarchical chunking** approach that automatically adapts based on sequence size:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ TIER 1: Macro-chunks (50MB, 10KB overlap)                   │
+│ - Parallelization layer: Distributed across CPU cores       │
+│ - Used for sequences > 100MB                                │
+├─────────────────────────────────────────────────────────────┤
+│ TIER 2: Meso-chunks (5MB, 5KB overlap)                      │
+│ - Memory management layer: Limits memory per operation      │
+│ - Used for sequences > 10MB                                 │
+├─────────────────────────────────────────────────────────────┤
+│ TIER 3: Micro-chunks (50KB, 2KB overlap)                    │
+│ - Analysis layer: Fast motif detection with overlap         │
+│ - Used for sequences > 1MB                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Adaptive Strategy Selection
+
+| Sequence Size | Strategy | Chunks Used | Target Time |
+|--------------|----------|-------------|-------------|
+| < 1MB | Direct | None (no chunking) | Instant |
+| 1-10MB | Single-tier | Micro (50KB) | < 30s |
+| 10-100MB | Double-tier | Meso + Micro | < 2min |
+| > 100MB | Triple-tier | Macro + Meso + Micro | < 5min |
+
+### Deduplication Strategy
+
+To handle motifs at chunk boundaries, the system implements **hierarchical deduplication**:
+
+1. **Micro-level**: Track motifs in 2KB overlap regions between 50KB chunks
+2. **Meso-level**: Track motifs in 5KB overlap regions between 5MB chunks
+3. **Macro-level**: Track motifs in 10KB overlap regions between 50MB chunks
+
+Each tier maintains its own deduplication set to ensure no motif is reported twice, even if it spans multiple boundaries.
+
+### Configuration
+
+Chunking parameters in `Utilities/config/analysis.py`:
+
+```python
+CHUNKING_CONFIG = {
+    'micro_chunk_size': 50_000,       # 50KB chunks
+    'micro_overlap': 2_000,           # 2KB overlap
+    'meso_chunk_size': 5_000_000,     # 5MB chunks
+    'meso_overlap': 5_000,            # 5KB overlap
+    'macro_chunk_size': 50_000_000,   # 50MB chunks
+    'macro_overlap': 10_000,          # 10KB overlap
+    'direct_threshold': 1_000_000,    # <1MB: no chunking
+    'single_tier_threshold': 10_000_000,   # 1-10MB: micro only
+    'double_tier_threshold': 100_000_000,  # 10-100MB: meso+micro
+}
+```
+
+### Usage
+
+```python
+from Utilities.triple_chunk_analyzer import TripleAdaptiveChunkAnalyzer
+
+# Initialize with adaptive enabled
+analyzer = TripleAdaptiveChunkAnalyzer(
+    sequence_storage=storage,
+    use_adaptive=True
+)
+
+# Automatic strategy selection based on sequence size
+results = analyzer.analyze(seq_id, progress_callback=callback)
+```
+
+### Performance Benchmarks
+
+| Genome Size | Strategy | Expected Time | Throughput |
+|-------------|----------|---------------|------------|
+| 10MB | Single | < 30s | ~330KB/s |
+| 100MB | Double | < 2min | ~830KB/s |
+| 500MB | Triple | < 5min | ~1.7MB/s |
+| 1GB | Triple | < 8min | ~2.1MB/s |
+
+### Backward Compatibility
+
+The existing `ChunkAnalyzer` class is preserved for backward compatibility:
+
+```python
+# Original behavior (single 5MB chunks)
+analyzer = ChunkAnalyzer(storage, use_adaptive=False)
+
+# New adaptive behavior
+analyzer = ChunkAnalyzer(storage, use_adaptive=True)
+```
