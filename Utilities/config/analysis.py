@@ -23,7 +23,7 @@ MAX_OVERLAP_DISPLAY = 10
 # Control sequence processing and analysis behavior
 ANALYSIS_CONFIG = {
     # Sequence processing thresholds
-    'chunk_threshold': 50_000,     # Sequences > this size use chunking (bp)
+    'chunk_threshold': 1_000_000,     # Sequences > this size use chunking (bp) - Changed from 50KB to 1MB
     'default_chunk_size': 50_000,  # Default chunk size for large sequences (bp)
     'default_chunk_overlap': 5_000,  # Overlap between chunks to catch motifs at boundaries (bp)
     
@@ -72,7 +72,7 @@ CHUNKING_CONFIG = {
     'detectors_per_chunk_parallel': True,    # Parallel per-chunk execution
     
     # Performance tuning
-    'enable_adaptive': True,          # Enable adaptive strategy selection
+    'enable_adaptive': False,         # Disable adaptive strategy selection - use simple chunking from 1MB
     'max_workers': None,              # None = auto-detect CPU count
 }
 

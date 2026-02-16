@@ -63,9 +63,9 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 CONFIG_AVAILABLE = False
 GRID_COLUMNS = 6; GRID_GAP = "0.10rem"; ROW_GAP = "0.10rem"; DOT_SIZE = 5; GLOW_SIZE = 5
-# Disk storage chunk threshold: sequences larger than this use ChunkAnalyzer with adaptive chunking
-# Aligned with CHUNKING_CONFIG direct_threshold (1MB) for optimal performance
-CHUNK_ANALYSIS_THRESHOLD_BP = 50_000  # 50KB (adaptive chunking threshold) - CORRECTED
+# Disk storage chunk threshold: sequences larger than this use ChunkAnalyzer with simple chunking
+# Changed from 50KB to 1MB based on problem statement - start chunking from 1MB sequences
+CHUNK_ANALYSIS_THRESHOLD_BP = 1_000_000  # 1MB (simple chunking threshold)
 SUBMOTIF_ABBREVIATIONS = {
     'Global Curvature': 'Global Curv', 'Local Curvature': 'Local Curv',
     'Direct Repeat': 'DR', 'STR': 'STR', 'Cruciform forming IRs': 'Cruciform',
@@ -1234,8 +1234,8 @@ def render():
                         # Use module-level constant for threshold
                         
                         if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
-                            # Large sequence: use ChunkAnalyzer with adaptive chunking
-                            status_placeholder.info(f"Using adaptive chunk-based analysis: {name} ({seq_length:,} bp)")
+                            # Large sequence: use ChunkAnalyzer with simple chunking (no adaptive)
+                            status_placeholder.info(f"Using chunk-based analysis (5MB chunks): {name} ({seq_length:,} bp)")
                             
                             # Create chunk progress callback
                             chunk_progress = {'current': 0, 'total': 0}
@@ -1245,12 +1245,12 @@ def render():
                                 if progress_pct % 10 == 0:  # Update every 10%
                                     status_placeholder.info(f"Analyzing chunks: {progress_pct:.0f}% complete")
                             
-                            # Analyze using ChunkAnalyzer with adaptive chunking enabled
+                            # Analyze using ChunkAnalyzer with simple chunking (adaptive disabled)
                             analyzer = ChunkAnalyzer(
                                 st.session_state.seq_storage,
                                 use_parallel=True,  # Enable parallel chunk processing
                                 max_workers=None,  # Auto-detect CPU count
-                                use_adaptive=True  # Enable triple adaptive chunking
+                                use_adaptive=False  # Disable adaptive chunking - use simple 5MB chunks
                             )
                             
                             results_storage = analyzer.analyze(

@@ -70,7 +70,7 @@ class ChunkAnalyzer:
         overlap: int = 10_000,
         use_parallel: bool = True,
         max_workers: Optional[int] = None,
-        use_adaptive: bool = True
+        use_adaptive: bool = False
     ):
         """
         Initialize chunk analyzer.
@@ -81,7 +81,7 @@ class ChunkAnalyzer:
             overlap: Overlap between chunks in base pairs (default: 10KB)
             use_parallel: Enable parallel processing of chunks (default: True)
             max_workers: Maximum number of parallel workers (default: CPU count - 1)
-            use_adaptive: Enable triple adaptive chunking strategy (default: True)
+            use_adaptive: Enable triple adaptive chunking strategy (default: False)
         """
         self.sequence_storage = sequence_storage
         self.chunk_size = chunk_size
