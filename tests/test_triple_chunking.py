@@ -33,9 +33,9 @@ class TestTripleChunking(unittest.TestCase):
         gc.collect()
     
     def test_direct_analysis_threshold(self):
-        """Test direct analysis for sequences below 1MB threshold."""
-        # Create 500KB sequence (should use direct analysis)
-        sequence = "ATCGATCG" * 62500  # 500,000 bp
+        """Test direct analysis for sequences below 50KB threshold."""
+        # Create 25KB sequence (should use direct analysis)
+        sequence = "ATCGATCG" * 3125  # 25,000 bp
         seq_id = self.storage.save_sequence(sequence, "small_seq")
         
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
@@ -49,9 +49,9 @@ class TestTripleChunking(unittest.TestCase):
         results_storage.cleanup()
     
     def test_single_tier_strategy(self):
-        """Test single-tier (micro) chunking for 1-10MB sequences."""
-        # Create 2MB sequence (should use single-tier)
-        sequence = "ATCGATCG" * 250000  # 2,000,000 bp
+        """Test single-tier (micro) chunking for 50KB-1MB sequences."""
+        # Create 500KB sequence (should use single-tier)
+        sequence = "ATCGATCG" * 62500  # 500,000 bp
         seq_id = self.storage.save_sequence(sequence, "medium_seq")
         
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
@@ -65,9 +65,9 @@ class TestTripleChunking(unittest.TestCase):
         results_storage.cleanup()
     
     def test_double_tier_strategy(self):
-        """Test double-tier (meso+micro) chunking for 10-100MB sequences."""
-        # Create 15MB sequence (should use double-tier)
-        sequence = "ATCGATCG" * 1875000  # 15,000,000 bp
+        """Test double-tier (meso+micro) chunking for 1MB-100MB sequences."""
+        # Create 5MB sequence (should use double-tier)
+        sequence = "ATCGATCG" * 625000  # 5,000,000 bp
         seq_id = self.storage.save_sequence(sequence, "large_seq")
         
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
@@ -351,16 +351,18 @@ class TestAdaptiveStrategySelection(unittest.TestCase):
         """Test strategy selection at exact threshold boundaries."""
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
         
-        # Test sequences at each threshold
+        # Test sequences at each threshold (CORRECTED thresholds)
+        # Note: At exact boundary values, the higher tier is used (< comparison)
+        # e.g., 50KB exactly triggers single-tier (not direct)
         test_cases = [
-            (999_999, "direct"),      # Just below 1MB
-            (1_000_000, "direct"),    # Exactly 1MB (direct threshold)
-            (1_000_001, "single"),    # Just above 1MB
-            (9_999_999, "single"),    # Just below 10MB
-            (10_000_000, "single"),   # Exactly 10MB (single threshold)
-            (10_000_001, "double"),   # Just above 10MB
+            (49_999, "direct"),       # Just below 50KB
+            (50_000, "single"),       # Exactly 50KB -> single-tier
+            (50_001, "single"),       # Just above 50KB
+            (999_999, "single"),      # Just below 1MB
+            (1_000_000, "double"),    # Exactly 1MB -> double-tier
+            (1_000_001, "double"),    # Just above 1MB
             (99_999_999, "double"),   # Just below 100MB
-            (100_000_000, "double"),  # Exactly 100MB (double threshold)
+            (100_000_000, "triple"),  # Exactly 100MB -> triple-tier
             (100_000_001, "triple"),  # Just above 100MB
         ]
         

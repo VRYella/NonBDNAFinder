@@ -15,9 +15,9 @@ ARCHITECTURE:
     - Tier 3 (Micro): 50KB chunks - Fast analysis with 2KB overlap
     
 ADAPTIVE STRATEGY:
-    - <1MB: Direct analysis (no chunking)
-    - 1-10MB: Single-tier (micro only)
-    - 10-100MB: Double-tier (meso + micro)
+    - <50KB: Direct analysis (no chunking)
+    - 50KB-1MB: Single-tier (micro only)
+    - 1MB-100MB: Double-tier (meso + micro)
     - >100MB: Triple-tier (macro + meso + micro)
 
 COMPLEXITY:
@@ -288,6 +288,111 @@ class TripleAdaptiveChunkAnalyzer:
         logger.info(f"Direct analysis complete: {len(motifs)} motifs")
         return results_storage
     
+    def _analyze_chunk_with_parallel_detectors(
+        self,
+        chunk_seq: str,
+        chunk_name: str,
+        enabled_classes: Optional[List[str]] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Analyze chunk with all detectors running in parallel.
+        Falls back to sequential execution if parallel execution fails.
+        
+        Args:
+            chunk_seq: DNA sequence chunk
+            chunk_name: Name for this chunk
+            enabled_classes: List of motif classes to analyze (None = all)
+        
+        Returns:
+            List of detected motifs
+        """
+        # Check if parallel execution is enabled in config
+        config = CHUNKING_CONFIG
+        use_parallel = config.get('enable_parallel_detectors', True)
+        
+        # If parallel disabled or not possible, use sequential execution
+        if not use_parallel:
+            from Utilities.nonbscanner import analyze_sequence
+            return analyze_sequence(
+                sequence=chunk_seq,
+                sequence_name=chunk_name,
+                use_fast_mode=True,
+                enabled_classes=enabled_classes
+            )
+        
+        # Try parallel execution with fallback to sequential
+        try:
+            from Detectors import (
+                CurvedDNADetector, SlippedDNADetector, CruciformDetector,
+                RLoopDetector, TriplexDetector, GQuadruplexDetector,
+                IMotifDetector, ZDNADetector, APhilicDetector
+            )
+            
+            # Detector map
+            DETECTOR_MAP = {
+                'Curved_DNA': CurvedDNADetector,
+                'Slipped_DNA': SlippedDNADetector,
+                'Cruciform': CruciformDetector,
+                'R-Loop': RLoopDetector,
+                'Triplex': TriplexDetector,
+                'G-Quadruplex': GQuadruplexDetector,
+                'i-Motif': IMotifDetector,
+                'Z-DNA': ZDNADetector,
+                'A-philic_DNA': APhilicDetector
+            }
+            
+            # Determine detectors to run
+            if enabled_classes:
+                detectors_to_run = [
+                    (cls, DETECTOR_MAP[cls]) 
+                    for cls in enabled_classes 
+                    if cls in DETECTOR_MAP
+                ]
+            else:
+                detectors_to_run = list(DETECTOR_MAP.items())
+            
+            # Worker function for parallel execution
+            def run_detector(detector_info):
+                """Execute single detector on chunk"""
+                cls_name, detector_cls = detector_info
+                try:
+                    detector = detector_cls()
+                    motifs = detector.detect_motifs(chunk_seq, chunk_name)
+                    return cls_name, motifs
+                except Exception as e:
+                    logger.error(f"Detector {cls_name} failed: {e}")
+                    return cls_name, []
+            
+            # Run detectors in parallel
+            chunk_motifs = []
+            max_workers = min(len(detectors_to_run), multiprocessing.cpu_count())
+            
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                futures = {
+                    executor.submit(run_detector, det_info): det_info 
+                    for det_info in detectors_to_run
+                }
+                
+                for future in as_completed(futures):
+                    try:
+                        cls_name, motifs = future.result()
+                        chunk_motifs.extend(motifs)
+                    except Exception as e:
+                        logger.error(f"Detector execution failed: {e}")
+            
+            return chunk_motifs
+            
+        except Exception as e:
+            # Fallback to sequential execution if parallel fails
+            logger.warning(f"Parallel detector execution failed, falling back to sequential: {e}")
+            from Utilities.nonbscanner import analyze_sequence
+            return analyze_sequence(
+                sequence=chunk_seq,
+                sequence_name=chunk_name,
+                use_fast_mode=True,
+                enabled_classes=enabled_classes
+            )
+    
     def _single_tier_analyze(
         self,
         seq_id: str,
@@ -441,11 +546,10 @@ class TripleAdaptiveChunkAnalyzer:
                 global_start = meso_start + micro_offset
                 global_end = meso_start + micro_end_offset
                 
-                # Analyze micro chunk
-                chunk_motifs = analyze_sequence(
-                    sequence=micro_seq,
-                    sequence_name=f"{seq_name}_meso{meso_chunk_num}_micro{micro_chunk_num}",
-                    use_fast_mode=True,
+                # Analyze micro chunk with parallel detectors
+                chunk_motifs = self._analyze_chunk_with_parallel_detectors(
+                    chunk_seq=micro_seq,
+                    chunk_name=f"{seq_name}_meso{meso_chunk_num}_micro{micro_chunk_num}",
                     enabled_classes=enabled_classes
                 )
                 
@@ -670,10 +774,10 @@ class TripleAdaptiveChunkAnalyzer:
         Analyze sequence with automatic adaptive strategy selection.
         
         Automatically selects optimal chunking strategy:
-        - <1MB: Direct analysis (no chunking)
-        - 1-10MB: Single-tier (micro chunks)
-        - 10-100MB: Double-tier (meso + micro)
-        - >100MB: Triple-tier (macro + meso + micro)
+        - <50KB: Direct analysis (no chunking)
+        - 50KB-1MB: Single-tier (micro chunks)
+        - 1MB-100MB: Double-tier (meso + micro)
+        - >=100MB: Triple-tier (macro + meso + micro)
         
         Args:
             seq_id: Sequence identifier from UniversalSequenceStorage

@@ -304,9 +304,9 @@ Implemented three-tier hierarchical chunking system to achieve robust sub-5-minu
 - **Micro-tier (50KB chunks)**: Fast analysis with 2KB overlap
 
 **Adaptive Strategy:**
-- < 1MB: Direct analysis (no chunking)
-- 1-10MB: Single-tier (micro only)
-- 10-100MB: Double-tier (meso + micro)
+- < 50KB: Direct analysis (no chunking)
+- 50KB-1MB: Single-tier (micro only)
+- 1MB-100MB: Double-tier (meso + micro)
 - \> 100MB: Triple-tier (macro + meso + micro)
 
 **Key Features:**

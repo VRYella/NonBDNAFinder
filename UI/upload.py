@@ -65,7 +65,7 @@ CONFIG_AVAILABLE = False
 GRID_COLUMNS = 6; GRID_GAP = "0.10rem"; ROW_GAP = "0.10rem"; DOT_SIZE = 5; GLOW_SIZE = 5
 # Disk storage chunk threshold: sequences larger than this use ChunkAnalyzer with adaptive chunking
 # Aligned with CHUNKING_CONFIG direct_threshold (1MB) for optimal performance
-CHUNK_ANALYSIS_THRESHOLD_BP = 1_000_000  # 1MB (adaptive chunking threshold)
+CHUNK_ANALYSIS_THRESHOLD_BP = 50_000  # 50KB (adaptive chunking threshold) - CORRECTED
 SUBMOTIF_ABBREVIATIONS = {
     'Global Curvature': 'Global Curv', 'Local Curvature': 'Local Curv',
     'Direct Repeat': 'DR', 'STR': 'STR', 'Cruciform forming IRs': 'Cruciform',

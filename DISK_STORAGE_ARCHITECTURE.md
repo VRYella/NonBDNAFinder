@@ -517,9 +517,9 @@ The system implements a **three-tier hierarchical chunking** approach that autom
 
 | Sequence Size | Strategy | Chunks Used | Target Time |
 |--------------|----------|-------------|-------------|
-| < 1MB | Direct | None (no chunking) | Instant |
-| 1-10MB | Single-tier | Micro (50KB) | < 30s |
-| 10-100MB | Double-tier | Meso + Micro | < 2min |
+| < 50KB | Direct | None (no chunking) | Instant |
+| 50KB-1MB | Single-tier | Micro (50KB) | < 30s |
+| 1MB-100MB | Double-tier | Meso + Micro | < 2min |
 | > 100MB | Triple-tier | Macro + Meso + Micro | < 5min |
 
 ### Deduplication Strategy
