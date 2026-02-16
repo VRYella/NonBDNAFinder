@@ -31,3 +31,6 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Benchmark results
+benchmark_results.json
