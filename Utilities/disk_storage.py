@@ -30,6 +30,7 @@ from typing import Dict, Any, List, Optional, Iterator, Tuple
 from pathlib import Path
 import hashlib
 from datetime import datetime
+from Utilities.detectors_utils import calc_gc_content
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +98,6 @@ class UniversalSequenceStorage:
     def _calculate_gc_content(self, sequence: str) -> float:
         """Calculate GC content percentage using standardized method."""
         # Use the same method as detectors_utils.calc_gc_content for consistency
-        from Utilities.detectors_utils import calc_gc_content
         return calc_gc_content(sequence)
     
     def save_sequence(self, sequence: str, name: str) -> str:

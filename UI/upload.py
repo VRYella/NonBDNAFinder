@@ -1573,7 +1573,7 @@ def render():
                 
                 # Display summary statistics to user
                 if not st.session_state.summary_df.empty:
-                    st.success("### 📊 Analysis Summary Statistics")
+                    st.subheader("📊 Analysis Summary Statistics")
                     st.dataframe(
                         st.session_state.summary_df,
                         use_container_width=True,

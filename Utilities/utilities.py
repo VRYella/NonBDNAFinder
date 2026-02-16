@@ -138,6 +138,9 @@ from Utilities.config.motif_taxonomy import (
     SUBCLASS_TO_CLASS
 )
 
+# Import standardized GC content calculation
+from Utilities.detectors_utils import calc_gc_content
+
 # Try to import plotly for interactive plots
 try:
     import plotly.graph_objects as go
@@ -2324,7 +2327,6 @@ def gc_content(sequence: str) -> float:
         GC content as percentage (0-100)
     """
     # Use the same method as detectors_utils.calc_gc_content for consistency
-    from Utilities.detectors_utils import calc_gc_content
     return calc_gc_content(sequence)
 
 def at_content(sequence: str) -> float:
