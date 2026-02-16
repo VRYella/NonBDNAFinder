@@ -39,13 +39,18 @@ def format_throughput(bp: int, seconds: float) -> str:
         return f"{throughput:.0f} bp/s"
 
 def benchmark_sequence(sequence: str, name: str, use_parallel: bool) -> Dict[str, Any]:
-    """Benchmark a single sequence analysis."""
+    """Benchmark a single sequence analysis.
+    
+    Note: This isolates detector-level parallelism from chunk-level parallelism
+    by disabling chunking (use_chunking=False). This allows us to measure the
+    pure impact of parallel detector execution, independent of chunk processing.
+    """
     start = time.time()
     motifs = analyze_sequence(
         sequence, 
         name, 
         use_parallel_detectors=use_parallel,
-        use_chunking=False  # Test detector parallelism only, not chunking
+        use_chunking=False  # Isolate detector parallelism from chunk parallelism
     )
     elapsed = time.time() - start
     

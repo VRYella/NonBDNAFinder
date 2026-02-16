@@ -29,7 +29,8 @@ __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
 # Standardized to match triple adaptive chunking: 50KB chunks with 5KB overlap
 CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 5000
 # Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
-USE_PARALLEL_DETECTORS = True; MAX_DETECTOR_WORKERS = min(9, os.cpu_count() or 4)  # Up to 9 detectors in parallel
+# MAX_DETECTOR_WORKERS limited to 9 because there are exactly 9 detector types in the system
+USE_PARALLEL_DETECTORS = True; MAX_DETECTOR_WORKERS = min(9, os.cpu_count() or 4)  # Up to 9 detectors (one per detector type)
 HYBRID_MIN_OVERLAP = 0.50; HYBRID_MAX_OVERLAP = 0.99
 CLUSTER_WINDOW_SIZE = 300; CLUSTER_MIN_MOTIFS = 4; CLUSTER_MIN_CLASSES = 3
 DETECTOR_DISPLAY_NAMES = {'curved_dna': 'Curved DNA', 'slipped_dna': 'Slipped DNA', 'cruciform': 'Cruciform', 'r_loop': 'R-Loop', 'triplex': 'Triplex', 'g_quadruplex': 'G-Quadruplex', 'i_motif': 'i-Motif', 'z_dna': 'Z-DNA', 'a_philic': 'A-philic DNA'}
@@ -183,13 +184,13 @@ class NonBScanner:
             List of all detected motifs from all detectors
         """
         all_motifs = []
-        completed_count = 0
+        completed_count = 0  # Must be modified only within results_lock to prevent race conditions
         total_detectors = len(detectors_to_run)
         results_lock = threading.Lock()
         
         def run_detector(detector_name: str, detector):
             """Worker function to run a single detector."""
-            nonlocal completed_count
+            nonlocal completed_count  # All modifications of completed_count must occur within results_lock
             try:
                 start_time = time.time()
                 motifs = detector.detect_motifs(sequence, sequence_name)
@@ -199,7 +200,7 @@ class NonBScanner:
                 _update_detector_timing(detector_name, elapsed)
                 
                 with results_lock:
-                    completed_count += 1
+                    completed_count += 1  # Thread-safe increment
                     if progress_callback is not None:
                         progress_callback(detector_name, completed_count, total_detectors, elapsed, motif_count)
                 
@@ -207,7 +208,7 @@ class NonBScanner:
             except Exception as e:
                 warnings.warn(f"Error in {detector_name} detector: {e}")
                 with results_lock:
-                    completed_count += 1
+                    completed_count += 1  # Thread-safe increment
                     if progress_callback is not None:
                         progress_callback(detector_name, completed_count, total_detectors, 0.0, 0)
                 return []
