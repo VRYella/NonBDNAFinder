@@ -1018,8 +1018,9 @@ def render():
     # ========== RUN ANALYSIS BUTTON LOGIC ========== 
     # Only run if button clicked AND not already done (idempotent)
     if run_button and not st.session_state.analysis_done:
-        # Simplified validation
-        if not st.session_state.seqs:
+        # Simplified validation - support both disk storage and legacy in-memory mode
+        has_sequences = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
+        if not has_sequences:
             st.error("Please upload or input sequences before running analysis.")
             st.session_state.analysis_status = "Error"
         elif not st.session_state.get('selected_classes'):
