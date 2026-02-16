@@ -1537,14 +1537,14 @@ def render():
                 
                 # Display validation results (ephemeral - replaces previous)
                 if validation_issues:
-                    warning_msg = f"Validation found {len(validation_issues)} potential issues:\n"
+                    warning_msg = UI_TEXT['status_validation_issues'].format(count=len(validation_issues)) + "\n"
                     for issue in validation_issues[:5]:  # Show first 5
                         warning_msg += f"\n• {issue}"
                     if len(validation_issues) > 5:
                         warning_msg += f"\n• ... and {len(validation_issues) - 5} more"
                     status_placeholder.warning(warning_msg)
                 else:
-                    status_placeholder.success("Validation passed: No consistency issues found")
+                    status_placeholder.success(UI_TEXT['status_validation_passed'])
                 
                 # ============================================================
                 # MULTI-FASTA STABILITY: Aggregate statistics computed once
