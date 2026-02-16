@@ -11,9 +11,9 @@ This module contains analysis parameters:
 
 PARAMETERS USED IN THIS MODULE
 --------------------------------
-CHUNK_THRESHOLD = 10_000 bp
-DEFAULT_CHUNK_SIZE = 10_000 bp
-DEFAULT_CHUNK_OVERLAP = 500 bp
+CHUNK_THRESHOLD = 50_000 bp
+DEFAULT_CHUNK_SIZE = 50_000 bp
+DEFAULT_CHUNK_OVERLAP = 5_000 bp
 GC_BALANCE_MIN = 30%
 GC_BALANCE_MAX = 70%
 MAX_OVERLAP_DISPLAY = 10
@@ -23,9 +23,9 @@ MAX_OVERLAP_DISPLAY = 10
 # Control sequence processing and analysis behavior
 ANALYSIS_CONFIG = {
     # Sequence processing thresholds
-    'chunk_threshold': 10_000,     # Sequences > this size use chunking (bp)
-    'default_chunk_size': 10_000,  # Default chunk size for large sequences (bp)
-    'default_chunk_overlap': 500,  # Overlap between chunks to catch motifs at boundaries (bp)
+    'chunk_threshold': 50_000,     # Sequences > this size use chunking (bp)
+    'default_chunk_size': 50_000,  # Default chunk size for large sequences (bp)
+    'default_chunk_overlap': 5_000,  # Overlap between chunks to catch motifs at boundaries (bp)
     
     # Performance and display settings
     'max_sequences_preview': 3,    # Number of sequences to show in file preview

@@ -25,8 +25,8 @@ except ImportError: STREAMLIT_PROGRESS_AVAILABLE = False
 # TUNABLE PARAMETERS - All configuration values at the top for easy modification
 # ═══════════════════════════════════════════════════════════════════════════════
 __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
-# Standardized to match triple adaptive chunking: 50KB chunks with 2KB overlap
-CHUNK_THRESHOLD = 10000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 2000
+# Standardized to match triple adaptive chunking: 50KB chunks with 5KB overlap
+CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 5000
 HYBRID_MIN_OVERLAP = 0.50; HYBRID_MAX_OVERLAP = 0.99
 CLUSTER_WINDOW_SIZE = 300; CLUSTER_MIN_MOTIFS = 4; CLUSTER_MIN_CLASSES = 3
 DETECTOR_DISPLAY_NAMES = {'curved_dna': 'Curved DNA', 'slipped_dna': 'Slipped DNA', 'cruciform': 'Cruciform', 'r_loop': 'R-Loop', 'triplex': 'Triplex', 'g_quadruplex': 'G-Quadruplex', 'i_motif': 'i-Motif', 'z_dna': 'Z-DNA', 'a_philic': 'A-philic DNA'}
@@ -229,6 +229,34 @@ class NonBScanner:
         return info
 
 def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mode: bool = True, use_chunking: bool = None, chunk_size: int = None, chunk_overlap: int = None, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """
+    Analyze DNA sequence for non-B DNA motifs with robust error handling.
+    
+    Args:
+        sequence: DNA sequence string to analyze
+        sequence_name: Name/identifier for the sequence
+        use_fast_mode: Whether to use parallel scanner if available
+        use_chunking: Whether to use chunked analysis (auto-enabled for large sequences if None)
+        chunk_size: Size of chunks for chunked analysis (default: DEFAULT_CHUNK_SIZE)
+        chunk_overlap: Overlap between chunks (default: DEFAULT_CHUNK_OVERLAP)
+        progress_callback: Callback function for progress updates (chunk_num, total_chunks, bp_processed, elapsed, throughput)
+        use_parallel_chunks: Whether to process chunks in parallel
+        enabled_classes: List of motif classes to detect (None = all classes)
+    
+    Returns:
+        List of detected motif dictionaries
+        Returns empty list if sequence is None, empty, or invalid
+    
+    Raises:
+        TypeError: If sequence is not a string or None
+    """
+    # Validate input - check type first before attempting len()
+    if sequence is None or not sequence or len(sequence) == 0:
+        logger.warning(f"Empty or None sequence provided for {sequence_name}")
+        return []
+    if not isinstance(sequence, str):
+        raise TypeError(f"Sequence must be string, got {type(sequence)}")
+    
     seq_len = len(sequence); chunk_size = chunk_size or DEFAULT_CHUNK_SIZE; chunk_overlap = chunk_overlap or DEFAULT_CHUNK_OVERLAP
     if use_chunking is None: use_chunking = seq_len > CHUNK_THRESHOLD
     if not use_chunking or seq_len <= chunk_size:
@@ -240,6 +268,11 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
 
 def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """Optimized chunked analysis with ThreadPoolExecutor (Python GIL limits true parallelism)."""
+    # Validate input - check for None and empty sequences
+    if sequence is None or not sequence or len(sequence) == 0:
+        logger.warning(f"Empty or None sequence provided for chunked analysis: {sequence_name}")
+        return []
+    
     def _throughput(bp, elapsed): return bp / elapsed if elapsed > 0 else 0
     seq_len = len(sequence); scanner = _get_cached_scanner(); chunks = []; start = 0
     while start < seq_len:
