@@ -293,7 +293,10 @@ def _analyze_sequence_worker(args: Tuple[str, str]) -> Tuple[str, List[Dict[str,
 
 def analyze_multiple_sequences_parallel(sequences: Dict[str, str], num_processes: Optional[int] = None, preserve_order: bool = True) -> Dict[str, List[Dict[str, Any]]]:
     if not sequences: return {}
-    if len(sequences) == 1: name, seq = next(iter(sequences.items())); return {name: _get_cached_scanner().analyze_sequence(seq, name)}
+    # Handle single sequence case
+    if len(sequences) == 1:
+        name, seq = next(iter(sequences.items()))
+        return {name: _get_cached_scanner().analyze_sequence(seq, name)}
     num_processes = num_processes or min(multiprocessing.cpu_count(), len(sequences))
     try:
         sequence_items = list(sequences.items())
