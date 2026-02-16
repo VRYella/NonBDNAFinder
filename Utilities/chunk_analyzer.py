@@ -239,7 +239,7 @@ class ChunkAnalyzer:
     def analyze(
         self,
         seq_id: str,
-        progress_callback: Optional[Callable] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
         enabled_classes: Optional[List[str]] = None
     ):
         """
@@ -247,9 +247,7 @@ class ChunkAnalyzer:
         
         Args:
             seq_id: Sequence identifier from UniversalSequenceStorage
-            progress_callback: Optional callback function with enhanced signature:
-                - New signature: callback(current_chunk, total_chunks, progress_pct, motifs_found)
-                - Legacy signature: callback(progress_pct) - still supported for backward compatibility
+            progress_callback: Optional callback function(progress_pct: float)
             enabled_classes: Optional list of motif classes to analyze
             
         Returns:
@@ -257,7 +255,6 @@ class ChunkAnalyzer:
         """
         from Utilities.disk_storage import UniversalResultsStorage
         from Utilities.nonbscanner import analyze_sequence
-        import inspect
         
         # Get sequence metadata
         metadata = self.sequence_storage.get_metadata(seq_id)
@@ -265,18 +262,6 @@ class ChunkAnalyzer:
         seq_length = metadata['length']
         
         logger.info(f"Starting chunk analysis for {seq_name} (length: {seq_length:,} bp)")
-        
-        # Detect callback signature for backward compatibility
-        enhanced_callback = False
-        if progress_callback:
-            try:
-                sig = inspect.signature(progress_callback)
-                # Enhanced callback has 3+ parameters (current_chunk, total_chunks, progress_pct, motifs_found=0)
-                # Legacy callback has 1 parameter (progress_pct)
-                enhanced_callback = len(sig.parameters) >= 3
-            except Exception:
-                # If we can't detect, assume legacy
-                enhanced_callback = False
         
         # Initialize results storage
         results_storage = UniversalResultsStorage(
@@ -316,7 +301,6 @@ class ChunkAnalyzer:
             # Process chunks in parallel
             completed_chunks = 0
             all_chunk_results = {}
-            total_motifs_so_far = 0
             
             with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
                 # Submit all chunks
@@ -332,18 +316,14 @@ class ChunkAnalyzer:
                         chunk_start, adjusted_motifs = future.result()
                         all_chunk_results[chunk_idx] = (chunk_start, adjusted_motifs)
                         completed_chunks += 1
-                        total_motifs_so_far += len(adjusted_motifs)
                         
                         logger.info(f"Chunk {completed_chunks}/{total_chunks} completed "
                                    f"({len(adjusted_motifs)} motifs)")
                         
-                        # Update progress with enhanced callback
+                        # Update progress
                         if progress_callback:
                             progress_pct = (completed_chunks / total_chunks) * 100
-                            if enhanced_callback:
-                                progress_callback(completed_chunks, total_chunks, progress_pct, total_motifs_so_far)
-                            else:
-                                progress_callback(progress_pct)
+                            progress_callback(progress_pct)
                     except Exception as e:
                         logger.error(f"Error processing chunk {chunk_idx}: {e}")
             
@@ -374,8 +354,6 @@ class ChunkAnalyzer:
         else:
             # Sequential processing mode (original code)
             chunk_num = 0
-            total_unique_motifs = 0
-            
             for chunk_seq, chunk_start, chunk_end in self.sequence_storage.iter_chunks(
                 seq_id, self.chunk_size, self.overlap
             ):
@@ -413,19 +391,13 @@ class ChunkAnalyzer:
                 # Save results to disk
                 results_storage.append_batch(unique_motifs)
                 
-                # Update cumulative motif count
-                total_unique_motifs += len(unique_motifs)
-                
                 logger.info(f"Chunk {chunk_num}: {len(chunk_motifs)} motifs detected, "
                            f"{len(unique_motifs)} unique")
                 
-                # Update progress with enhanced callback
+                # Update progress
                 if progress_callback:
                     progress_pct = (chunk_num / total_chunks) * 100
-                    if enhanced_callback:
-                        progress_callback(chunk_num, total_chunks, progress_pct, total_unique_motifs)
-                    else:
-                        progress_callback(progress_pct)
+                    progress_callback(progress_pct)
                 
                 # Aggressive garbage collection
                 del chunk_seq
