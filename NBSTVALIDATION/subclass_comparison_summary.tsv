@@ -1,0 +1,11 @@
+NBF_Subclass	NBF_Class	NBST_Class	NBF_Count	NBST_Count	True_Positives	False_Positives	False_Negatives	Precision	Recall	F1_Score	Mean_Jaccard	Median_Jaccard	Mean_Overlap_BP	Num_Matches
+Two-tetrad weak PQS	G-Quadruplex	GQ	122	22	2	120	20	0.0164	0.0909	0.0278	0.6351	0.6351	19.0	2
+Local Curvature	Curved_DNA	curved	43	1	0	43	1	0.0	0.0	0.0	0.0	0.0	0.0	0
+Cruciform forming IRs	Cruciform	MR	20	9	1	19	8	0.05	0.1111	0.069	0.9756	0.9756	40.0	1
+Global Curvature	Curved_DNA	curved	3	1	0	3	1	0.0	0.0	0.0	0.0	0.0	0.0	0
+STR	Slipped_DNA	STR	9	50	9	0	41	1.0	0.18	0.3051	0.9481	0.9615	32.22	9
+Extended-loop canonical	G-Quadruplex	GQ	18	22	4	14	18	0.2222	0.1818	0.2	0.682	0.6085	25.5	4
+Intramolecular G-triplex	G-Quadruplex	GQ	16	22	3	13	19	0.1875	0.1364	0.1579	0.5741	0.5556	14.67	3
+Canonical intramolecular G4	G-Quadruplex	GQ	2	22	2	0	20	1.0	0.0909	0.1667	1.0	1.0	18.0	2
+Z-DNA	Z-DNA	Z	3	6	1	2	5	0.3333	0.1667	0.2222	0.8667	0.8667	13.0	1
+Direct Repeat	Slipped_DNA	DR	1	8	1	0	7	1.0	0.125	0.2222	1.0	1.0	25.0	1

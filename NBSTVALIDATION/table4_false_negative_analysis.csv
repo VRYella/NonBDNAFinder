@@ -1,0 +1,11 @@
+NBST_Class,NBF_Subclass_Checked,FN_Count,Mean_Length,Potential_Causes
+GQ,Two-tetrad weak PQS,20,27.15,Parameter/algorithm differences
+curved,Local Curvature,1,24.0,Parameter/algorithm differences
+MR,Cruciform forming IRs,8,34.5,Parameter/algorithm differences
+curved,Global Curvature,1,24.0,Parameter/algorithm differences
+STR,STR,41,13.44,Short motifs below detection threshold
+GQ,Extended-loop canonical,18,26.33,Parameter/algorithm differences
+GQ,Intramolecular G-triplex,19,26.84,Parameter/algorithm differences
+GQ,Canonical intramolecular G4,20,27.5,Parameter/algorithm differences
+Z,Z-DNA,5,25.8,Parameter/algorithm differences
+DR,Direct Repeat,7,32.86,Parameter/algorithm differences

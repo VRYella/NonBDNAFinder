@@ -1,0 +1,11 @@
+NBF_Subclass,NBST_Class,Num_Matches,Mean_Overlap_BP,Median_Overlap_BP,Mean_Jaccard,Best_Match_Jaccard,Worst_Match_Jaccard
+Two-tetrad weak PQS,GQ,2,19.0,19.0,0.6351,0.7407,0.5294
+Local Curvature,curved,0,0.0,0.0,0.0,0.0,0.0
+Cruciform forming IRs,MR,1,40.0,40.0,0.9756,0.9756,0.9756
+Global Curvature,curved,0,0.0,0.0,0.0,0.0,0.0
+STR,STR,9,32.22,29.0,0.9481,1.0,0.8529
+Extended-loop canonical,GQ,4,25.5,23.0,0.682,1.0,0.5111
+Intramolecular G-triplex,GQ,3,14.67,15.0,0.5741,0.6429,0.5238
+Canonical intramolecular G4,GQ,2,18.0,18.0,1.0,1.0,1.0
+Z-DNA,Z,1,13.0,13.0,0.8667,0.8667,0.8667
+Direct Repeat,DR,1,25.0,25.0,1.0,1.0,1.0
