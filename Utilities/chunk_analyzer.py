@@ -69,7 +69,8 @@ class ChunkAnalyzer:
         chunk_size: int = 5_000_000,
         overlap: int = 10_000,
         use_parallel: bool = False,
-        max_workers: Optional[int] = None
+        max_workers: Optional[int] = None,
+        use_adaptive: bool = False
     ):
         """
         Initialize chunk analyzer.
@@ -80,15 +81,17 @@ class ChunkAnalyzer:
             overlap: Overlap between chunks in base pairs (default: 10KB)
             use_parallel: Enable parallel processing of chunks (default: False)
             max_workers: Maximum number of parallel workers (default: CPU count - 1)
+            use_adaptive: Enable triple adaptive chunking strategy (default: False)
         """
         self.sequence_storage = sequence_storage
         self.chunk_size = chunk_size
         self.overlap = overlap
         self.use_parallel = use_parallel
         self.max_workers = max_workers or max(1, multiprocessing.cpu_count() - 1)
+        self.use_adaptive = use_adaptive
         
         logger.info(f"ChunkAnalyzer initialized (chunk_size={chunk_size:,}, overlap={overlap:,}, "
-                   f"parallel={use_parallel}, workers={self.max_workers})")
+                   f"parallel={use_parallel}, workers={self.max_workers}, adaptive={use_adaptive})")
     
     def _create_motif_key(self, motif: Dict[str, Any]) -> Tuple:
         """
@@ -253,6 +256,19 @@ class ChunkAnalyzer:
         Returns:
             UniversalResultsStorage instance with results
         """
+        # Use triple adaptive chunking if enabled
+        if self.use_adaptive:
+            from Utilities.triple_chunk_analyzer import TripleAdaptiveChunkAnalyzer
+            
+            logger.info("Using triple adaptive chunking strategy")
+            adaptive_analyzer = TripleAdaptiveChunkAnalyzer(
+                sequence_storage=self.sequence_storage,
+                max_workers=self.max_workers,
+                use_adaptive=True
+            )
+            return adaptive_analyzer.analyze(seq_id, progress_callback, enabled_classes)
+        
+        # Original single-tier chunking logic
         from Utilities.disk_storage import UniversalResultsStorage
         from Utilities.nonbscanner import analyze_sequence
         
