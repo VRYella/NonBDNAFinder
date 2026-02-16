@@ -167,89 +167,6 @@ def format_time_compact(seconds: float) -> str:
     return f"{minutes:02d}:{secs:02d}"
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# STREAMLIT PERFORMANCE OPTIMIZATIONS (Free Tier Compatible)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def should_update_ui(current_step: int, total_steps: int, update_frequency: int = 20) -> bool:
-    """
-    Smart UI update throttling to reduce Streamlit reruns.
-    
-    Args:
-        current_step: Current processing step
-        total_steps: Total number of steps
-        update_frequency: Number of updates across total range (default: 20)
-    
-    Returns:
-        bool: True if UI should be updated
-    """
-    if total_steps <= 0:
-        return True
-    interval = max(1, total_steps // update_frequency)
-    return (current_step % interval == 0) or (current_step == total_steps)
-
-
-class BatchedStatusDisplay:
-    """Batch multiple status messages to reduce Streamlit updates."""
-    
-    def __init__(self, placeholder, batch_interval: float = 0.5):
-        """
-        Initialize batched status display.
-        
-        Args:
-            placeholder: Streamlit placeholder for status messages
-            batch_interval: Minimum time between updates in seconds (default: 0.5)
-        """
-        self.placeholder = placeholder
-        self.batch_interval = batch_interval
-        self.last_update = time.time()
-        self.pending_message = None
-    
-    def update(self, message: str, force: bool = False):
-        """
-        Queue message for display.
-        
-        Args:
-            message: Status message to display
-            force: If True, display immediately regardless of interval
-        """
-        self.pending_message = message
-        
-        # Only update if interval elapsed or forced
-        if force or (time.time() - self.last_update) >= self.batch_interval:
-            self._flush()
-    
-    def _flush(self):
-        """Display pending message."""
-        if self.pending_message:
-            self.placeholder.info(self.pending_message)
-            self.last_update = time.time()
-            self.pending_message = None
-    
-    def close(self):
-        """Flush any pending message."""
-        self._flush()
-
-
-def get_session_value(key: str, default=None):
-    """
-    Get value from session state with default fallback.
-    
-    If the key doesn't exist in session state, sets it to the default value
-    before returning. This ensures the key exists after the call.
-    
-    Args:
-        key: Session state key
-        default: Default value if key doesn't exist
-        
-    Returns:
-        Value from session state or default
-    """
-    if key not in st.session_state:
-        st.session_state[key] = default
-    return st.session_state[key]
-
-
 def calculate_gc_percentage(sequences: list) -> float:
     """
     Calculate average GC percentage across multiple sequences.
@@ -1311,43 +1228,15 @@ def render():
                             # Large sequence: use ChunkAnalyzer
                             status_placeholder.info(f"Using chunk-based analysis for large sequence: {name} ({seq_length:,} bp)")
                             
-                            # Initialize batched status display for performance
-                            batched_status = BatchedStatusDisplay(status_placeholder, batch_interval=0.5)
+                            # Create chunk progress callback
+                            chunk_progress = {'current': 0, 'total': 0}
                             
-                            # Create enhanced chunk progress callback
-                            chunk_metrics = {
-                                'current': 0, 
-                                'total': 0, 
-                                'motifs': 0, 
-                                'start_time': time.time()
-                            }
+                            def chunk_callback(progress_pct):
+                                chunk_progress['current'] = int(progress_pct)
+                                if progress_pct % 10 == 0:  # Update every 10%
+                                    status_placeholder.info(f"Analyzing chunks: {progress_pct:.0f}% complete")
                             
-                            def chunk_callback(current_chunk, total_chunks, progress_pct, motifs_found=0):
-                                """Enhanced progress callback with performance metrics."""
-                                chunk_metrics['current'] = current_chunk
-                                chunk_metrics['total'] = total_chunks
-                                chunk_metrics['motifs'] = motifs_found
-                                
-                                # Calculate real-time performance
-                                elapsed = time.time() - chunk_metrics['start_time']
-                                chunks_per_sec = current_chunk / elapsed if elapsed > 0 else 0
-                                eta_seconds = (total_chunks - current_chunk) / chunks_per_sec if chunks_per_sec > 0 else 0
-                                
-                                # Build detailed status message
-                                status_msg = (
-                                    f"📊 Chunk Progress: {current_chunk}/{total_chunks} ({progress_pct:.1f}%)\n"
-                                    f"✓ Motifs: {motifs_found:,} detected | "
-                                    f"⚡ Speed: {chunks_per_sec:.2f} chunks/sec | "
-                                    f"⏱️ ETA: {format_time_compact(eta_seconds)}"
-                                )
-                                
-                                # Smart update: only update UI on milestones to reduce reruns
-                                batched_status.update(
-                                    status_msg, 
-                                    force=should_update_ui(current_chunk, total_chunks, update_frequency=20)
-                                )
-                            
-                            # Analyze using ChunkAnalyzer with enhanced progress tracking
+                            # Analyze using ChunkAnalyzer with parallel processing
                             analyzer = ChunkAnalyzer(
                                 st.session_state.seq_storage,
                                 chunk_size=5_000_000,  # 5MB chunks
@@ -1362,25 +1251,13 @@ def render():
                                 enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
                             )
                             
-                            # Flush any pending status updates
-                            batched_status.close()
-                            
                             # Store results storage
                             st.session_state.results_storage[seq_id] = results_storage
                             
                             # Get results for filtering (load first 10000 for display)
                             results = list(results_storage.iter_results(limit=10000))
                             
-                            # Final summary with performance metrics
-                            total_time = time.time() - chunk_metrics['start_time']
-                            avg_chunk_time = total_time / chunk_metrics['total'] if chunk_metrics['total'] > 0 else 0
-                            
-                            status_placeholder.success(
-                                f"✅ Chunk analysis complete!\n"
-                                f"📊 Processed: {chunk_metrics['total']} chunks in {format_time_scientific(total_time)}\n"
-                                f"✓ Motifs: {len(results):,} detected (showing first 10,000)\n"
-                                f"⚡ Avg speed: {avg_chunk_time:.3f}s per chunk"
-                            )
+                            status_placeholder.success(f"Chunk analysis complete: {len(results)} motifs (showing first 10000)")
                         else:
                             # Small sequence: use standard analysis with sequence loaded into memory
                             # Get full sequence for standard analysis
