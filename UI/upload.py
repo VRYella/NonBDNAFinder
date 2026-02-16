@@ -1236,11 +1236,13 @@ def render():
                                 if progress_pct % 10 == 0:  # Update every 10%
                                     status_placeholder.info(f"Analyzing chunks: {progress_pct:.0f}% complete")
                             
-                            # Analyze using ChunkAnalyzer
+                            # Analyze using ChunkAnalyzer with parallel processing
                             analyzer = ChunkAnalyzer(
                                 st.session_state.seq_storage,
                                 chunk_size=5_000_000,  # 5MB chunks
-                                overlap=10_000  # 10KB overlap
+                                overlap=10_000,  # 10KB overlap
+                                use_parallel=True,  # Enable parallel chunk processing
+                                max_workers=None  # Auto-detect CPU count
                             )
                             
                             results_storage = analyzer.analyze(
@@ -1519,8 +1521,7 @@ def render():
                             continue  # Skip if less than 2 motifs
                         sorted_motifs = sorted(motifs, key=lambda m: m.get('Start', 0))
                         for j in range(len(sorted_motifs) - 1):
-                            # Extra defensive check even though loop should be safe
-                            if j + 1 < len(sorted_motifs) and sorted_motifs[j].get('End', 0) > sorted_motifs[j+1].get('Start', 0):
+                            if sorted_motifs[j].get('End', 0) > sorted_motifs[j+1].get('Start', 0):
                                 validation_issues.append(f"Note: Sequence {i+1}: Overlapping motifs in {subclass}")
                                 break
                 

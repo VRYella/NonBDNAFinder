@@ -330,7 +330,8 @@ class ChunkAnalyzer:
             # Process results in order and deduplicate
             for chunk_idx in sorted(all_chunk_results.keys()):
                 chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
-                _, _, chunk_end = chunk_data[chunk_idx][2:5]  # Get chunk_end from original data
+                # Get chunk_end from original data (index 3 in the tuple)
+                chunk_end = chunk_data[chunk_idx][3]
                 
                 # Filter out duplicates from overlap region
                 unique_motifs = []
