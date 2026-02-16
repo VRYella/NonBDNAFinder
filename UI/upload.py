@@ -45,6 +45,14 @@ from Utilities.job_manager import save_job_results, generate_job_id
 from Utilities.disk_storage import UniversalSequenceStorage, UniversalResultsStorage
 from Utilities.chunk_analyzer import ChunkAnalyzer
 
+# Import progress tracking for Streamlit UI (optional, graceful degradation)
+try:
+    from Utilities.streamlit_progress import analyze_with_streamlit_progress
+    STREAMLIT_PROGRESS_AVAILABLE = True
+except ImportError:
+    STREAMLIT_PROGRESS_AVAILABLE = False
+    logger.warning("Streamlit progress tracking not available")
+
 try: from Bio import Entrez, SeqIO; BIO_AVAILABLE = True
 except ImportError: BIO_AVAILABLE = False
 

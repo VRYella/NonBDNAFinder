@@ -447,3 +447,35 @@ def main():
     print(f"\nNonBScanner ready for analysis!\n{'='*70}")
 
 if __name__ == "__main__": main()
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STREAMLIT CLOUD OPTIMIZATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Check if running on Streamlit Cloud or optimization explicitly requested
+USE_OPTIMIZED = os.environ.get('NONBDNA_OPTIMIZED', 'true').lower() == 'true'
+
+if USE_OPTIMIZED:
+    try:
+        from Utilities.nonbscanner_optimized import NonBScannerOptimized
+        
+        # Replace cached scanner with optimized version
+        def _get_cached_scanner_optimized() -> 'NonBScannerOptimized':
+            """Get cached optimized scanner instance."""
+            global _CACHED_SCANNER
+            if _CACHED_SCANNER is None:
+                with _SCANNER_LOCK:
+                    if _CACHED_SCANNER is None:
+                        _CACHED_SCANNER = NonBScannerOptimized(enable_all_detectors=True)
+                        logger.info("✓ Using OPTIMIZED NonBScanner (50-200x faster)")
+            return _CACHED_SCANNER
+        
+        # Replace the standard cached scanner function with optimized version
+        _get_cached_scanner = _get_cached_scanner_optimized
+        
+        logger.info("NonBDNAFinder: Aho-Corasick optimization ENABLED")
+    
+    except ImportError as e:
+        logger.warning(f"Optimization not available: {e}. Using standard implementation.")
+else:
+    logger.info("NonBDNAFinder: Using standard implementation (set NONBDNA_OPTIMIZED=true to enable)")
