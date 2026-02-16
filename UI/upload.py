@@ -223,6 +223,23 @@ def render():
     # Apply Upload tab theme based on configuration
     load_css(TAB_THEMES.get('Upload & Analyze', 'nature_green'))
     
+    # ============================================================
+    # INITIALIZE CRITICAL SESSION STATE VARIABLES
+    # Ensure selected_classes and selected_subclasses exist before any logic checks them
+    # Initialize with all classes/subclasses enabled by default (matching checkbox defaults)
+    # This prevents race conditions on server deployments (Streamlit Community Cloud)
+    # ============================================================
+    if 'selected_classes' not in st.session_state:
+        # Initialize with all classes from taxonomy
+        st.session_state.selected_classes = list(get_all_classes())
+    if 'selected_subclasses' not in st.session_state:
+        # Initialize with all subclasses from taxonomy
+        all_subclasses = []
+        for class_id in sorted(MOTIF_CLASSIFICATION.keys()):
+            entry = MOTIF_CLASSIFICATION[class_id]
+            all_subclasses.extend(entry['subclasses'])
+        st.session_state.selected_subclasses = all_subclasses
+    
     # Uniform section heading with page-specific color
     render_section_heading("Upload & Analyze Sequences", page="Upload & Analyze")
 
