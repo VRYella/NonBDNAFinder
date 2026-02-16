@@ -105,6 +105,126 @@ class TestChunkAnalyzer(unittest.TestCase):
         # Cleanup
         results_storage.cleanup()
     
+    def test_enhanced_progress_callback(self):
+        """Test enhanced progress callback with chunk numbers and motif counts."""
+        sequence = "ATCG" * 5000  # 20,000 bp
+        seq_id = self.storage.save_sequence(sequence, "enhanced_progress_test")
+        
+        # Track enhanced progress updates
+        progress_data = []
+        
+        def enhanced_callback(current_chunk, total_chunks, progress_pct, motifs_found=0):
+            progress_data.append({
+                'current': current_chunk,
+                'total': total_chunks,
+                'pct': progress_pct,
+                'motifs': motifs_found
+            })
+        
+        # Analyze with enhanced callback
+        analyzer = ChunkAnalyzer(self.storage, chunk_size=8000, overlap=500)
+        results_storage = analyzer.analyze(seq_id, progress_callback=enhanced_callback)
+        
+        # Verify callback was called with enhanced signature
+        self.assertGreater(len(progress_data), 0, "Enhanced callback was not called")
+        
+        # Verify all required fields are present
+        for update in progress_data:
+            self.assertIn('current', update)
+            self.assertIn('total', update)
+            self.assertIn('pct', update)
+            self.assertIn('motifs', update)
+        
+        # Verify chunk numbers are valid
+        for update in progress_data:
+            self.assertGreater(update['current'], 0, "Chunk number should be >= 1")
+            self.assertGreater(update['total'], 0, "Total chunks should be > 0")
+            self.assertLessEqual(update['current'], update['total'], 
+                               "Current chunk should not exceed total")
+        
+        # Verify progress percentage matches chunk progress
+        for update in progress_data:
+            expected_pct = (update['current'] / update['total']) * 100
+            self.assertAlmostEqual(update['pct'], expected_pct, places=1)
+        
+        # Verify motif counts are non-negative
+        for update in progress_data:
+            self.assertGreaterEqual(update['motifs'], 0, "Motif count should be non-negative")
+        
+        # Verify final chunk number equals total
+        final_update = progress_data[-1]
+        self.assertEqual(final_update['current'], final_update['total'],
+                        "Final chunk should equal total chunks")
+        
+        # Cleanup
+        results_storage.cleanup()
+    
+    def test_backward_compatible_callback(self):
+        """Test that legacy single-parameter callbacks still work."""
+        sequence = "ATCG" * 5000  # 20,000 bp
+        seq_id = self.storage.save_sequence(sequence, "legacy_callback_test")
+        
+        # Track progress updates with legacy callback
+        progress_updates = []
+        
+        def legacy_callback(progress_pct):
+            progress_updates.append(progress_pct)
+        
+        # Analyze with legacy callback - should still work
+        analyzer = ChunkAnalyzer(self.storage, chunk_size=8000, overlap=500)
+        results_storage = analyzer.analyze(seq_id, progress_callback=legacy_callback)
+        
+        # Verify callback was called
+        self.assertGreater(len(progress_updates), 0, "Legacy callback was not called")
+        
+        # Verify progress increases
+        for i in range(len(progress_updates) - 1):
+            self.assertLessEqual(progress_updates[i], progress_updates[i+1],
+                               "Progress should be monotonically increasing")
+        
+        # Verify final progress is 100%
+        self.assertAlmostEqual(progress_updates[-1], 100.0, places=0)
+        
+        # Cleanup
+        results_storage.cleanup()
+    
+    def test_parallel_enhanced_callback(self):
+        """Test enhanced callback with parallel processing."""
+        sequence = "ATCG" * 10000  # 40,000 bp (multiple chunks)
+        seq_id = self.storage.save_sequence(sequence, "parallel_enhanced_test")
+        
+        # Track enhanced progress updates
+        progress_data = []
+        
+        def enhanced_callback(current_chunk, total_chunks, progress_pct, motifs_found=0):
+            progress_data.append({
+                'current': current_chunk,
+                'total': total_chunks,
+                'pct': progress_pct,
+                'motifs': motifs_found
+            })
+        
+        # Analyze with parallel mode and enhanced callback
+        analyzer = ChunkAnalyzer(self.storage, chunk_size=8000, overlap=500, 
+                                use_parallel=True, max_workers=2)
+        results_storage = analyzer.analyze(seq_id, progress_callback=enhanced_callback)
+        
+        # Verify callback was called
+        self.assertGreater(len(progress_data), 0, "Enhanced callback was not called in parallel mode")
+        
+        # Verify all updates have valid data
+        for update in progress_data:
+            self.assertGreater(update['current'], 0)
+            self.assertGreater(update['total'], 0)
+            self.assertGreaterEqual(update['motifs'], 0)
+        
+        # Verify final chunk equals total
+        final_update = progress_data[-1]
+        self.assertEqual(final_update['current'], final_update['total'])
+        
+        # Cleanup
+        results_storage.cleanup()
+    
     def test_progress_callback(self):
         """Test progress callback functionality."""
         sequence = "ATCG" * 5000  # 20,000 bp
