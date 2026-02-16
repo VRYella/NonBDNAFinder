@@ -355,55 +355,55 @@ class ChunkAnalyzer:
             chunk_num = 0
             for chunk_seq, chunk_start, chunk_end in self.sequence_storage.iter_chunks(
                 seq_id, self.chunk_size, self.overlap
-        ):
-            chunk_num += 1
-            
-            logger.info(f"Processing chunk {chunk_num}/{total_chunks} "
-                       f"[{chunk_start:,}-{chunk_end:,}]")
-            
-            # Analyze chunk
-            chunk_motifs = analyze_sequence(
-                sequence=chunk_seq,
-                sequence_name=f"{seq_name}_chunk{chunk_num}",
-                use_fast_mode=True,
-                enabled_classes=enabled_classes
-            )
-            
-            # Adjust positions to global coordinates
-            adjusted_motifs = self._adjust_motif_positions(chunk_motifs, chunk_start)
-            
-            # Filter out duplicates from overlap region
-            unique_motifs = []
-            for motif in adjusted_motifs:
-                motif_key = self._create_motif_key(motif)
+            ):
+                chunk_num += 1
                 
-                # Skip if we've already seen this motif in a previous chunk
-                if motif_key in overlap_motifs:
-                    continue
+                logger.info(f"Processing chunk {chunk_num}/{total_chunks} "
+                           f"[{chunk_start:,}-{chunk_end:,}]")
                 
-                unique_motifs.append(motif)
+                # Analyze chunk
+                chunk_motifs = analyze_sequence(
+                    sequence=chunk_seq,
+                    sequence_name=f"{seq_name}_chunk{chunk_num}",
+                    use_fast_mode=True,
+                    enabled_classes=enabled_classes
+                )
                 
-                # If motif is in overlap region, track it for next chunk
-                if self._is_in_overlap_region(motif, chunk_start, chunk_end, self.overlap):
-                    overlap_motifs.add(motif_key)
-            
-            # Save results to disk
-            results_storage.append_batch(unique_motifs)
-            
-            logger.info(f"Chunk {chunk_num}: {len(chunk_motifs)} motifs detected, "
-                       f"{len(unique_motifs)} unique")
-            
-            # Update progress
-            if progress_callback:
-                progress_pct = (chunk_num / total_chunks) * 100
-                progress_callback(progress_pct)
-            
-            # Aggressive garbage collection
-            del chunk_seq
-            del chunk_motifs
-            del adjusted_motifs
-            del unique_motifs
-            gc.collect()
+                # Adjust positions to global coordinates
+                adjusted_motifs = self._adjust_motif_positions(chunk_motifs, chunk_start)
+                
+                # Filter out duplicates from overlap region
+                unique_motifs = []
+                for motif in adjusted_motifs:
+                    motif_key = self._create_motif_key(motif)
+                    
+                    # Skip if we've already seen this motif in a previous chunk
+                    if motif_key in overlap_motifs:
+                        continue
+                    
+                    unique_motifs.append(motif)
+                    
+                    # If motif is in overlap region, track it for next chunk
+                    if self._is_in_overlap_region(motif, chunk_start, chunk_end, self.overlap):
+                        overlap_motifs.add(motif_key)
+                
+                # Save results to disk
+                results_storage.append_batch(unique_motifs)
+                
+                logger.info(f"Chunk {chunk_num}: {len(chunk_motifs)} motifs detected, "
+                           f"{len(unique_motifs)} unique")
+                
+                # Update progress
+                if progress_callback:
+                    progress_pct = (chunk_num / total_chunks) * 100
+                    progress_callback(progress_pct)
+                
+                # Aggressive garbage collection
+                del chunk_seq
+                del chunk_motifs
+                del adjusted_motifs
+                del unique_motifs
+                gc.collect()
         
         # Final statistics
         stats = results_storage.get_summary_stats()
