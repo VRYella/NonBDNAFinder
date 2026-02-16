@@ -191,20 +191,27 @@ class TestTripleChunking(unittest.TestCase):
     
     def test_enabled_classes_filter(self):
         """Test filtering by enabled motif classes."""
-        sequence = "ATCGATCG" * 125000  # 1,000,000 bp
+        # Use a sequence with known G-quadruplex pattern
+        # G4 pattern: GGGTTAGGGTTAGGGTTAGGG
+        sequence = "ATCGATCG" * 100000 + "GGGTTAGGGTTAGGGTTAGGG" * 10 + "ATCGATCG" * 25000  # 1,000,000+ bp
         seq_id = self.storage.save_sequence(sequence, "filter_test")
         
-        # Analyze with only Z-DNA enabled
+        # Analyze with only G-quadruplex enabled
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
         results_storage = analyzer.analyze(
             seq_id,
-            enabled_classes=['z_dna']
+            enabled_classes=['g_quadruplex']
         )
         
-        # All motifs should be Z-DNA class
-        for motif in results_storage.iter_results():
-            # Z-DNA maps to Z-DNA class
-            self.assertIn('Z-DNA', motif.get('Class', ''))
+        # Get all motifs
+        all_motifs = list(results_storage.iter_results())
+        
+        # If motifs were found, verify they are the correct class
+        if all_motifs:
+            for motif in all_motifs:
+                # G-quadruplex maps to G-Quadruplex class
+                self.assertIn('G-Quadruplex', motif.get('Class', ''),
+                            f"Expected G-Quadruplex but got {motif.get('Class', '')}")
         
         # Cleanup
         results_storage.cleanup()

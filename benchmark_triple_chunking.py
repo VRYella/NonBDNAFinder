@@ -202,7 +202,9 @@ def main():
         # Benchmark suite
         benchmarks = [
             (10_000_000, "10MB Genome", 30),
-            # Uncomment for full benchmark suite (takes longer)
+            # Full benchmark suite - Uncomment to test larger genomes
+            # NOTE: These tests take longer (100MB: ~2min, 500MB: ~5min, 1GB: ~8min)
+            # Recommended for CI/CD or pre-release validation
             # (100_000_000, "100MB Genome", 120),
             # (500_000_000, "500MB Genome", 300),
             # (1_000_000_000, "1GB Genome", 480),

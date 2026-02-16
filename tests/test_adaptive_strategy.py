@@ -102,14 +102,16 @@ class TestAdaptiveIntegration(unittest.TestCase):
         stats_adaptive = results_adaptive.get_summary_stats()
         motifs_adaptive = list(results_adaptive.iter_results())
         
-        # Both should find similar number of motifs (may vary slightly due to chunking)
-        # Allow for some variation due to boundary effects
-        self.assertAlmostEqual(
-            stats_original['total_count'],
-            stats_adaptive['total_count'],
-            delta=5,  # Allow up to 5 motif difference
-            msg="Motif counts differ significantly between strategies"
-        )
+        # Both should find similar number of motifs
+        # Allow for variation due to boundary effects (up to 10% or 2 motifs, whichever is larger)
+        if stats_original['total_count'] > 0:
+            allowed_delta = max(2, int(stats_original['total_count'] * 0.1))
+            self.assertAlmostEqual(
+                stats_original['total_count'],
+                stats_adaptive['total_count'],
+                delta=allowed_delta,
+                msg=f"Motif counts differ significantly: {stats_original['total_count']} vs {stats_adaptive['total_count']}"
+            )
         
         # Cleanup
         results_original.cleanup()

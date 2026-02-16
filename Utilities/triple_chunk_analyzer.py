@@ -158,9 +158,9 @@ class TripleAdaptiveChunkAnalyzer:
         # Check if motif is in the last 'overlap' bp of the chunk
         overlap_region_start = chunk_end - overlap
         
-        # Motif overlaps if it starts or ends in the overlap region
-        return (motif_start >= overlap_region_start or 
-                motif_end > overlap_region_start)
+        # Motif overlaps if it actually intersects the overlap region
+        # Must end after overlap starts AND start before chunk ends
+        return (motif_end > overlap_region_start and motif_start < chunk_end)
     
     def _adjust_motif_positions(
         self,
