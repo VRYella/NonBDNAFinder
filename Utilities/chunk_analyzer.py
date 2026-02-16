@@ -374,6 +374,17 @@ class ChunkAnalyzer:
                 
                 logger.info(f"Chunk {chunk_idx + 1}: {len(adjusted_motifs)} motifs detected, "
                            f"{len(unique_motifs)} unique after deduplication")
+                
+                # Free memory for processed chunk results
+                del all_chunk_results[chunk_idx]
+                del adjusted_motifs
+                del unique_motifs
+                gc.collect()
+            
+            # Final cleanup
+            del all_chunk_results
+            del chunk_data
+            gc.collect()
             
         else:
             # Sequential processing mode (original code)
@@ -433,5 +444,9 @@ class ChunkAnalyzer:
         # Final statistics
         stats = results_storage.get_summary_stats()
         logger.info(f"Analysis complete: {stats['total_count']} total motifs detected")
+        
+        # Final memory cleanup
+        del overlap_motifs
+        gc.collect()
         
         return results_storage

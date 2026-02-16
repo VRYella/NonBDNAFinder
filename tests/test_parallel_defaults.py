@@ -1,7 +1,7 @@
 """
 Test to verify parallel processing defaults are enabled.
 
-Verifies that ChunkAnalyzer defaults to parallel=True and adaptive=True.
+Verifies that ChunkAnalyzer defaults to parallel=True and adaptive=False.
 """
 
 import unittest
@@ -36,11 +36,11 @@ class TestParallelDefaults(unittest.TestCase):
         self.assertTrue(analyzer.use_parallel, 
                        "use_parallel should default to True")
     
-    def test_adaptive_default_is_true(self):
-        """Test that use_adaptive defaults to True."""
+    def test_adaptive_default_is_false(self):
+        """Test that use_adaptive defaults to False."""
         analyzer = ChunkAnalyzer(self.storage)
-        self.assertTrue(analyzer.use_adaptive, 
-                       "use_adaptive should default to True")
+        self.assertFalse(analyzer.use_adaptive, 
+                       "use_adaptive should default to False")
     
     def test_parallel_can_be_disabled(self):
         """Test that parallel processing can still be explicitly disabled."""
@@ -48,11 +48,11 @@ class TestParallelDefaults(unittest.TestCase):
         self.assertFalse(analyzer.use_parallel,
                         "use_parallel should be False when explicitly set")
     
-    def test_adaptive_can_be_disabled(self):
-        """Test that adaptive chunking can still be explicitly disabled."""
-        analyzer = ChunkAnalyzer(self.storage, use_adaptive=False)
-        self.assertFalse(analyzer.use_adaptive,
-                        "use_adaptive should be False when explicitly set")
+    def test_adaptive_can_be_enabled(self):
+        """Test that adaptive chunking can still be explicitly enabled."""
+        analyzer = ChunkAnalyzer(self.storage, use_adaptive=True)
+        self.assertTrue(analyzer.use_adaptive,
+                        "use_adaptive should be True when explicitly set")
     
     def test_max_workers_is_set(self):
         """Test that max_workers is properly configured."""
