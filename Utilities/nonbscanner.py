@@ -11,7 +11,7 @@
 import os; import warnings; import time; import threading; import logging; import bisect; import multiprocessing; import pandas as pd
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from concurrent.futures.process import BrokenProcessPool
 
 warnings.filterwarnings("ignore"); logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ except ImportError: STREAMLIT_PROGRESS_AVAILABLE = False
 __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
 # Standardized to match triple adaptive chunking: 50KB chunks with 5KB overlap
 CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 5000
+# Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
+USE_PARALLEL_DETECTORS = True; MAX_DETECTOR_WORKERS = min(9, os.cpu_count() or 4)  # Up to 9 detectors in parallel
 HYBRID_MIN_OVERLAP = 0.50; HYBRID_MAX_OVERLAP = 0.99
 CLUSTER_WINDOW_SIZE = 300; CLUSTER_MIN_MOTIFS = 4; CLUSTER_MIN_CLASSES = 3
 DETECTOR_DISPLAY_NAMES = {'curved_dna': 'Curved DNA', 'slipped_dna': 'Slipped DNA', 'cruciform': 'Cruciform', 'r_loop': 'R-Loop', 'triplex': 'Triplex', 'g_quadruplex': 'G-Quadruplex', 'i_motif': 'i-Motif', 'z_dna': 'Z-DNA', 'a_philic': 'A-philic DNA'}
@@ -116,24 +118,47 @@ class NonBScanner:
     def __init__(self, enable_all_detectors: bool = True):
         self.detectors = {'curved_dna': CurvedDNADetector(), 'slipped_dna': SlippedDNADetector(), 'cruciform': CruciformDetector(), 'r_loop': RLoopDetector(), 'triplex': TriplexDetector(), 'g_quadruplex': GQuadruplexDetector(), 'i_motif': IMotifDetector(), 'z_dna': ZDNADetector(), 'a_philic': APhilicDetector()} if enable_all_detectors else {}
     
-    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence", progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-        """Optimized sequence analysis with consolidated deduplication."""
+    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence", progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None, enabled_classes: Optional[List[str]] = None, use_parallel_detectors: bool = None) -> List[Dict[str, Any]]:
+        """Optimized sequence analysis with optional parallel detector execution.
+        
+        Args:
+            sequence: DNA sequence to analyze
+            sequence_name: Name identifier for the sequence
+            progress_callback: Optional callback for progress updates
+            enabled_classes: Optional list of motif classes to detect (None = all)
+            use_parallel_detectors: Enable parallel detector execution (None = auto based on sequence length)
+        
+        Returns:
+            List of detected motif dictionaries
+        """
         sequence = sequence.upper().strip(); is_valid, msg = validate_sequence(sequence)
         if not is_valid: raise ValueError(f"Invalid sequence: {msg}")
+        
+        # Auto-enable parallel detectors for large sequences if not specified
+        if use_parallel_detectors is None:
+            use_parallel_detectors = len(sequence) > CHUNK_THRESHOLD and USE_PARALLEL_DETECTORS
+        
         all_motifs = []
         if enabled_classes:
             enabled_detectors = {CLASS_TO_DETECTOR.get(c) for c in enabled_classes if CLASS_TO_DETECTOR.get(c) in self.detectors}
             detectors_to_run = {k: v for k, v in self.detectors.items() if k in enabled_detectors}
         else: detectors_to_run = self.detectors
         total_detectors = len(detectors_to_run); _reset_detector_timings()
-        for idx, (detector_name, detector) in enumerate(detectors_to_run.items()):
-            try:
-                start_time = time.time(); motifs = detector.detect_motifs(sequence, sequence_name); elapsed = time.time() - start_time; motif_count = len(motifs)
-                _update_detector_timing(detector_name, elapsed); all_motifs.extend(motifs)
-                if progress_callback is not None: progress_callback(detector_name, idx + 1, total_detectors, elapsed, motif_count)
-            except Exception as e:
-                warnings.warn(f"Error in {detector_name} detector: {e}")
-                if progress_callback is not None: progress_callback(detector_name, idx + 1, total_detectors, 0.0, 0)
+        
+        if use_parallel_detectors and total_detectors > 1:
+            # Parallel detector execution using ThreadPoolExecutor
+            all_motifs = self._analyze_parallel_detectors(sequence, sequence_name, detectors_to_run, progress_callback)
+        else:
+            # Sequential detector execution (original implementation)
+            for idx, (detector_name, detector) in enumerate(detectors_to_run.items()):
+                try:
+                    start_time = time.time(); motifs = detector.detect_motifs(sequence, sequence_name); elapsed = time.time() - start_time; motif_count = len(motifs)
+                    _update_detector_timing(detector_name, elapsed); all_motifs.extend(motifs)
+                    if progress_callback is not None: progress_callback(detector_name, idx + 1, total_detectors, elapsed, motif_count)
+                except Exception as e:
+                    warnings.warn(f"Error in {detector_name} detector: {e}")
+                    if progress_callback is not None: progress_callback(detector_name, idx + 1, total_detectors, 0.0, 0)
+        
         # Consolidated filtering - do overlap removal once on all motifs
         filtered_motifs = self._remove_overlaps(all_motifs)
         hybrid_motifs = self._detect_hybrid_motifs(filtered_motifs, sequence)
@@ -141,6 +166,67 @@ class NonBScanner:
         # Combine and do final overlap removal only once
         final_motifs = normalize_motif_scores(filtered_motifs + hybrid_motifs + cluster_motifs); final_motifs.sort(key=lambda x: x.get('Start', 0))
         return final_motifs
+    
+    def _analyze_parallel_detectors(self, sequence: str, sequence_name: str, detectors_to_run: Dict, progress_callback: Optional[Callable] = None) -> List[Dict[str, Any]]:
+        """Execute detectors in parallel using ThreadPoolExecutor.
+        
+        Uses thread-based parallelism since detector operations are mostly computational
+        and NumPy operations release the GIL, allowing true parallel execution.
+        
+        Args:
+            sequence: DNA sequence to analyze
+            sequence_name: Name identifier for the sequence
+            detectors_to_run: Dictionary of detector_name -> detector_instance
+            progress_callback: Optional callback for progress updates
+        
+        Returns:
+            List of all detected motifs from all detectors
+        """
+        all_motifs = []
+        completed_count = 0
+        total_detectors = len(detectors_to_run)
+        results_lock = threading.Lock()
+        
+        def run_detector(detector_name: str, detector):
+            """Worker function to run a single detector."""
+            nonlocal completed_count
+            try:
+                start_time = time.time()
+                motifs = detector.detect_motifs(sequence, sequence_name)
+                elapsed = time.time() - start_time
+                motif_count = len(motifs)
+                
+                _update_detector_timing(detector_name, elapsed)
+                
+                with results_lock:
+                    completed_count += 1
+                    if progress_callback is not None:
+                        progress_callback(detector_name, completed_count, total_detectors, elapsed, motif_count)
+                
+                return motifs
+            except Exception as e:
+                warnings.warn(f"Error in {detector_name} detector: {e}")
+                with results_lock:
+                    completed_count += 1
+                    if progress_callback is not None:
+                        progress_callback(detector_name, completed_count, total_detectors, 0.0, 0)
+                return []
+        
+        # Use ThreadPoolExecutor for parallel detector execution
+        max_workers = min(MAX_DETECTOR_WORKERS, total_detectors)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all detector jobs
+            future_to_detector = {
+                executor.submit(run_detector, detector_name, detector): detector_name
+                for detector_name, detector in detectors_to_run.items()
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_detector):
+                motifs = future.result()
+                all_motifs.extend(motifs)
+        
+        return all_motifs
     
     def _remove_overlaps(self, motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Optimized overlap removal using sorted intervals for O(n log n) complexity."""
@@ -229,7 +315,7 @@ class NonBScanner:
         for name, detector in self.detectors.items(): stats = detector.get_statistics(); info['detectors'][name] = stats; info['total_patterns'] += stats['total_patterns']
         return info
 
-def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mode: bool = True, use_chunking: bool = None, chunk_size: int = None, chunk_overlap: int = None, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mode: bool = True, use_chunking: bool = None, chunk_size: int = None, chunk_overlap: int = None, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, use_parallel_detectors: bool = None, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """
     Analyze DNA sequence for non-B DNA motifs with robust error handling.
     
@@ -242,6 +328,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
         chunk_overlap: Overlap between chunks (default: DEFAULT_CHUNK_OVERLAP)
         progress_callback: Callback function for progress updates (chunk_num, total_chunks, bp_processed, elapsed, throughput)
         use_parallel_chunks: Whether to process chunks in parallel
+        use_parallel_detectors: Whether to run detectors in parallel (auto-enabled for sequences >50KB if None)
         enabled_classes: List of motif classes to detect (None = all classes)
     
     Returns:
@@ -264,10 +351,10 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
         if use_fast_mode:
             try: from parallel_scanner import analyze_sequence_parallel; return analyze_sequence_parallel(sequence, sequence_name, use_parallel=True, enabled_classes=enabled_classes)
             except ImportError: warnings.warn("Fast mode not available, falling back to standard mode")
-        return _get_cached_scanner().analyze_sequence(sequence, sequence_name, enabled_classes=enabled_classes)
-    return _analyze_sequence_chunked(sequence, sequence_name, chunk_size, chunk_overlap, progress_callback, use_parallel_chunks, enabled_classes)
+        return _get_cached_scanner().analyze_sequence(sequence, sequence_name, enabled_classes=enabled_classes, use_parallel_detectors=use_parallel_detectors)
+    return _analyze_sequence_chunked(sequence, sequence_name, chunk_size, chunk_overlap, progress_callback, use_parallel_chunks, enabled_classes, use_parallel_detectors)
 
-def _process_chunk_worker(chunk_info: Tuple[int, Tuple[int, int]], sequence: str, sequence_name: str, enabled_classes: Optional[List[str]]) -> Tuple[int, int, List[Dict[str, Any]]]:
+def _process_chunk_worker(chunk_info: Tuple[int, Tuple[int, int]], sequence: str, sequence_name: str, enabled_classes: Optional[List[str]], use_parallel_detectors: bool = True) -> Tuple[int, int, List[Dict[str, Any]]]:
     """
     Worker function for parallel chunk processing.
     Must be at module level to be picklable by ProcessPoolExecutor.
@@ -277,6 +364,7 @@ def _process_chunk_worker(chunk_info: Tuple[int, Tuple[int, int]], sequence: str
         sequence: Full DNA sequence string
         sequence_name: Name/identifier for the sequence
         enabled_classes: List of motif classes to detect
+        use_parallel_detectors: Whether to run detectors in parallel within the chunk
     
     Returns:
         Tuple of (chunk_idx, chunk_length, chunk_motifs)
@@ -284,14 +372,14 @@ def _process_chunk_worker(chunk_info: Tuple[int, Tuple[int, int]], sequence: str
     chunk_idx, (chunk_start, chunk_end) = chunk_info
     chunk_seq = sequence[chunk_start:chunk_end]
     scanner = _get_cached_scanner()
-    chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
+    chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes, use_parallel_detectors=use_parallel_detectors)
     # Adjust positions relative to full sequence
     for motif in chunk_motifs:
         motif['Start'] += chunk_start
         motif['End'] += chunk_start
     return chunk_idx, chunk_end - chunk_start, chunk_motifs
 
-def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None, use_parallel_detectors: bool = None) -> List[Dict[str, Any]]:
     """Optimized chunked analysis with ProcessPoolExecutor for true CPU parallelism."""
     # Validate input - check for None and empty sequences
     if sequence is None or not sequence or len(sequence) == 0:
@@ -312,7 +400,7 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
             # Try true parallelism with ProcessPoolExecutor
             with ProcessPoolExecutor(max_workers=max_workers) as executor:
                 futures = {
-                    executor.submit(_process_chunk_worker, (i, chunk), sequence, sequence_name, enabled_classes): i 
+                    executor.submit(_process_chunk_worker, (i, chunk), sequence, sequence_name, enabled_classes, use_parallel_detectors): i 
                     for i, chunk in enumerate(chunks)
                 }
                 results_by_idx = {}
@@ -331,7 +419,7 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
             scanner = _get_cached_scanner()
             for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
                 chunk_seq = sequence[chunk_start:chunk_end]
-                chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
+                chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes, use_parallel_detectors=use_parallel_detectors)
                 for motif in chunk_motifs: motif['Start'] += chunk_start; motif['End'] += chunk_start
                 all_motifs.extend(chunk_motifs); bp_processed += chunk_end - chunk_start
                 if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
@@ -340,7 +428,7 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
         scanner = _get_cached_scanner()
         for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
             chunk_seq = sequence[chunk_start:chunk_end]
-            chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
+            chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes, use_parallel_detectors=use_parallel_detectors)
             for motif in chunk_motifs: motif['Start'] += chunk_start; motif['End'] += chunk_start
             all_motifs.extend(chunk_motifs); bp_processed += chunk_end - chunk_start
             if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
