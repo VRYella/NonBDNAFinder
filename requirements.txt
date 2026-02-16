@@ -35,6 +35,10 @@ psutil>=5.8.0
 # pyfastx>=0.8.0    # Fast FASTA/FASTQ parsing (optional acceleration)
 numba>=0.56.0     # JIT compilation for 2-5x speedup in scoring functions
 
+# === Streamlit Cloud Optimizations (NEW) ===
+pyahocorasick>=2.0.0  # Aho-Corasick multi-pattern matching (50-200x speedup)
+intervaltree>=3.1.0   # Efficient interval overlap detection
+
 # Optional: Development tools
 # pytest>=7.0.0
 # black>=22.0.0
