@@ -95,11 +95,10 @@ class UniversalSequenceStorage:
         return hashlib.md5(hash_input).hexdigest()[:12]
     
     def _calculate_gc_content(self, sequence: str) -> float:
-        """Calculate GC content percentage."""
-        sequence_upper = sequence.upper()
-        gc_count = sequence_upper.count('G') + sequence_upper.count('C')
-        total = len(sequence_upper)
-        return (gc_count / total * 100) if total > 0 else 0.0
+        """Calculate GC content percentage using standardized method."""
+        # Use the same method as detectors_utils.calc_gc_content for consistency
+        from Utilities.detectors_utils import calc_gc_content
+        return calc_gc_content(sequence)
     
     def save_sequence(self, sequence: str, name: str) -> str:
         """

@@ -1571,6 +1571,15 @@ def render():
                 # ATOMIC STORAGE: Store summary once in session state
                 st.session_state.summary_df = pd.DataFrame(summary)
                 
+                # Display summary statistics to user
+                if not st.session_state.summary_df.empty:
+                    st.success("### 📊 Analysis Summary Statistics")
+                    st.dataframe(
+                        st.session_state.summary_df,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                
                 # ============================================================
                 # PRE-GENERATE ALL VISUALIZATIONS FOR CLASSES AND SUBCLASSES
                 # ============================================================

@@ -2315,7 +2315,7 @@ def reverse_complement(sequence: str) -> str:
 
 def gc_content(sequence: str) -> float:
     """
-    Calculate GC content of sequence
+    Calculate GC content of sequence using standardized method.
     
     Args:
         sequence: DNA sequence string
@@ -2323,11 +2323,9 @@ def gc_content(sequence: str) -> float:
     Returns:
         GC content as percentage (0-100)
     """
-    if not sequence:
-        return 0.0
-    
-    gc_count = sequence.upper().count('G') + sequence.upper().count('C')
-    return (gc_count / len(sequence)) * 100
+    # Use the same method as detectors_utils.calc_gc_content for consistency
+    from Utilities.detectors_utils import calc_gc_content
+    return calc_gc_content(sequence)
 
 def at_content(sequence: str) -> float:
     """
