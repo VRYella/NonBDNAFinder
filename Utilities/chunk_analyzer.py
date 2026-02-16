@@ -97,7 +97,7 @@ class ChunkAnalyzer:
         try:
             logger.info(f"Multiprocessing start method: {multiprocessing.get_start_method()}")
             logger.info(f"Available CPU cores: {multiprocessing.cpu_count()}")
-        except Exception as e:
+        except (NotImplementedError, RuntimeError) as e:
             logger.warning(f"Multiprocessing diagnostics failed: {e}")
     
     def _create_motif_key(self, motif: Dict[str, Any]) -> Tuple:

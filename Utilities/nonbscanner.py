@@ -12,6 +12,7 @@ import os; import warnings; import time; import threading; import logging; impor
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 
 warnings.filterwarnings("ignore"); logger = logging.getLogger(__name__)
 
@@ -324,7 +325,7 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
                         progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
                 for i in range(total_chunks):
                     all_motifs.extend(results_by_idx.get(i, []))
-        except (RuntimeError, OSError, AttributeError) as e:
+        except (RuntimeError, OSError, AttributeError, BrokenProcessPool) as e:
             # Fallback to sequential if multiprocessing fails (e.g., restricted environments or pickle errors)
             logger.warning(f"ProcessPoolExecutor failed ({e}), falling back to sequential processing")
             scanner = _get_cached_scanner()
