@@ -266,6 +266,30 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
         return _get_cached_scanner().analyze_sequence(sequence, sequence_name, enabled_classes=enabled_classes)
     return _analyze_sequence_chunked(sequence, sequence_name, chunk_size, chunk_overlap, progress_callback, use_parallel_chunks, enabled_classes)
 
+def _process_chunk_worker(chunk_info: Tuple[int, Tuple[int, int]], sequence: str, sequence_name: str, enabled_classes: Optional[List[str]]) -> Tuple[int, int, List[Dict[str, Any]]]:
+    """
+    Worker function for parallel chunk processing.
+    Must be at module level to be picklable by ProcessPoolExecutor.
+    
+    Args:
+        chunk_info: Tuple of (chunk_idx, (chunk_start, chunk_end))
+        sequence: Full DNA sequence string
+        sequence_name: Name/identifier for the sequence
+        enabled_classes: List of motif classes to detect
+    
+    Returns:
+        Tuple of (chunk_idx, chunk_length, chunk_motifs)
+    """
+    chunk_idx, (chunk_start, chunk_end) = chunk_info
+    chunk_seq = sequence[chunk_start:chunk_end]
+    scanner = _get_cached_scanner()
+    chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
+    # Adjust positions relative to full sequence
+    for motif in chunk_motifs:
+        motif['Start'] += chunk_start
+        motif['End'] += chunk_start
+    return chunk_idx, chunk_end - chunk_start, chunk_motifs
+
 def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """Optimized chunked analysis with ProcessPoolExecutor for true CPU parallelism."""
     # Validate input - check for None and empty sequences
@@ -274,7 +298,7 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
         return []
     
     def _throughput(bp, elapsed): return bp / elapsed if elapsed > 0 else 0
-    seq_len = len(sequence); scanner = _get_cached_scanner(); chunks = []; start = 0
+    seq_len = len(sequence); chunks = []; start = 0
     while start < seq_len:
         end = min(start + chunk_size, seq_len); chunks.append((start, end))
         if end >= seq_len: break
@@ -282,24 +306,28 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
     total_chunks = len(chunks); all_motifs = []; start_time = time.time(); bp_processed = 0
     if use_parallel_chunks and total_chunks > 1:
         max_workers = min(total_chunks, os.cpu_count() or 4)
-        def process_chunk(chunk_info):
-            chunk_idx, (chunk_start, chunk_end) = chunk_info; chunk_seq = sequence[chunk_start:chunk_end]
-            # Build ID correctly from the start instead of string replacement
-            chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
-            for motif in chunk_motifs: motif['Start'] += chunk_start; motif['End'] += chunk_start
-            return chunk_idx, chunk_end - chunk_start, chunk_motifs
         
         try:
             # Try true parallelism with ProcessPoolExecutor
             with ProcessPoolExecutor(max_workers=max_workers) as executor:
-                futures = {executor.submit(process_chunk, (i, chunk)): i for i, chunk in enumerate(chunks)}; results_by_idx = {}
+                futures = {
+                    executor.submit(_process_chunk_worker, (i, chunk), sequence, sequence_name, enabled_classes): i 
+                    for i, chunk in enumerate(chunks)
+                }
+                results_by_idx = {}
                 for future in as_completed(futures):
-                    chunk_idx, chunk_len, chunk_motifs = future.result(); results_by_idx[chunk_idx] = chunk_motifs; bp_processed += chunk_len
-                    if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
-                for i in range(total_chunks): all_motifs.extend(results_by_idx.get(i, []))
-        except (RuntimeError, OSError) as e:
-            # Fallback to sequential if multiprocessing fails (e.g., restricted environments)
+                    chunk_idx, chunk_len, chunk_motifs = future.result()
+                    results_by_idx[chunk_idx] = chunk_motifs
+                    bp_processed += chunk_len
+                    if progress_callback:
+                        elapsed = time.time() - start_time
+                        progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
+                for i in range(total_chunks):
+                    all_motifs.extend(results_by_idx.get(i, []))
+        except (RuntimeError, OSError, AttributeError) as e:
+            # Fallback to sequential if multiprocessing fails (e.g., restricted environments or pickle errors)
             logger.warning(f"ProcessPoolExecutor failed ({e}), falling back to sequential processing")
+            scanner = _get_cached_scanner()
             for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
                 chunk_seq = sequence[chunk_start:chunk_end]
                 chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
@@ -307,6 +335,8 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
                 all_motifs.extend(chunk_motifs); bp_processed += chunk_end - chunk_start
                 if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
     else:
+        # Sequential processing
+        scanner = _get_cached_scanner()
         for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
             chunk_seq = sequence[chunk_start:chunk_end]
             chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
