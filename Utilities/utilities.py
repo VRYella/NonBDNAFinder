@@ -138,6 +138,9 @@ from Utilities.config.motif_taxonomy import (
     SUBCLASS_TO_CLASS
 )
 
+# Import standardized GC content calculation
+from Utilities.detectors_utils import calc_gc_content
+
 # Try to import plotly for interactive plots
 try:
     import plotly.graph_objects as go
@@ -2315,7 +2318,10 @@ def reverse_complement(sequence: str) -> str:
 
 def gc_content(sequence: str) -> float:
     """
-    Calculate GC content of sequence
+    Calculate GC content of sequence using standardized method.
+    
+    This function delegates to calc_gc_content() from detectors_utils.py
+    to ensure consistency across all GC content calculations in the codebase.
     
     Args:
         sequence: DNA sequence string
@@ -2323,11 +2329,8 @@ def gc_content(sequence: str) -> float:
     Returns:
         GC content as percentage (0-100)
     """
-    if not sequence:
-        return 0.0
-    
-    gc_count = sequence.upper().count('G') + sequence.upper().count('C')
-    return (gc_count / len(sequence)) * 100
+    # Use the same method as detectors_utils.calc_gc_content for consistency
+    return calc_gc_content(sequence)
 
 def at_content(sequence: str) -> float:
     """
