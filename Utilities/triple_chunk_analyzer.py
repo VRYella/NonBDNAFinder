@@ -260,11 +260,12 @@ class TripleAdaptiveChunkAnalyzer:
         
         metadata = self.storage.get_metadata(seq_id)
         seq_name = metadata['name']
+        seq_length = metadata['length']
         
-        logger.info(f"Direct analysis for {seq_name} (no chunking)")
+        logger.info(f"Direct analysis for {seq_name} ({seq_length:,} bp - no chunking)")
         
-        # Load entire sequence
-        sequence = self.storage.load_sequence(seq_id)
+        # Load entire sequence (safe for small sequences <1MB)
+        sequence = self.storage.get_sequence_chunk(seq_id, 0, seq_length)
         
         # Analyze
         motifs = analyze_sequence(
