@@ -64,8 +64,8 @@ CHUNKING_CONFIG = {
     # Adaptive thresholds for automatic strategy selection
     'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED
     'single_tier_threshold': 1_000_000,      # 50KB-1MB: micro-tier only - CORRECTED
-    'double_tier_threshold': 100_000_000,    # 1MB-100MB: meso+micro tiers - CORRECTED
-    # >100MB: macro+meso+micro tiers (triple-tier)
+    'double_tier_threshold': 100_000_000,    # >=100MB: triple-tier begins (macro+meso+micro) - CORRECTED
+    # 1MB-100MB: double-tier (meso+micro tiers)
     
     # Parallel detector execution
     'enable_parallel_detectors': True,       # Run detectors in parallel

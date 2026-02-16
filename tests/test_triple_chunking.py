@@ -352,7 +352,8 @@ class TestAdaptiveStrategySelection(unittest.TestCase):
         analyzer = TripleAdaptiveChunkAnalyzer(self.storage, use_adaptive=True)
         
         # Test sequences at each threshold (CORRECTED thresholds)
-        # Note: At boundary values, the next tier is used (< vs <=)
+        # Note: At exact boundary values, the higher tier is used (< comparison)
+        # e.g., 50KB exactly triggers single-tier (not direct)
         test_cases = [
             (49_999, "direct"),       # Just below 50KB
             (50_000, "single"),       # Exactly 50KB -> single-tier
