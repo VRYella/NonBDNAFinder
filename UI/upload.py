@@ -1263,6 +1263,11 @@ def render():
                             # Get full sequence for standard analysis
                             seq = st.session_state.seq_storage.get_sequence_chunk(seq_id, 0, seq_length)
                             
+                            # Validate sequence before analysis
+                            if not seq or len(seq) == 0:
+                                status_placeholder.error(f"❌ Empty sequence detected for: {name}")
+                                continue
+                            
                             # Use standard analysis
                             results = analyze_sequence(
                                 seq, name,
@@ -1336,6 +1341,11 @@ def render():
                         # Build status message (no timing information)
                         status_msg = f"Processing sequence {i+1}/{len(st.session_state.seqs)}: {name} ({len(seq):,} bp)"
                         status_placeholder.info(status_msg)
+                        
+                        # Validate sequence before analysis
+                        if not seq or len(seq) == 0:
+                            status_placeholder.error(f"❌ Empty sequence detected for: {name}")
+                            continue
                         
                         # Run the analysis - use parallel scanner for large sequences if enabled
                         # No per-sequence timing - total time captured once at end
