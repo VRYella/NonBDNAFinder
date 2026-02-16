@@ -45,6 +45,33 @@ ANALYSIS_CONFIG = {
     'max_file_size_mb': 1024,      # Maximum file size in MB (1 GB default)
 }
 
+# ==================== TRIPLE ADAPTIVE CHUNKING CONFIG ====================
+# Three-tier hierarchical chunking for genome-scale analysis
+# Automatically selects optimal strategy based on sequence size
+CHUNKING_CONFIG = {
+    # Micro-tier (base analysis level)
+    'micro_chunk_size': 50_000,       # 50KB chunks for fast analysis
+    'micro_overlap': 2_000,            # 2KB overlap to catch boundary motifs
+    
+    # Meso-tier (memory management level)
+    'meso_chunk_size': 5_000_000,     # 5MB chunks for memory efficiency
+    'meso_overlap': 5_000,             # 5KB overlap between meso-chunks
+    
+    # Macro-tier (parallelization level)
+    'macro_chunk_size': 50_000_000,   # 50MB chunks for parallel processing
+    'macro_overlap': 10_000,           # 10KB overlap between macro-chunks
+    
+    # Adaptive thresholds for automatic strategy selection
+    'direct_threshold': 1_000_000,           # <1MB: direct analysis (no chunking)
+    'single_tier_threshold': 10_000_000,     # 1-10MB: micro-tier only
+    'double_tier_threshold': 100_000_000,    # 10-100MB: meso+micro tiers
+    # >100MB: macro+meso+micro tiers (triple-tier)
+    
+    # Performance tuning
+    'enable_adaptive': True,          # Enable adaptive strategy selection
+    'max_workers': None,              # None = auto-detect CPU count
+}
+
 # ==================== SEQUENCE COMPOSITION THRESHOLDS ====================
 # GC balance thresholds for genomic DNA analysis
 # Typical balanced genomic DNA falls within 30-70% GC content

@@ -24,8 +24,9 @@ except ImportError: STREAMLIT_PROGRESS_AVAILABLE = False
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS - All configuration values at the top for easy modification
 # ═══════════════════════════════════════════════════════════════════════════════
-__version__ = "2024.1"; __author__ = "Dr. Venkata Rajesh Yella"
-CHUNK_THRESHOLD = 10000; DEFAULT_CHUNK_SIZE = 10000; DEFAULT_CHUNK_OVERLAP = 2500
+__version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
+# Standardized to match triple adaptive chunking: 50KB chunks with 2KB overlap
+CHUNK_THRESHOLD = 10000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 2000
 HYBRID_MIN_OVERLAP = 0.50; HYBRID_MAX_OVERLAP = 0.99
 CLUSTER_WINDOW_SIZE = 300; CLUSTER_MIN_MOTIFS = 4; CLUSTER_MIN_CLASSES = 3
 DETECTOR_DISPLAY_NAMES = {'curved_dna': 'Curved DNA', 'slipped_dna': 'Slipped DNA', 'cruciform': 'Cruciform', 'r_loop': 'R-Loop', 'triplex': 'Triplex', 'g_quadruplex': 'G-Quadruplex', 'i_motif': 'i-Motif', 'z_dna': 'Z-DNA', 'a_philic': 'A-philic DNA'}
