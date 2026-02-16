@@ -68,9 +68,9 @@ class ChunkAnalyzer:
         sequence_storage,
         chunk_size: int = 5_000_000,
         overlap: int = 10_000,
-        use_parallel: bool = False,
+        use_parallel: bool = True,
         max_workers: Optional[int] = None,
-        use_adaptive: bool = False
+        use_adaptive: bool = True
     ):
         """
         Initialize chunk analyzer.
@@ -79,9 +79,9 @@ class ChunkAnalyzer:
             sequence_storage: UniversalSequenceStorage instance
             chunk_size: Size of each chunk in base pairs (default: 5MB)
             overlap: Overlap between chunks in base pairs (default: 10KB)
-            use_parallel: Enable parallel processing of chunks (default: False)
+            use_parallel: Enable parallel processing of chunks (default: True)
             max_workers: Maximum number of parallel workers (default: CPU count - 1)
-            use_adaptive: Enable triple adaptive chunking strategy (default: False)
+            use_adaptive: Enable triple adaptive chunking strategy (default: True)
         """
         self.sequence_storage = sequence_storage
         self.chunk_size = chunk_size
@@ -92,6 +92,13 @@ class ChunkAnalyzer:
         
         logger.info(f"ChunkAnalyzer initialized (chunk_size={chunk_size:,}, overlap={overlap:,}, "
                    f"parallel={use_parallel}, workers={self.max_workers}, adaptive={use_adaptive})")
+        
+        # Log multiprocessing configuration for diagnostics
+        try:
+            logger.info(f"Multiprocessing start method: {multiprocessing.get_start_method()}")
+            logger.info(f"Available CPU cores: {multiprocessing.cpu_count()}")
+        except Exception as e:
+            logger.warning(f"Multiprocessing diagnostics failed: {e}")
     
     def _create_motif_key(self, motif: Dict[str, Any]) -> Tuple:
         """
@@ -299,6 +306,7 @@ class ChunkAnalyzer:
         if self.use_parallel and total_chunks > 1:
             # Parallel processing mode
             logger.info(f"Using parallel processing with {self.max_workers} workers")
+            logger.info(f"Processing {total_chunks} chunks in parallel")
             
             # Collect all chunk data
             chunk_data = []

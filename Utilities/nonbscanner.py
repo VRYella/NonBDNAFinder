@@ -11,7 +11,7 @@
 import os; import warnings; import time; import threading; import logging; import bisect; import multiprocessing; import pandas as pd
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 warnings.filterwarnings("ignore"); logger = logging.getLogger(__name__)
 
@@ -267,7 +267,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
     return _analyze_sequence_chunked(sequence, sequence_name, chunk_size, chunk_overlap, progress_callback, use_parallel_chunks, enabled_classes)
 
 def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int, chunk_overlap: int, progress_callback: Optional[Callable[[int, int, int, float, float], None]] = None, use_parallel_chunks: bool = True, enabled_classes: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-    """Optimized chunked analysis with ThreadPoolExecutor (Python GIL limits true parallelism)."""
+    """Optimized chunked analysis with ProcessPoolExecutor for true CPU parallelism."""
     # Validate input - check for None and empty sequences
     if sequence is None or not sequence or len(sequence) == 0:
         logger.warning(f"Empty or None sequence provided for chunked analysis: {sequence_name}")
@@ -288,12 +288,24 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
             chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
             for motif in chunk_motifs: motif['Start'] += chunk_start; motif['End'] += chunk_start
             return chunk_idx, chunk_end - chunk_start, chunk_motifs
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(process_chunk, (i, chunk)): i for i, chunk in enumerate(chunks)}; results_by_idx = {}
-            for future in as_completed(futures):
-                chunk_idx, chunk_len, chunk_motifs = future.result(); results_by_idx[chunk_idx] = chunk_motifs; bp_processed += chunk_len
+        
+        try:
+            # Try true parallelism with ProcessPoolExecutor
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                futures = {executor.submit(process_chunk, (i, chunk)): i for i, chunk in enumerate(chunks)}; results_by_idx = {}
+                for future in as_completed(futures):
+                    chunk_idx, chunk_len, chunk_motifs = future.result(); results_by_idx[chunk_idx] = chunk_motifs; bp_processed += chunk_len
+                    if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
+                for i in range(total_chunks): all_motifs.extend(results_by_idx.get(i, []))
+        except (RuntimeError, OSError) as e:
+            # Fallback to sequential if multiprocessing fails (e.g., restricted environments)
+            logger.warning(f"ProcessPoolExecutor failed ({e}), falling back to sequential processing")
+            for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
+                chunk_seq = sequence[chunk_start:chunk_end]
+                chunk_motifs = scanner.analyze_sequence(chunk_seq, sequence_name, enabled_classes=enabled_classes)
+                for motif in chunk_motifs: motif['Start'] += chunk_start; motif['End'] += chunk_start
+                all_motifs.extend(chunk_motifs); bp_processed += chunk_end - chunk_start
                 if progress_callback: elapsed = time.time() - start_time; progress_callback(chunk_idx + 1, total_chunks, bp_processed, elapsed, _throughput(bp_processed, elapsed))
-            for i in range(total_chunks): all_motifs.extend(results_by_idx.get(i, []))
     else:
         for chunk_idx, (chunk_start, chunk_end) in enumerate(chunks):
             chunk_seq = sequence[chunk_start:chunk_end]
