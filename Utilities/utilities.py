@@ -316,7 +316,7 @@ DEFAULT_PDF_WINDOW_DIVISOR = 20      # Divisor for adaptive window sizing
 
 # Application version
 APP_NAME = "NonBDNAFinder"
-APP_VERSION = "2025.1"
+APP_VERSION = "2024.4"
 
 # File hosting settings - DEPRECATED
 # Note: file.io upload functionality has been removed in favor of direct downloads
@@ -3126,6 +3126,83 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
                 df_cluster.to_excel(writer, sheet_name='Cluster_Motifs', index=False)
     
     return f"Excel file exported successfully to {filename}"
+
+
+def export_multifasta_to_excel(
+    annotations_by_sequence: Dict[str, List[Dict[str, Any]]],
+    sequence_lengths: Dict[str, int],
+    filename: str = "multifasta_results.xlsx",
+    equal_length: bool = False,
+    seq_length: Optional[int] = None
+) -> str:
+    """
+    Export MultiFASTA analysis results to Excel with unified format.
+    
+    Creates Excel workbook with sheets:
+    - All_Motifs: All motifs with FASTA_ID column
+    - Sequence_Summary: Per-sequence statistics (Length, Total_Motifs, Motifs_per_kb)
+    - Class_Summary: Aggregated class/subclass counts
+    - Positional_Occurrence: Position-level counts (only if equal_length=True)
+    
+    Args:
+        annotations_by_sequence: Dict mapping FASTA_ID to list of motif annotations
+        sequence_lengths: Dict mapping FASTA_ID to sequence length
+        filename: Output Excel filename
+        equal_length: Whether all sequences have equal length
+        seq_length: Sequence length if equal_length is True
+        
+    Returns:
+        Success message string
+    """
+    try:
+        import openpyxl
+    except ImportError:
+        raise ImportError("openpyxl is required for Excel export. Install with: pip install openpyxl")
+    
+    from Utilities.multifasta_visualizer import prepare_multifasta_excel_data
+    
+    # Prepare all sheet data
+    sheet_data = prepare_multifasta_excel_data(
+        annotations_by_sequence,
+        sequence_lengths,
+        equal_length,
+        seq_length
+    )
+    
+    # Create Excel writer
+    with pd.ExcelWriter(filename, engine='openpyxl') as writer:
+        # Sheet 1: All motifs with FASTA_ID
+        if sheet_data['All_Motifs']:
+            # Add FASTA_ID as first column
+            all_motifs_data = []
+            for motif in sheet_data['All_Motifs']:
+                row = {'FASTA_ID': motif.get('FASTA_ID', 'Unknown')}
+                # Add core columns
+                for col in CORE_OUTPUT_COLUMNS:
+                    value = motif.get(col, DEFAULT_COLUMN_VALUES.get(col, 'NA'))
+                    row[col] = value
+                all_motifs_data.append(row)
+            
+            columns = ['FASTA_ID'] + CORE_OUTPUT_COLUMNS
+            df_all = pd.DataFrame(all_motifs_data, columns=columns)
+            df_all.to_excel(writer, sheet_name='All_Motifs', index=False)
+        
+        # Sheet 2: Sequence Summary
+        if sheet_data['Sequence_Summary']:
+            df_seq = pd.DataFrame(sheet_data['Sequence_Summary'])
+            df_seq.to_excel(writer, sheet_name='Sequence_Summary', index=False)
+        
+        # Sheet 3: Class Summary
+        if sheet_data['Class_Summary']:
+            df_class = pd.DataFrame(sheet_data['Class_Summary'])
+            df_class.to_excel(writer, sheet_name='Class_Summary', index=False)
+        
+        # Sheet 4: Positional Occurrence (only if equal length)
+        if 'Positional_Occurrence' in sheet_data and sheet_data['Positional_Occurrence']:
+            df_pos = pd.DataFrame(sheet_data['Positional_Occurrence'])
+            df_pos.to_excel(writer, sheet_name='Positional_Occurrence', index=False)
+    
+    return f"MultiFASTA Excel file exported successfully to {filename}"
 
 
 def export_statistics_to_excel(motifs: List[Dict[str, Any]], sequence_length: int, 

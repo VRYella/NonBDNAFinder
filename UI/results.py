@@ -64,6 +64,100 @@ def render():
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
     
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # MULTIFASTA UNIFIED VISUALIZATIONS (NEW)
+    # ═══════════════════════════════════════════════════════════════════════════════
+    if seq_count > 1:
+        st.markdown("---")
+        st.markdown("### 📊 MultiFASTA Unified Analysis")
+        st.markdown("<div style='background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #f59e0b;'><p style='color:#92400e;margin:0;font-size:0.8rem;'><strong>Unified View:</strong> Comparing motif patterns across all sequences in your MultiFASTA input.</p></div>", unsafe_allow_html=True)
+        
+        # Check if all sequences have equal length
+        equal_length = len(set(lengths)) == 1
+        
+        # Show equal-length indicator
+        if equal_length:
+            st.info(f"✨ All sequences have equal length ({lengths[0]:,} bp). Positional occurrence analysis is available below.")
+        
+        # Collect annotations by sequence
+        from Utilities.multifasta_visualizer import MultiFastaVisualizer
+        annotations_by_sequence = {}
+        sequence_lengths = {}
+        
+        for i in range(seq_count):
+            fasta_id = names[i]
+            motifs_i = get_results(i)
+            annotations_by_sequence[fasta_id] = motifs_i
+            sequence_lengths[fasta_id] = lengths[i]
+        
+        visualizer = MultiFastaVisualizer(annotations_by_sequence)
+        
+        # Generate unified summary statistics
+        summary_stats = visualizer.generate_unified_summary()
+        
+        # Display sequence-level statistics
+        with st.expander("📋 Sequence Statistics", expanded=True):
+            import pandas as pd
+            seq_stats = []
+            for stat in summary_stats['sequence_stats']:
+                total = stat['Total_Motifs']
+                seq_len = sequence_lengths[stat['FASTA_ID']]
+                density = (total / seq_len * 1000) if seq_len > 0 else 0
+                seq_stats.append({
+                    'Sequence': stat['FASTA_ID'],
+                    'Length (bp)': f"{seq_len:,}",
+                    'Total Motifs': total,
+                    'Motifs/kb': f"{density:.2f}"
+                })
+            st.dataframe(pd.DataFrame(seq_stats), use_container_width=True)
+        
+        # Unified visualizations
+        unified_tabs = st.tabs(["Class Distribution", "Density Heatmap", "Positional Analysis"])
+        
+        with unified_tabs[0]:
+            st.markdown("#### Motif Class Distribution per Sequence")
+            try:
+                fig = visualizer.generate_class_distribution_plot(figsize=(12, 6))
+                st.pyplot(fig)
+                plt.close(fig)
+            except Exception as e:
+                st.error(f"Class distribution plot error: {e}")
+        
+        with unified_tabs[1]:
+            st.markdown("#### Motif Density Heatmap")
+            try:
+                fig = visualizer.generate_density_heatmap(sequence_lengths, figsize=(12, 6))
+                st.pyplot(fig)
+                plt.close(fig)
+            except Exception as e:
+                st.error(f"Density heatmap error: {e}")
+        
+        with unified_tabs[2]:
+            if equal_length:
+                st.markdown("#### Positional Occurrence Analysis")
+                st.markdown("<div style='background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;'><p style='color:#1e3a8a;margin:0;font-size:0.75rem;'><strong>Note:</strong> Shows how many sequences have a motif at each position. Useful for identifying conserved regions.</p></div>", unsafe_allow_html=True)
+                try:
+                    seq_length = lengths[0]
+                    figures = visualizer.generate_positional_panels(seq_length, smooth=True, figsize=(12, 6))
+                    
+                    if 'overall' in figures:
+                        st.markdown("**Overall Positional Occurrence**")
+                        st.pyplot(figures['overall'])
+                        plt.close(figures['overall'])
+                    
+                    if 'by_class' in figures:
+                        st.markdown("**Positional Occurrence by Class**")
+                        st.pyplot(figures['by_class'])
+                        plt.close(figures['by_class'])
+                except Exception as e:
+                    st.error(f"Positional analysis error: {e}")
+            else:
+                st.info("⚠️ Positional occurrence analysis is only available when all sequences have equal length. Your sequences have different lengths.")
+        
+        st.markdown("---")
+        st.markdown("### 📄 Individual Sequence Analysis")
+        st.markdown("<div style='background:linear-gradient(135deg,#f3e8ff 0%,#e9d5ff 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;'><p style='color:#581c87;margin:0;font-size:0.8rem;'>Select a sequence below to view detailed per-sequence visualizations.</p></div>", unsafe_allow_html=True)
+    
     seq_idx = 0
     if seq_count > 1:
         try: sel = st.pills("Sequence:", options=list(range(seq_count)), format_func=lambda i: names[i], selection_mode="single", default=0); seq_idx = sel or 0
