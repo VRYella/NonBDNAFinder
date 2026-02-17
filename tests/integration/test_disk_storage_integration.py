@@ -7,7 +7,8 @@ Tests the full workflow: upload -> storage -> analysis -> results -> export
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add repository root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utilities.disk_storage import UniversalSequenceStorage, UniversalResultsStorage
 from Utilities.chunk_analyzer import ChunkAnalyzer

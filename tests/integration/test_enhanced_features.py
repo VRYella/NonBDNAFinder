@@ -12,7 +12,8 @@ All detectors now output comprehensive features including:
 import sys
 import tempfile
 import os
-sys.path.insert(0, '.')
+# Add repository root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Utilities.nonbscanner import analyze_sequence
 from Utilities.utilities import export_to_csv, export_to_json
 

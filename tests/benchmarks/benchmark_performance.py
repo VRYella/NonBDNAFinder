@@ -6,7 +6,9 @@ Tests the performance improvements after algorithmic optimizations.
 import sys
 import time
 import random
-sys.path.insert(0, '.')
+import os
+# Add repository root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utilities.nonbscanner import analyze_sequence
 

@@ -8,10 +8,11 @@ for sequences >50KB.
 
 import time
 import sys
+import os
 from typing import Dict, Any
 
-# Add parent directory to path
-sys.path.insert(0, '.')
+# Add repository root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utilities.nonbscanner import analyze_sequence, CHUNK_THRESHOLD
 

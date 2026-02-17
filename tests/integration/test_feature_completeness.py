@@ -13,7 +13,8 @@ Verifies that all required fields are present in detector output:
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add repository root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import all detectors
 from Detectors.gquad.detector import GQuadruplexDetector

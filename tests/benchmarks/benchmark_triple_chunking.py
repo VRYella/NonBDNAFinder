@@ -16,8 +16,8 @@ from pathlib import Path
 import sys
 import gc
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Add repository root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from Utilities.disk_storage import UniversalSequenceStorage
 from Utilities.triple_chunk_analyzer import TripleAdaptiveChunkAnalyzer
