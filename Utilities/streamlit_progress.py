@@ -75,15 +75,23 @@ class StreamlitProgressTracker:
         if not STREAMLIT_AVAILABLE or self.ui_created:
             return
         
-        # Header
-        st.markdown(f"### 🧬 Analyzing: `{self.sequence_name}`")
-        st.markdown(f"**Sequence Length:** {self.sequence_length:,} bp")
+        # Vibrant header with gradient background (no emojis)
+        st.markdown(f"""
+        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <h3 style='color: white; margin: 0; font-weight: 700;'>ANALYZING: {self.sequence_name}</h3>
+            <p style='color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 0; font-size: 0.95rem;'>
+                Sequence Length: {self.sequence_length:,} bp
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Progress bar
+        # Vibrant progress bar
         self.progress_bar = st.progress(0)
         self.status_text = st.empty()
         
-        # Metrics row
+        # Colorful metrics row with boxes
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             self.metric_progress = st.empty()
@@ -94,8 +102,13 @@ class StreamlitProgressTracker:
         with col4:
             self.metric_motifs = st.empty()
         
-        # Detector status
-        st.markdown("#### 🔍 Detector Status")
+        # Detector status header with vibrant styling
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+                    padding: 0.5rem 1rem; border-radius: 8px; margin: 1rem 0 0.5rem 0;'>
+            <h4 style='color: white; margin: 0; font-weight: 600;'>DETECTOR STATUS</h4>
+        </div>
+        """, unsafe_allow_html=True)
         self.detector_container = st.container()
         
         self.ui_created = True
@@ -138,26 +151,68 @@ class StreamlitProgressTracker:
         if self.progress_bar:
             self.progress_bar.progress(progress)
         
-        # Update status text
+        # Update status text with vibrant colored box (no emojis)
         if self.status_text:
             if progress < 1.0:
-                self.status_text.text(f"⏳ Processing: {self.completed_detectors}/{self.num_detectors} detectors complete...")
+                status_color = "#FF9100"  # Orange for processing
+                status_bg = "linear-gradient(135deg, #FFE57F 0%, #FFD54F 100%)"
+                status_msg = f"PROCESSING: {self.completed_detectors}/{self.num_detectors} detectors complete"
             else:
-                self.status_text.text(f"✅ Analysis complete!")
+                status_color = "#00E676"  # Green for complete
+                status_bg = "linear-gradient(135deg, #B9F6CA 0%, #69F0AE 100%)"
+                status_msg = "ANALYSIS COMPLETE"
+            
+            self.status_text.markdown(f"""
+            <div style='background: {status_bg}; 
+                        padding: 0.75rem; border-radius: 8px; 
+                        border-left: 4px solid {status_color};
+                        margin: 0.5rem 0;'>
+                <strong style='color: {status_color};'>{status_msg}</strong>
+            </div>
+            """, unsafe_allow_html=True)
         
-        # Update metrics
+        # Update metrics with vibrant colored boxes
         if hasattr(self, 'metric_progress'):
-            self.metric_progress.metric("Progress", f"{progress*100:.0f}%")
+            prog_pct = progress * 100
+            self.metric_progress.markdown(f"""
+            <div style='background: linear-gradient(135deg, #E040FB 0%, #D500F9 100%); 
+                        padding: 1rem; border-radius: 8px; text-align: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='color: white; font-size: 1.8rem; font-weight: 700;'>{prog_pct:.0f}%</div>
+                <div style='color: rgba(255,255,255,0.9); font-size: 0.8rem;'>PROGRESS</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         if hasattr(self, 'metric_time'):
-            self.metric_time.metric("Time Elapsed", f"{elapsed_time:.1f}s")
+            self.metric_time.markdown(f"""
+            <div style='background: linear-gradient(135deg, #0091FF 0%, #0043A8 100%); 
+                        padding: 1rem; border-radius: 8px; text-align: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='color: white; font-size: 1.8rem; font-weight: 700;'>{elapsed_time:.1f}s</div>
+                <div style='color: rgba(255,255,255,0.9); font-size: 0.8rem;'>ELAPSED</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         if hasattr(self, 'metric_throughput'):
             throughput = self.sequence_length / elapsed_time if elapsed_time > 0 else 0
-            self.metric_throughput.metric("Throughput", f"{throughput:,.0f} bp/s")
+            self.metric_throughput.markdown(f"""
+            <div style='background: linear-gradient(135deg, #00E676 0%, #00C853 100%); 
+                        padding: 1rem; border-radius: 8px; text-align: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='color: white; font-size: 1.8rem; font-weight: 700;'>{throughput:,.0f}</div>
+                <div style='color: rgba(255,255,255,0.9); font-size: 0.8rem;'>BP/S</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         if hasattr(self, 'metric_motifs'):
-            self.metric_motifs.metric("Motifs Found", f"{self.total_motifs:,}")
+            self.metric_motifs.markdown(f"""
+            <div style='background: linear-gradient(135deg, #FF6D00 0%, #FF9100 100%); 
+                        padding: 1rem; border-radius: 8px; text-align: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='color: white; font-size: 1.8rem; font-weight: 700;'>{self.total_motifs:,}</div>
+                <div style='color: rgba(255,255,255,0.9); font-size: 0.8rem;'>MOTIFS</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         # Update detector status
         if self.detector_container:
@@ -165,37 +220,58 @@ class StreamlitProgressTracker:
                 self._render_detector_status()
     
     def _render_detector_status(self) -> None:
-        """Render the detector status table."""
+        """Render the detector status table with vibrant colored boxes (no emojis)."""
         if not self.detector_status:
             return
         
-        # Create status indicators
-        status_rows = []
+        # Create vibrant status boxes for each detector
+        status_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.5rem;'>"
+        
         for detector, info in sorted(self.detector_status.items()):
             status = info['status']
             
+            # Choose color scheme based on status (no emojis/icons)
             if status == "complete":
-                icon = "✅"
-                status_text = "Complete"
+                bg_color = "linear-gradient(135deg, #B9F6CA 0%, #69F0AE 100%)"
+                border_color = "#00E676"
+                status_text = "COMPLETE"
+                text_color = "#00612E"
             elif status == "running":
-                icon = "⏳"
-                status_text = "Running..."
+                bg_color = "linear-gradient(135deg, #FFE57F 0%, #FFAB00 100%)"
+                border_color = "#FF9100"
+                status_text = "RUNNING"
+                text_color = "#BF360C"
             elif status == "error":
-                icon = "❌"
-                status_text = "Error"
+                bg_color = "linear-gradient(135deg, #FFCDD2 0%, #FF5252 100%)"
+                border_color = "#FF1744"
+                status_text = "ERROR"
+                text_color = "#B71C1C"
             else:
-                icon = "⏸️"
-                status_text = "Pending"
+                bg_color = "linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%)"
+                border_color = "#64748B"
+                status_text = "PENDING"
+                text_color = "#334155"
             
             elapsed_str = f"{info['elapsed']:.2f}s" if info['elapsed'] > 0 else "-"
             motifs_str = f"{info['motifs']:,}" if status == "complete" else "-"
+            detector_display = detector.replace('_', ' ').title()
             
-            status_rows.append(
-                f"- {icon} **{detector.replace('_', ' ').title()}**: "
-                f"{status_text} | Time: {elapsed_str} | Motifs: {motifs_str}"
-            )
+            status_html += f"""
+            <div style='background: {bg_color}; 
+                        padding: 0.75rem; border-radius: 8px; 
+                        border-left: 4px solid {border_color};
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='font-weight: 700; color: {text_color}; font-size: 0.9rem;'>{detector_display}</div>
+                <div style='display: flex; justify-content: space-between; margin-top: 0.25rem;'>
+                    <span style='color: {text_color}; font-size: 0.8rem; font-weight: 600;'>{status_text}</span>
+                    <span style='color: {text_color}; font-size: 0.8rem;'>{elapsed_str}</span>
+                </div>
+                <div style='color: {text_color}; font-size: 0.75rem; margin-top: 0.1rem;'>Motifs: {motifs_str}</div>
+            </div>
+            """
         
-        st.markdown("\n".join(status_rows))
+        status_html += "</div>"
+        st.markdown(status_html, unsafe_allow_html=True)
     
     def finalize(self) -> Dict[str, Any]:
         """
@@ -216,9 +292,19 @@ class StreamlitProgressTracker:
             'detector_details': self.detector_status
         }
         
-        # Show completion message
+        # Show completion message with vibrant styling (no emojis)
         if STREAMLIT_AVAILABLE and self.ui_created:
-            st.success(f"✅ Analysis complete! Found {self.total_motifs:,} motifs in {total_time:.2f}s")
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, #B9F6CA 0%, #69F0AE 100%); 
+                        padding: 1rem; border-radius: 8px; 
+                        border-left: 4px solid #00E676;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        text-align: center;'>
+                <strong style='color: #00612E; font-size: 1.1rem;'>
+                    ANALYSIS COMPLETE | Found {self.total_motifs:,} motifs in {total_time:.2f}s
+                </strong>
+            </div>
+            """, unsafe_allow_html=True)
         
         return summary
 
