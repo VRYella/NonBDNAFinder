@@ -3,7 +3,7 @@
 │ NBDScanner - Non-B DNA Motif Finder                                          │
 │ Main Application Entry Point                                                 │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
+│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.4            │
 └──────────────────────────────────────────────────────────────────────────────┘
 """
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -11,7 +11,7 @@
 import streamlit as st; import pandas as pd; import numpy as np; import re; import io; import traceback
 from collections import Counter
 from Utilities.config.text import UI_TEXT; from Utilities.config.themes import TAB_THEMES
-from UI.css import load_css; from UI.headers import render_section_heading; from UI.guards import generate_excel_bytes
+from UI.css import load_css; from UI.headers import render_section_heading; from UI.guards import generate_excel_bytes, generate_multifasta_excel_bytes
 from UI.storage_helpers import has_results, get_sequences_info, get_results
 from Utilities.utilities import export_to_csv, export_to_json, export_to_excel, export_to_pdf, export_to_bed
 from Utilities.export.export_validator import validate_export_data
@@ -53,7 +53,13 @@ def render():
         if all_motifs: st.download_button("📄 CSV", data=export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8'), file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs")
     with c2:
         if all_motifs:
-            try: st.download_button("📊 Excel", data=generate_excel_bytes(all_motifs, simple_format=True), file_name=f"{safe_fn}_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="Excel workbook")
+            try:
+                # Use MultiFASTA export if multiple sequences
+                if seq_count > 1:
+                    excel_bytes = generate_multifasta_excel_bytes(names, lengths, seq_count)
+                    st.download_button("📊 Excel (MultiFASTA)", data=excel_bytes, file_name=f"{safe_fn}_multifasta_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="MultiFASTA Excel workbook with unified summaries")
+                else:
+                    st.download_button("📊 Excel", data=generate_excel_bytes(all_motifs, simple_format=True), file_name=f"{safe_fn}_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="Excel workbook")
             except Exception as e: st.error(f"Excel error: {e}")
     with c3:
         if all_motifs: st.download_button("🔗 JSON", data=export_to_json(all_motifs, pretty=True).encode('utf-8'), file_name=f"{safe_fn}_results.json", mime="application/json", use_container_width=True, type="primary")
