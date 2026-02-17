@@ -1638,7 +1638,7 @@ def render():
                 # Threads are better than processes here since we're working with session state
                 max_viz_workers = min(4, multiprocessing.cpu_count())
                 
-                def calculate_viz_for_sequence(seq_idx, seq, name, motifs):
+                def calculate_viz_for_sequence(seq_idx, seq, motifs):
                     """Calculate visualization data for a single sequence."""
                     sequence_length = len(seq)
                     
@@ -1689,7 +1689,7 @@ def render():
                 with ThreadPoolExecutor(max_workers=max_viz_workers) as executor:
                     futures = []
                     for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
-                        future = executor.submit(calculate_viz_for_sequence, seq_idx, seq, name, motifs)
+                        future = executor.submit(calculate_viz_for_sequence, seq_idx, seq, motifs)
                         futures.append(future)
                     
                     # Collect results as they complete
@@ -1715,7 +1715,6 @@ def render():
                 
                 # Ephemeral success with scientific time format
                 status_placeholder.success(f"All visualizations prepared in parallel: {total_viz_count} components in {format_time_compact(viz_total_time)}")
-
                 
                 # Store performance metrics with enhanced details
                 st.session_state.performance_metrics = {
@@ -1807,16 +1806,14 @@ def render():
                     st.metric(
                         label="Analysis Time",
                         value=format_time_scientific(total_time),
-                        delta=f"{overall_speed:,.0f} bp/s",
-                        help="Total time spent on detection and analysis"
+                        help=f"Total time spent on detection and analysis. Processing speed: {overall_speed:,.0f} bp/s"
                     )
                 
                 with col3:
                     st.metric(
                         label="Visualization Time",
                         value=format_time_scientific(viz_total_time),
-                        delta="Parallel generation",
-                        help="Time spent generating visualizations in parallel"
+                        help=f"Time spent generating visualizations using parallel processing with {max_viz_workers} workers"
                     )
                 
                 # Analysis summary in clean expandable sections
@@ -1868,7 +1865,6 @@ def render():
                 
                 # Success message
                 st.success("✅ Analysis completed successfully! Navigate to the **Results** tab to explore detailed visualizations and export your data.")
-
                 
                 # ============================================================
                 # PERFORMANCE SUMMARY: Display comprehensive statistics

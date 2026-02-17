@@ -4593,8 +4593,13 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     
     # Use seaborn barplot for enhanced styling
     # Create bars with seaborn aesthetics
-    bars = sns.barplot(x=list(range(len(categories))), y=values, palette=colors, 
-                       ax=ax, edgecolor='black', linewidth=0.8, saturation=0.9)
+    sns.barplot(x=list(range(len(categories))), y=values, palette=colors, 
+                ax=ax, linewidth=0.8, saturation=0.9)
+    
+    # Apply edge color to bars after creation
+    for bar in ax.patches:
+        bar.set_edgecolor('black')
+        bar.set_linewidth(0.8)
     
     # Customize axes (Nature style - minimal, clean)
     ax.set_xlabel(f'Motif {by}', fontweight='bold', fontsize=12)
@@ -4613,7 +4618,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Add count labels on ALL bars (improved visibility)
     # Show numbers for all categories to make distribution clear
     max_val = max(values) if values and max(values) > 0 else 1
-    for i, (bar, count) in enumerate(zip(ax.patches, values)):
+    for bar, count in zip(ax.patches, values):
         height = bar.get_height()
         # Position label above bar if count > 0, at baseline if 0
         y_pos = height + max_val * 0.02 if count > 0 else 0.5
@@ -6062,7 +6067,13 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     
     # Use seaborn barplot for enhanced styling
     sns.barplot(y=display_classes, x=genomic_vals, palette=colors1, ax=ax1, 
-                edgecolor='black', linewidth=0.8, saturation=0.9, orient='h')
+                linewidth=0.8, saturation=0.9, orient='h')
+    
+    # Apply edge color to bars after creation
+    for bar in ax1.patches:
+        bar.set_edgecolor('black')
+        bar.set_linewidth(0.8)
+    
     ax1.set_xlabel('Genomic Density (Coverage %)', fontsize=12, fontweight='bold')
     ax1.set_ylabel('Motif Class', fontsize=12, fontweight='bold')
     ax1.set_title('A. Genomic Density (σ_G)', fontsize=13, fontweight='bold', pad=12)
@@ -6077,7 +6088,13 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     # Positional Density (Frequency)
     colors2 = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
     sns.barplot(y=display_classes, x=positional_vals, palette=colors2, ax=ax2, 
-                edgecolor='black', linewidth=0.8, saturation=0.9, orient='h')
+                linewidth=0.8, saturation=0.9, orient='h')
+    
+    # Apply edge color to bars after creation
+    for bar in ax2.patches:
+        bar.set_edgecolor('black')
+        bar.set_linewidth(0.8)
+    
     ax2.set_xlabel('Positional Density (motifs/kbp)', fontsize=12, fontweight='bold')
     ax2.set_ylabel('Motif Class', fontsize=12, fontweight='bold')
     ax2.set_title('B. Positional Density (λ)', fontsize=13, fontweight='bold', pad=12)

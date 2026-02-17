@@ -231,14 +231,18 @@ class MultiFastaVisualizer:
         
         # Use seaborn barplot for enhanced styling
         sns.barplot(x=classes, y=counts, ax=ax, palette='tab10', 
-                    edgecolor='black', linewidth=0.8, saturation=0.9)
+                    linewidth=0.8, saturation=0.9)
+        
+        # Apply edge color to bars after creation
+        for bar in ax.patches:
+            bar.set_edgecolor('black')
+            bar.set_linewidth(0.8)
         
         ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold')
         ax.set_ylabel('Total Count (All Sequences)', fontsize=12, fontweight='bold')
         ax.set_title(f'Aggregate Motif Distribution Across {len(self.fasta_ids)} Sequences', 
                      fontsize=14, fontweight='bold', pad=15)
-        ax.tick_params(axis='x', rotation=45)
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+        plt.xticks(rotation=45, ha='right')
         
         # Add value labels on bars
         for i, (bar, count) in enumerate(zip(ax.patches, counts)):
@@ -305,14 +309,18 @@ class MultiFastaVisualizer:
         
         # Use seaborn barplot for enhanced styling
         sns.barplot(x=classes, y=densities, ax=ax, palette='YlOrRd', 
-                    edgecolor='black', linewidth=0.8, saturation=0.9)
+                    linewidth=0.8, saturation=0.9)
+        
+        # Apply edge color to bars after creation
+        for bar in ax.patches:
+            bar.set_edgecolor('black')
+            bar.set_linewidth(0.8)
         
         ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold')
         ax.set_ylabel('Aggregate Density (motifs/kb)', fontsize=12, fontweight='bold')
         ax.set_title(f'Aggregate Motif Density Across {len(self.fasta_ids)} Sequences', 
                      fontsize=14, fontweight='bold', pad=15)
-        ax.tick_params(axis='x', rotation=45)
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+        plt.xticks(rotation=45, ha='right')
         
         # Add value labels on bars
         for i, (bar, density) in enumerate(zip(ax.patches, densities)):
