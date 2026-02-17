@@ -447,7 +447,16 @@ def analyze_false_negatives(
             'potential_causes': 'N/A'
         }
     
-    fn_nbst = nbst_df.iloc[fn_indices]
+    # Validate indices are within bounds to prevent crashes
+    valid_indices = [i for i in fn_indices if 0 <= i < len(nbst_df)]
+    if not valid_indices:
+        return {
+            'count': 0,
+            'mean_length': 0,
+            'potential_causes': 'Invalid indices (out of bounds)'
+        }
+    
+    fn_nbst = nbst_df.iloc[valid_indices]
     lengths = []
     for _, row in fn_nbst.iterrows():
         start = row.get('Start', 0)
@@ -463,7 +472,7 @@ def analyze_false_negatives(
             causes.append("Very long motifs may exceed search windows")
     
     return {
-        'count': len(fn_indices),
+        'count': len(valid_indices),
         'mean_length': np.mean(lengths) if lengths else 0,
         'median_length': np.median(lengths) if lengths else 0,
         'potential_causes': '; '.join(causes) if causes else 'Parameter/algorithm differences',

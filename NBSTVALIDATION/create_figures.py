@@ -92,7 +92,7 @@ def create_class_distribution_figure(nbf_df, nbst_data):
     axes[1].set_title('NBST Benchmark\n(n={} motifs)'.format(sum(nbst_counts.values())), fontsize=12, fontweight='bold')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure1_class_distribution.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure1_class_distribution.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure1_class_distribution.png")
 
@@ -134,7 +134,7 @@ def create_performance_metrics_figure(comparison_df):
                            ha='center', va='bottom', fontsize=8)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure2_performance_metrics.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure2_performance_metrics.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure2_performance_metrics.png")
 
@@ -196,7 +196,7 @@ def create_genomic_coverage_figure(nbf_df, nbst_data):
     ax.legend(handles=legend_patches, loc='upper right', ncol=3, fontsize=8)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure3_genomic_coverage.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure3_genomic_coverage.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure3_genomic_coverage.png")
 
@@ -232,7 +232,7 @@ def create_detection_count_figure(comparison_df):
                        ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure4_detection_counts.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure4_detection_counts.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure4_detection_counts.png")
 
@@ -277,7 +277,7 @@ def create_overlap_heatmap(nbf_df):
     ax.set_ylabel('Class', fontsize=12)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure5_overlap_heatmap.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure5_overlap_heatmap.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure5_overlap_heatmap.png")
 
@@ -312,7 +312,7 @@ def create_subclass_distribution(nbf_df):
     
     plt.suptitle('Subclass Distribution by Major Class', fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure6_subclass_distribution.png', dpi=300, bbox_inches='tight')
+    fig.savefig(VALIDATION_DIR / 'figure6_subclass_distribution.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure6_subclass_distribution.png")
 
