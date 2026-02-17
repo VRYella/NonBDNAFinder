@@ -93,6 +93,48 @@ def format_time(seconds):
         return f"{hours}h {mins}m"
 
 
+def format_time_human(seconds):
+    """Format time in seconds to a detailed human-readable string.
+    
+    Provides more detailed breakdown than format_time() for performance reports.
+    
+    Args:
+        seconds: Time in seconds (float or int)
+        
+    Returns:
+        Formatted string with full detail (e.g., "2 hours, 15 minutes, 30 seconds")
+    
+    Examples:
+        >>> format_time_human(45.3)
+        '45.3 seconds'
+        >>> format_time_human(750)
+        '12 minutes, 30 seconds'
+        >>> format_time_human(7800)
+        '2 hours, 10 minutes'
+    """
+    if seconds < 1:
+        return f"{seconds*1000:.0f} milliseconds"
+    elif seconds < 60:
+        return f"{seconds:.1f} seconds"
+    elif seconds < 3600:
+        mins = int(seconds // 60)
+        secs = seconds % 60
+        if secs >= 1:
+            return f"{mins} minute{'s' if mins != 1 else ''}, {secs:.1f} seconds"
+        else:
+            return f"{mins} minute{'s' if mins != 1 else ''}"
+    else:
+        hours = int(seconds // 3600)
+        mins = int((seconds % 3600) // 60)
+        secs = seconds % 60
+        result = f"{hours} hour{'s' if hours != 1 else ''}"
+        if mins > 0:
+            result += f", {mins} minute{'s' if mins != 1 else ''}"
+        if secs >= 1:
+            result += f", {secs:.0f} seconds"
+        return result
+
+
 def format_sequence_limit():
     """Format the sequence limit for display - now shows 'unlimited' since limit is removed"""
     return "unlimited (chunked processing enabled)"

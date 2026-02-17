@@ -28,8 +28,9 @@ from Utilities.config.motif_taxonomy import (
 )
 from Utilities.config.colors import CLASS_COLORS, CLASS_COLOR_NAMES
 from UI.css import load_css, get_page_colors
-from UI.formatters import format_time_scientific
+from UI.formatters import format_time_scientific, format_time_human, format_time
 from UI.headers import render_section_heading
+from UI.performance_stats import PerformanceTracker, format_performance_summary, format_motif_distribution
 from Utilities.utilities import (
     parse_fasta_chunked,
     get_file_preview,
@@ -1073,6 +1074,12 @@ def render():
                     if limits:
                         validation_messages.append(f"Valid {class_id}: Length limits {limits}")
             
+            # ============================================================
+            # PERFORMANCE TRACKING: Initialize tracker for statistics
+            # ============================================================
+            perf_tracker = PerformanceTracker()
+            perf_tracker.start()
+            
             # Enhanced progress tracking - timing captured exactly once at start and end
             import time
             
@@ -1086,6 +1093,9 @@ def render():
             # DETERMINISTIC TIMING: Start time captured exactly once
             # ============================================================
             start_time = time.time()
+            
+            # Show initial toast notification
+            st.toast("🧬 Starting Non-B DNA Analysis...", icon="🚀")
             
             # Define detector processes for display
             DETECTOR_PROCESSES = [
@@ -1215,104 +1225,136 @@ def render():
                         metadata = st.session_state.seq_storage.get_metadata(seq_id)
                         seq_length = metadata['length']
                         
-                        # Calculate overall percentage (deterministic, no timing)
+                        # Calculate overall percentage
                         overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                         
-                        # Determine status text based on progress state (no timing)
-                        if total_bp_processed == 0:
-                            status_text = "Starting analysis..."
-                            progress_display = "Starting"
-                        else:
-                            status_text = "Analysis in progress..."
-                            progress_display = f"{overall_percentage:.1f}%"
+                        # Use st.status() for real-time disappearing progress
+                        with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)", expanded=True) as status:
+                            seq_start_time = time.time()
+                            
+                            # Step 1: Validation
+                            st.write("✓ Validating sequence...")
+                            time.sleep(0.1)  # Brief pause for visual feedback
+                            
+                            # Determine whether to use chunking based on sequence size
+                            if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
+                                # Step 2: Chunking
+                                st.write(f"✓ Using chunk-based analysis (5MB chunks)")
+                                st.toast(f"📦 Chunking large sequence: {name}", icon="📦")
+                                
+                                # Create chunk progress callback with status updates
+                                chunk_progress = {'current': 0, 'total': 0}
+                                last_update_pct = 0
+                                
+                                def chunk_callback(progress_pct):
+                                    nonlocal last_update_pct
+                                    chunk_progress['current'] = int(progress_pct)
+                                    # Update every 20% to avoid too many updates
+                                    if progress_pct - last_update_pct >= 20:
+                                        st.write(f"  ⏳ Chunk progress: {progress_pct:.0f}%")
+                                        last_update_pct = progress_pct
+                                
+                                # Step 3: Analysis
+                                st.write("⏳ Running detectors on chunks...")
+                                chunk_start = time.time()
+                                
+                                # Analyze using ChunkAnalyzer
+                                analyzer = ChunkAnalyzer(
+                                    st.session_state.seq_storage,
+                                    use_parallel=True,
+                                    max_workers=None,
+                                    use_adaptive=False
+                                )
+                                
+                                results_storage = analyzer.analyze(
+                                    seq_id=seq_id,
+                                    progress_callback=chunk_callback,
+                                    enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
+                                )
+                                
+                                chunk_elapsed = time.time() - chunk_start
+                                perf_tracker.add_chunk_time(chunk_elapsed)
+                                
+                                # Store results storage
+                                st.session_state.results_storage[seq_id] = results_storage
+                                
+                                # Get results for filtering
+                                results = list(results_storage.iter_results(limit=10000))
+                                
+                                st.write(f"✓ Chunk analysis complete: {len(results):,} motifs found")
+                            else:
+                                # Small sequence: use standard analysis
+                                st.write("⏳ Running detectors...")
+                                
+                                # Get full sequence for standard analysis
+                                seq = st.session_state.seq_storage.get_sequence_chunk(seq_id, 0, seq_length)
+                                
+                                # Validate sequence before analysis
+                                if not seq or len(seq) == 0:
+                                    st.error(f"❌ Empty sequence detected")
+                                    status.update(label=f"❌ Failed: {name}", state="error")
+                                    continue
+                                
+                                # Use standard analysis
+                                analysis_start = time.time()
+                                results = analyze_sequence(
+                                    seq, name,
+                                    enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
+                                )
+                                analysis_elapsed = time.time() - analysis_start
+                                
+                                # Create results storage and save
+                                results_storage = UniversalResultsStorage(
+                                    base_dir=str(st.session_state.seq_storage.base_dir / "results"),
+                                    seq_id=seq_id
+                                )
+                                results_storage.append_batch(results)
+                                st.session_state.results_storage[seq_id] = results_storage
+                                
+                                st.write(f"✓ Analysis complete: {len(results):,} motifs found")
+                            
+                            # Calculate sequence stats
+                            seq_elapsed = time.time() - seq_start_time
+                            throughput = seq_length / seq_elapsed if seq_elapsed > 0 else 0
+                            
+                            # Update performance tracker
+                            perf_tracker.add_sequence_result(name, seq_length, seq_elapsed, len(results))
+                            
+                            # Step 4: Filtering
+                            st.write("⏳ Applying filters...")
                         
-                        # Build status message (no timing information)
-                        status_msg = f"Processing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)"
-                        status_placeholder.info(status_msg)
-                        
-                        # Determine whether to use chunking based on sequence size
-                        # Use module-level constant for threshold
-                        
-                        if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
-                            # Large sequence: use ChunkAnalyzer with simple chunking (no adaptive)
-                            status_placeholder.info(f"Using chunk-based analysis (5MB chunks): {name} ({seq_length:,} bp)")
+                            # Ensure all motifs have required fields
+                            results = [ensure_subclass(motif) for motif in results]
                             
-                            # Create chunk progress callback
-                            chunk_progress = {'current': 0, 'total': 0}
+                            # Filter results based on selected subclasses
+                            selected_classes_set = set(st.session_state.selected_classes)
+                            selected_subclasses_set = set(st.session_state.selected_subclasses)
                             
-                            def chunk_callback(progress_pct):
-                                chunk_progress['current'] = int(progress_pct)
-                                if progress_pct % 10 == 0:  # Update every 10%
-                                    status_placeholder.info(f"Analyzing chunks: {progress_pct:.0f}% complete")
-                            
-                            # Analyze using ChunkAnalyzer with simple chunking (adaptive disabled)
-                            analyzer = ChunkAnalyzer(
-                                st.session_state.seq_storage,
-                                use_parallel=True,  # Enable parallel chunk processing
-                                max_workers=None,  # Auto-detect CPU count
-                                use_adaptive=False  # Disable adaptive chunking - use simple 5MB chunks
-                            )
-                            
-                            results_storage = analyzer.analyze(
-                                seq_id=seq_id,
-                                progress_callback=chunk_callback,
-                                enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
-                            )
-                            
-                            # Store results storage
-                            st.session_state.results_storage[seq_id] = results_storage
-                            
-                            # Get results for filtering (load first 10000 for display)
-                            results = list(results_storage.iter_results(limit=10000))
-                            
-                            status_placeholder.success(f"Chunk analysis complete: {len(results)} motifs (showing first 10000)")
-                        else:
-                            # Small sequence: use standard analysis with sequence loaded into memory
-                            # Get full sequence for standard analysis
-                            seq = st.session_state.seq_storage.get_sequence_chunk(seq_id, 0, seq_length)
-                            
-                            # Validate sequence before analysis
-                            if not seq or len(seq) == 0:
-                                status_placeholder.error(f"❌ Empty sequence detected for: {name}")
-                                continue
-                            
-                            # Use standard analysis
-                            results = analyze_sequence(
-                                seq, name,
-                                enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
-                            )
-                            
-                            # Create results storage and save
-                            results_storage = UniversalResultsStorage(
-                                base_dir=str(st.session_state.seq_storage.base_dir / "results"),
-                                seq_id=seq_id
-                            )
-                            results_storage.append_batch(results)
-                            st.session_state.results_storage[seq_id] = results_storage
-                            
-                            status_placeholder.success(f"{name}: {seq_length:,} bp | {len(results)} motifs detected")
-                        
-                        # Ensure all motifs have required fields
-                        results = [ensure_subclass(motif) for motif in results]
-                        
-                        # Filter results based on selected subclasses
-                        selected_classes_set = set(st.session_state.selected_classes)
-                        selected_subclasses_set = set(st.session_state.selected_subclasses)
-                        
-                        filtered_results = []
-                        for motif in results:
-                            motif_class = motif.get('Class', '')
-                            motif_subclass = motif.get('Subclass', '')
-                            
-                            if motif_class in selected_classes_set:
-                                if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                    component_classes = motif.get('Component_Classes', [])
-                                    if not component_classes or any(c in selected_classes_set for c in component_classes):
+                            filtered_results = []
+                            for motif in results:
+                                motif_class = motif.get('Class', '')
+                                motif_subclass = motif.get('Subclass', '')
+                                
+                                if motif_class in selected_classes_set:
+                                    if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                        component_classes = motif.get('Component_Classes', [])
+                                        if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                            filtered_results.append(motif)
+                                    elif motif_subclass in selected_subclasses_set:
                                         filtered_results.append(motif)
-                                elif motif_subclass in selected_subclasses_set:
-                                    filtered_results.append(motif)
+                            
+                            results = filtered_results
+                            st.write(f"✓ Filters applied: {len(results):,} motifs retained")
+                            
+                            # Final summary
+                            st.write(f"⏱️ Time: {format_time(seq_elapsed)} | ⚡ Throughput: {throughput:,.0f} bp/s")
+                            
+                            # Update status to complete
+                            status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
+                            
+                            # Show toast notification for completion
+                            st.toast(f"✅ {name}: {len(results):,} motifs found", icon="✅")
                         
-                        results = filtered_results
                         all_results.append(results)
                         
                         total_bp_processed += seq_length
@@ -1329,142 +1371,89 @@ def render():
                     # === LEGACY IN-MEMORY MODE ===
                     for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
                         progress = (i + 1) / num_sequences
-                    
-                        # ============================================================
-                        # DETERMINISTIC EXECUTION: No timing inside loop
-                        # Progress percentage only - elapsed time computed once at end
-                        # ============================================================
                         
-                        # Calculate overall percentage (deterministic, no timing)
+                        # Calculate overall percentage
                         overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                         
-                        # Determine status text based on progress state (no timing)
-                        if total_bp_processed == 0:
-                            status_text = "Starting analysis..."
-                            progress_display = "Starting"
-                        else:
-                            status_text = "Analysis in progress..."
-                            progress_display = f"{overall_percentage:.1f}%"
-                        
-                        # Build status message (no timing information)
-                        status_msg = f"Processing sequence {i+1}/{len(st.session_state.seqs)}: {name} ({len(seq):,} bp)"
-                        status_placeholder.info(status_msg)
-                        
-                        # Validate sequence before analysis
-                        if not seq or len(seq) == 0:
-                            status_placeholder.error(f"❌ Empty sequence detected for: {name}")
-                            continue
-                        
-                        # Run the analysis - use parallel scanner for large sequences if enabled
-                        # No per-sequence timing - total time captured once at end
-                        
-                        if use_parallel_scanner and len(seq) > 100000:
-                            # NOTE: scanner_agent.py has been archived - parallel scanning experimental
-                            # Use experimental parallel scanner for large sequences
-                            try:
-                                from Utilities.scanner_agent import ParallelScanner
-                                
-                                # Create chunk progress placeholder
-                                chunk_progress_placeholder = st.empty()
-                                
-                                # Track chunk progress
-                                chunk_counter = {'current': 0, 'total': 0}
-                                
-                                def chunk_progress_callback(current, total):
-                                    """Callback to update chunk progress (ephemeral)"""
-                                    chunk_counter['current'] = current
-                                    chunk_counter['total'] = total
-                                    if show_chunk_progress:
-                                        # Ephemeral progress (replaces previous)
-                                        chunk_progress_placeholder.info(f"Parallel scanner processing chunks: {current}/{total} ({(current / total) * 100:.1f}%)")
-                                
-                                # Run parallel scanner with progress callback
-                                # Use ephemeral status (replaces previous message)
-                                status_placeholder.info(f"Using parallel scanner for {len(seq):,} bp sequence (est. chunks: ~{len(seq)//50000 + 1})")
-                                
-                                scanner = ParallelScanner(seq, hs_db=None)
-                                
-                                # The parallel scanner internally calls analyze_sequence on each chunk
-                                # and returns full motif dictionaries with deduplication
-                                results = scanner.run_scan(progress_callback=chunk_progress_callback)
-                                
-                                # Update sequence names for all motifs
-                                for motif in results:
-                                    motif['Sequence_Name'] = name
-                                
-                                # Clear chunk progress and show ephemeral success (replaces previous message)
-                                if show_chunk_progress:
-                                    chunk_progress_placeholder.success(f"Parallel chunks complete: {len(results)} motifs from {chunk_counter['total']} chunks")
-                                
-                                # Ephemeral success message (replaces previous)
-                                status_placeholder.success(f"Parallel scanner completed: {len(results)} motifs detected")
-                                
-                            except Exception as e:
-                                # Fallback to standard scanner on error (ephemeral warning)
-                                status_placeholder.warning(f"Parallel scanner failed, falling back to standard: {e}")
-                                results = analyze_sequence(seq, name, 
-                                                           enabled_classes=list(st.session_state.selected_classes))
-                        else:
-                            # Use standard consolidated NBDScanner analysis with selective detection
-                            # Pass enabled_classes for performance optimization - only runs selected detectors
-                            results = analyze_sequence(seq, name, 
-                                                       enabled_classes=list(st.session_state.selected_classes))
-                        
-                        # Ensure all motifs have required fields
-                        results = [ensure_subclass(motif) for motif in results]
-                        
-                        # ============================================================
-                        # FILTER RESULTS BASED ON SELECTED SUBCLASSES
-                        # ============================================================
-                        # Note: Class-level filtering is now done at detector level for performance.
-                        # Here we apply the finer-grained subclass filter.
-                        selected_classes_set = set(st.session_state.selected_classes)
-                        selected_subclasses_set = set(st.session_state.selected_subclasses)
-                        
-                        # Filter motifs to only include selected subclasses
-                        filtered_results = []
-                        for motif in results:
-                            motif_class = motif.get('Class', '')
-                            motif_subclass = motif.get('Subclass', '')
+                        # Use st.status() for real-time disappearing progress
+                        with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({len(seq):,} bp)", expanded=True) as status:
+                            seq_start_time = time.time()
                             
-                            # Include if class is selected AND (subclass is selected OR subclass matches selected class)
-                            if motif_class in selected_classes_set:
-                                # For Hybrid and Non-B_DNA_Clusters, include if parent class is selected
-                                if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                    # Always include these if they were formed from selected classes
-                                    component_classes = motif.get('Component_Classes', [])
-                                    if not component_classes or any(c in selected_classes_set for c in component_classes):
+                            # Step 1: Validation
+                            st.write("✓ Validating sequence...")
+                            
+                            if not seq or len(seq) == 0:
+                                st.error(f"❌ Empty sequence detected")
+                                status.update(label=f"❌ Failed: {name}", state="error")
+                                continue
+                            
+                            # Step 2: Analysis
+                            st.write("⏳ Running detectors...")
+                            analysis_start = time.time()
+                            
+                            # Use standard consolidated NBDScanner analysis
+                            results = analyze_sequence(
+                                seq, name,
+                                enabled_classes=list(st.session_state.selected_classes) if st.session_state.selected_classes else None
+                            )
+                            
+                            analysis_elapsed = time.time() - analysis_start
+                            st.write(f"✓ Analysis complete: {len(results):,} motifs found")
+                            
+                            # Step 3: Filtering
+                            st.write("⏳ Applying filters...")
+                            
+                            # Ensure all motifs have required fields
+                            results = [ensure_subclass(motif) for motif in results]
+                            
+                            # Filter results based on selected subclasses
+                            selected_classes_set = set(st.session_state.selected_classes)
+                            selected_subclasses_set = set(st.session_state.selected_subclasses)
+                            
+                            filtered_results = []
+                            for motif in results:
+                                motif_class = motif.get('Class', '')
+                                motif_subclass = motif.get('Subclass', '')
+                                
+                                if motif_class in selected_classes_set:
+                                    if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                        component_classes = motif.get('Component_Classes', [])
+                                        if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                            filtered_results.append(motif)
+                                    elif motif_subclass in selected_subclasses_set:
                                         filtered_results.append(motif)
-                                elif motif_subclass in selected_subclasses_set:
-                                    filtered_results.append(motif)
+                            
+                            results = filtered_results
+                            st.write(f"✓ Filters applied: {len(results):,} motifs retained")
+                            
+                            # Calculate stats
+                            seq_elapsed = time.time() - seq_start_time
+                            throughput = len(seq) / seq_elapsed if seq_elapsed > 0 else 0
+                            
+                            # Update performance tracker
+                            perf_tracker.add_sequence_result(name, len(seq), seq_elapsed, len(results))
+                            
+                            # Final summary
+                            st.write(f"⏱️ Time: {format_time(seq_elapsed)} | ⚡ Throughput: {throughput:,.0f} bp/s")
+                            
+                            # Update status to complete
+                            status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
+                            
+                            # Show toast notification
+                            st.toast(f"✅ {name}: {len(results):,} motifs found", icon="✅")
                         
-                        results = filtered_results
                         all_results.append(results)
                     
-                    total_bp_processed += len(seq)
-                    
-                    # Memory management: Trigger garbage collection for large sequences
-                    if len(seq) > 1_000_000:  # For sequences > 1 Mb
-                        trigger_garbage_collection()
-                        logger.debug(f"Triggered garbage collection after processing {name} ({len(seq):,} bp)")
-                    
-                    # ============================================================
-                    # DETERMINISTIC TIMING: No intermediate time calculations
-                    # Progress tracking only - elapsed time computed once at end
-                    # ============================================================
-                    
-                    # Calculate actual progress percentage (bp-based, deterministic)
-                    actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
-                    
-                    # Build progress info without timing (timing computed once at end)
-                    progress_info = f"Progress: {total_bp_processed:,} / {total_bp_all_sequences:,} bp | Motifs: {len(results)} in this sequence"
-                    
-                    # Update progress display (no timing - pure progress tracking)
-                    with progress_placeholder.container():
-                        pbar.progress(progress, text=f"Analyzed {i+1}/{len(st.session_state.seqs)} sequences ({actual_percentage:.1f}%)")
-                    
-                    # Ephemeral success (replaces previous) - no per-sequence timing shown
-                    status_placeholder.success(f"{name}: {len(seq):,} bp | {len(results)} motifs detected")
+                        total_bp_processed += len(seq)
+                        
+                        # Update progress display
+                        actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                        with progress_placeholder.container():
+                            pbar.progress(progress, text=f"Analyzed {i+1}/{len(st.session_state.seqs)} sequences ({actual_percentage:.1f}%)")
+                        
+                        # Memory management
+                        if len(seq) > 1_000_000:
+                            trigger_garbage_collection()
                 
                 # ============================================================
                 # MULTI-FASTA STABILITY: Results stored once atomically
@@ -1769,6 +1758,72 @@ def render():
                     f'</div>'
                 )
                 st.markdown(completion_html, unsafe_allow_html=True)
+                
+                # ============================================================
+                # PERFORMANCE SUMMARY: Display comprehensive statistics
+                # ============================================================
+                perf_tracker.end()
+                
+                # Calculate motif distribution by class
+                motifs_by_class = {}
+                for results in all_results:
+                    for motif in results:
+                        motif_class = motif.get('Class', 'Unknown')
+                        motifs_by_class[motif_class] = motifs_by_class.get(motif_class, 0) + 1
+                
+                # Display performance summary
+                st.subheader("⚡ Performance Report")
+                
+                # Create expandable section with detailed performance stats
+                with st.expander("📊 View Detailed Performance Statistics", expanded=False):
+                    # Format and display comprehensive performance summary
+                    perf_summary_text = format_performance_summary(perf_tracker, format_time_human)
+                    st.markdown(perf_summary_text)
+                    
+                    # Add motif distribution
+                    if motifs_by_class:
+                        st.markdown("---")
+                        motif_dist_text = format_motif_distribution(motifs_by_class)
+                        st.markdown(motif_dist_text)
+                
+                # Display key metrics as cards
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric(
+                        "Total Time",
+                        format_time(total_time),
+                        delta=None,
+                        help="Total analysis time in human-readable format"
+                    )
+                with col2:
+                    st.metric(
+                        "Throughput",
+                        f"{overall_speed:,.0f} bp/s",
+                        delta=None,
+                        help="Average processing speed"
+                    )
+                with col3:
+                    st.metric(
+                        "Total Motifs",
+                        f"{sum(len(r) for r in all_results):,}",
+                        delta=None,
+                        help="Total motifs detected across all sequences"
+                    )
+                with col4:
+                    mem_mb = get_memory_usage_mb()
+                    st.metric(
+                        "Peak Memory",
+                        f"{mem_mb:.0f} MB",
+                        delta=None,
+                        help="Memory usage at completion"
+                    )
+                
+                # Final toast notification
+                st.toast(
+                    f"🎉 Analysis complete! {sum(len(r) for r in all_results):,} motifs found in {format_time(total_time)}",
+                    icon="🎉"
+                )
+                
                 st.session_state.analysis_status = "Complete"
                 
                 # Set analysis_done flag for idempotent run button
