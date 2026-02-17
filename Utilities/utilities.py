@@ -135,7 +135,10 @@ warnings.filterwarnings("ignore")
 from Utilities.config.motif_taxonomy import (
     VALID_CLASSES,
     VALID_SUBCLASSES,
-    SUBCLASS_TO_CLASS
+    SUBCLASS_TO_CLASS,
+    get_all_classes_taxonomy_order,
+    get_all_subclasses_taxonomy_order,
+    MOTIF_CLASSIFICATION
 )
 
 # Import standardized GC content calculation
@@ -4278,8 +4281,11 @@ FEATURES:
 # - Clean, minimal design with proper spacing
 # - Colorblind-friendly palettes
 
-# Default DPI for publication quality (Nature requires 300 DPI minimum)
-PUBLICATION_DPI = 300
+# Default DPI for visualization (reduced to 150 to save memory)
+# 150 DPI is suitable for screen display and reduces file sizes significantly
+# For print/publication quality, Nature journals typically require 300 DPI
+# but we prioritize memory savings for web application performance
+PUBLICATION_DPI = 150
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
 # Single source of truth: config/colors.py → VISUALIZATION_MOTIF_COLORS
@@ -4321,33 +4327,34 @@ def _format_display_name(name: str) -> str:
 
 # Nature-level scientific styling configuration for publication-quality plots
 # Reference: Nature author guidelines for figure preparation
+# Modified: Fonts set to medium size for better readability
 _NATURE_STYLE_PARAMS = {
     # Typography - Arial/Helvetica as per Nature guidelines
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'font.size': 8,  # Nature recommends 5-7pt, we use 8pt for readability
+    'font.size': 10,  # Increased for readability (was 8pt)
     
     # Title and labels
-    'axes.titlesize': 9,
+    'axes.titlesize': 11,  # Increased for readability (was 9pt)
     'axes.titleweight': 'bold',
-    'axes.labelsize': 8,
+    'axes.labelsize': 10,  # Increased for readability (was 8pt)
     'axes.labelweight': 'normal',
     
     # Tick labels
-    'xtick.labelsize': 7,
-    'ytick.labelsize': 7,
+    'xtick.labelsize': 9,  # Increased for readability (was 7pt)
+    'ytick.labelsize': 9,  # Increased for readability (was 7pt)
     'xtick.major.size': 3,
     'ytick.major.size': 3,
     'xtick.major.width': 0.8,
     'ytick.major.width': 0.8,
     
     # Legend
-    'legend.fontsize': 7,
+    'legend.fontsize': 9,  # Increased for readability (was 7pt)
     'legend.frameon': False,
     'legend.borderpad': 0.4,
     
     # Figure
-    'figure.titlesize': 10,
+    'figure.titlesize': 12,  # Increased for readability (was 10pt)
     'figure.titleweight': 'bold',
     'figure.dpi': PUBLICATION_DPI,
     'figure.facecolor': 'white',
@@ -4473,8 +4480,9 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     
     # Use canonical taxonomy - single source of truth from config.motif_taxonomy
     # This ensures consistency across detectors, exports, and visualizations
-    ALL_CLASSES = sorted(VALID_CLASSES)
-    ALL_SUBCLASSES = sorted(VALID_SUBCLASSES)
+    # IMPORTANT: Use taxonomy order instead of alphabetical for proper ordering
+    ALL_CLASSES = get_all_classes_taxonomy_order()
+    ALL_SUBCLASSES = get_all_subclasses_taxonomy_order()
     
     # Count motifs by specified grouping
     counts = Counter(m.get(by, 'Unknown') for m in motifs) if motifs else Counter()
@@ -4483,7 +4491,10 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     if by == 'Class':
         categories = ALL_CLASSES
     else:
-        categories = ALL_SUBCLASSES
+        # For subclass plots, exclude Dynamic overlaps and Dynamic clusters
+        # as they are not meaningful for subclass distribution analysis
+        categories = [sc for sc in ALL_SUBCLASSES 
+                     if sc not in ['Dynamic overlaps', 'Dynamic clusters']]
     
     # Get counts (0 if not present)
     values = [counts.get(cat, 0) for cat in categories]
@@ -4518,14 +4529,14 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     
     # Add count labels on ALL bars (improved visibility)
     # Show numbers for all categories to make distribution clear
-    max_val = max(values) if max(values) > 0 else 1
+    max_val = max(values) if values and max(values) > 0 else 1
     for bar, count in zip(bars, values):
         height = bar.get_height()
         # Position label above bar if count > 0, at baseline if 0
         y_pos = height + max_val * 0.02 if count > 0 else 0.5
-        # Use larger font (8pt) and bold for better readability
+        # Use medium font size for readability
         ax.text(bar.get_x() + bar.get_width()/2., y_pos,
-                str(count), ha='center', va='bottom', fontsize=8, fontweight='bold')
+                str(count), ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     # Apply Nature journal style
     _apply_nature_style(ax)
@@ -5575,18 +5586,27 @@ def plot_subclass_analysis_comprehensive(motifs: List[Dict[str, Any]],
     for motif in motifs:
         class_name = motif.get('Class', 'Unknown')
         subclass_name = motif.get('Subclass', 'Unknown')
-        class_subclass_counts[class_name][subclass_name] += 1
+        # Skip Dynamic overlaps and Dynamic clusters for subclass barplot
+        if subclass_name not in ['Dynamic overlaps', 'Dynamic clusters']:
+            class_subclass_counts[class_name][subclass_name] += 1
     
-    # Prepare data for visualization
+    # Prepare data for visualization using taxonomy order
     all_subclasses = []
     all_counts = []
     all_classes = []
     
-    for class_name in sorted(class_subclass_counts.keys()):
-        for subclass_name, count in sorted(class_subclass_counts[class_name].items()):
-            all_subclasses.append(f"{class_name}:{subclass_name}")
-            all_counts.append(count)
-            all_classes.append(class_name)
+    # Use taxonomy order for classes
+    ordered_classes = get_all_classes_taxonomy_order()
+    for class_name in ordered_classes:
+        if class_name in class_subclass_counts:
+            # Get subclasses for this class from taxonomy
+            class_subclasses_ordered = [sc for sc in get_all_subclasses_taxonomy_order() 
+                                       if sc in class_subclass_counts[class_name]]
+            for subclass_name in class_subclasses_ordered:
+                count = class_subclass_counts[class_name][subclass_name]
+                all_subclasses.append(f"{class_name}:{subclass_name}")
+                all_counts.append(count)
+                all_classes.append(class_name)
     
     # Create figure
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize, 
@@ -5616,11 +5636,12 @@ def plot_subclass_analysis_comprehensive(motifs: List[Dict[str, Any]],
     
     # Create summary text
     summary_lines = ['Subclass Summary by Class:\n']
-    for class_name in sorted(class_subclass_counts.keys()):
-        subclasses = class_subclass_counts[class_name]
-        n_subclasses = len(subclasses)
-        total_count = sum(subclasses.values())
-        summary_lines.append(f'{class_name}: {n_subclasses} subclass(es), {total_count} motifs')
+    for class_name in ordered_classes:
+        if class_name in class_subclass_counts:
+            subclasses = class_subclass_counts[class_name]
+            n_subclasses = len(subclasses)
+            total_count = sum(subclasses.values())
+            summary_lines.append(f'{class_name}: {n_subclasses} subclass(es), {total_count} motifs')
     
     summary_text = '\n'.join(summary_lines)
     ax2.text(0.1, 0.5, summary_text, ha='left', va='center',
@@ -6722,10 +6743,32 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
     for motif in motifs:
         class_name = motif.get('Class', 'Unknown')
         subclass_name = motif.get('Subclass', 'Unknown')
-        key = f"{class_name}:{subclass_name}"
-        subclass_groups[key].append(motif)
+        # Filter out Dynamic overlaps and clusters
+        if subclass_name not in ['Dynamic overlaps', 'Dynamic clusters']:
+            key = f"{class_name}:{subclass_name}"
+            subclass_groups[key].append(motif)
     
-    subclasses = sorted(subclass_groups.keys())
+    # Use taxonomy order for subclasses
+    all_subclasses_ordered = get_all_subclasses_taxonomy_order()
+    # Build ordered list of keys that exist in the data
+    # Optimized to O(n+m) complexity where:
+    #   n = number of keys in subclass_groups
+    #   m = number of subclasses in taxonomy order
+    # Create a reverse lookup: subclass -> keys
+    subclass_to_keys = {}
+    for key in subclass_groups.keys():
+        # Extract subclass from "ClassName:SubclassName" format
+        if ':' in key:
+            subclass_part = key.split(':', 1)[1]
+            if subclass_part not in subclass_to_keys:
+                subclass_to_keys[subclass_part] = []
+            subclass_to_keys[subclass_part].append(key)
+    
+    # Build ordered list by iterating through taxonomy once
+    subclasses = []
+    for sc in all_subclasses_ordered:
+        if sc in subclass_to_keys:
+            subclasses.extend(subclass_to_keys[sc])
     
     # Calculate density matrix
     density_matrix = np.zeros((len(subclasses), num_windows))
@@ -6973,12 +7016,19 @@ def plot_manhattan_subclass_density(motifs: List[Dict[str, Any]],
     
     num_windows = max(1, sequence_length // window_size)
     
-    # Get unique subclasses
-    subclasses = sorted(set(m.get('Subclass', m.get('Class', 'Unknown')) for m in motifs
-                           if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES))
+    # Get unique subclasses using taxonomy order
+    # Filter out excluded classes and Dynamic overlaps/clusters
+    filtered_subclasses = set(m.get('Subclass', m.get('Class', 'Unknown')) for m in motifs
+                              if m.get('Class') not in CIRCOS_EXCLUDED_CLASSES
+                              and m.get('Subclass') not in ['Dynamic overlaps', 'Dynamic clusters'])
     
-    if not subclasses:
-        subclasses = sorted(set(m.get('Subclass', m.get('Class', 'Unknown')) for m in motifs))
+    if not filtered_subclasses:
+        filtered_subclasses = set(m.get('Subclass', m.get('Class', 'Unknown')) for m in motifs
+                                 if m.get('Subclass') not in ['Dynamic overlaps', 'Dynamic clusters'])
+    
+    # Order by taxonomy
+    all_subclasses_ordered = get_all_subclasses_taxonomy_order()
+    subclasses = [sc for sc in all_subclasses_ordered if sc in filtered_subclasses]
     
     # Create figure
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -7410,8 +7460,9 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
     # Create figure
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    # Plot each class on a separate track
-    classes = sorted(class_motifs.keys())
+    # Plot each class on a separate track using taxonomy order
+    all_classes_ordered = get_all_classes_taxonomy_order()
+    classes = [cls for cls in all_classes_ordered if cls in class_motifs]
     track_height = 0.6
     track_spacing = 1.0
     
@@ -7512,13 +7563,18 @@ def plot_linear_subclass_track(motifs: List[Dict[str, Any]],
     subclass_motifs = defaultdict(list)
     for motif in region_motifs:
         subclass_name = motif.get('Subclass', motif.get('Class', 'Unknown'))
-        subclass_motifs[subclass_name].append(motif)
+        # Filter out Dynamic overlaps and Dynamic clusters
+        if subclass_name not in ['Dynamic overlaps', 'Dynamic clusters']:
+            subclass_motifs[subclass_name].append(motif)
     
     # Create figure
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Plot each subclass on a separate track
-    subclasses = sorted(subclass_motifs.keys())
+    # Use taxonomy order instead of alphabetical sorting
+    all_subclasses_ordered = get_all_subclasses_taxonomy_order()
+    # Only include subclasses that are present in the data (excluding Dynamic overlaps/clusters)
+    subclasses = [sc for sc in all_subclasses_ordered if sc in subclass_motifs]
     track_height = 0.6
     track_spacing = 1.0
     
@@ -7539,10 +7595,10 @@ def plot_linear_subclass_track(motifs: List[Dict[str, Any]],
             )
             ax.add_patch(rect)
         
-        # Add subclass label on the left
+        # Add subclass label on the left - use medium font size
         display_name = subclass_name.replace('_', ' ')
         ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
-               display_name, ha='right', va='center', fontsize=8, fontweight='bold')
+               display_name, ha='right', va='center', fontsize=10, fontweight='bold')
     
     # Styling
     ax.set_xlim(region_start, region_end)
@@ -8638,7 +8694,9 @@ def plot_genome_landscape_track(motifs: List[Dict[str, Any]],
             class_name = motif.get('Class', 'Unknown')
             class_motifs[class_name].append(motif)
     
-    classes = sorted(class_motifs.keys())
+    # Use taxonomy order for classes
+    all_classes_ordered = get_all_classes_taxonomy_order()
+    classes = [cls for cls in all_classes_ordered if cls in class_motifs]
     track_height = 0.5
     track_spacing = 1.0
     
