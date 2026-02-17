@@ -197,12 +197,19 @@ def calculate_gc_percentage(sequences: list) -> float:
     """
     if not sequences:
         return 0.0
-    total_bp = sum(len(s) for s in sequences)
+    
+    # Calculate total base pairs and weighted GC in a single pass
+    total_bp = 0
+    total_gc_weighted = 0.0
+    for seq in sequences:
+        seq_len = len(seq)
+        if seq_len > 0:
+            total_bp += seq_len
+            total_gc_weighted += calc_gc_content(seq) * seq_len
+    
     if total_bp == 0:
         return 0.0
     
-    # Sum weighted GC percentages using standardized method
-    total_gc_weighted = sum(calc_gc_content(s) * len(s) for s in sequences)
     return total_gc_weighted / total_bp
 
 
