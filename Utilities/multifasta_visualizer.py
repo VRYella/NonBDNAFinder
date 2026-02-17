@@ -197,7 +197,10 @@ class MultiFastaVisualizer:
     
     def generate_class_distribution_plot(self, figsize: Tuple[int, int] = (10, 6)):
         """
-        Generate stacked bar plot showing motif class distribution per sequence.
+        Generate stacked bar plot showing aggregate motif class distribution using seaborn.
+        
+        NOTE: For multifasta, this shows ONLY aggregate distribution across ALL sequences,
+        not per-sequence visualizations as per requirements.
         
         Args:
             figsize: Figure size (width, height)
@@ -207,39 +210,50 @@ class MultiFastaVisualizer:
         """
         plt, sns = _ensure_matplotlib()
         
-        # Prepare data for stacked bar chart
-        data = []
-        for fasta_id in self.fasta_ids:
-            motifs = self.annotations[fasta_id]
-            class_counts = Counter(m.get('Class', 'Unknown') for m in motifs)
-            for cls, count in class_counts.items():
-                data.append({
-                    'FASTA_ID': fasta_id,
-                    'Class': cls,
-                    'Count': count
-                })
+        # Set seaborn style for publication quality
+        sns.set_style("whitegrid")
+        sns.set_context("paper", font_scale=1.2)
         
-        if not data:
-            fig, ax = plt.subplots(figsize=figsize)
+        # Aggregate class counts across ALL sequences (not per-sequence)
+        all_class_counts = Counter(m.get('Class', 'Unknown') for m in self.all_motifs)
+        
+        if not all_class_counts:
+            fig, ax = plt.subplots(figsize=figsize, dpi=300)
             ax.text(0.5, 0.5, 'No motifs to plot', ha='center', va='center')
             return fig
         
-        # Create pivot table for stacked bar
-        import pandas as pd
-        df = pd.DataFrame(data)
-        pivot_df = df.pivot_table(index='FASTA_ID', columns='Class', values='Count', fill_value=0)
+        # Prepare data for aggregate bar chart
+        classes = sorted(all_class_counts.keys())
+        counts = [all_class_counts[cls] for cls in classes]
         
-        # Plot stacked bar chart
-        fig, ax = plt.subplots(figsize=figsize)
-        pivot_df.plot(kind='bar', stacked=True, ax=ax, colormap='tab10')
+        # Create figure with high DPI
+        fig, ax = plt.subplots(figsize=figsize, dpi=300)
         
-        ax.set_xlabel('Sequence', fontsize=12, fontweight='bold')
-        ax.set_ylabel('Motif Count', fontsize=12, fontweight='bold')
-        ax.set_title('Motif Class Distribution per Sequence', fontsize=14, fontweight='bold')
-        ax.legend(title='Class', bbox_to_anchor=(1.05, 1), loc='upper left')
+        # Use seaborn barplot for enhanced styling
+        sns.barplot(x=classes, y=counts, ax=ax, palette='tab10', saturation=0.9)
+        
+        # Apply edge color to bars after creation
+        for bar in ax.patches:
+            bar.set_edgecolor('black')
+            bar.set_linewidth(0.8)
+        
+        ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Total Count (All Sequences)', fontsize=12, fontweight='bold')
+        ax.set_title(f'Aggregate Motif Distribution Across {len(self.fasta_ids)} Sequences', 
+                     fontsize=14, fontweight='bold', pad=15)
         plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
         
+        # Add value labels on bars (with length validation)
+        if len(ax.patches) == len(counts):
+            for bar, count in zip(ax.patches, counts):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{count:,}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        
+        # Apply seaborn despine for cleaner look
+        sns.despine(ax=ax, top=True, right=True)
+        
+        plt.tight_layout()
         return fig
     
     def generate_density_heatmap(
@@ -248,7 +262,10 @@ class MultiFastaVisualizer:
         figsize: Tuple[int, int] = (10, 6)
     ):
         """
-        Generate heatmap showing motif density (motifs per kb) per sequence and class.
+        Generate aggregate density bar plot showing motif density (motifs per kb) across all sequences.
+        
+        NOTE: For multifasta, this shows aggregate density metrics across ALL sequences,
+        not individual heatmaps as per requirements.
         
         Args:
             sequence_lengths: Dict mapping FASTA_ID to sequence length
@@ -259,42 +276,62 @@ class MultiFastaVisualizer:
         """
         plt, sns = _ensure_matplotlib()
         
-        # Prepare data
-        data = []
+        # Set seaborn style for publication quality
+        sns.set_style("whitegrid")
+        sns.set_context("paper", font_scale=1.2)
+        
+        # Aggregate density calculation across ALL sequences
+        class_densities = Counter()
+        total_length = sum(sequence_lengths.values())
+        
         for fasta_id in self.fasta_ids:
             motifs = self.annotations[fasta_id]
-            seq_length = sequence_lengths.get(fasta_id, 1)
-            
             class_counts = Counter(m.get('Class', 'Unknown') for m in motifs)
             for cls, count in class_counts.items():
-                density = (count / seq_length * 1000) if seq_length > 0 else 0
-                data.append({
-                    'FASTA_ID': fasta_id,
-                    'Class': cls,
-                    'Density': density
-                })
+                class_densities[cls] += count
         
-        if not data:
-            fig, ax = plt.subplots(figsize=figsize)
+        # Convert to density per kb
+        density_data = {}
+        for cls, count in class_densities.items():
+            density_data[cls] = (count / total_length * 1000) if total_length > 0 else 0
+        
+        if not density_data:
+            fig, ax = plt.subplots(figsize=figsize, dpi=300)
             ax.text(0.5, 0.5, 'No motifs to plot', ha='center', va='center')
             return fig
         
-        # Create pivot table for heatmap
-        import pandas as pd
-        df = pd.DataFrame(data)
-        pivot_df = df.pivot_table(index='FASTA_ID', columns='Class', values='Density', fill_value=0)
+        # Prepare data for bar plot
+        classes = sorted(density_data.keys())
+        densities = [density_data[cls] for cls in classes]
         
-        # Plot heatmap
-        fig, ax = plt.subplots(figsize=figsize)
-        sns.heatmap(pivot_df, annot=True, fmt='.2f', cmap='YlOrRd', ax=ax, cbar_kws={'label': 'Motifs/kb'})
+        # Create figure with high DPI
+        fig, ax = plt.subplots(figsize=figsize, dpi=300)
+        
+        # Use seaborn barplot for enhanced styling
+        sns.barplot(x=classes, y=densities, ax=ax, palette='YlOrRd', saturation=0.9)
+        
+        # Apply edge color to bars after creation
+        for bar in ax.patches:
+            bar.set_edgecolor('black')
+            bar.set_linewidth(0.8)
         
         ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold')
-        ax.set_ylabel('Sequence', fontsize=12, fontweight='bold')
-        ax.set_title('Motif Density Heatmap (Motifs per kb)', fontsize=14, fontweight='bold')
+        ax.set_ylabel('Aggregate Density (motifs/kb)', fontsize=12, fontweight='bold')
+        ax.set_title(f'Aggregate Motif Density Across {len(self.fasta_ids)} Sequences', 
+                     fontsize=14, fontweight='bold', pad=15)
         plt.xticks(rotation=45, ha='right')
-        plt.yticks(rotation=0)
-        plt.tight_layout()
         
+        # Add value labels on bars (with length validation)
+        if len(ax.patches) == len(densities):
+            for bar, density in zip(ax.patches, densities):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{density:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        
+        # Apply seaborn despine for cleaner look
+        sns.despine(ax=ax, top=True, right=True)
+        
+        plt.tight_layout()
         return fig
     
     def generate_positional_panels(
