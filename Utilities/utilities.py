@@ -4347,7 +4347,7 @@ FEATURES:
     - Publication-quality static plots
     - Interactive visualizations (Plotly)
     - Colorblind-friendly palettes
-    - SVG/PNG export at 300 DPI
+    - SVG/PNG export at 150 DPI
     - Customizable styling
 """
 
@@ -4363,6 +4363,7 @@ FEATURES:
 # Default DPI for visualization (reduced to 150 to save memory)
 # 150 DPI is suitable for screen display and reduces file sizes significantly
 # For print/publication quality, Nature journals typically require 300 DPI
+# but we use 150 DPI for screen display and faster rendering
 # but we prioritize memory savings for web application performance
 PUBLICATION_DPI = 150
 
@@ -4550,7 +4551,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         style: Style preset ('nature', 'default', 'presentation').
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style(style)
@@ -6936,7 +6937,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
         figsize: Figure size (width, height)
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style()
@@ -7081,7 +7082,7 @@ def plot_manhattan_subclass_density(motifs: List[Dict[str, Any]],
         figsize: Figure size (width, height)
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style()
@@ -9420,7 +9421,7 @@ Version:          {APP_VERSION}
 
 PACKAGE CONTENTS
 ════════════════
-• {job_id}.pdf                    - Consolidated visualization PDF with all plots (300 DPI)
+• {job_id}.pdf                    - Consolidated visualization PDF with all plots (150 DPI)
 • {job_id}.xlsx                   - Main Excel with 2 tabs: NonOverlappingConsolidated, OverlappingAll
 • {job_id}_statistics.xlsx        - Statistical Analysis with comprehensive metrics
 • {job_id}_nonoverlapping.csv     - CSV with non-overlapping consolidated motifs only
@@ -9428,7 +9429,7 @@ PACKAGE CONTENTS
 
 PDF CONTENTS
 ════════════
-The PDF contains publication-ready visualizations (300 DPI) ordered as follows:
+The PDF contains screen-quality visualizations (150 DPI) ordered as follows:
 1. Class Track - Linear position-based view of all motifs by class
 2. Subclass Track - Linear position-based view by subclass (excludes clusters)
 3. Class Distribution - Bar chart of motif counts by class
@@ -9468,7 +9469,7 @@ statistical software (R, Python, MATLAB) for further analysis.
 USAGE NOTES
 ═══════════
 ✓ All files are ready for immediate use
-✓ PDF visualizations are publication-quality (300 DPI)
+✓ PDF visualizations are screen-quality (150 DPI)
 ✓ Excel data can be filtered, sorted, and analyzed
 ✓ CSV is compatible with all standard analysis tools
 ✓ Statistics file provides comprehensive metrics for reporting
