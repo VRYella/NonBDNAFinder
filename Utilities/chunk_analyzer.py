@@ -66,8 +66,8 @@ class ChunkAnalyzer:
     def __init__(
         self,
         sequence_storage,
-        chunk_size: int = 5_000_000,
-        overlap: int = 10_000,
+        chunk_size: int = 50_000,       # ALWAYS use 50KB chunks
+        overlap: int = 5_000,           # 5KB overlap
         use_parallel: bool = True,
         max_workers: Optional[int] = None,
         use_adaptive: bool = False
@@ -77,7 +77,7 @@ class ChunkAnalyzer:
         
         Args:
             sequence_storage: UniversalSequenceStorage instance
-            chunk_size: Size of each chunk in base pairs (default: 5MB)
+            chunk_size: Size of each chunk in base pairs (default: 50KB - ALWAYS use 50KB chunks)
             overlap: Overlap between chunks in base pairs (default: 10KB)
             use_parallel: Enable parallel processing of chunks (default: True)
             max_workers: Maximum number of parallel workers (default: CPU count - 1)

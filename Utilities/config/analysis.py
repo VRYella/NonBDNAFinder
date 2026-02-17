@@ -43,8 +43,8 @@ MAX_OVERLAP_DISPLAY = 10
 ANALYSIS_CONFIG = {
     # Sequence processing thresholds
     'chunk_threshold': 1_000_000,     # Sequences > this size use chunking (bp) - Changed from 50KB to 1MB
-    'default_chunk_size': 5_000_000,  # Default chunk size for large sequences (bp) - matches ChunkAnalyzer default
-    'default_chunk_overlap': 10_000,  # Overlap between chunks to catch motifs at boundaries (bp) - matches ChunkAnalyzer default
+    'default_chunk_size': 50_000,     # Default chunk size for large sequences (bp) - ALWAYS use 50KB chunks
+    'default_chunk_overlap': 5_000,   # Overlap between chunks to catch motifs at boundaries (bp)
     
     # Performance and display settings
     'max_sequences_preview': 3,    # Number of sequences to show in file preview
@@ -68,17 +68,17 @@ ANALYSIS_CONFIG = {
 # Three-tier hierarchical chunking for genome-scale analysis
 # Automatically selects optimal strategy based on sequence size
 CHUNKING_CONFIG = {
-    # Micro-tier (base analysis level)
+    # Micro-tier (base analysis level) - ALWAYS USE 50KB CHUNKS
     'micro_chunk_size': 50_000,       # 50KB chunks for fast analysis
     'micro_overlap': 2_000,            # 2KB overlap to catch boundary motifs
     
-    # Meso-tier (memory management level)
-    'meso_chunk_size': 5_000_000,     # 5MB chunks for memory efficiency
-    'meso_overlap': 5_000,             # 5KB overlap between meso-chunks
+    # Meso-tier (memory management level) - ALWAYS USE 50KB CHUNKS
+    'meso_chunk_size': 50_000,        # 50KB chunks for consistency
+    'meso_overlap': 2_000,            # 2KB overlap between meso-chunks
     
-    # Macro-tier (parallelization level)
-    'macro_chunk_size': 50_000_000,   # 50MB chunks for parallel processing
-    'macro_overlap': 10_000,           # 10KB overlap between macro-chunks
+    # Macro-tier (parallelization level) - ALWAYS USE 50KB CHUNKS
+    'macro_chunk_size': 50_000,       # 50KB chunks for consistency
+    'macro_overlap': 2_000,           # 2KB overlap between macro-chunks
     
     # Adaptive thresholds for automatic strategy selection
     'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED
