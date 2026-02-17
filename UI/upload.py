@@ -1323,12 +1323,12 @@ def render():
                             # Step 4: Filtering
                             st.write("⏳ Applying filters...")
                         
-                            # Ensure all motifs have required fields - safe iteration with bounds checking
+                            # Ensure all motifs have required fields - safe iteration with error handling
                             safe_results = []
                             for idx, motif in enumerate(results):
                                 try:
                                     safe_results.append(ensure_subclass(motif))
-                                except (IndexError, KeyError) as e:
+                                except (KeyError, AttributeError, TypeError) as e:
                                     logger.error(f"Error processing motif at index {idx}: {e}")
                                     continue  # Skip problematic motif instead of crashing
                             results = safe_results
@@ -1350,7 +1350,7 @@ def render():
                                                 filtered_results.append(motif)
                                         elif motif_subclass in selected_subclasses_set:
                                             filtered_results.append(motif)
-                                except (IndexError, KeyError) as e:
+                                except (KeyError, AttributeError, TypeError) as e:
                                     logger.error(f"Error filtering motif at index {idx}: {e}")
                                     continue  # Skip problematic motif instead of crashing
                             
@@ -1414,12 +1414,12 @@ def render():
                             # Step 3: Filtering
                             st.write("⏳ Applying filters...")
                             
-                            # Ensure all motifs have required fields - safe iteration with bounds checking
+                            # Ensure all motifs have required fields - safe iteration with error handling
                             safe_results = []
                             for idx, motif in enumerate(results):
                                 try:
                                     safe_results.append(ensure_subclass(motif))
-                                except (IndexError, KeyError) as e:
+                                except (KeyError, AttributeError, TypeError) as e:
                                     logger.error(f"Error processing motif at index {idx}: {e}")
                                     continue  # Skip problematic motif instead of crashing
                             results = safe_results
@@ -1441,7 +1441,7 @@ def render():
                                                 filtered_results.append(motif)
                                         elif motif_subclass in selected_subclasses_set:
                                             filtered_results.append(motif)
-                                except (IndexError, KeyError) as e:
+                                except (KeyError, AttributeError, TypeError) as e:
                                     logger.error(f"Error filtering motif at index {idx}: {e}")
                                     continue  # Skip problematic motif instead of crashing
                             

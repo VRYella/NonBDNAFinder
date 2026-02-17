@@ -74,15 +74,15 @@ def render():
     summary = get_results_summary(seq_idx)
     total_count = summary.get('total_count', 0)
     
-    # Adaptive loading: full load for <100K motifs, sampling for >100K
+    # Adaptive loading: full load for <100K motifs, limited load for >100K
     if total_count < 100_000:
         # Full load for accurate visualization
         motifs = get_results(seq_idx, limit=None)
     else:
-        # Smart sampling for large datasets (performance optimization)
+        # Load first 100,000 motifs for performance (sequential, not random sampling)
         motifs = get_results(seq_idx, limit=100_000)
-        # Inform user about sampling
-        st.info(f"📊 Displaying sampled data: showing 100,000 of {total_count:,} motifs for visualization performance. Statistics are computed from complete dataset.")
+        # Inform user about limited loading
+        st.info(f"📊 Displaying limited data: showing first 100,000 of {total_count:,} motifs for visualization performance. Statistics are computed from complete dataset.")
     
     slen = get_sequence_length(seq_idx)
     
