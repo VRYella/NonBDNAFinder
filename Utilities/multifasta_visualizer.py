@@ -455,10 +455,35 @@ def prepare_multifasta_excel_data(
         pos_data = visualizer.compute_positional_occurrence(seq_length)
         
         positional_occurrence = []
+        
+        # Collect data by class and subclass
         for cls, class_data in sorted(pos_data['Class'].items()):
-            for subcls, subclass_data in sorted(pos_data['Subclass'].items()):
-                if subcls.startswith(cls.replace('_', ' ')) or subcls.startswith(cls):
-                    for pos, count in sorted(subclass_data.items()):
+            # Get subclasses for this class
+            subclass_data_dict = {}
+            for subcls, subclass_positions in sorted(pos_data['Subclass'].items()):
+                # Match subclass to class (simple heuristic: check if subclass contains class name)
+                cls_normalized = cls.replace('-', '_').replace(' ', '_')
+                subcls_normalized = subcls.replace('-', '_').replace(' ', '_')
+                
+                # Check if they're related (this is a simple check)
+                # In a real scenario, we'd have a proper mapping
+                if cls_normalized in subcls_normalized or cls == 'Unknown':
+                    if cls not in subclass_data_dict:
+                        subclass_data_dict[subcls] = subclass_positions
+            
+            # If no subclass data, use class data directly
+            if not subclass_data_dict:
+                for pos, count in sorted(class_data.items()):
+                    positional_occurrence.append({
+                        'Position': pos,
+                        'Class': cls,
+                        'Subclass': 'Unknown',
+                        'Count': count
+                    })
+            else:
+                # Add entries for each subclass
+                for subcls, subclass_positions in subclass_data_dict.items():
+                    for pos, count in sorted(subclass_positions.items()):
                         positional_occurrence.append({
                             'Position': pos,
                             'Class': cls,
@@ -466,6 +491,7 @@ def prepare_multifasta_excel_data(
                             'Count': count
                         })
         
-        result['Positional_Occurrence'] = positional_occurrence
+        if positional_occurrence:
+            result['Positional_Occurrence'] = positional_occurrence
     
     return result
