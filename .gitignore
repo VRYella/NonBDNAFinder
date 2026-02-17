@@ -34,3 +34,6 @@ dist/
 
 # Benchmark results
 benchmark_results.json
+
+# Erroneous pip/package manager artifacts
+=*

@@ -63,25 +63,27 @@ NonBDNAFinder 2025.1 includes critical performance optimizations achieving **2-1
 | **Parallel detector execution** | **NEW: 1.5-2x faster** for large sequences | - |
 | **Streaming FASTA parser** | Same speed | 50-90% reduction for large files |
 
-### Latest Performance Enhancements (v2025.1.3)
+### Latest Performance Enhancements (v2025.1.3+)
 
-**NEW: Automatic Chunking for Sequences >50KB with Parallel Processing**
+**NEW: Simplified Chunking with Dual-Level Parallelization**
 
-Implemented automatic chunking and multi-level parallelization for **optimal performance**:
+Based on real-world performance testing (PRs #1-7), the tool now uses an optimized two-stage approach:
 
 | Feature | Configuration | Benefit |
 |---------|--------------|---------|
-| **Chunking Threshold** | 50,000 bp | Automatic for sequences >50KB |
-| **Chunk Size** | 50,000 bp | Optimal balance of speed/memory |
-| **Chunk Overlap** | 5,000 bp | Handles boundary motifs |
+| **Detector Parallelization** | 50,000 bp threshold | Parallel detectors for sequences >50KB |
+| **Sequence Chunking** | 1,000,000 bp threshold | Split large sequences >1MB into chunks |
+| **Chunk Size** | 5,000,000 bp | Optimal balance of speed/memory |
+| **Chunk Overlap** | 10,000 bp | Handles boundary motifs reliably |
 | **Parallel Chunks** | ProcessPoolExecutor | True CPU parallelism (4-8x speedup) |
-| **Parallel Detectors** | ThreadPoolExecutor | Within-chunk parallelism (1.5-2x speedup) |
+| **Parallel Detectors** | ThreadPoolExecutor | Within-sequence parallelism (1.5-2x speedup) |
+| **Adaptive Chunking** | Disabled | Simplified for consistent performance |
 
-**Performance Impact:**
-- **4-core system:** ~6x faster for large sequences
-- **8-core system:** ~12x faster for large sequences
-- **Automatic activation:** No configuration needed
-- **Memory efficient:** Constant ~70MB regardless of sequence size
+**Performance Behavior:**
+- **< 50KB:** Sequential detectors, no chunking
+- **50KB - 1MB:** Parallel detectors (1.5-2x), no chunking  
+- **> 1MB:** Parallel detectors + chunking (4-12x speedup)
+- **Memory:** Constant ~70MB regardless of sequence size
 
 **See [CHUNKING_AND_PARALLEL_IMPLEMENTATION.md](CHUNKING_AND_PARALLEL_IMPLEMENTATION.md) for complete details.**
 
