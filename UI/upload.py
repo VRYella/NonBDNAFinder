@@ -943,8 +943,8 @@ def render():
     # Create a full-width container for the run button
     run_button_container = st.container()
     with run_button_container:
-        # Create two columns for Run and Reset buttons
-        col_run, col_reset = st.columns([5, 1])
+        # Create three columns for Run, Reset buttons and Clock
+        col_run, col_reset, col_clock = st.columns([4, 1, 1])
         
         with col_run:
             # Primary action button with clear scientific terminology
@@ -1009,7 +1009,22 @@ def render():
                 st.session_state.analysis_time = None
                 # analysis_mode is always "Submotif Level" (fixed), no reset needed
                 st.rerun()
-
+        
+        with col_clock:
+            # Display current time (page load time) as a clock
+            from datetime import datetime
+            current_time = datetime.now().strftime("%H:%M:%S")
+            st.markdown(f"""
+            <div style='background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+                        color: white; padding: 10px 8px; 
+                        border-radius: 8px; text-align: center; font-weight: 600;
+                        font-size: 0.9rem; height: 100%; display: flex; 
+                        flex-direction: column; justify-content: center;
+                        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);'>
+                <div style='font-size: 0.7rem; opacity: 0.9;'>🕐 Time</div>
+                <div style='font-family: monospace; font-size: 1rem;'>{current_time}</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         # Placeholder for progress area
         progress_placeholder = st.empty()
