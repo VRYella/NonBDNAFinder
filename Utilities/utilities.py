@@ -4722,7 +4722,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
                          title: str = "Motif Distribution",
                          figsize: Tuple[float, float] = None) -> plt.Figure:
     """
-    Create nested donut chart with improved text placement to avoid overlapping labels.
+    Create nested donut chart with improved text placement using seaborn styling.
     
     Publication-quality hierarchical pie chart following Nature guidelines.
     
@@ -4735,7 +4735,10 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         Matplotlib figure object (publication-ready)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
-    set_scientific_style('nature')
+    
+    # Set seaborn style for publication quality
+    sns.set_style("white")  # Clean background for pie charts
+    sns.set_context("paper", font_scale=1.1)
     
     if figsize is None:
         figsize = FIGURE_SIZES['square']
@@ -4756,7 +4759,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
     class_values = list(class_counts.values())
     class_colors = [MOTIF_CLASS_COLORS.get(name, '#808080') for name in class_names]
     
-    # Create inner donut with Nature-style clean design
+    # Create inner donut with clean design
     # Use labels=None to manually place labels later for better control
     wedges1, texts1, autotexts1 = ax.pie(
         class_values, 
