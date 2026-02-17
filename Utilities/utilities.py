@@ -58,6 +58,7 @@ import tempfile
 import zipfile
 import logging
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -4345,7 +4346,7 @@ FEATURES:
     - Publication-quality static plots
     - Interactive visualizations (Plotly)
     - Colorblind-friendly palettes
-    - SVG/PNG export at 300 DPI
+    - SVG/PNG export at 150 DPI
     - Customizable styling
 """
 
@@ -4360,8 +4361,8 @@ FEATURES:
 
 # Default DPI for visualization (reduced to 150 to save memory)
 # 150 DPI is suitable for screen display and reduces file sizes significantly
-# For print/publication quality, Nature journals typically require 300 DPI
-# but we prioritize memory savings for web application performance
+# For print/publication quality, Nature journals typically require 300 DPI,
+# but we use 150 DPI for screen display, faster rendering, and memory savings
 PUBLICATION_DPI = 150
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
@@ -4548,7 +4549,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         style: Style preset ('nature', 'default', 'presentation').
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style(style)
@@ -5449,7 +5450,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
                    sequence_length: int,
                    output_dir: str = "plots",
                    file_format: str = "pdf",
-                   dpi: int = 300,
+                   dpi: int = 150,
                    style: str = 'nature') -> Dict[str, str]:
     """
     Generate and save all standard plots in publication quality.
@@ -5459,7 +5460,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
         sequence_length: Length of analyzed sequence
         output_dir: Output directory for plots
         file_format: File format ('pdf', 'png', 'svg') - pdf recommended for publication
-        dpi: Resolution for raster formats (default 300 DPI for publication)
+        dpi: Resolution for raster formats (default 150 DPI for screen quality)
         style: Style preset ('nature', 'default')
         
     Returns:
@@ -6934,7 +6935,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
         figsize: Figure size (width, height)
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style()
@@ -7079,7 +7080,7 @@ def plot_manhattan_subclass_density(motifs: List[Dict[str, Any]],
         figsize: Figure size (width, height)
         
     Returns:
-        Matplotlib figure object (publication-ready at 300 DPI)
+        Matplotlib figure object (screen-ready at 150 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style()
@@ -9076,7 +9077,7 @@ def save_figures_to_pdf(figures: List[plt.Figure], output_path: str) -> None:
     with PdfPages(output_path) as pdf:
         for fig in figures:
             if fig is not None:
-                pdf.savefig(fig, bbox_inches='tight', dpi=300)
+                pdf.savefig(fig, bbox_inches='tight', dpi=150)
                 plt.close(fig)
 
 
@@ -9089,6 +9090,7 @@ def create_consolidated_pdf(
 ) -> str:
     """
     Create a consolidated PDF with all visualizations for publication-ready results.
+    Uses parallel execution to speed up figure generation.
     
     Args:
         motifs: List of motif dictionaries
@@ -9102,41 +9104,60 @@ def create_consolidated_pdf(
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     pdf_path = os.path.join(output_dir, f"{job_id}.pdf")
-    figures = []
     
-    try:
+    # Calculate appropriate window size, ensuring it doesn't exceed sequence length
+    window_size = max(DEFAULT_PDF_WINDOW_SIZE_MIN, sequence_length // DEFAULT_PDF_WINDOW_DIVISOR)
+    window_size = min(window_size, sequence_length)  # Don't exceed sequence length
+    
+    # Define visualization tasks as tuples of (function, args, kwargs)
+    viz_tasks = [
         # Overview plots
-        figures.append(plot_motif_distribution(motifs, by='Class', title=f"Motif Classes - {sequence_name}"))
-        figures.append(plot_motif_distribution(motifs, by='Subclass', title=f"Motif Subclasses - {sequence_name}"))
-        figures.append(plot_nested_pie_chart(motifs, title=f"Class-Subclass Distribution - {sequence_name}"))
+        (plot_motif_distribution, (motifs,), {'by': 'Class', 'title': f"Motif Classes - {sequence_name}"}),
+        (plot_motif_distribution, (motifs,), {'by': 'Subclass', 'title': f"Motif Subclasses - {sequence_name}"}),
+        (plot_nested_pie_chart, (motifs,), {'title': f"Class-Subclass Distribution - {sequence_name}"}),
         
         # Coverage and density
-        figures.append(plot_coverage_map(motifs, sequence_length, title=f"Motif Coverage - {sequence_name}"))
-        
-        # Calculate appropriate window size, ensuring it doesn't exceed sequence length
-        window_size = max(DEFAULT_PDF_WINDOW_SIZE_MIN, sequence_length // DEFAULT_PDF_WINDOW_DIVISOR)
-        window_size = min(window_size, sequence_length)  # Don't exceed sequence length
-        
-        figures.append(plot_density_heatmap(motifs, sequence_length, 
-                                           window_size=window_size,
-                                           title=f"Motif Density - {sequence_name}"))
+        (plot_coverage_map, (motifs, sequence_length), {'title': f"Motif Coverage - {sequence_name}"}),
+        (plot_density_heatmap, (motifs, sequence_length), {'window_size': window_size, 'title': f"Motif Density - {sequence_name}"}),
         
         # Statistical distributions
-        figures.append(plot_length_distribution(motifs, by_class=True, title="Length Distribution by Class"))
-        figures.append(plot_score_distribution(motifs, by_class=True, title="Score Distribution by Class"))
+        (plot_length_distribution, (motifs,), {'by_class': True, 'title': "Length Distribution by Class"}),
+        (plot_score_distribution, (motifs,), {'by_class': True, 'title': "Score Distribution by Class"}),
         
         # Genome-wide analysis
-        figures.append(plot_manhattan_motif_density(motifs, sequence_length, title=f"Manhattan Plot - {sequence_name}"))
-        figures.append(plot_cumulative_motif_distribution(motifs, sequence_length, 
-                                                         title=f"Cumulative Distribution - {sequence_name}",
-                                                         by_class=True))
+        (plot_manhattan_motif_density, (motifs, sequence_length), {'title': f"Manhattan Plot - {sequence_name}"}),
+        (plot_cumulative_motif_distribution, (motifs, sequence_length), {'title': f"Cumulative Distribution - {sequence_name}", 'by_class': True}),
         
         # Advanced visualizations
-        figures.append(plot_motif_cooccurrence_matrix(motifs, title=f"Co-occurrence Matrix - {sequence_name}"))
-        figures.append(plot_motif_length_kde(motifs, by_class=True, title=f"Length Distribution - {sequence_name}"))
+        (plot_motif_cooccurrence_matrix, (motifs,), {'title': f"Co-occurrence Matrix - {sequence_name}"}),
+        (plot_motif_length_kde, (motifs,), {'by_class': True, 'title': f"Length Distribution - {sequence_name}"}),
         
         # Circos plot
-        figures.append(plot_circos_motif_density(motifs, sequence_length, title=f"Circos Density - {sequence_name}"))
+        (plot_circos_motif_density, (motifs, sequence_length), {'title': f"Circos Density - {sequence_name}"}),
+    ]
+    
+    # Execute visualization tasks in parallel
+    # Pre-allocate list to maintain figure order for PDF output
+    figures = [None] * len(viz_tasks)
+    # Cap workers at 8 to avoid thread contention; use os.cpu_count() for thread pool
+    max_workers = min(8, os.cpu_count() or 4, len(viz_tasks))
+    
+    try:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_index = {
+                executor.submit(func, *args, **kwargs): i 
+                for i, (func, args, kwargs) in enumerate(viz_tasks)
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_index):
+                index = future_to_index[future]
+                try:
+                    figures[index] = future.result()
+                except Exception as exc:
+                    logger.error(f"Visualization task {index} generated an exception: {exc}")
+                    figures[index] = None
         
         # Save all figures to PDF
         save_figures_to_pdf(figures, pdf_path)
@@ -9156,6 +9177,7 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
                   sequence_name: str = "Unknown Sequence") -> bytes:
     """
     Generate PDF containing visualization summaries of sequence analyses.
+    Uses parallel execution to speed up figure generation.
     
     This function creates a multi-page PDF with key visualizations that match
     the Results page display. The PDF includes:
@@ -9190,8 +9212,6 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
     # Create in-memory buffer for PDF
     pdf_buffer = io.BytesIO()
     
-    figures = []
-    
     # Define cluster classes for filtering
     cluster_classes = ['Hybrid', 'Non-B_DNA_Clusters']
     
@@ -9199,93 +9219,78 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
     has_clusters = any(m.get('Class') == 'Non-B_DNA_Clusters' for m in motifs)
     has_hybrids = any(m.get('Class') == 'Hybrid' for m in motifs)
     
+    # Filter motifs for subclass track
+    subclass_motifs = [m for m in motifs if m.get('Class') not in cluster_classes]
+    cluster_hybrid_motifs = [m for m in motifs if m.get('Class') in cluster_classes]
+    
+    # Pre-calculate densities for parallel execution
+    genomic_density = calculate_genomic_density(motifs, sequence_length, by_class=True)
+    positional_density_kbp = calculate_positional_density(motifs, sequence_length, unit='kbp', by_class=True)
+    
+    # Define visualization tasks - order matters for PDF output
+    viz_tasks = []
+    
+    # SECTION 1: LINEAR TRACKS
+    viz_tasks.append((plot_linear_motif_track, (motifs, sequence_length), {'title': f"Class Track - {sequence_name}"}))
+    
+    if subclass_motifs:
+        viz_tasks.append((plot_linear_subclass_track, (subclass_motifs, sequence_length), {'title': f"Subclass Track - {sequence_name}"}))
+    
+    # SECTION 2: DISTRIBUTION PLOTS
+    viz_tasks.append((plot_motif_distribution, (motifs,), {'by': 'Class', 'title': f"Motif Classes - {sequence_name}"}))
+    
+    viz_tasks.append((plot_motif_distribution, (motifs,), {'by': 'Subclass', 'title': f"Motif Subclasses - {sequence_name}"}))
+    
+    # SECTION 3: DENSITY ANALYSIS
+    viz_tasks.append((plot_density_comparison, (genomic_density, positional_density_kbp), {'title': f"Density Analysis - {sequence_name}"}))
+    
+    # SECTION 4: STATISTICAL DISTRIBUTIONS
+    viz_tasks.append((plot_motif_length_kde, (motifs,), {'by_class': True, 'title': f"Length Distribution - {sequence_name}"}))
+    
+    viz_tasks.append((plot_score_distribution, (motifs,), {'by_class': True, 'title': f"Score Distribution - {sequence_name}"}))
+    
+    # SECTION 5: COMPOSITION
+    viz_tasks.append((plot_nested_pie_chart, (motifs,), {'title': f"Class → Subclass - {sequence_name}"}))
+    
+    # SECTION 6: HYBRIDS & CLUSTERS
+    if has_hybrids or has_clusters:
+        if cluster_hybrid_motifs:
+            viz_tasks.append((plot_linear_motif_track, (cluster_hybrid_motifs, sequence_length), {'title': f"Hybrid & Cluster Track - {sequence_name}"}))
+    
+    if has_clusters:
+        viz_tasks.append((plot_cluster_size_distribution, (motifs,), {'title': f"Cluster Statistics - {sequence_name}"}))
+    
+    # SECTION 7: CO-OCCURRENCE & RELATIONSHIPS
+    viz_tasks.append((plot_motif_cooccurrence_matrix, (motifs,), {'title': f"Co-occurrence Matrix - {sequence_name}"}))
+    
+    # Execute visualization tasks in parallel
+    # Pre-allocate list to maintain figure order for PDF output
+    figures = [None] * len(viz_tasks)
+    # Cap workers at 8 to avoid thread contention; use os.cpu_count() for thread pool
+    max_workers = min(8, os.cpu_count() or 4, len(viz_tasks))
+    
     try:
-        # ========================================
-        # SECTION 1: LINEAR TRACKS (Position-based)
-        # ========================================
-        
-        # 1. Class Track - Linear visualization of all motifs by class
-        figures.append(plot_linear_motif_track(motifs, sequence_length, 
-                                               title=f"Class Track - {sequence_name}"))
-        
-        # 2. Subclass Track - Linear visualization grouped by subclass
-        # Filter out clusters from subclass track for cleaner view
-        subclass_motifs = [m for m in motifs if m.get('Class') not in cluster_classes]
-        if subclass_motifs:
-            figures.append(plot_linear_subclass_track(subclass_motifs, sequence_length, 
-                                                      title=f"Subclass Track - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 2: DISTRIBUTION PLOTS
-        # ========================================
-        
-        # 3. Class Distribution (Bar Chart)
-        figures.append(plot_motif_distribution(motifs, by='Class', 
-                                              title=f"Motif Classes - {sequence_name}"))
-        
-        # 4. Subclass Distribution (Bar Chart)
-        figures.append(plot_motif_distribution(motifs, by='Subclass', 
-                                              title=f"Motif Subclasses - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 3: DENSITY ANALYSIS
-        # ========================================
-        
-        # 5. Density Comparison (Genomic + Positional) - matches Results page
-        genomic_density = calculate_genomic_density(motifs, sequence_length, by_class=True)
-        positional_density_kbp = calculate_positional_density(motifs, sequence_length, unit='kbp', by_class=True)
-        figures.append(plot_density_comparison(genomic_density, positional_density_kbp,
-                                               title=f"Density Analysis - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 4: STATISTICAL DISTRIBUTIONS
-        # ========================================
-        
-        # 6. Length Distribution (Histogram) - matches Results page
-        figures.append(plot_motif_length_kde(motifs, by_class=True, 
-                                             title=f"Length Distribution - {sequence_name}"))
-        
-        # 7. Score Distribution
-        figures.append(plot_score_distribution(motifs, by_class=True,
-                                              title=f"Score Distribution - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 5: COMPOSITION
-        # ========================================
-        
-        # 8. Nested Pie Chart (Class → Subclass)
-        figures.append(plot_nested_pie_chart(motifs, 
-                                            title=f"Class → Subclass - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 6: HYBRIDS & CLUSTERS
-        # ========================================
-        
-        # 9. Hybrid & Cluster Track (if present)
-        if has_hybrids or has_clusters:
-            cluster_hybrid_motifs = [m for m in motifs if m.get('Class') in cluster_classes]
-            if cluster_hybrid_motifs:
-                figures.append(plot_linear_motif_track(cluster_hybrid_motifs, sequence_length,
-                                                       title=f"Hybrid & Cluster Track - {sequence_name}"))
-        
-        # 10. Cluster Statistics (if clusters present)
-        if has_clusters:
-            figures.append(plot_cluster_size_distribution(motifs,
-                                                          title=f"Cluster Statistics - {sequence_name}"))
-        
-        # ========================================
-        # SECTION 7: CO-OCCURRENCE & RELATIONSHIPS
-        # ========================================
-        
-        # 11. Co-occurrence Matrix
-        figures.append(plot_motif_cooccurrence_matrix(motifs,
-                                                      title=f"Co-occurrence Matrix - {sequence_name}"))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_index = {
+                executor.submit(func, *args, **kwargs): i 
+                for i, (func, args, kwargs) in enumerate(viz_tasks)
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_index):
+                index = future_to_index[future]
+                try:
+                    figures[index] = future.result()
+                except Exception as exc:
+                    logger.error(f"Visualization task {index} generated an exception: {exc}")
+                    figures[index] = None
         
         # Save all figures to PDF buffer
         with PdfPages(pdf_buffer) as pdf:
             for fig in figures:
                 if fig is not None:
-                    pdf.savefig(fig, bbox_inches='tight', dpi=300)
+                    pdf.savefig(fig, bbox_inches='tight', dpi=150)
                     plt.close(fig)
         
         # Get PDF data from buffer
@@ -9406,7 +9411,7 @@ Version:          {APP_VERSION}
 
 PACKAGE CONTENTS
 ════════════════
-• {job_id}.pdf                    - Consolidated visualization PDF with all plots (300 DPI)
+• {job_id}.pdf                    - Consolidated visualization PDF with all plots (150 DPI)
 • {job_id}.xlsx                   - Main Excel with 2 tabs: NonOverlappingConsolidated, OverlappingAll
 • {job_id}_statistics.xlsx        - Statistical Analysis with comprehensive metrics
 • {job_id}_nonoverlapping.csv     - CSV with non-overlapping consolidated motifs only
@@ -9414,7 +9419,7 @@ PACKAGE CONTENTS
 
 PDF CONTENTS
 ════════════
-The PDF contains publication-ready visualizations (300 DPI) ordered as follows:
+The PDF contains screen-quality visualizations (150 DPI) ordered as follows:
 1. Class Track - Linear position-based view of all motifs by class
 2. Subclass Track - Linear position-based view by subclass (excludes clusters)
 3. Class Distribution - Bar chart of motif counts by class
@@ -9454,7 +9459,7 @@ statistical software (R, Python, MATLAB) for further analysis.
 USAGE NOTES
 ═══════════
 ✓ All files are ready for immediate use
-✓ PDF visualizations are publication-quality (300 DPI)
+✓ PDF visualizations are screen-quality (150 DPI)
 ✓ Excel data can be filtered, sorted, and analyzed
 ✓ CSV is compatible with all standard analysis tools
 ✓ Statistics file provides comprehensive metrics for reporting
