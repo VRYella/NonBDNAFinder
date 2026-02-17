@@ -78,6 +78,9 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     st.markdown("---"); st.markdown("### Statistical Analysis Tables"); st.markdown("<div style='background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #22c55e;'><p style='color:#14532d;margin:0;font-size:0.8rem;'><strong>Advanced Analytics:</strong> Detailed distribution and density statistics</p></div>", unsafe_allow_html=True)
     if all_motifs:
+        # Initialize dataframes to prevent UnboundLocalError
+        dist_df = pd.DataFrame()
+        sub_df = pd.DataFrame()
         try:
             dist_data = []
             for i in range(seq_count):
@@ -102,17 +105,25 @@ def render():
                     mkb = (cnt / slen * 1000) if slen > 0 else 0; avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Subclass') == sname])
                     sub_data.append({'Sequence Name': name, 'Motif Class': pcls.replace('_', ' '), 'Motif Subclass': sname.replace('_', ' '), 'Count': cnt, 'Genomic Density (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Total Coverage (bp)': sum(m.get('Length', 0) for m in motifs if m.get('Subclass') == sname)})
             sub_df = pd.DataFrame(sub_data)
-            st.markdown("#### Class-Level Distribution Statistics"); st.dataframe(dist_df.head(10), use_container_width=True, height=300); st.caption(f"Showing first 10 of {len(dist_df)} records")
-            st.markdown("#### Subclass-Level Distribution Statistics"); st.dataframe(sub_df.head(10), use_container_width=True, height=300); st.caption(f"Showing first 10 of {len(sub_df)} records")
-            s1, s2, s3 = st.columns(3)
-            with s1: st.download_button("📈 Class Statistics (CSV)", data=dist_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_class_statistics.csv", mime="text/csv", use_container_width=True)
-            with s2: st.download_button("📉 Subclass Statistics (CSV)", data=sub_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_subclass_statistics.csv", mime="text/csv", use_container_width=True)
-            with s3:
-                try:
-                    out = io.BytesIO()
-                    with pd.ExcelWriter(out, engine='openpyxl') as w: dist_df.to_excel(w, sheet_name='Class Statistics', index=False); sub_df.to_excel(w, sheet_name='Subclass Statistics', index=False)
-                    out.seek(0); st.download_button("📊 All Statistics (Excel)", data=out.getvalue(), file_name=f"{safe_fn}_all_statistics.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
-                except Exception as e: st.error(f"Excel error: {e}")
+            if not dist_df.empty:
+                st.markdown("#### Class-Level Distribution Statistics"); st.dataframe(dist_df.head(10), use_container_width=True, height=300); st.caption(f"Showing first 10 of {len(dist_df)} records")
+            if not sub_df.empty:
+                st.markdown("#### Subclass-Level Distribution Statistics"); st.dataframe(sub_df.head(10), use_container_width=True, height=300); st.caption(f"Showing first 10 of {len(sub_df)} records")
+            if not dist_df.empty or not sub_df.empty:
+                s1, s2, s3 = st.columns(3)
+                with s1: 
+                    if not dist_df.empty:
+                        st.download_button("📈 Class Statistics (CSV)", data=dist_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_class_statistics.csv", mime="text/csv", use_container_width=True)
+                with s2: 
+                    if not sub_df.empty:
+                        st.download_button("📉 Subclass Statistics (CSV)", data=sub_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_subclass_statistics.csv", mime="text/csv", use_container_width=True)
+                with s3:
+                    if not dist_df.empty and not sub_df.empty:
+                        try:
+                            out = io.BytesIO()
+                            with pd.ExcelWriter(out, engine='openpyxl') as w: dist_df.to_excel(w, sheet_name='Class Statistics', index=False); sub_df.to_excel(w, sheet_name='Subclass Statistics', index=False)
+                            out.seek(0); st.download_button("📊 All Statistics (Excel)", data=out.getvalue(), file_name=f"{safe_fn}_all_statistics.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                        except Exception as e: st.error(f"Excel error: {e}")
         except Exception as e: st.error(f"Error generating statistics: {e}"); st.code(traceback.format_exc(), language="python")
     
     # ═══════════════════════════════════════════════════════════════════════════════
