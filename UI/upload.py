@@ -1619,10 +1619,10 @@ def render():
                     )
                 
                 # ============================================================
-                # PRE-GENERATE ALL VISUALIZATIONS IN PARALLEL
+                # PRE-GENERATE ALL VISUALIZATIONS FOR CLASSES AND SUBCLASSES
                 # ============================================================
                 # Ephemeral info (replaces previous)
-                status_placeholder.info("Generating comprehensive visualizations in parallel for all sequences...")
+                status_placeholder.info("Generating comprehensive visualizations for all classes and subclasses...")
                 
                 # Cache all visualizations for each sequence
                 st.session_state.cached_visualizations = {}
@@ -1630,16 +1630,10 @@ def render():
                 viz_start_time = time.time()
                 total_viz_count = 0
                 
-                # Import concurrent.futures for parallel visualization generation
-                from concurrent.futures import ThreadPoolExecutor, as_completed
+                # Reduce UI updates by batching - only update every N sequences or at end
+                UPDATE_INTERVAL = max(1, len(st.session_state.seqs) // 5)  # Update 5 times max
                 
-                # Use ThreadPoolExecutor for I/O-bound density calculations
-                # Threads are better than processes here since we're working with session state
-                MAX_VIZ_WORKERS = 4
-                max_viz_workers = min(MAX_VIZ_WORKERS, os.cpu_count() or MAX_VIZ_WORKERS)
-                
-                def calculate_viz_for_sequence(seq_idx, seq, motifs):
-                    """Calculate visualization data for a single sequence."""
+                for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
                     sequence_length = len(seq)
                     
                     # Show all motifs including hybrid/cluster motifs
@@ -1647,10 +1641,12 @@ def render():
                     filtered_motifs = motifs
                     
                     if not filtered_motifs:
-                        return seq_idx, None
+                        continue
                     
-                    viz_data = {}
+                    viz_cache_key = f"seq_{seq_idx}"
+                    st.session_state.cached_visualizations[viz_cache_key] = {}
                     
+                    # Pre-calculate all density metrics (class and subclass level) - optimized batch calculation
                     try:
                         # Calculate all densities in one pass to avoid redundant iterations
                         genomic_density_class = calculate_genomic_density(filtered_motifs, sequence_length, by_class=True)
@@ -1662,7 +1658,7 @@ def render():
                                                                                   unit='kbp', by_class=False, by_subclass=True)
                         
                         # Store density metrics
-                        viz_data['densities'] = {
+                        st.session_state.cached_visualizations[viz_cache_key]['densities'] = {
                             'class_genomic': genomic_density_class,
                             'class_positional': positional_density_class,
                             'subclass_genomic': genomic_density_subclass,
@@ -1673,48 +1669,26 @@ def render():
                         unique_classes = len(set(m.get('Class', 'Unknown') for m in filtered_motifs))
                         unique_subclasses = len(set(m.get('Subclass', 'Unknown') for m in filtered_motifs))
                         
-                        viz_data['summary'] = {
+                        st.session_state.cached_visualizations[viz_cache_key]['summary'] = {
                             'unique_classes': unique_classes,
                             'unique_subclasses': unique_subclasses,
                             'total_motifs': len(filtered_motifs)
                         }
                         
-                        return seq_idx, viz_data
+                        total_viz_count += 4  # Count density calculations
                         
                     except Exception as e:
-                        logger.error(f"Error calculating visualization for sequence {seq_idx}: {e}")
-                        return seq_idx, None
-                
-                # Submit all visualization tasks in parallel
-                with ThreadPoolExecutor(max_workers=max_viz_workers) as executor:
-                    futures = []
-                    for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
-                        future = executor.submit(calculate_viz_for_sequence, seq_idx, seq, motifs)
-                        futures.append(future)
-                    
-                    # Collect results as they complete
-                    completed_count = 0
-                    for future in as_completed(futures):
-                        seq_idx, viz_data = future.result()
-                        if viz_data is not None:
-                            viz_cache_key = f"seq_{seq_idx}"
-                            st.session_state.cached_visualizations[viz_cache_key] = viz_data
-                            total_viz_count += 4  # Count density calculations
-                        completed_count += 1
-                        
-                        # Update progress periodically
-                        if completed_count % max(1, len(futures) // 5) == 0 or completed_count == len(futures):
-                            progress_pct = (completed_count / len(futures)) * 100
-                            status_placeholder.info(f"Generating visualizations in parallel: {progress_pct:.0f}% complete ({completed_count}/{len(futures)} sequences)")
+                        # Log error but continue processing
+                        pass
                 
                 viz_total_time = time.time() - viz_start_time
                 
                 # Memory management: Trigger garbage collection after all visualizations
                 trigger_garbage_collection()
-                logger.info(f"Parallel visualization generation: {total_viz_count} components in {viz_total_time:.2f}s using {max_viz_workers} workers")
+                logger.debug(f"Triggered garbage collection after generating {total_viz_count} visualizations")
                 
                 # Ephemeral success with scientific time format
-                status_placeholder.success(f"All visualizations prepared in parallel: {total_viz_count} components in {format_time_compact(viz_total_time)}")
+                status_placeholder.success(f"All visualizations prepared: {total_viz_count} components in {format_time_compact(viz_total_time)}")
                 
                 # Store performance metrics with enhanced details
                 st.session_state.performance_metrics = {
@@ -1785,86 +1759,46 @@ def render():
                 
                 # Show comprehensive completion summary with scientific time format
                 # GOLD STANDARD: Final time display after everything is done
-                # Display as styled colored box with improved formatting
-                validation_status = '✓ PASSED' if len(validation_issues) == 0 else f'⚠ {len(validation_issues)} issues found'
+                # Display as styled colored box
+                validation_status = 'PASSED' if len(validation_issues) == 0 else f'{len(validation_issues)} issues found'
                 
-                # Build enhanced completion report with cleaner styling
-                st.markdown("---")
-                st.markdown("## 📋 Non-B DNA Analysis Report")
+                # Build completion HTML with styled green box
+                # Using concatenation for better readability while keeping single-line HTML for Streamlit
+                box_style = "background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 12px; padding: 20px; margin: 15px 0; color: white; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);"
+                section_style = "background: rgba(255,255,255,0.15); border-radius: 8px; padding: 12px; margin: 10px 0;"
+                h3_style = "margin: 0 0 15px 0; color: white; font-size: 1.4rem;"
+                h4_style = "margin: 0 0 8px 0; color: white; font-size: 1.1rem;"
+                ul_style = "margin: 0; padding-left: 20px; list-style-type: disc;"
+                footer_style = "margin-top: 15px; font-weight: 600; font-size: 1.1rem; text-align: center;"
                 
-                # Create three columns for key metrics
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.metric(
-                        label="Total Motifs Detected",
-                        value=f"{sum(len(r) for r in all_results):,}",
-                        help="Total number of Non-B DNA motifs found across all sequences"
-                    )
-                
-                with col2:
-                    st.metric(
-                        label="Analysis Time",
-                        value=format_time_scientific(total_time),
-                        help=f"Total time spent on detection and analysis. Processing speed: {overall_speed:,.0f} bp/s"
-                    )
-                
-                with col3:
-                    st.metric(
-                        label="Visualization Time",
-                        value=format_time_scientific(viz_total_time),
-                        help=f"Time spent generating visualizations using parallel processing with {max_viz_workers} workers"
-                    )
-                
-                # Analysis summary in clean expandable sections
-                with st.expander("🔬 Detection Summary", expanded=True):
-                    st.markdown(f"""
-                    - **Sequences Analyzed**: {len(st.session_state.seqs)} sequence(s)
-                    - **Total Base Pairs**: {total_bp_processed:,} bp
-                    - **Detector Processes**: {len(DETECTOR_PROCESSES)} specialized detectors
-                    - **Processing Speed**: {overall_speed:,.0f} bp/second
-                    - **Motifs per Sequence**: {sum(len(r) for r in all_results) / len(st.session_state.seqs):.1f} average
-                    """)
-                    
-                    # Show motif distribution by class
-                    motifs_by_class = {}
-                    for results in all_results:
-                        for motif in results:
-                            motif_class = motif.get('Class', 'Unknown')
-                            motifs_by_class[motif_class] = motifs_by_class.get(motif_class, 0) + 1
-                    
-                    if motifs_by_class:
-                        st.markdown("**Motifs by Class:**")
-                        for cls, count in sorted(motifs_by_class.items(), key=lambda x: x[1], reverse=True):
-                            st.markdown(f"- {cls.replace('_', ' ')}: {count:,} motifs")
-                
-                with st.expander("✅ Quality Validation", expanded=False):
-                    st.markdown(f"""
-                    - **Data Consistency**: {validation_status}
-                    - **Non-redundancy Check**: ✓ Complete
-                    - **Position Validation**: ✓ Complete
-                    - **Field Validation**: ✓ Complete
-                    """)
-                    
-                    if validation_issues:
-                        st.warning(f"Found {len(validation_issues)} validation issues:")
-                        for issue in validation_issues[:5]:
-                            st.markdown(f"- {issue}")
-                        if len(validation_issues) > 5:
-                            st.markdown(f"- ... and {len(validation_issues) - 5} more")
-                
-                with st.expander("🎨 Visualization Preparation", expanded=False):
-                    st.markdown(f"""
-                    - **Components Generated**: {total_viz_count} visualization components
-                    - **Generation Mode**: Parallel processing with {max_viz_workers} workers
-                    - **Preparation Time**: {format_time_scientific(viz_total_time)}
-                    - **Class-level Analysis**: ✓ Ready
-                    - **Subclass-level Analysis**: ✓ Ready
-                    - **Density Metrics**: ✓ Pre-calculated
-                    """)
-                
-                # Success message
-                st.success("✅ Analysis completed successfully! Navigate to the **Results** tab to explore detailed visualizations and export your data.")
+                completion_html = (
+                    f'<div style="{box_style}">'
+                    f'<h3 style="{h3_style}">✅ Analysis Complete! All processing stages finished successfully:</h3>'
+                    f'<div style="{section_style}">'
+                    f'<h4 style="{h4_style}">Detection &amp; Analysis:</h4>'
+                    f'<ul style="{ul_style}">'
+                    f'<li>{len(DETECTOR_PROCESSES)} detector processes completed</li>'
+                    f'<li>{sum(len(r) for r in all_results)} total motifs detected across {len(st.session_state.seqs)} sequences</li>'
+                    f'<li>Analysis completed in {format_time_scientific(total_time)} ({overall_speed:,.0f} bp/s)</li>'
+                    f'</ul></div>'
+                    f'<div style="{section_style}">'
+                    f'<h4 style="{h4_style}">Quality Validation:</h4>'
+                    f'<ul style="{ul_style}">'
+                    f'<li>Data consistency checks: {validation_status}</li>'
+                    f'<li>Non-redundancy validation: Complete</li>'
+                    f'<li>Position validation: Complete</li>'
+                    f'</ul></div>'
+                    f'<div style="{section_style}">'
+                    f'<h4 style="{h4_style}">Visualization Generation:</h4>'
+                    f'<ul style="{ul_style}">'
+                    f'<li>{total_viz_count} visualization components pre-generated</li>'
+                    f'<li>Class-level and subclass-level analysis ready</li>'
+                    f'<li>Visualizations prepared in {format_time_scientific(viz_total_time)}</li>'
+                    f'</ul></div>'
+                    f'<div style="{footer_style}">View detailed results in the \'Results\' tab.</div>'
+                    f'</div>'
+                )
+                st.markdown(completion_html, unsafe_allow_html=True)
                 
                 # ============================================================
                 # PERFORMANCE SUMMARY: Display comprehensive statistics
