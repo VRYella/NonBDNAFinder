@@ -252,10 +252,13 @@ SUBCLASS_ALIASES: Dict[str, str] = {
 
 def get_all_classes() -> List[str]:
     """
-    Get list of all canonical class names.
+    Get list of all canonical class names in alphabetical order.
+    
+    Note: For visualizations, use get_all_classes_taxonomy_order() instead
+    to maintain biological taxonomy order.
     
     Returns:
-        Sorted list of class names (alphabetically)
+        Alphabetically sorted list of class names
     """
     return sorted(VALID_CLASSES)
 

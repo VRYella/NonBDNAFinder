@@ -4331,29 +4331,29 @@ _NATURE_STYLE_PARAMS = {
     # Typography - Arial/Helvetica as per Nature guidelines
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'font.size': 10,  # Medium size for readability (was 8pt)
+    'font.size': 10,  # Increased to medium size for readability (was 8pt)
     
     # Title and labels
-    'axes.titlesize': 11,  # Medium size (was 9pt)
+    'axes.titlesize': 11,  # Increased to medium size (was 9pt)
     'axes.titleweight': 'bold',
-    'axes.labelsize': 10,  # Medium size (was 8pt)
+    'axes.labelsize': 10,  # Increased to medium size (was 8pt)
     'axes.labelweight': 'normal',
     
     # Tick labels
-    'xtick.labelsize': 9,  # Medium size (was 7pt)
-    'ytick.labelsize': 9,  # Medium size (was 7pt)
+    'xtick.labelsize': 9,  # Increased to medium size (was 7pt)
+    'ytick.labelsize': 9,  # Increased to medium size (was 7pt)
     'xtick.major.size': 3,
     'ytick.major.size': 3,
     'xtick.major.width': 0.8,
     'ytick.major.width': 0.8,
     
     # Legend
-    'legend.fontsize': 9,  # Medium size (was 7pt)
+    'legend.fontsize': 9,  # Increased to medium size (was 7pt)
     'legend.frameon': False,
     'legend.borderpad': 0.4,
     
     # Figure
-    'figure.titlesize': 12,  # Medium size (was 10pt)
+    'figure.titlesize': 12,  # Increased to medium size (was 10pt)
     'figure.titleweight': 'bold',
     'figure.dpi': PUBLICATION_DPI,
     'figure.facecolor': 'white',
@@ -6749,13 +6749,22 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
     
     # Use taxonomy order for subclasses
     all_subclasses_ordered = get_all_subclasses_taxonomy_order()
-    # Build ordered list of keys that exist in the data
+    # Build ordered list of keys that exist in the data (O(n+m) complexity)
+    # Create a reverse lookup: subclass -> keys
+    subclass_to_keys = {}
+    for key in subclass_groups.keys():
+        # Extract subclass from "ClassName:SubclassName" format
+        if ':' in key:
+            subclass_part = key.split(':', 1)[1]
+            if subclass_part not in subclass_to_keys:
+                subclass_to_keys[subclass_part] = []
+            subclass_to_keys[subclass_part].append(key)
+    
+    # Build ordered list by iterating through taxonomy once
     subclasses = []
     for sc in all_subclasses_ordered:
-        # Find matching keys (format is "ClassName:SubclassName")
-        for key in subclass_groups.keys():
-            if key.endswith(f":{sc}"):
-                subclasses.append(key)
+        if sc in subclass_to_keys:
+            subclasses.extend(subclass_to_keys[sc])
     
     # Calculate density matrix
     density_matrix = np.zeros((len(subclasses), num_windows))
