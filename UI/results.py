@@ -239,7 +239,7 @@ def render():
             gd = None
             pd_kbp = None
             vk = f"seq_{seq_idx}"; cv = st.session_state.get('cached_visualizations', {}).get(vk, {}); cd = cv.get('densities', {})
-            if cd and 'class_genomic' in cd and 'class_positional' in cd: 
+            if cd.keys() >= {'class_genomic', 'class_positional'}: 
                 gd, pd_kbp = cd['class_genomic'], cd['class_positional']
             else: 
                 gd = calculate_genomic_density(motifs, slen, by_class=True)
