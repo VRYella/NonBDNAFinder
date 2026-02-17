@@ -1632,11 +1632,11 @@ def render():
                 
                 # Import concurrent.futures for parallel visualization generation
                 from concurrent.futures import ThreadPoolExecutor, as_completed
-                import multiprocessing
                 
                 # Use ThreadPoolExecutor for I/O-bound density calculations
                 # Threads are better than processes here since we're working with session state
-                max_viz_workers = min(4, multiprocessing.cpu_count())
+                MAX_VIZ_WORKERS = 4
+                max_viz_workers = min(MAX_VIZ_WORKERS, os.cpu_count() or MAX_VIZ_WORKERS)
                 
                 def calculate_viz_for_sequence(seq_idx, seq, motifs):
                     """Calculate visualization data for a single sequence."""

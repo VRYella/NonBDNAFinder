@@ -230,8 +230,7 @@ class MultiFastaVisualizer:
         fig, ax = plt.subplots(figsize=figsize, dpi=300)
         
         # Use seaborn barplot for enhanced styling
-        sns.barplot(x=classes, y=counts, ax=ax, palette='tab10', 
-                    linewidth=0.8, saturation=0.9)
+        sns.barplot(x=classes, y=counts, ax=ax, palette='tab10', saturation=0.9)
         
         # Apply edge color to bars after creation
         for bar in ax.patches:
@@ -244,11 +243,12 @@ class MultiFastaVisualizer:
                      fontsize=14, fontweight='bold', pad=15)
         plt.xticks(rotation=45, ha='right')
         
-        # Add value labels on bars
-        for i, (bar, count) in enumerate(zip(ax.patches, counts)):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{count:,}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        # Add value labels on bars (with length validation)
+        if len(ax.patches) == len(counts):
+            for bar, count in zip(ax.patches, counts):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{count:,}', ha='center', va='bottom', fontsize=10, fontweight='bold')
         
         # Apply seaborn despine for cleaner look
         sns.despine(ax=ax, top=True, right=True)
@@ -308,8 +308,7 @@ class MultiFastaVisualizer:
         fig, ax = plt.subplots(figsize=figsize, dpi=300)
         
         # Use seaborn barplot for enhanced styling
-        sns.barplot(x=classes, y=densities, ax=ax, palette='YlOrRd', 
-                    linewidth=0.8, saturation=0.9)
+        sns.barplot(x=classes, y=densities, ax=ax, palette='YlOrRd', saturation=0.9)
         
         # Apply edge color to bars after creation
         for bar in ax.patches:
@@ -322,11 +321,12 @@ class MultiFastaVisualizer:
                      fontsize=14, fontweight='bold', pad=15)
         plt.xticks(rotation=45, ha='right')
         
-        # Add value labels on bars
-        for i, (bar, density) in enumerate(zip(ax.patches, densities)):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{density:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        # Add value labels on bars (with length validation)
+        if len(ax.patches) == len(densities):
+            for bar, density in zip(ax.patches, densities):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{density:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
         
         # Apply seaborn despine for cleaner look
         sns.despine(ax=ax, top=True, right=True)

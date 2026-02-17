@@ -4592,9 +4592,8 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Use seaborn barplot for enhanced styling
-    # Create bars with seaborn aesthetics
     sns.barplot(x=list(range(len(categories))), y=values, palette=colors, 
-                ax=ax, linewidth=0.8, saturation=0.9)
+                ax=ax, saturation=0.9)
     
     # Apply edge color to bars after creation
     for bar in ax.patches:
@@ -6067,7 +6066,7 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     
     # Use seaborn barplot for enhanced styling
     sns.barplot(y=display_classes, x=genomic_vals, palette=colors1, ax=ax1, 
-                linewidth=0.8, saturation=0.9, orient='h')
+                saturation=0.9, orient='h')
     
     # Apply edge color to bars after creation
     for bar in ax1.patches:
@@ -6088,7 +6087,7 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     # Positional Density (Frequency)
     colors2 = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
     sns.barplot(y=display_classes, x=positional_vals, palette=colors2, ax=ax2, 
-                linewidth=0.8, saturation=0.9, orient='h')
+                saturation=0.9, orient='h')
     
     # Apply edge color to bars after creation
     for bar in ax2.patches:
