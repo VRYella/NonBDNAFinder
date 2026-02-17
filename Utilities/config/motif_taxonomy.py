@@ -255,9 +255,38 @@ def get_all_classes() -> List[str]:
     Get list of all canonical class names.
     
     Returns:
-        Sorted list of class names
+        Sorted list of class names (alphabetically)
     """
     return sorted(VALID_CLASSES)
+
+
+def get_all_classes_taxonomy_order() -> List[str]:
+    """
+    Get list of all canonical class names in taxonomy order.
+    
+    Returns taxonomy order as defined in MOTIF_CLASSIFICATION (by ID).
+    This should be used for visualizations instead of alphabetical sorting.
+    
+    Returns:
+        List of class names in taxonomy order
+    """
+    return [MOTIF_CLASSIFICATION[i]['class'] for i in sorted(MOTIF_CLASSIFICATION.keys())]
+
+
+def get_all_subclasses_taxonomy_order() -> List[str]:
+    """
+    Get list of all canonical subclass names in taxonomy order.
+    
+    Returns subclasses in the order they appear in MOTIF_CLASSIFICATION.
+    Within each class, subclasses are in the order defined in the taxonomy.
+    
+    Returns:
+        List of subclass names in taxonomy order
+    """
+    subclasses = []
+    for i in sorted(MOTIF_CLASSIFICATION.keys()):
+        subclasses.extend(MOTIF_CLASSIFICATION[i]['subclasses'])
+    return subclasses
 
 
 def get_subclasses_for_class(class_name: str) -> List[str]:
@@ -423,6 +452,8 @@ __all__ = [
     'CLASS_ALIASES',
     'SUBCLASS_ALIASES',
     'get_all_classes',
+    'get_all_classes_taxonomy_order',
+    'get_all_subclasses_taxonomy_order',
     'get_subclasses_for_class',
     'get_class_for_subclass',
     'is_valid_class',
