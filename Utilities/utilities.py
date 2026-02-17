@@ -4362,9 +4362,8 @@ FEATURES:
 
 # Default DPI for visualization (reduced to 150 to save memory)
 # 150 DPI is suitable for screen display and reduces file sizes significantly
-# For print/publication quality, Nature journals typically require 300 DPI
-# but we use 150 DPI for screen display and faster rendering
-# but we prioritize memory savings for web application performance
+# For print/publication quality, Nature journals typically require 300 DPI,
+# but we use 150 DPI for screen display, faster rendering, and memory savings
 PUBLICATION_DPI = 150
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
@@ -9140,7 +9139,8 @@ def create_consolidated_pdf(
     
     # Execute visualization tasks in parallel
     figures = [None] * len(viz_tasks)
-    max_workers = min(multiprocessing.cpu_count(), len(viz_tasks))
+    # Cap workers at 8 to avoid thread contention and context switching overhead
+    max_workers = min(8, multiprocessing.cpu_count(), len(viz_tasks))
     
     try:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -9277,7 +9277,8 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
     
     # Execute visualization tasks in parallel
     figures = [None] * len(viz_tasks)
-    max_workers = min(multiprocessing.cpu_count(), len(viz_tasks))
+    # Cap workers at 8 to avoid thread contention and context switching overhead
+    max_workers = min(8, multiprocessing.cpu_count(), len(viz_tasks))
     
     try:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
