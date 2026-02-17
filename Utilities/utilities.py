@@ -4329,32 +4329,32 @@ def _format_display_name(name: str) -> str:
 # Reference: Nature author guidelines for figure preparation
 # Modified: Fonts set to medium size for better readability
 _NATURE_STYLE_PARAMS = {
-    # Typography - Arial/Helvetica as per Nature guidelines
+    # Typography - Arial/Helvetica as per Nature guidelines - UNIFORM FONTS
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'font.size': 10,  # Increased for readability (was 8pt)
+    'font.size': 10,  # UNIFORM: Base font size for all text
     
-    # Title and labels
-    'axes.titlesize': 11,  # Increased for readability (was 9pt)
+    # Title and labels - UNIFORM sizing
+    'axes.titlesize': 12,  # UNIFORM: All plot titles
     'axes.titleweight': 'bold',
-    'axes.labelsize': 10,  # Increased for readability (was 8pt)
-    'axes.labelweight': 'normal',
+    'axes.labelsize': 10,  # UNIFORM: All axis labels
+    'axes.labelweight': 'bold',
     
-    # Tick labels
-    'xtick.labelsize': 9,  # Increased for readability (was 7pt)
-    'ytick.labelsize': 9,  # Increased for readability (was 7pt)
+    # Tick labels - UNIFORM sizing
+    'xtick.labelsize': 9,  # UNIFORM: All x-tick labels
+    'ytick.labelsize': 9,  # UNIFORM: All y-tick labels
     'xtick.major.size': 3,
     'ytick.major.size': 3,
     'xtick.major.width': 0.8,
     'ytick.major.width': 0.8,
     
-    # Legend
-    'legend.fontsize': 9,  # Increased for readability (was 7pt)
-    'legend.frameon': False,
+    # Legend - UNIFORM sizing
+    'legend.fontsize': 9,  # UNIFORM: All legend text
+    'legend.frameon': False,  # Nature style: frameless legends for cleaner figures
     'legend.borderpad': 0.4,
     
-    # Figure
-    'figure.titlesize': 12,  # Increased for readability (was 10pt)
+    # Figure - UNIFORM sizing
+    'figure.titlesize': 14,  # UNIFORM: All figure titles
     'figure.titleweight': 'bold',
     'figure.dpi': PUBLICATION_DPI,
     'figure.facecolor': 'white',
@@ -4363,19 +4363,21 @@ _NATURE_STYLE_PARAMS = {
     'savefig.bbox': 'tight',
     'savefig.pad_inches': 0.05,
     
-    # Axes - minimal, clean design
-    'axes.grid': False,  # Nature typically uses minimal grids
+    # Axes - minimal, clean design (Nature style with optional subtle grid)
+    'axes.grid': False,  # Nature typically uses minimal grids; can be enabled per-plot
+    'grid.alpha': 0.3,  # Subtle grid when enabled
+    'grid.linestyle': '--',
     'axes.spines.top': False,
     'axes.spines.right': False,
     'axes.spines.left': True,
     'axes.spines.bottom': True,
-    'axes.linewidth': 0.8,
-    'axes.edgecolor': 'black',
+    'axes.linewidth': 1.0,
+    'axes.edgecolor': '#334155',
     'axes.facecolor': 'white',
     
     # Lines
-    'lines.linewidth': 1.0,
-    'lines.markersize': 4,
+    'lines.linewidth': 1.5,
+    'lines.markersize': 5,
     
     # PDF/SVG output
     'pdf.fonttype': 42,  # TrueType for editability
@@ -4770,7 +4772,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
                 text.set_rotation(angle - 180)
     
     if title:
-        # Use standardized title formatting
+        # Use standardized title formatting with consistent style
         display_title = format_plot_title(title)
         ax.set_title(display_title, fontweight='bold', fontsize=12, pad=15)
     
@@ -4779,6 +4781,11 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         autotext.set_fontsize(7)
         autotext.set_weight('bold')
         autotext.set_color('white')
+    
+    # Add center label with total count for enhanced donut chart
+    total_motifs = sum(class_values)
+    ax.text(0, 0, f'{total_motifs:,}\nMotifs', ha='center', va='center',
+           fontsize=10, fontweight='bold', color='#334155')  # UNIFORM: base font size
     
     return fig
 
@@ -7197,10 +7204,13 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
                                    figsize: Tuple[int, int] = None,
                                    overlap_threshold: int = 1) -> plt.Figure:
     """
-    Create heatmap showing co-occurrence frequency between motif classes.
+    Enhanced co-occurrence matrix showing which motif classes appear together.
     
-    Shows which motif classes tend to appear together (within overlap_threshold bp).
-    Excellent for publication figures showing motif relationships.
+    Features:
+    - Colorblind-friendly heatmap with consistent class colors
+    - Row/column color coding by motif class
+    - Annotated cells with co-occurrence counts
+    - Publication-quality styling
     
     Args:
         motifs: List of motif dictionaries
@@ -7215,7 +7225,7 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     set_scientific_style()
     
     if figsize is None:
-        figsize = FIGURE_SIZES['square']
+        figsize = (12, 10)  # Larger for better readability
     
     if not motifs:
         fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
@@ -7260,11 +7270,29 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
             
             cooccurrence_matrix[i, j] = count
     
-    # Create heatmap
+    # Create heatmap with enhanced styling
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    # Use colorblind-friendly colormap
-    im = ax.imshow(cooccurrence_matrix, cmap='YlOrRd', aspect='auto', interpolation='nearest')
+    # Use vibrant colorblind-friendly colormap
+    im = ax.imshow(cooccurrence_matrix, cmap='YlOrRd', aspect='auto', 
+                   interpolation='nearest', vmin=0)
+    
+    # Add colored bars on left and top to indicate class
+    class_colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in classes]
+    
+    # Left color bar
+    for i, color in enumerate(class_colors):
+        rect = patches.Rectangle((-0.6, i - 0.4), 0.3, 0.8, 
+                                facecolor=color, edgecolor='white', linewidth=1,
+                                clip_on=False, transform=ax.transData)
+        ax.add_patch(rect)
+    
+    # Top color bar
+    for i, color in enumerate(class_colors):
+        rect = patches.Rectangle((i - 0.4, n_classes - 0.4), 0.8, 0.3, 
+                                facecolor=color, edgecolor='white', linewidth=1,
+                                clip_on=False, transform=ax.transData)
+        ax.add_patch(rect)
     
     # Set ticks and labels
     ax.set_xticks(range(n_classes))
@@ -7272,29 +7300,38 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     
     # Replace underscores with spaces in labels
     display_classes = [c.replace('_', ' ') for c in classes]
-    ax.set_xticklabels(display_classes, rotation=45, ha='right', fontsize=9)
-    ax.set_yticklabels(display_classes, fontsize=9)
+    ax.set_xticklabels(display_classes, rotation=45, ha='right', fontsize=9, fontweight='bold')
+    ax.set_yticklabels(display_classes, fontsize=9, fontweight='bold')
     
-    # Add colorbar
-    cbar = plt.colorbar(im, ax=ax, shrink=0.8)
-    cbar.set_label('Co-occurrence Count', fontsize=10, fontweight='bold')
-    cbar.ax.tick_params(labelsize=8)
+    # Add colorbar with enhanced styling
+    cbar = plt.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
+    cbar.set_label('Co-occurrence Count', fontsize=11, fontweight='bold')
+    cbar.ax.tick_params(labelsize=9)
     
-    # Add values to cells (if not too many)
-    if n_classes <= 10:
+    # Add values to cells with smart coloring
+    if n_classes <= 12:
+        max_val = cooccurrence_matrix.max()
         for i in range(n_classes):
             for j in range(n_classes):
                 value = int(cooccurrence_matrix[i, j])
                 if value > 0:
-                    text_color = 'white' if value > cooccurrence_matrix.max() / 2 else 'black'
+                    # Use white text on dark cells, black on light cells
+                    text_color = 'white' if value > max_val / 2 else 'black'
+                    # Bold for off-diagonal (different classes), normal for diagonal (same class)
+                    fontweight = 'bold' if i != j else 'normal'
                     ax.text(j, i, str(value), ha='center', va='center', 
-                           color=text_color, fontsize=8, fontweight='bold')
+                           color=text_color, fontsize=8, fontweight=fontweight)
     
-    # Title and labels
+    # Enhanced title and labels
     display_title = title.replace('_', ' ')
-    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=10)
-    ax.set_xlabel('Motif Class', fontsize=11, fontweight='bold')
-    ax.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
+    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=20)
+    ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold', labelpad=10)
+    ax.set_ylabel('Motif Class', fontsize=12, fontweight='bold', labelpad=10)
+    
+    # Add grid for better readability
+    ax.set_xticks(np.arange(n_classes) - 0.5, minor=True)
+    ax.set_yticks(np.arange(n_classes) - 0.5, minor=True)
+    ax.grid(which="minor", color="white", linestyle='-', linewidth=2)
     
     plt.tight_layout()
     return fig
@@ -7627,13 +7664,18 @@ def plot_linear_subclass_track(motifs: List[Dict[str, Any]],
 
 
 def plot_cluster_size_distribution(motifs: List[Dict[str, Any]], 
-                                   title: str = "Cluster Size Distribution",
+                                   title: str = "Cluster Statistics",
                                    figsize: Tuple[int, int] = None) -> plt.Figure:
     """
-    Plot distribution of cluster sizes (number of motifs per cluster).
+    Enhanced cluster statistics visualization with multiple panels.
     
-    Shows histogram and statistics of cluster composition.
-    Publication-quality visualization.
+    Shows comprehensive cluster analysis:
+    - Cluster size distribution
+    - Class diversity distribution
+    - Cluster density heatmap
+    - Top cluster classes composition
+    
+    Publication-quality visualization with consistent styling.
     
     Args:
         motifs: List of motif dictionaries (should include cluster motifs)
@@ -7647,7 +7689,7 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
     set_scientific_style()
     
     if figsize is None:
-        figsize = FIGURE_SIZES['one_and_half']
+        figsize = (14, 8)  # Larger figure for 2x2 panel layout
     
     # Extract cluster motifs
     cluster_motifs = [m for m in motifs if m.get('Class') == 'Non-B_DNA_Clusters']
@@ -7659,9 +7701,10 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
         ax.set_title(title)
         return fig
     
-    # Extract cluster sizes
+    # Extract cluster data
     cluster_sizes = []
     cluster_diversities = []
+    cluster_classes_counts = defaultdict(int)
     
     for motif in cluster_motifs:
         size = motif.get('Motif_Count', 0)
@@ -7669,55 +7712,116 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
         if size > 0:
             cluster_sizes.append(size)
             cluster_diversities.append(diversity)
+            # Extract constituent classes if available
+            constituent_classes = motif.get('Constituent_Classes', '').split(',')
+            for cls in constituent_classes:
+                cls = cls.strip()
+                if cls:
+                    cluster_classes_counts[cls] += 1
     
-    # Create figure with subplots
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize, dpi=PUBLICATION_DPI)
+    # Create 2x2 panel layout
+    fig = plt.figure(figsize=figsize, dpi=PUBLICATION_DPI)
+    gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.3)
     
-    # 1. Cluster size histogram
+    # Panel 1: Cluster size histogram (top-left)
+    ax1 = fig.add_subplot(gs[0, 0])
     ax1.hist(cluster_sizes, bins=min(20, max(cluster_sizes) if cluster_sizes else 1), 
-            edgecolor='black', linewidth=0.5, color='#4ecdc4', alpha=0.7)
+            edgecolor='white', linewidth=1, color=MOTIF_CLASS_COLORS.get('Non-B_DNA_Clusters', '#334155'), alpha=0.8)
     
-    ax1.set_xlabel('Motifs per Cluster', fontsize=11, fontweight='bold')
-    ax1.set_ylabel('Frequency', fontsize=11, fontweight='bold')
-    ax1.set_title('Cluster Size Distribution', fontsize=12, fontweight='bold')
+    ax1.set_xlabel('Motifs per Cluster', fontsize=10, fontweight='bold')
+    ax1.set_ylabel('Frequency', fontsize=10, fontweight='bold')
+    ax1.set_title('Cluster Size Distribution', fontsize=11, fontweight='bold')
     
-    # Add statistics
+    # Add statistics with vibrant colors
     if cluster_sizes:
         mean_size = np.mean(cluster_sizes)
         median_size = np.median(cluster_sizes)
-        ax1.axvline(mean_size, color='red', linestyle='--', linewidth=1.5, 
+        ax1.axvline(mean_size, color='#FF6D00', linestyle='--', linewidth=2, 
                    label=f'Mean: {mean_size:.1f}')
-        ax1.axvline(median_size, color='orange', linestyle='--', linewidth=1.5, 
+        ax1.axvline(median_size, color='#00E676', linestyle='--', linewidth=2, 
                    label=f'Median: {median_size:.1f}')
-        ax1.legend(fontsize=9, framealpha=0.9)
+        ax1.legend(fontsize=8, framealpha=0.9)
     
-    ax1.grid(axis='y', alpha=0.3)
+    ax1.grid(axis='y', alpha=0.3, linestyle='--')
     _apply_nature_style(ax1)
     
-    # 2. Class diversity histogram
+    # Panel 2: Class diversity histogram (top-right)
+    ax2 = fig.add_subplot(gs[0, 1])
     if cluster_diversities:
         ax2.hist(cluster_diversities, bins=min(10, max(cluster_diversities)), 
-                edgecolor='black', linewidth=0.5, color='#95e1d3', alpha=0.7)
+                edgecolor='white', linewidth=1, color='#8B5CF6', alpha=0.8)
         
-        ax2.set_xlabel('Class Diversity per Cluster', fontsize=11, fontweight='bold')
-        ax2.set_ylabel('Frequency', fontsize=11, fontweight='bold')
-        ax2.set_title('Cluster Diversity Distribution', fontsize=12, fontweight='bold')
+        ax2.set_xlabel('Classes per Cluster', fontsize=10, fontweight='bold')
+        ax2.set_ylabel('Frequency', fontsize=10, fontweight='bold')
+        ax2.set_title('Cluster Diversity', fontsize=11, fontweight='bold')
         
         mean_div = np.mean(cluster_diversities)
-        ax2.axvline(mean_div, color='red', linestyle='--', linewidth=1.5, 
+        ax2.axvline(mean_div, color='#FF1744', linestyle='--', linewidth=2, 
                    label=f'Mean: {mean_div:.1f}')
-        ax2.legend(fontsize=9, framealpha=0.9)
+        ax2.legend(fontsize=8, framealpha=0.9)
         
-        ax2.grid(axis='y', alpha=0.3)
+        ax2.grid(axis='y', alpha=0.3, linestyle='--')  # Subtle grid for diversity plot readability
         _apply_nature_style(ax2)
     else:
         ax2.text(0.5, 0.5, 'No diversity data', ha='center', va='center',
                 transform=ax2.transAxes, fontsize=12)
         ax2.axis('off')
     
+    # Panel 3: Top cluster constituent classes (bottom-left)
+    ax3 = fig.add_subplot(gs[1, 0])
+    if cluster_classes_counts:
+        # Get top 10 classes
+        top_classes = sorted(cluster_classes_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        classes, counts = zip(*top_classes) if top_classes else ([], [])
+        
+        # Use consistent colors
+        colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in classes]
+        
+        y_pos = np.arange(len(classes))
+        ax3.barh(y_pos, counts, color=colors, edgecolor='white', linewidth=1, alpha=0.8)
+        ax3.set_yticks(y_pos)
+        ax3.set_yticklabels([c.replace('_', ' ') for c in classes], fontsize=9)
+        ax3.set_xlabel('Frequency in Clusters', fontsize=10, fontweight='bold')
+        ax3.set_title('Top Classes in Clusters', fontsize=11, fontweight='bold')
+        ax3.grid(axis='x', alpha=0.3, linestyle='--')  # Subtle grid for class chart readability
+        _apply_nature_style(ax3)
+    else:
+        ax3.text(0.5, 0.5, 'No class data', ha='center', va='center',
+                transform=ax3.transAxes, fontsize=12)
+        ax3.axis('off')
+    
+    # Panel 4: Summary statistics box (bottom-right)
+    ax4 = fig.add_subplot(gs[1, 1])
+    ax4.axis('off')
+    
+    # Create summary text with vibrant colors
+    summary_text = []
+    summary_text.append(('Total Clusters:', f'{len(cluster_motifs):,}', '#0091FF'))
+    if cluster_sizes:
+        summary_text.append(('Mean Size:', f'{np.mean(cluster_sizes):.1f} motifs', '#FF6D00'))
+        summary_text.append(('Max Size:', f'{max(cluster_sizes)} motifs', '#FF1744'))
+    if cluster_diversities:
+        summary_text.append(('Mean Diversity:', f'{np.mean(cluster_diversities):.1f} classes', '#8B5CF6'))
+        summary_text.append(('Max Diversity:', f'{max(cluster_diversities)} classes', '#00E676'))
+    
+    y_offset = 0.85
+    for label, value, color in summary_text:
+        ax4.text(0.1, y_offset, label, fontsize=10, fontweight='bold', color='#334155', 
+                transform=ax4.transAxes)
+        ax4.text(0.6, y_offset, value, fontsize=10, fontweight='bold', color=color, 
+                transform=ax4.transAxes)
+        y_offset -= 0.15
+    
+    # Add box around statistics
+    rect = patches.Rectangle((0.05, 0.1), 0.9, 0.85, linewidth=2, 
+                             edgecolor='#334155', facecolor='#F5F5F5', 
+                             alpha=0.3, transform=ax4.transAxes)
+    ax4.add_patch(rect)
+    ax4.text(0.5, 0.95, 'Summary Statistics', ha='center', fontsize=11, 
+            fontweight='bold', transform=ax4.transAxes)
+    
     display_title = title.replace('_', ' ')
-    plt.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
-    plt.tight_layout()
+    fig.suptitle(display_title, fontsize=14, fontweight='bold', y=0.98)
     
     return fig
 
