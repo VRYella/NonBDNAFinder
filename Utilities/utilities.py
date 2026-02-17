@@ -59,7 +59,6 @@ import zipfile
 import logging
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import multiprocessing
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -9138,9 +9137,10 @@ def create_consolidated_pdf(
     ]
     
     # Execute visualization tasks in parallel
+    # Pre-allocate list to maintain figure order for PDF output
     figures = [None] * len(viz_tasks)
-    # Cap workers at 8 to avoid thread contention and context switching overhead
-    max_workers = min(8, multiprocessing.cpu_count(), len(viz_tasks))
+    # Cap workers at 8 to avoid thread contention; use os.cpu_count() for thread pool
+    max_workers = min(8, os.cpu_count() or 4, len(viz_tasks))
     
     try:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -9229,56 +9229,45 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
     
     # Define visualization tasks - order matters for PDF output
     viz_tasks = []
-    viz_indices = {}  # Track which index corresponds to which visualization
     
     # SECTION 1: LINEAR TRACKS
     viz_tasks.append((plot_linear_motif_track, (motifs, sequence_length), {'title': f"Class Track - {sequence_name}"}))
-    viz_indices['class_track'] = len(viz_tasks) - 1
     
     if subclass_motifs:
         viz_tasks.append((plot_linear_subclass_track, (subclass_motifs, sequence_length), {'title': f"Subclass Track - {sequence_name}"}))
-        viz_indices['subclass_track'] = len(viz_tasks) - 1
     
     # SECTION 2: DISTRIBUTION PLOTS
     viz_tasks.append((plot_motif_distribution, (motifs,), {'by': 'Class', 'title': f"Motif Classes - {sequence_name}"}))
-    viz_indices['class_dist'] = len(viz_tasks) - 1
     
     viz_tasks.append((plot_motif_distribution, (motifs,), {'by': 'Subclass', 'title': f"Motif Subclasses - {sequence_name}"}))
-    viz_indices['subclass_dist'] = len(viz_tasks) - 1
     
     # SECTION 3: DENSITY ANALYSIS
     viz_tasks.append((plot_density_comparison, (genomic_density, positional_density_kbp), {'title': f"Density Analysis - {sequence_name}"}))
-    viz_indices['density'] = len(viz_tasks) - 1
     
     # SECTION 4: STATISTICAL DISTRIBUTIONS
     viz_tasks.append((plot_motif_length_kde, (motifs,), {'by_class': True, 'title': f"Length Distribution - {sequence_name}"}))
-    viz_indices['length_dist'] = len(viz_tasks) - 1
     
     viz_tasks.append((plot_score_distribution, (motifs,), {'by_class': True, 'title': f"Score Distribution - {sequence_name}"}))
-    viz_indices['score_dist'] = len(viz_tasks) - 1
     
     # SECTION 5: COMPOSITION
     viz_tasks.append((plot_nested_pie_chart, (motifs,), {'title': f"Class → Subclass - {sequence_name}"}))
-    viz_indices['nested_pie'] = len(viz_tasks) - 1
     
     # SECTION 6: HYBRIDS & CLUSTERS
     if has_hybrids or has_clusters:
         if cluster_hybrid_motifs:
             viz_tasks.append((plot_linear_motif_track, (cluster_hybrid_motifs, sequence_length), {'title': f"Hybrid & Cluster Track - {sequence_name}"}))
-            viz_indices['cluster_track'] = len(viz_tasks) - 1
     
     if has_clusters:
         viz_tasks.append((plot_cluster_size_distribution, (motifs,), {'title': f"Cluster Statistics - {sequence_name}"}))
-        viz_indices['cluster_stats'] = len(viz_tasks) - 1
     
     # SECTION 7: CO-OCCURRENCE & RELATIONSHIPS
     viz_tasks.append((plot_motif_cooccurrence_matrix, (motifs,), {'title': f"Co-occurrence Matrix - {sequence_name}"}))
-    viz_indices['cooccurrence'] = len(viz_tasks) - 1
     
     # Execute visualization tasks in parallel
+    # Pre-allocate list to maintain figure order for PDF output
     figures = [None] * len(viz_tasks)
-    # Cap workers at 8 to avoid thread contention and context switching overhead
-    max_workers = min(8, multiprocessing.cpu_count(), len(viz_tasks))
+    # Cap workers at 8 to avoid thread contention; use os.cpu_count() for thread pool
+    max_workers = min(8, os.cpu_count() or 4, len(viz_tasks))
     
     try:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
