@@ -26,17 +26,19 @@ from Utilities.utilities import read_fasta_file
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
-VALIDATION_DIR = Path(__file__).parent
-FASTA_FILE = VALIDATION_DIR / "693fc40d26a53.fasta"
+# Directory structure: scripts are in NBSTVALIDATION/scripts/
+BASE_DIR = Path(__file__).parent.parent  # NBSTVALIDATION directory
+DATA_DIR = BASE_DIR / "data"
+FASTA_FILE = DATA_DIR / "693fc40d26a53.fasta"
 
 # NBST file mapping (based on problem statement)
 NBST_FILES = {
-    "curved": VALIDATION_DIR / "693fc40d26a53_curved.tsv",      # Global Curvature
-    "GQ": VALIDATION_DIR / "693fc40d26a53_GQ.tsv",              # G-Quadruplexes  
-    "Z": VALIDATION_DIR / "693fc40d26a53_Z.tsv",                # Z-DNA
-    "STR": VALIDATION_DIR / "693fc40d26a53_Slipped_STR.tsv",    # Slipped DNA (STR)
-    "DR": VALIDATION_DIR / "693fc40d26a53_slipped_DR.tsv",      # Slipped DNA (Direct Repeat)
-    "MR": VALIDATION_DIR / "693fc40d26a53_MR.tsv",              # Mirror Repeats
+    "curved": DATA_DIR / "693fc40d26a53_curved.tsv",      # Global Curvature
+    "GQ": DATA_DIR / "693fc40d26a53_GQ.tsv",              # G-Quadruplexes  
+    "Z": DATA_DIR / "693fc40d26a53_Z.tsv",                # Z-DNA
+    "STR": DATA_DIR / "693fc40d26a53_Slipped_STR.tsv",    # Slipped DNA (STR)
+    "DR": DATA_DIR / "693fc40d26a53_slipped_DR.tsv",      # Slipped DNA (Direct Repeat)
+    "MR": DATA_DIR / "693fc40d26a53_MR.tsv",              # Mirror Repeats
 }
 
 # Class mapping from NBST to NonBDNAFinder
@@ -334,12 +336,12 @@ def main():
     
     # Save NBF motifs to TSV
     nbf_df = pd.DataFrame(nbf_motifs)
-    nbf_df.to_csv(VALIDATION_DIR / "nonbdnafinder_results.tsv", sep='\t', index=False)
+    nbf_df.to_csv(DATA_DIR / "nonbdnafinder_results.tsv", sep='\t', index=False)
     print(f"    Saved NonBDNAFinder results to nonbdnafinder_results.tsv")
     
     # Save comparison summary
     summary_df = pd.DataFrame(comparison_results)
-    summary_df.to_csv(VALIDATION_DIR / "comparison_summary.tsv", sep='\t', index=False)
+    summary_df.to_csv(DATA_DIR / "comparison_summary.tsv", sep='\t', index=False)
     print(f"    Saved comparison summary to comparison_summary.tsv")
     
     # Return results for further analysis
