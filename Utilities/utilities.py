@@ -4534,7 +4534,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
                            figsize: Tuple[float, float] = None,
                            style: str = 'nature') -> plt.Figure:
     """
-    Plot distribution of motifs by class or subclass.
+    Plot distribution of motifs by class or subclass using seaborn.
     
     Publication-quality bar chart following Nature Methods guidelines.
     Shows all classes/subclasses even when count is 0, ensuring comprehensive
@@ -4551,7 +4551,10 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         Matplotlib figure object (publication-ready at 300 DPI)
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
-    set_scientific_style(style)
+    
+    # Set seaborn style for publication quality
+    sns.set_style("whitegrid")
+    sns.set_context("paper", font_scale=1.2)
     
     # Use Nature-appropriate figure size
     if figsize is None:
@@ -4588,17 +4591,18 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Create figure with high DPI
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    # Create bars with Nature-style aesthetics
-    bars = ax.bar(range(len(categories)), values, color=colors, 
-                  edgecolor='black', linewidth=0.5, width=0.8)
+    # Use seaborn barplot for enhanced styling
+    # Create bars with seaborn aesthetics
+    bars = sns.barplot(x=list(range(len(categories))), y=values, palette=colors, 
+                       ax=ax, edgecolor='black', linewidth=0.8, saturation=0.9)
     
     # Customize axes (Nature style - minimal, clean)
-    ax.set_xlabel(f'Motif {by}', fontweight='normal')
-    ax.set_ylabel('Count', fontweight='normal')
+    ax.set_xlabel(f'Motif {by}', fontweight='bold', fontsize=12)
+    ax.set_ylabel('Count', fontweight='bold', fontsize=12)
     if title:
         # Use standardized title formatting
         display_title = format_plot_title(title)
-        ax.set_title(display_title, fontweight='bold', pad=10)
+        ax.set_title(display_title, fontweight='bold', pad=15, fontsize=14)
     ax.set_xticks(range(len(categories)))
     
     # Replace underscores with spaces in category labels
@@ -4609,7 +4613,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Add count labels on ALL bars (improved visibility)
     # Show numbers for all categories to make distribution clear
     max_val = max(values) if values and max(values) > 0 else 1
-    for bar, count in zip(bars, values):
+    for i, (bar, count) in enumerate(zip(ax.patches, values)):
         height = bar.get_height()
         # Position label above bar if count > 0, at baseline if 0
         y_pos = height + max_val * 0.02 if count > 0 else 0.5
@@ -4617,8 +4621,8 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         ax.text(bar.get_x() + bar.get_width()/2., y_pos,
                 str(count), ha='center', va='bottom', fontsize=10, fontweight='bold')
     
-    # Apply Nature journal style
-    _apply_nature_style(ax)
+    # Apply seaborn despine for cleaner look
+    sns.despine(ax=ax, top=True, right=True)
     
     plt.tight_layout()
     return fig
@@ -6017,7 +6021,7 @@ def plot_density_comparison(genomic_density: Dict[str, float],
                             title: str = "Motif Density Analysis",
                             figsize: Tuple[int, int] = (14, 6)) -> plt.Figure:
     """
-    Plot comparison of genomic density (coverage %) and positional density (motifs/kbp).
+    Plot comparison of genomic density (coverage %) and positional density (motifs/kbp) using seaborn.
     
     Args:
         genomic_density: Dictionary of class -> genomic density (%)
@@ -6029,7 +6033,10 @@ def plot_density_comparison(genomic_density: Dict[str, float],
         Matplotlib figure object
     """
     plt, sns, patches, PdfPages = _ensure_matplotlib()
-    set_scientific_style()
+    
+    # Set seaborn style for publication quality
+    sns.set_style("whitegrid")
+    sns.set_context("paper", font_scale=1.2)
     
     # Remove 'Overall' for class-specific comparison
     classes = [k for k in genomic_density.keys() if k != 'Overall']
@@ -6050,37 +6057,38 @@ def plot_density_comparison(genomic_density: Dict[str, float],
     # Replace underscores with spaces in labels
     display_classes = [c.replace('_', ' ') for c in classes]
     
-    bars1 = ax1.barh(display_classes, genomic_vals, color=colors1, alpha=0.8, 
-                     edgecolor='black', linewidth=0.5)
-    ax1.set_xlabel('Genomic Density (Coverage %)', fontsize=11, fontweight='bold')
-    ax1.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
-    ax1.set_title('A. Genomic Density (σ_G)', fontsize=12, fontweight='bold', pad=10)
+    # Use seaborn barplot for enhanced styling
+    sns.barplot(y=display_classes, x=genomic_vals, palette=colors1, ax=ax1, 
+                edgecolor='black', linewidth=0.8, saturation=0.9, orient='h')
+    ax1.set_xlabel('Genomic Density (Coverage %)', fontsize=12, fontweight='bold')
+    ax1.set_ylabel('Motif Class', fontsize=12, fontweight='bold')
+    ax1.set_title('A. Genomic Density (σ_G)', fontsize=13, fontweight='bold', pad=12)
     
     # Add value labels with safe max calculation
     max_genomic = max(genomic_vals) if genomic_vals and max(genomic_vals) > 0 else 1
-    for i, (bar, val) in enumerate(zip(bars1, genomic_vals)):
+    for i, val in enumerate(genomic_vals):
         if val > 0:
             ax1.text(val + max_genomic * 0.01, i, f'{val:.3f}%', 
-                    va='center', fontsize=9, fontweight='bold')
+                    va='center', fontsize=10, fontweight='bold')
     
     # Positional Density (Frequency)
     colors2 = [MOTIF_CLASS_COLORS.get(c, '#808080') for c in classes]
-    bars2 = ax2.barh(display_classes, positional_vals, color=colors2, alpha=0.8, 
-                     edgecolor='black', linewidth=0.5)
-    ax2.set_xlabel('Positional Density (motifs/kbp)', fontsize=11, fontweight='bold')
-    ax2.set_ylabel('Motif Class', fontsize=11, fontweight='bold')
-    ax2.set_title('B. Positional Density (λ)', fontsize=12, fontweight='bold', pad=10)
+    sns.barplot(y=display_classes, x=positional_vals, palette=colors2, ax=ax2, 
+                edgecolor='black', linewidth=0.8, saturation=0.9, orient='h')
+    ax2.set_xlabel('Positional Density (motifs/kbp)', fontsize=12, fontweight='bold')
+    ax2.set_ylabel('Motif Class', fontsize=12, fontweight='bold')
+    ax2.set_title('B. Positional Density (λ)', fontsize=13, fontweight='bold', pad=12)
     
     # Add value labels with safe max calculation
     max_positional = max(positional_vals) if positional_vals and max(positional_vals) > 0 else 1
-    for i, (bar, val) in enumerate(zip(bars2, positional_vals)):
+    for i, val in enumerate(positional_vals):
         if val > 0:
             ax2.text(val + max_positional * 0.01, i, f'{val:.2f}', 
-                    va='center', fontsize=9, fontweight='bold')
+                    va='center', fontsize=10, fontweight='bold')
     
-    # Apply Nature journal style
-    _apply_nature_style(ax1)
-    _apply_nature_style(ax2)
+    # Apply seaborn despine for cleaner look
+    sns.despine(ax=ax1, top=True, right=True)
+    sns.despine(ax=ax2, top=True, right=True)
     
     plt.suptitle(title, fontsize=14, fontweight='bold', y=1.00)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
