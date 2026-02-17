@@ -97,7 +97,6 @@ def render():
         
         # Display sequence-level statistics
         with st.expander("📋 Sequence Statistics", expanded=True):
-            import pandas as pd
             seq_stats = []
             for stat in summary_stats['sequence_stats']:
                 total = stat['Total_Motifs']
