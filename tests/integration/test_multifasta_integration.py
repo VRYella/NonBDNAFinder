@@ -8,7 +8,7 @@ import sys
 import os
 import tempfile
 
-# Add parent directory to path
+# Add repository root to path for imports (required after moving to subdirectory)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utilities.utilities import parse_fasta, export_multifasta_to_excel
