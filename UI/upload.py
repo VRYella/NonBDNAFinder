@@ -1307,7 +1307,6 @@ def render():
                                 return (seq_id, name, filtered_results, len(seq), None)
                             except Exception as e:
                                 return (seq_id, name, [], 0, str(e))
-                                return (seq_id, name, [], 0, str(e))
                         
                         # Submit all sequences for parallel processing
                         max_workers = min(num_sequences, max(1, multiprocessing.cpu_count() - 1))
