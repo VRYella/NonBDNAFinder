@@ -45,6 +45,7 @@ from Utilities.nonbscanner import analyze_sequence
 from Utilities.job_manager import save_job_results, generate_job_id
 from Utilities.disk_storage import UniversalSequenceStorage, UniversalResultsStorage
 from Utilities.chunk_analyzer import ChunkAnalyzer
+from Utilities.detectors_utils import calc_gc_content
 
 # Import progress tracking for Streamlit UI (optional, graceful degradation)
 try:
@@ -181,17 +182,28 @@ def calculate_gc_percentage(sequences: list) -> float:
     """
     Calculate average GC percentage across multiple sequences.
     
+    Delegates to calc_gc_content() from detectors_utils.py to ensure
+    consistency with all other GC calculations in the codebase.
+    
     Args:
         sequences: List of DNA sequence strings
         
     Returns:
         Average GC percentage (0.0 if no sequences/base pairs)
+        
+    Note:
+        Uses standardized calc_gc_content() method for consistency.
+        See: Utilities/detectors_utils.py
     """
+    if not sequences:
+        return 0.0
     total_bp = sum(len(s) for s in sequences)
     if total_bp == 0:
         return 0.0
-    total_gc_count = sum(s.upper().count('G') + s.upper().count('C') for s in sequences)
-    return (total_gc_count / total_bp) * 100
+    
+    # Sum weighted GC percentages using standardized method
+    total_gc_weighted = sum(calc_gc_content(s) * len(s) for s in sequences)
+    return total_gc_weighted / total_bp
 
 
 # Example FASTA data
