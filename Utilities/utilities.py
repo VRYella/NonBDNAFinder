@@ -4351,8 +4351,6 @@ _NATURE_STYLE_PARAMS = {
     # Legend - UNIFORM sizing
     'legend.fontsize': 9,  # UNIFORM: All legend text
     'legend.frameon': False,  # Nature style: frameless legends for cleaner figures
-    'legend.framealpha': 0.9,
-    'legend.edgecolor': 'lightgray',
     'legend.borderpad': 0.4,
     
     # Figure - UNIFORM sizing
@@ -7762,7 +7760,7 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
                    label=f'Mean: {mean_div:.1f}')
         ax2.legend(fontsize=8, framealpha=0.9)
         
-        ax2.grid(axis='y', alpha=0.3, linestyle='--')
+        ax2.grid(axis='y', alpha=0.3, linestyle='--')  # Subtle grid for diversity plot readability
         _apply_nature_style(ax2)
     else:
         ax2.text(0.5, 0.5, 'No diversity data', ha='center', va='center',
@@ -7785,7 +7783,7 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
         ax3.set_yticklabels([c.replace('_', ' ') for c in classes], fontsize=9)
         ax3.set_xlabel('Frequency in Clusters', fontsize=10, fontweight='bold')
         ax3.set_title('Top Classes in Clusters', fontsize=11, fontweight='bold')
-        ax3.grid(axis='x', alpha=0.3, linestyle='--')
+        ax3.grid(axis='x', alpha=0.3, linestyle='--')  # Subtle grid for class chart readability
         _apply_nature_style(ax3)
     else:
         ax3.text(0.5, 0.5, 'No class data', ha='center', va='center',

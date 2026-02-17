@@ -75,12 +75,14 @@ class StreamlitProgressTracker:
         if not STREAMLIT_AVAILABLE or self.ui_created:
             return
         
-        # Vibrant header with gradient background (no emojis)
+        # Header with gradient background (no emojis, HTML-escaped for safety)
+        import html
+        sequence_name_safe = html.escape(self.sequence_name)
         st.markdown(f"""
         <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                     padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
-            <h3 style='color: white; margin: 0; font-weight: 700;'>ANALYZING: {self.sequence_name}</h3>
+            <h3 style='color: white; margin: 0; font-weight: 700;'>ANALYZING: {sequence_name_safe}</h3>
             <p style='color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 0; font-size: 0.95rem;'>
                 Sequence Length: {self.sequence_length:,} bp
             </p>
