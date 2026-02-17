@@ -8,10 +8,16 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import streamlit as st; import pandas as pd; import matplotlib.pyplot as plt; import logging
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import logging
 from collections import Counter
-from Utilities.config.text import UI_TEXT; from Utilities.config.themes import TAB_THEMES; from Utilities.config.analysis import MAX_OVERLAP_DISPLAY
-from UI.css import load_css; from UI.headers import render_section_heading
+from Utilities.config.text import UI_TEXT
+from Utilities.config.themes import TAB_THEMES
+from Utilities.config.analysis import MAX_OVERLAP_DISPLAY
+from UI.css import load_css
+from UI.headers import render_section_heading
 from UI.storage_helpers import (
     has_results, get_sequences_info, get_sequence_length,
     get_results, get_results_summary, get_results_dataframe

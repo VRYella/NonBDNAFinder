@@ -35,17 +35,19 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
-VALIDATION_DIR = Path(__file__).parent
-FASTA_FILE = VALIDATION_DIR / "693fc40d26a53.fasta"
+# Directory structure: scripts are in NBSTVALIDATION/scripts/
+BASE_DIR = Path(__file__).parent.parent  # NBSTVALIDATION directory
+DATA_DIR = BASE_DIR / "data"
+FASTA_FILE = DATA_DIR / "693fc40d26a53.fasta"
 
 # NBST file mapping
 NBST_FILES = {
-    "curved": VALIDATION_DIR / "693fc40d26a53_curved.tsv",
-    "GQ": VALIDATION_DIR / "693fc40d26a53_GQ.tsv",
-    "Z": VALIDATION_DIR / "693fc40d26a53_Z.tsv",
-    "STR": VALIDATION_DIR / "693fc40d26a53_Slipped_STR.tsv",
-    "DR": VALIDATION_DIR / "693fc40d26a53_slipped_DR.tsv",
-    "MR": VALIDATION_DIR / "693fc40d26a53_MR.tsv",
+    "curved": DATA_DIR / "693fc40d26a53_curved.tsv",
+    "GQ": DATA_DIR / "693fc40d26a53_GQ.tsv",
+    "Z": DATA_DIR / "693fc40d26a53_Z.tsv",
+    "STR": DATA_DIR / "693fc40d26a53_Slipped_STR.tsv",
+    "DR": DATA_DIR / "693fc40d26a53_slipped_DR.tsv",
+    "MR": DATA_DIR / "693fc40d26a53_MR.tsv",
 }
 
 # Subclass to NBST mapping - defines which NBF subclasses correspond to which NBST classes
@@ -615,7 +617,7 @@ def main() -> Dict[str, Any]:
         'Num_Matches': r['num_matches'],
     } for r in comparison_results])
     
-    summary_df.to_csv(VALIDATION_DIR / "subclass_comparison_summary.tsv", sep='\t', index=False)
+    summary_df.to_csv(DATA_DIR / "subclass_comparison_summary.tsv", sep='\t', index=False)
     print(f"    Saved: subclass_comparison_summary.tsv")
     
     # Save detailed match quality table (Table 2)
@@ -633,7 +635,7 @@ def main() -> Dict[str, Any]:
         })
     
     match_quality_df = pd.DataFrame(match_quality_rows)
-    match_quality_df.to_csv(VALIDATION_DIR / "table2_subclass_match_quality.csv", index=False)
+    match_quality_df.to_csv(TABLES_DIR / "table2_subclass_match_quality.csv", index=False)
     print(f"    Saved: table2_subclass_match_quality.csv")
     
     # Save false positive analysis table (Table 3)
@@ -648,7 +650,7 @@ def main() -> Dict[str, Any]:
         })
     
     fp_df = pd.DataFrame(fp_analysis_rows)
-    fp_df.to_csv(VALIDATION_DIR / "table3_false_positive_analysis.csv", index=False)
+    fp_df.to_csv(TABLES_DIR / "table3_false_positive_analysis.csv", index=False)
     print(f"    Saved: table3_false_positive_analysis.csv")
     
     # Save false negative analysis table (Table 4)
@@ -663,12 +665,12 @@ def main() -> Dict[str, Any]:
         })
     
     fn_df = pd.DataFrame(fn_analysis_rows)
-    fn_df.to_csv(VALIDATION_DIR / "table4_false_negative_analysis.csv", index=False)
+    fn_df.to_csv(TABLES_DIR / "table4_false_negative_analysis.csv", index=False)
     print(f"    Saved: table4_false_negative_analysis.csv")
     
     # Save Table 1: Subclass-Level Performance Metrics
     perf_metrics_df = summary_df.copy()
-    perf_metrics_df.to_csv(VALIDATION_DIR / "table1_subclass_metrics.csv", index=False)
+    perf_metrics_df.to_csv(TABLES_DIR / "table1_subclass_metrics.csv", index=False)
     print(f"    Saved: table1_subclass_metrics.csv")
     
     print("\n" + "=" * 80)

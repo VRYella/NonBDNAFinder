@@ -85,7 +85,7 @@ Based on real-world performance testing (PRs #1-7), the tool now uses an optimiz
 - **> 1MB:** Parallel detectors + chunking (4-12x speedup)
 - **Memory:** Constant ~70MB regardless of sequence size
 
-**See [CHUNKING_AND_PARALLEL_IMPLEMENTATION.md](CHUNKING_AND_PARALLEL_IMPLEMENTATION.md) for complete details.**
+**See [CHUNKING_AND_PARALLEL_IMPLEMENTATION.md](docs/changelog/CHUNKING_AND_PARALLEL_IMPLEMENTATION.md) for complete details.**
 
 ### Previous Performance Enhancements
 
@@ -126,7 +126,7 @@ Performance improvements by sequence size:
 - Very Large (100 KB): 15,151 → 17,752 bp/s (**17.2% faster**)
 - **Average: 17,189 → 20,430 bp/s (18.9% faster)**
 
-**See [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for complete details.**
+**See [PERFORMANCE_IMPROVEMENTS.md](docs/changelog/PERFORMANCE_IMPROVEMENTS.md) for complete details.**
 
 ### Quick Performance Examples
 
@@ -309,12 +309,10 @@ The application uses a clean, modular architecture with clear separation of conc
 - **[Tool Documentation](./Consolidated_Writeup/NonBDNAFinder_Tool_Documentation.md)**: Technical documentation
 
 ### Technical Guides
-- **[Benchmark Executive Summary](./BENCHMARK_EXECUTIVE_SUMMARY.md)**: Performance comparison vs. competitors
-- **[Benchmarking Comparison](./BENCHMARKING_COMPARISON.md)**: Comprehensive 9-section analysis
-- **[Output Schema](./OUTPUT_SCHEMA.md)**: Minimal reporting format
-- **[Motif Classification](./MOTIF_CLASSIFICATION.md)**: Canonical taxonomy system (11 classes, 24 subclasses)
-- **[Performance Optimizations](./PERFORMANCE_OPTIMIZATIONS.md)**: Speed and memory improvements
-- **[Improvements Summary](./IMPROVEMENTS_SUMMARY.md)**: What's new in 2025.1
+- **[Output Schema](./OUTPUT_SCHEMA.md)**: Minimal reporting format (if available)
+- **[Motif Classification](./MOTIF_CLASSIFICATION.md)**: Canonical taxonomy system (if available)
+- **[Performance Improvements](./docs/changelog/PERFORMANCE_IMPROVEMENTS.md)**: Speed and memory improvements
+- **[Change History](./docs/changelog/)**: Implementation summaries and fix documentation
 
 ## 🔬 Scientific Accuracy
 

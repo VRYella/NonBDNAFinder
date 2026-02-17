@@ -15,9 +15,10 @@ import shutil
 from pathlib import Path
 import sys
 import gc
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Add repository root to path for imports (required after moving to subdirectory)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from Utilities.disk_storage import UniversalSequenceStorage
 from Utilities.triple_chunk_analyzer import TripleAdaptiveChunkAnalyzer

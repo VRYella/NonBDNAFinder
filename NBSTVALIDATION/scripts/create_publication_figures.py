@@ -82,7 +82,11 @@ COLORBLIND_PALETTE = [
 # Extended palette for many subclasses
 EXTENDED_PALETTE = sns.color_palette("tab20", 20)
 
-VALIDATION_DIR = Path(__file__).parent
+# Directory structure: scripts are in NBSTVALIDATION/scripts/
+BASE_DIR = Path(__file__).parent.parent  # NBSTVALIDATION directory
+DATA_DIR = BASE_DIR / "data"
+FIGURES_DIR = BASE_DIR / "figures"
+TABLES_DIR = BASE_DIR / "tables"
 
 # ============================================================================
 # DATA LOADING
@@ -90,18 +94,18 @@ VALIDATION_DIR = Path(__file__).parent
 
 def load_all_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict]:
     """Load all validation data files."""
-    nbf_df = pd.read_csv(VALIDATION_DIR / "nonbdnafinder_results.tsv", sep='\t')
-    subclass_summary = pd.read_csv(VALIDATION_DIR / "subclass_comparison_summary.tsv", sep='\t')
-    comparison_df = pd.read_csv(VALIDATION_DIR / "comparison_summary.tsv", sep='\t')
+    nbf_df = pd.read_csv(DATA_DIR / "nonbdnafinder_results.tsv", sep='\t')
+    subclass_summary = pd.read_csv(DATA_DIR / "subclass_comparison_summary.tsv", sep='\t')
+    comparison_df = pd.read_csv(DATA_DIR / "comparison_summary.tsv", sep='\t')
     
     # Load NBST files
     nbst_data = {
-        "curved": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_curved.tsv", sep='\t'),
-        "GQ": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_GQ.tsv", sep='\t'),
-        "Z": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_Z.tsv", sep='\t'),
-        "STR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_Slipped_STR.tsv", sep='\t'),
-        "DR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_slipped_DR.tsv", sep='\t'),
-        "MR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_MR.tsv", sep='\t'),
+        "curved": pd.read_csv(DATA_DIR / "693fc40d26a53_curved.tsv", sep='\t'),
+        "GQ": pd.read_csv(DATA_DIR / "693fc40d26a53_GQ.tsv", sep='\t'),
+        "Z": pd.read_csv(DATA_DIR / "693fc40d26a53_Z.tsv", sep='\t'),
+        "STR": pd.read_csv(DATA_DIR / "693fc40d26a53_Slipped_STR.tsv", sep='\t'),
+        "DR": pd.read_csv(DATA_DIR / "693fc40d26a53_slipped_DR.tsv", sep='\t'),
+        "MR": pd.read_csv(DATA_DIR / "693fc40d26a53_MR.tsv", sep='\t'),
     }
     
     return nbf_df, subclass_summary, comparison_df, nbst_data
@@ -186,7 +190,7 @@ def create_figure1_distribution(nbf_df: pd.DataFrame, nbst_data: Dict):
     
     plt.suptitle('Comparative Class Distribution Analysis', fontsize=20, fontweight='bold', y=0.98)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure1_subclass_distribution.png',
+    fig.savefig(FIGURES_DIR / 'figure1_subclass_distribution.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure1_subclass_distribution.png (150 DPI)")
@@ -267,7 +271,7 @@ def create_figure2_performance_metrics(subclass_summary: pd.DataFrame):
     plt.suptitle('Subclass-Level Performance Metrics Against NBST Benchmark',
                 fontsize=20, fontweight='bold', y=1.0)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure2_performance_metrics.png',
+    fig.savefig(FIGURES_DIR / 'figure2_performance_metrics.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure2_performance_metrics.png (150 DPI)")
@@ -355,7 +359,7 @@ def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
     ax.grid(axis='x', alpha=0.3, linestyle='--')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure3_genomic_coverage.png',
+    fig.savefig(FIGURES_DIR / 'figure3_genomic_coverage.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure3_genomic_coverage.png (150 DPI)")
@@ -419,7 +423,7 @@ def create_figure4_detection_counts(subclass_summary: pd.DataFrame):
                        ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure4_detection_counts.png',
+    fig.savefig(FIGURES_DIR / 'figure4_detection_counts.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure4_detection_counts.png (150 DPI)")
@@ -493,7 +497,7 @@ def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
     plt.yticks(rotation=0, fontsize=11)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure5_overlap_heatmap.png',
+    fig.savefig(FIGURES_DIR / 'figure5_overlap_heatmap.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure5_overlap_heatmap.png (150 DPI)")
@@ -578,7 +582,7 @@ def create_figure6_subclass_distribution(nbf_df: pd.DataFrame):
     plt.suptitle('Comprehensive Subclass Distribution by Major Class\n(Canonical motifs only)',
                 fontsize=20, fontweight='bold', y=0.995)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure6_subclass_distribution.png',
+    fig.savefig(FIGURES_DIR / 'figure6_subclass_distribution.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure6_subclass_distribution.png (150 DPI)")
@@ -633,7 +637,7 @@ def create_figure7_precision_recall(subclass_summary: pd.DataFrame):
     ax.set_aspect('equal')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure7_precision_recall_curves.png',
+    fig.savefig(FIGURES_DIR / 'figure7_precision_recall_curves.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure7_precision_recall_curves.png (150 DPI)")
@@ -700,7 +704,7 @@ def create_figure8_venn_diagrams(subclass_summary: pd.DataFrame):
     plt.suptitle('Overlap Between NonBDNAFinder Subclasses and NBST Classes',
                 fontsize=20, fontweight='bold', y=0.995)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure8_venn_diagrams.png',
+    fig.savefig(FIGURES_DIR / 'figure8_venn_diagrams.png',
                 dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
     print("✓ Saved: figure8_venn_diagrams.png (150 DPI)")

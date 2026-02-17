@@ -8,25 +8,37 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import logging; import re
+import logging
+import re
 from typing import Any, Dict, List, Tuple
 
-try: from Detectors.base.base_detector import BaseMotifDetector
+# Import base detector (with fallback for different paths)
+try:
+    from Detectors.base.base_detector import BaseMotifDetector
 except ImportError:
-    import sys; from pathlib import Path
+    import sys
+    from pathlib import Path
     parent_dir = str(Path(__file__).parent.parent.parent)
-    if parent_dir not in sys.path: sys.path.insert(0, parent_dir)
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
     from Detectors import BaseMotifDetector
 
 from .tenmer_table import TENMER_SCORE
 from . import hyperscan_backend
 from Utilities.core.motif_normalizer import normalize_class_subclass
 
-try: from motif_patterns import ZDNA_PATTERNS
-except ImportError: ZDNA_PATTERNS = {}
+# Optional pattern matching support
+try:
+    from motif_patterns import ZDNA_PATTERNS
+except ImportError:
+    ZDNA_PATTERNS = {}
 
-try: import numpy as np; _NUMPY_AVAILABLE = True
-except ImportError: _NUMPY_AVAILABLE = False
+# Optional numpy support for faster calculations
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    _NUMPY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

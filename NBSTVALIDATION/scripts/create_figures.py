@@ -31,7 +31,11 @@ sns.set_palette("husl")
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-VALIDATION_DIR = Path(__file__).parent
+# Directory structure: scripts are in NBSTVALIDATION/scripts/
+BASE_DIR = Path(__file__).parent.parent  # NBSTVALIDATION directory
+DATA_DIR = BASE_DIR / "data"
+FIGURES_DIR = BASE_DIR / "figures"
+TABLES_DIR = BASE_DIR / "tables"
 
 # ============================================================================
 # LOAD DATA
@@ -39,17 +43,17 @@ VALIDATION_DIR = Path(__file__).parent
 
 def load_all_data():
     """Load all data files."""
-    nbf_df = pd.read_csv(VALIDATION_DIR / "nonbdnafinder_results.tsv", sep='\t')
-    comparison_df = pd.read_csv(VALIDATION_DIR / "comparison_summary.tsv", sep='\t')
+    nbf_df = pd.read_csv(DATA_DIR / "nonbdnafinder_results.tsv", sep='\t')
+    comparison_df = pd.read_csv(DATA_DIR / "comparison_summary.tsv", sep='\t')
     
     # Load NBST files
     nbst_data = {
-        "curved": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_curved.tsv", sep='\t'),
-        "GQ": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_GQ.tsv", sep='\t'),
-        "Z": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_Z.tsv", sep='\t'),
-        "STR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_Slipped_STR.tsv", sep='\t'),
-        "DR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_slipped_DR.tsv", sep='\t'),
-        "MR": pd.read_csv(VALIDATION_DIR / "693fc40d26a53_MR.tsv", sep='\t'),
+        "curved": pd.read_csv(DATA_DIR / "693fc40d26a53_curved.tsv", sep='\t'),
+        "GQ": pd.read_csv(DATA_DIR / "693fc40d26a53_GQ.tsv", sep='\t'),
+        "Z": pd.read_csv(DATA_DIR / "693fc40d26a53_Z.tsv", sep='\t'),
+        "STR": pd.read_csv(DATA_DIR / "693fc40d26a53_Slipped_STR.tsv", sep='\t'),
+        "DR": pd.read_csv(DATA_DIR / "693fc40d26a53_slipped_DR.tsv", sep='\t'),
+        "MR": pd.read_csv(DATA_DIR / "693fc40d26a53_MR.tsv", sep='\t'),
     }
     
     return nbf_df, comparison_df, nbst_data
@@ -92,7 +96,7 @@ def create_class_distribution_figure(nbf_df, nbst_data):
     axes[1].set_title('NBST Benchmark\n(n={} motifs)'.format(sum(nbst_counts.values())), fontsize=12, fontweight='bold')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure1_class_distribution.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure1_class_distribution.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure1_class_distribution.png")
 
@@ -134,7 +138,7 @@ def create_performance_metrics_figure(comparison_df):
                            ha='center', va='bottom', fontsize=8)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure2_performance_metrics.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure2_performance_metrics.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure2_performance_metrics.png")
 
@@ -196,7 +200,7 @@ def create_genomic_coverage_figure(nbf_df, nbst_data):
     ax.legend(handles=legend_patches, loc='upper right', ncol=3, fontsize=8)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure3_genomic_coverage.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure3_genomic_coverage.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure3_genomic_coverage.png")
 
@@ -232,7 +236,7 @@ def create_detection_count_figure(comparison_df):
                        ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure4_detection_counts.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure4_detection_counts.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure4_detection_counts.png")
 
@@ -277,7 +281,7 @@ def create_overlap_heatmap(nbf_df):
     ax.set_ylabel('Class', fontsize=12)
     
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure5_overlap_heatmap.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure5_overlap_heatmap.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure5_overlap_heatmap.png")
 
@@ -312,7 +316,7 @@ def create_subclass_distribution(nbf_df):
     
     plt.suptitle('Subclass Distribution by Major Class', fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
-    fig.savefig(VALIDATION_DIR / 'figure6_subclass_distribution.png', dpi=150, bbox_inches='tight')
+    fig.savefig(FIGURES_DIR / 'figure6_subclass_distribution.png', dpi=150, bbox_inches='tight')
     plt.close()
     print("Saved: figure6_subclass_distribution.png")
 
@@ -329,14 +333,14 @@ def create_summary_tables(nbf_df, comparison_df, nbst_data):
                             'precision', 'recall', 'f1']].copy()
     table1.columns = ['NBST Type', 'NBF Class', 'NBST Count', 'NBF Count', 'True Pos', 
                      'False Pos', 'False Neg', 'Precision', 'Recall', 'F1']
-    table1.to_csv(VALIDATION_DIR / 'table1_comparison_metrics.csv', index=False)
+    table1.to_csv(TABLES_DIR / 'table1_comparison_metrics.csv', index=False)
     print("Saved: table1_comparison_metrics.csv")
     
     # Table 2: Class distribution
     class_counts = nbf_df['Class'].value_counts().reset_index()
     class_counts.columns = ['Class', 'Count']
     class_counts['Percentage'] = (class_counts['Count'] / class_counts['Count'].sum() * 100).round(2)
-    class_counts.to_csv(VALIDATION_DIR / 'table2_class_distribution.csv', index=False)
+    class_counts.to_csv(TABLES_DIR / 'table2_class_distribution.csv', index=False)
     print("Saved: table2_class_distribution.csv")
     
     # Table 3: What NBF detects that NBST doesn't
@@ -357,7 +361,7 @@ def create_summary_tables(nbf_df, comparison_df, nbst_data):
         'Overlapping regions with multiple structure potential',
         'Dense clusters of multiple Non-B DNA types',
     ]
-    extra_df.to_csv(VALIDATION_DIR / 'table3_nbf_unique_detections.csv', index=False)
+    extra_df.to_csv(TABLES_DIR / 'table3_nbf_unique_detections.csv', index=False)
     print("Saved: table3_nbf_unique_detections.csv")
     
     return table1, class_counts, extra_df

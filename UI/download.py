@@ -8,10 +8,18 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import streamlit as st; import pandas as pd; import numpy as np; import re; import io; import traceback
+import streamlit as st
+import pandas as pd
+import numpy as np
+import re
+import io
+import traceback
 from collections import Counter
-from Utilities.config.text import UI_TEXT; from Utilities.config.themes import TAB_THEMES
-from UI.css import load_css; from UI.headers import render_section_heading; from UI.guards import generate_excel_bytes, generate_multifasta_excel_bytes
+from Utilities.config.text import UI_TEXT
+from Utilities.config.themes import TAB_THEMES
+from UI.css import load_css
+from UI.headers import render_section_heading
+from UI.guards import generate_excel_bytes, generate_multifasta_excel_bytes
 from UI.storage_helpers import has_results, get_sequences_info, get_results
 from Utilities.utilities import export_to_csv, export_to_json, export_to_excel, export_to_pdf, export_to_bed
 from Utilities.export.export_validator import validate_export_data
