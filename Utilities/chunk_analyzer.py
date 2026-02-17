@@ -354,8 +354,20 @@ class ChunkAnalyzer:
             # Process results in order and deduplicate
             for chunk_idx in sorted(all_chunk_results.keys()):
                 chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
+                
+                # Validate chunk_data access with bounds checking
+                if chunk_idx not in chunk_data:
+                    logger.error(f"Missing chunk_data for chunk {chunk_idx}")
+                    continue
+                
+                chunk_tuple = chunk_data[chunk_idx]
+                if len(chunk_tuple) < 4:
+                    logger.error(f"Invalid chunk_data tuple for chunk {chunk_idx}: "
+                                f"expected 4+ elements, got {len(chunk_tuple)}")
+                    continue
+                
                 # Get chunk_end from original data (index 3 in the tuple)
-                chunk_end = chunk_data[chunk_idx][3]
+                chunk_end = chunk_tuple[3]
                 
                 # Filter out duplicates from overlap region
                 unique_motifs = []

@@ -7,6 +7,9 @@ Provides unified API that works with both disk storage and legacy in-memory mode
 import streamlit as st
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_sequences_info() -> Tuple[List[str], List[int], int]:
@@ -44,12 +47,22 @@ def get_sequence_length(seq_idx: int) -> int:
         Sequence length in base pairs
     """
     if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
-        # Disk storage mode
+        # Disk storage mode - check bounds before access
+        if seq_idx >= len(st.session_state.seq_ids):
+            logger.error(f"Sequence index {seq_idx} out of range "
+                        f"(have {len(st.session_state.seq_ids)} sequences)")
+            return 0
+        
         seq_id = st.session_state.seq_ids[seq_idx]
         metadata = st.session_state.seq_storage.get_metadata(seq_id)
         return metadata['length']
     else:
-        # Legacy mode
+        # Legacy mode - check bounds before access
+        if seq_idx >= len(st.session_state.seqs):
+            logger.error(f"Sequence index {seq_idx} out of range "
+                        f"(have {len(st.session_state.seqs)} sequences)")
+            return 0
+        
         return len(st.session_state.seqs[seq_idx])
 
 
@@ -65,7 +78,11 @@ def get_results(seq_idx: int, limit: Optional[int] = None) -> List[Dict[str, Any
         List of motif dictionaries
     """
     if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
-        # Disk storage mode
+        # Disk storage mode - check bounds before access
+        if seq_idx >= len(st.session_state.seq_ids):
+            logger.error(f"Results index {seq_idx} out of range")
+            return []
+        
         seq_id = st.session_state.seq_ids[seq_idx]
         
         if seq_id in st.session_state.results_storage:
@@ -74,7 +91,7 @@ def get_results(seq_idx: int, limit: Optional[int] = None) -> List[Dict[str, Any
         else:
             return []
     else:
-        # Legacy mode
+        # Legacy mode - already has bounds check
         if seq_idx < len(st.session_state.results):
             results = st.session_state.results[seq_idx]
             if limit is not None:
