@@ -221,28 +221,6 @@ class UniversalSequenceStorage:
         
         return self.metadata[seq_id].copy()
     
-    def load_sequence(self, seq_id: str) -> str:
-        """
-        Load full sequence from disk.
-        
-        Args:
-            seq_id: Sequence identifier
-            
-        Returns:
-            Full sequence string
-            
-        Note:
-            Use this only for small sequences or when full sequence is needed.
-            For large sequences, use iter_chunks() instead.
-        """
-        if seq_id not in self.metadata:
-            raise KeyError(f"Sequence ID '{seq_id}' not found")
-        
-        seq_file = Path(self.metadata[seq_id]['file_path'])
-        
-        with open(seq_file, 'r') as f:
-            return f.read()
-    
     def list_sequences(self) -> List[Dict[str, Any]]:
         """
         List all stored sequences with metadata.
