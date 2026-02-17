@@ -15,11 +15,19 @@ from ..base.base_detector import BaseMotifDetector
 from Utilities.detectors_utils import revcomp
 from Utilities.core.motif_normalizer import normalize_class_subclass
 
-try: import hyperscan; HS_AVAILABLE = True
-except Exception: HS_AVAILABLE = False
+# Optional Hyperscan support for high-performance pattern matching
+try:
+    import hyperscan
+    HS_AVAILABLE = True
+except Exception:
+    HS_AVAILABLE = False
 
-try: import numpy as np; NUMPY_AVAILABLE = True
-except ImportError: NUMPY_AVAILABLE = False
+# Optional NumPy support for faster array operations
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS - QmRLFS Literature Parameters

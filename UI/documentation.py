@@ -8,10 +8,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import streamlit as st; import pandas as pd
-from Utilities.config.text import UI_TEXT; from Utilities.config.themes import TAB_THEMES
+import streamlit as st
+import pandas as pd
+from Utilities.config.text import UI_TEXT
+from Utilities.config.themes import TAB_THEMES
 from Utilities.config.colors import UNIFIED_MOTIF_COLORS, MOTIF_CLASS_INFO
-from UI.css import load_css; from UI.headers import render_section_heading
+from UI.css import load_css
+from UI.headers import render_section_heading
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS

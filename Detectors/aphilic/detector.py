@@ -11,23 +11,39 @@
 import logging
 from typing import Any, Dict, List, Tuple
 
-try: from Detectors.base.base_detector import BaseMotifDetector
+# Import base detector (with fallback for different paths)
+try:
+    from Detectors.base.base_detector import BaseMotifDetector
 except ImportError:
-    import sys; from pathlib import Path
+    import sys
+    from pathlib import Path
     parent_dir = str(Path(__file__).parent.parent.parent)
-    if parent_dir not in sys.path: sys.path.insert(0, parent_dir)
+    if parent_dir not in sys.path:
+        sys.path.insert(0, parent_dir)
     from Detectors import BaseMotifDetector
 
 from Utilities.core.motif_normalizer import normalize_class_subclass
 from .tenmer_table import TENMER_LOG2
 
-try: from Detectors.zdna import hyperscan_backend; _HYPERSCAN_AVAILABLE = hyperscan_backend.is_hyperscan_available()
-except ImportError: _HYPERSCAN_AVAILABLE = False; hyperscan_backend = None
+# Optional Hyperscan support (borrowed from Z-DNA detector)
+try:
+    from Detectors.zdna import hyperscan_backend
+    _HYPERSCAN_AVAILABLE = hyperscan_backend.is_hyperscan_available()
+except ImportError:
+    _HYPERSCAN_AVAILABLE = False
+    hyperscan_backend = None
 
-try: import numpy as np; _NUMPY_AVAILABLE = True
-except ImportError: _NUMPY_AVAILABLE = False; np = None
+# Optional NumPy support for faster calculations
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    _NUMPY_AVAILABLE = False
+    np = None
 
-try: from motif_patterns import APHILIC_DNA_PATTERNS
+# Optional pattern matching support
+try:
+    from motif_patterns import APHILIC_DNA_PATTERNS
 except ImportError: APHILIC_DNA_PATTERNS = {}
 
 logger = logging.getLogger(__name__)

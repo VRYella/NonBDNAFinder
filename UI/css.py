@@ -8,17 +8,25 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import os; import streamlit as st
+import os
+import streamlit as st
 from Utilities.config.colors import GLOBAL_COLORS, HOME_COLORS, INPUT_COLORS, ANALYSIS_COLORS, RESULTS_COLORS, VISUALIZATION_COLORS, DOWNLOAD_COLORS, DOCUMENTATION_COLORS, SEMANTIC_COLORS
-from Utilities.config.themes import COLOR_THEMES; from Utilities.config.typography import FONT_CONFIG; from Utilities.config.layout import LAYOUT_CONFIG; from Utilities.config.animation import ANIMATION_CONFIG
+from Utilities.config.themes import COLOR_THEMES
+from Utilities.config.typography import FONT_CONFIG
+from Utilities.config.layout import LAYOUT_CONFIG
+from Utilities.config.animation import ANIMATION_CONFIG
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
-DEFAULT_THEME = "scientific_blue"; DNA_PATTERN_STROKE_WIDTH = 0.6; DNA_PATTERN_OPACITY = 0.12
+DEFAULT_THEME = "scientific_blue"
+DNA_PATTERN_STROKE_WIDTH = 0.6
+DNA_PATTERN_OPACITY = 0.12
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def hex_to_rgb(hex_color): h = hex_color.lstrip("#"); return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+def hex_to_rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 def get_dna_pattern_svg(stroke_color):
     svg = f"%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23{stroke_color}' stroke-width='0.6' opacity='0.12'%3E%3Cpath d='M10 30 C 18 12, 42 12, 50 30'/%3E%3Cpath d='M10 30 C 18 48, 42 48, 50 30'/%3E%3C/g%3E%3C/svg%3E"

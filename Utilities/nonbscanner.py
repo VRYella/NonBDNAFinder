@@ -8,19 +8,32 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # IMPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
-import os; import warnings; import time; import threading; import logging; import bisect; import multiprocessing; import pandas as pd
+import os
+import warnings
+import time
+import threading
+import logging
+import bisect
+import multiprocessing
+import pandas as pd
 from typing import List, Dict, Any, Optional, Union, Tuple, Callable, overload, Literal
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from concurrent.futures.process import BrokenProcessPool
 
-warnings.filterwarnings("ignore"); logger = logging.getLogger(__name__)
+warnings.filterwarnings("ignore")
+logger = logging.getLogger(__name__)
 
+# Detector imports
 from Detectors import CurvedDNADetector, SlippedDNADetector, CruciformDetector, RLoopDetector, TriplexDetector, GQuadruplexDetector, IMotifDetector, ZDNADetector, APhilicDetector
 from Utilities.utilities import parse_fasta, read_fasta_file, validate_sequence, export_to_csv, export_to_bed, export_to_json, export_to_excel, calculate_motif_statistics, normalize_motif_scores
 
-try: from scientific_progress import StreamlitProgressPanel, create_streamlit_progress_callback, create_compact_progress_callback; STREAMLIT_PROGRESS_AVAILABLE = True
-except ImportError: STREAMLIT_PROGRESS_AVAILABLE = False
+# Optional progress tracking support (for Streamlit UI integration)
+try:
+    from scientific_progress import StreamlitProgressPanel, create_streamlit_progress_callback, create_compact_progress_callback
+    STREAMLIT_PROGRESS_AVAILABLE = True
+except ImportError:
+    STREAMLIT_PROGRESS_AVAILABLE = False
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS - All configuration values at the top for easy modification
