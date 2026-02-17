@@ -235,12 +235,15 @@ def render():
             except Exception as e: st.error(f"Subclass dist error: {e}")
         
         _render_section_divider("Density Analysis")
-        gd = None
-        pd_kbp = None
         try:
+            gd = None
+            pd_kbp = None
             vk = f"seq_{seq_idx}"; cv = st.session_state.get('cached_visualizations', {}).get(vk, {}); cd = cv.get('densities', {})
-            if cd: gd, pd_kbp = cd['class_genomic'], cd['class_positional']
-            else: gd = calculate_genomic_density(motifs, slen, by_class=True); pd_kbp = calculate_positional_density(motifs, slen, unit='kbp', by_class=True)
+            if cd and 'class_genomic' in cd and 'class_positional' in cd: 
+                gd, pd_kbp = cd['class_genomic'], cd['class_positional']
+            else: 
+                gd = calculate_genomic_density(motifs, slen, by_class=True)
+                pd_kbp = calculate_positional_density(motifs, slen, unit='kbp', by_class=True)
             if gd is not None and pd_kbp is not None:
                 fig = plot_density_comparison(gd, pd_kbp, title="Density Analysis"); st.pyplot(fig); plt.close(fig)
         except Exception as e: st.error(f"Density error: {e}")
