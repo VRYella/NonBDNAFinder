@@ -27,6 +27,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from Utilities.nonbscanner import NonBScanner, analyze_sequence
 from Utilities.utilities import read_fasta_file
+from Utilities.safety import filter_valid_indices
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # CONFIGURATION
@@ -397,7 +401,20 @@ def analyze_false_positives(
             'common_characteristics': 'N/A'
         }
     
-    fp_motifs = [nbf_motifs[i] for i in fp_indices]
+    # Filter invalid indices before access to prevent crashes
+    valid_fp_indices = filter_valid_indices(fp_indices, len(nbf_motifs))
+    
+    if not valid_fp_indices:
+        logger.warning("All FP indices were out of bounds")
+        return {
+            'count': 0,
+            'mean_length': 0,
+            'mean_score': 0,
+            'common_characteristics': 'All indices out of bounds'
+        }
+    
+    # Safe access with filtered indices
+    fp_motifs = [nbf_motifs[i] for i in valid_fp_indices]
     lengths = [m.get('Length', 0) for m in fp_motifs]
     scores = [m.get('Score', 0) for m in fp_motifs if 'Score' in m]
     
@@ -415,7 +432,7 @@ def analyze_false_positives(
             characteristics.append("Low scores (<1.5)")
     
     return {
-        'count': len(fp_indices),
+        'count': len(valid_fp_indices),
         'mean_length': np.mean(lengths) if lengths else 0,
         'median_length': np.median(lengths) if lengths else 0,
         'mean_score': np.mean(scores) if scores else 0,
@@ -447,13 +464,15 @@ def analyze_false_negatives(
             'potential_causes': 'N/A'
         }
     
-    # Validate indices are within bounds to prevent crashes
-    valid_indices = [i for i in fn_indices if 0 <= i < len(nbst_df)]
+    # Filter invalid indices before access to prevent crashes
+    valid_indices = filter_valid_indices(fn_indices, len(nbst_df))
+    
     if not valid_indices:
+        logger.warning("All FN indices were out of bounds")
         return {
             'count': 0,
             'mean_length': 0,
-            'potential_causes': 'Invalid indices (out of bounds)'
+            'potential_causes': 'All indices out of bounds'
         }
     
     fn_nbst = nbst_df.iloc[valid_indices]
