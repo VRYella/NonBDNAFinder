@@ -410,7 +410,7 @@ def analyze_false_positives(
             'count': 0,
             'mean_length': 0,
             'mean_score': 0,
-            'common_characteristics': 'Invalid indices'
+            'common_characteristics': 'All indices out of bounds'
         }
     
     # Safe access with filtered indices
@@ -472,7 +472,7 @@ def analyze_false_negatives(
         return {
             'count': 0,
             'mean_length': 0,
-            'potential_causes': 'Invalid indices (out of bounds)'
+            'potential_causes': 'All indices out of bounds'
         }
     
     fn_nbst = nbst_df.iloc[valid_indices]

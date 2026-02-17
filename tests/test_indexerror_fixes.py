@@ -175,7 +175,7 @@ class TestFalseNegativesIndexSafety(unittest.TestCase):
         
         self.assertEqual(fn_analysis['count'], 0)
         self.assertEqual(fn_analysis['mean_length'], 0)
-        self.assertIn('Invalid', fn_analysis['potential_causes'])
+        self.assertIn('out of bounds', fn_analysis['potential_causes'])
     
     def test_empty_indices_list(self):
         """Test FN analysis with empty indices list"""
