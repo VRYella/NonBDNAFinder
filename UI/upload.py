@@ -614,6 +614,9 @@ def render():
                 st.session_state.seqs = seqs
                 st.session_state.names = names
                 st.session_state.results = []
+            
+            # Reset analysis_done flag to allow re-running analysis on newly loaded sequences
+            st.session_state.analysis_done = False
 
         # Compact sequence validation summary (single strip, no individual cards)
         # Support both disk storage and legacy in-memory mode
@@ -1000,6 +1003,7 @@ def render():
             if st.button("🔄 Reset", use_container_width=True, help="Clear results and reset"):
                 st.session_state.analysis_done = False
                 st.session_state.results = []
+                st.session_state.results_storage = {}
                 st.session_state.performance_metrics = None
                 st.session_state.cached_visualizations = {}
                 st.session_state.analysis_time = None
@@ -1212,28 +1216,173 @@ def render():
                 # Ensures identical behavior for single and multi-FASTA inputs.
                 # ============================================================
                 
+                # Detect equal-length sequences for potential parallel processing
+                equal_length_sequences = False
+                if num_sequences > 1:
+                    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                        # Check lengths in disk storage mode
+                        lengths = []
+                        for seq_id in st.session_state.seq_ids:
+                            metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                            lengths.append(metadata['length'])
+                        equal_length_sequences = len(set(lengths)) == 1
+                    else:
+                        # Check lengths in legacy mode
+                        lengths = [len(seq) for seq in st.session_state.seqs]
+                        equal_length_sequences = len(set(lengths)) == 1
+                    
+                    if equal_length_sequences:
+                        st.info(f"✨ All {num_sequences} sequences have equal length ({lengths[0]:,} bp). Using parallel processing for optimal performance.")
+                
                 # Support both disk storage and legacy in-memory mode
                 if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
                     # === DISK STORAGE MODE: Use ChunkAnalyzer ===
                     seq_ids = st.session_state.seq_ids
                     names = st.session_state.names
                     
-                    for i, (seq_id, name) in enumerate(zip(seq_ids, names)):
-                        progress = (i + 1) / num_sequences
+                    # Use parallel processing for equal-length multifasta sequences
+                    # when there are multiple sequences and none exceed chunk threshold
+                    use_sequence_parallel = (
+                        equal_length_sequences and 
+                        num_sequences > 1 and 
+                        all(st.session_state.seq_storage.get_metadata(sid)['length'] <= CHUNK_ANALYSIS_THRESHOLD_BP 
+                            for sid in seq_ids)
+                    )
+                    
+                    if use_sequence_parallel:
+                        # ============================================================
+                        # PARALLEL SEQUENCE PROCESSING for equal-length multifasta
+                        # ============================================================
+                        st.toast(f"🚀 Processing {num_sequences} equal-length sequences in parallel", icon="🚀")
                         
-                        # Get sequence metadata
-                        metadata = st.session_state.seq_storage.get_metadata(seq_id)
-                        seq_length = metadata['length']
+                        from concurrent.futures import ProcessPoolExecutor, as_completed
+                        import multiprocessing
                         
-                        # Calculate overall percentage
-                        overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                        def process_single_sequence(seq_id, name, selected_classes):
+                            """Worker function to process a single sequence in parallel"""
+                            try:
+                                # Load sequence from storage
+                                seq = st.session_state.seq_storage.load_sequence(seq_id)
+                                
+                                # Run analysis
+                                results = analyze_sequence(
+                                    seq, name,
+                                    enabled_classes=list(selected_classes) if selected_classes else None
+                                )
+                                
+                                # Ensure all motifs have required fields
+                                safe_results = []
+                                for motif in results:
+                                    try:
+                                        # Inline version of ensure_subclass
+                                        if isinstance(motif, dict):
+                                            if 'Subclass' not in motif or motif['Subclass'] is None:
+                                                motif['Subclass'] = motif.get('Subtype', 'Other')
+                                            safe_results.append(motif)
+                                        else:
+                                            safe_results.append({'Subclass': 'Other', 'Motif': motif})
+                                    except Exception:
+                                        continue
+                                
+                                # Filter results based on selected subclasses
+                                selected_classes_set = set(selected_classes) if selected_classes else set()
+                                selected_subclasses_set = st.session_state.get('selected_subclasses', set())
+                                if isinstance(selected_subclasses_set, (list, tuple)):
+                                    selected_subclasses_set = set(selected_subclasses_set)
+                                
+                                filtered_results = []
+                                for motif in safe_results:
+                                    try:
+                                        motif_class = motif.get('Class', '')
+                                        motif_subclass = motif.get('Subclass', '')
+                                        
+                                        if motif_class in selected_classes_set:
+                                            if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                                component_classes = motif.get('Component_Classes', [])
+                                                if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                                    filtered_results.append(motif)
+                                            elif motif_subclass in selected_subclasses_set:
+                                                filtered_results.append(motif)
+                                    except Exception:
+                                        continue
+                                
+                                return (seq_id, name, filtered_results, len(seq), None)
+                            except Exception as e:
+                                return (seq_id, name, [], 0, str(e))
                         
-                        # Use st.status() for real-time disappearing progress
-                        with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)", expanded=True) as status:
-                            seq_start_time = time.time()
+                        # Submit all sequences for parallel processing
+                        max_workers = min(num_sequences, max(1, multiprocessing.cpu_count() - 1))
+                        
+                        with st.status(f"🧬 Analyzing {num_sequences} sequences in parallel...", expanded=True) as status:
+                            st.write(f"⚡ Using {max_workers} parallel workers")
                             
-                            # Step 1: Validation
-                            st.write("✓ Validating sequence...")
+                            # Create a mapping to maintain sequence order
+                            sequence_order = {seq_id: i for i, seq_id in enumerate(seq_ids)}
+                            results_dict = {}
+                            
+                            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                                # Submit all tasks
+                                future_to_seq = {
+                                    executor.submit(
+                                        process_single_sequence, 
+                                        seq_id, 
+                                        name, 
+                                        st.session_state.selected_classes
+                                    ): (seq_id, name)
+                                    for seq_id, name in zip(seq_ids, names)
+                                }
+                                
+                                # Collect results as they complete
+                                completed = 0
+                                for future in as_completed(future_to_seq):
+                                    seq_id, name = future_to_seq[future]
+                                    try:
+                                        result_seq_id, result_name, results, seq_length, error = future.result()
+                                        
+                                        if error:
+                                            st.error(f"❌ Error processing {result_name}: {error}")
+                                            results_dict[result_seq_id] = []
+                                        else:
+                                            results_dict[result_seq_id] = results
+                                            completed += 1
+                                            progress_pct = (completed / num_sequences) * 100
+                                            st.write(f"✓ Completed {result_name}: {len(results):,} motifs ({progress_pct:.0f}%)")
+                                            total_bp_processed += seq_length
+                                    except Exception as e:
+                                        st.error(f"❌ Exception processing {name}: {e}")
+                                        results_dict[seq_id] = []
+                            
+                            # Reconstruct results in original order
+                            for seq_id in seq_ids:
+                                all_results.append(results_dict.get(seq_id, []))
+                            
+                            status.update(
+                                label=f"✅ Parallel analysis complete: {sum(len(r) for r in all_results):,} motifs found",
+                                state="complete"
+                            )
+                        
+                        # Update progress bar
+                        with progress_placeholder.container():
+                            pbar.progress(1.0, text=f"Analyzed {num_sequences}/{num_sequences} sequences (100%)")
+                    
+                    else:
+                        # Use sequential processing (original code)
+                        for i, (seq_id, name) in enumerate(zip(seq_ids, names)):
+                            progress = (i + 1) / num_sequences
+                            
+                            # Get sequence metadata
+                            metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                            seq_length = metadata['length']
+                            
+                            # Calculate overall percentage
+                            overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                            
+                            # Use st.status() for real-time disappearing progress
+                            with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)", expanded=True) as status:
+                                seq_start_time = time.time()
+                                
+                                # Step 1: Validation
+                                st.write("✓ Validating sequence...")
                             
                             # Determine whether to use chunking based on sequence size
                             if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
@@ -1366,17 +1515,17 @@ def render():
                             # Show toast notification for completion
                             st.toast(f"✅ {name}: {len(results):,} motifs found", icon="✅")
                         
-                        all_results.append(results)
-                        
-                        total_bp_processed += seq_length
-                        
-                        # Update progress display
-                        actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
-                        with progress_placeholder.container():
-                            pbar.progress(progress, text=f"Analyzed {i+1}/{num_sequences} sequences ({actual_percentage:.1f}%)")
-                        
-                        # Memory management
-                        trigger_garbage_collection()
+                            all_results.append(results)
+                            
+                            total_bp_processed += seq_length
+                            
+                            # Update progress display
+                            actual_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
+                            with progress_placeholder.container():
+                                pbar.progress(progress, text=f"Analyzed {i+1}/{num_sequences} sequences ({actual_percentage:.1f}%)")
+                            
+                            # Memory management
+                            trigger_garbage_collection()
                     
                 else:
                     # === LEGACY IN-MEMORY MODE ===
