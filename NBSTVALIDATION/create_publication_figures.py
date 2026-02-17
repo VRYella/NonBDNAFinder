@@ -39,7 +39,8 @@ from Utilities.config.motif_taxonomy import (
     get_all_classes_taxonomy_order,
     get_all_subclasses_taxonomy_order,
     get_subclasses_for_class,
-    MOTIF_CLASSIFICATION
+    MOTIF_CLASSIFICATION,
+    SUBCLASS_TO_CLASS
 )
 from Utilities.config.colors import UNIFIED_MOTIF_COLORS
 
@@ -315,7 +316,7 @@ def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
             y_positions[key] = y_pos
             
             # Create color variations for subclasses (lighter/darker shades)
-            alpha = 0.6 + (sub_idx * 0.4 / max(len(subclasses), 1))
+            alpha = 0.6 + (sub_idx * 0.4 / max(len(subclasses) - 1, 1))
             class_colors[key] = (*matplotlib.colors.to_rgb(base_color), alpha)
             
             y_pos += 1
@@ -395,13 +396,9 @@ def create_figure4_detection_counts(subclass_summary: pd.DataFrame):
     # Color code subclass labels by their parent class
     subclass_colors = []
     for subclass in data['NBF_Subclass']:
-        try:
-            from Utilities.config.motif_taxonomy import SUBCLASS_TO_CLASS
-            parent_class = SUBCLASS_TO_CLASS.get(subclass, '')
-            color = UNIFIED_MOTIF_COLORS.get(parent_class, '#000000')
-            subclass_colors.append(color)
-        except:
-            subclass_colors.append('#000000')
+        parent_class = SUBCLASS_TO_CLASS.get(subclass, '')
+        color = UNIFIED_MOTIF_COLORS.get(parent_class, '#000000')
+        subclass_colors.append(color)
     
     # Set labels with colors
     labels = ax.set_xticklabels(data['NBF_Subclass'], rotation=45, ha='right', fontsize=12)
@@ -449,7 +446,7 @@ def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
     ordered_combos = []
     for sub in taxonomy_subclasses:
         for combo in nbf_core['Class_Subclass'].unique():
-            if combo.endswith('/ ' + sub):
+            if combo.endswith(' / ' + sub):
                 ordered_combos.append(combo)
     
     # Calculate overlap matrix with ordered indices
