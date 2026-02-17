@@ -65,7 +65,10 @@ def format_time_compact(seconds: float) -> str:
 
 
 def format_time(seconds):
-    """Format time in seconds to a human-readable string.
+    """Format time in seconds to a human-readable string (compact format).
+    
+    This format is more compact than format_time_human() and is suitable for
+    inline display in UI messages and progress updates.
     
     Args:
         seconds: Time in seconds (float or int)
@@ -80,6 +83,9 @@ def format_time(seconds):
         '12m 30s'
         >>> format_time(7800)
         '2h 10m'
+    
+    See Also:
+        format_time_human() - More detailed format for performance reports
     """
     if seconds < 60:
         return f"{seconds:.1f}s"
@@ -96,7 +102,8 @@ def format_time(seconds):
 def format_time_human(seconds):
     """Format time in seconds to a detailed human-readable string.
     
-    Provides more detailed breakdown than format_time() for performance reports.
+    Provides more detailed breakdown than format_time() for performance reports
+    and summary displays where space is not a constraint.
     
     Args:
         seconds: Time in seconds (float or int)
@@ -111,6 +118,9 @@ def format_time_human(seconds):
         '12 minutes, 30 seconds'
         >>> format_time_human(7800)
         '2 hours, 10 minutes'
+    
+    See Also:
+        format_time() - Compact format for inline UI messages
     """
     if seconds < 1:
         return f"{seconds*1000:.0f} milliseconds"

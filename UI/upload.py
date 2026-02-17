@@ -1234,7 +1234,6 @@ def render():
                             
                             # Step 1: Validation
                             st.write("✓ Validating sequence...")
-                            time.sleep(0.1)  # Brief pause for visual feedback
                             
                             # Determine whether to use chunking based on sequence size
                             if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
