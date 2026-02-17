@@ -4281,9 +4281,10 @@ FEATURES:
 # - Clean, minimal design with proper spacing
 # - Colorblind-friendly palettes
 
-# Default DPI for publication quality (reduced to 150 to save memory)
+# Default DPI for visualization (reduced to 150 to save memory)
 # 150 DPI is suitable for screen display and reduces file sizes significantly
-# Original: 300 DPI (Nature journal requirement)
+# For print/publication quality, Nature journals typically require 300 DPI
+# but we prioritize memory savings for web application performance
 PUBLICATION_DPI = 150
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
@@ -4331,29 +4332,29 @@ _NATURE_STYLE_PARAMS = {
     # Typography - Arial/Helvetica as per Nature guidelines
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'font.size': 10,  # Increased to medium size for readability (was 8pt)
+    'font.size': 10,  # Increased for readability (was 8pt)
     
     # Title and labels
-    'axes.titlesize': 11,  # Increased to medium size (was 9pt)
+    'axes.titlesize': 11,  # Increased for readability (was 9pt)
     'axes.titleweight': 'bold',
-    'axes.labelsize': 10,  # Increased to medium size (was 8pt)
+    'axes.labelsize': 10,  # Increased for readability (was 8pt)
     'axes.labelweight': 'normal',
     
     # Tick labels
-    'xtick.labelsize': 9,  # Increased to medium size (was 7pt)
-    'ytick.labelsize': 9,  # Increased to medium size (was 7pt)
+    'xtick.labelsize': 9,  # Increased for readability (was 7pt)
+    'ytick.labelsize': 9,  # Increased for readability (was 7pt)
     'xtick.major.size': 3,
     'ytick.major.size': 3,
     'xtick.major.width': 0.8,
     'ytick.major.width': 0.8,
     
     # Legend
-    'legend.fontsize': 9,  # Increased to medium size (was 7pt)
+    'legend.fontsize': 9,  # Increased for readability (was 7pt)
     'legend.frameon': False,
     'legend.borderpad': 0.4,
     
     # Figure
-    'figure.titlesize': 12,  # Increased to medium size (was 10pt)
+    'figure.titlesize': 12,  # Increased for readability (was 10pt)
     'figure.titleweight': 'bold',
     'figure.dpi': PUBLICATION_DPI,
     'figure.facecolor': 'white',
@@ -6749,7 +6750,10 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
     
     # Use taxonomy order for subclasses
     all_subclasses_ordered = get_all_subclasses_taxonomy_order()
-    # Build ordered list of keys that exist in the data (O(n+m) complexity)
+    # Build ordered list of keys that exist in the data
+    # Optimized to O(n+m) complexity where:
+    #   n = number of keys in subclass_groups
+    #   m = number of subclasses in taxonomy order
     # Create a reverse lookup: subclass -> keys
     subclass_to_keys = {}
     for key in subclass_groups.keys():
