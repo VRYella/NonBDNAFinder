@@ -4350,7 +4350,7 @@ _NATURE_STYLE_PARAMS = {
     
     # Legend - UNIFORM sizing
     'legend.fontsize': 9,  # UNIFORM: All legend text
-    'legend.frameon': True,
+    'legend.frameon': False,  # Nature style: frameless legends for cleaner figures
     'legend.framealpha': 0.9,
     'legend.edgecolor': 'lightgray',
     'legend.borderpad': 0.4,
@@ -4365,9 +4365,9 @@ _NATURE_STYLE_PARAMS = {
     'savefig.bbox': 'tight',
     'savefig.pad_inches': 0.05,
     
-    # Axes - minimal, clean design
-    'axes.grid': True,  # Enable grid for better readability
-    'grid.alpha': 0.3,  # Subtle grid
+    # Axes - minimal, clean design (Nature style with optional subtle grid)
+    'axes.grid': False,  # Nature typically uses minimal grids; can be enabled per-plot
+    'grid.alpha': 0.3,  # Subtle grid when enabled
     'grid.linestyle': '--',
     'axes.spines.top': False,
     'axes.spines.right': False,
@@ -4787,7 +4787,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
     # Add center label with total count for enhanced donut chart
     total_motifs = sum(class_values)
     ax.text(0, 0, f'{total_motifs:,}\nMotifs', ha='center', va='center',
-           fontsize=12, fontweight='bold', color='#334155')
+           fontsize=10, fontweight='bold', color='#334155')  # UNIFORM: base font size
     
     return fig
 
@@ -7319,7 +7319,8 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
                 if value > 0:
                     # Use white text on dark cells, black on light cells
                     text_color = 'white' if value > max_val / 2 else 'black'
-                    fontweight = 'bold' if i != j else 'normal'  # Bold for off-diagonal
+                    # Bold for off-diagonal (different classes), normal for diagonal (same class)
+                    fontweight = 'bold' if i != j else 'normal'
                     ax.text(j, i, str(value), ha='center', va='center', 
                            color=text_color, fontsize=8, fontweight=fontweight)
     
