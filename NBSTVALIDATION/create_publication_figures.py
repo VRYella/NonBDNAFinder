@@ -31,6 +31,19 @@ from typing import Dict, List, Tuple, Optional, Any
 import warnings
 warnings.filterwarnings('ignore')
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Import motif taxonomy for biological ordering
+from Utilities.config.motif_taxonomy import (
+    get_all_classes_taxonomy_order,
+    get_all_subclasses_taxonomy_order,
+    get_subclasses_for_class,
+    MOTIF_CLASSIFICATION,
+    SUBCLASS_TO_CLASS
+)
+from Utilities.config.colors import UNIFIED_MOTIF_COLORS
+
 # Matplotlib configuration for publication quality
 import matplotlib
 matplotlib.use('Agg')
@@ -41,16 +54,16 @@ import matplotlib.ticker as ticker
 from matplotlib_venn import venn2, venn3
 import seaborn as sns
 
-# Publication-ready settings
-plt.rcParams['figure.dpi'] = 300
-plt.rcParams['savefig.dpi'] = 300
-plt.rcParams['font.size'] = 12
-plt.rcParams['axes.labelsize'] = 14
-plt.rcParams['axes.titlesize'] = 16
-plt.rcParams['xtick.labelsize'] = 11
-plt.rcParams['ytick.labelsize'] = 11
-plt.rcParams['legend.fontsize'] = 11
-plt.rcParams['figure.titlesize'] = 18
+# Publication-ready settings - Reduced DPI to 150 to save memory
+plt.rcParams['figure.dpi'] = 150
+plt.rcParams['savefig.dpi'] = 150
+plt.rcParams['font.size'] = 14
+plt.rcParams['axes.labelsize'] = 16
+plt.rcParams['axes.titlesize'] = 18
+plt.rcParams['xtick.labelsize'] = 13
+plt.rcParams['ytick.labelsize'] = 13
+plt.rcParams['legend.fontsize'] = 13
+plt.rcParams['figure.titlesize'] = 20
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'Helvetica']
 
@@ -101,34 +114,45 @@ def load_all_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict]:
 def create_figure1_distribution(nbf_df: pd.DataFrame, nbst_data: Dict):
     """
     Create enhanced class/subclass distribution comparison.
-    Uses pie charts with colorblind-friendly palette and proper typography.
+    Uses pie charts with unified color palette and proper typography.
+    Classes are ordered by biological taxonomy, not alphabetically.
     """
     fig, axes = plt.subplots(1, 2, figsize=(16, 8))
     
-    # NonBDNAFinder class distribution
+    # NonBDNAFinder class distribution - use taxonomy order
+    taxonomy_classes = get_all_classes_taxonomy_order()
     class_counts = nbf_df['Class'].value_counts()
     
-    # Use colorblind palette
-    colors_nbf = COLORBLIND_PALETTE[:len(class_counts)]
+    # Reindex to taxonomy order (only include classes present in data)
+    ordered_classes = [cls for cls in taxonomy_classes if cls in class_counts.index]
+    ordered_counts = [class_counts[cls] for cls in ordered_classes]
+    
+    # Use unified motif colors
+    colors_nbf = [UNIFIED_MOTIF_COLORS.get(cls, '#808080') for cls in ordered_classes]
     
     # NBF pie chart
     wedges, texts, autotexts = axes[0].pie(
-        class_counts.values,
-        labels=class_counts.index,
-        autopct=lambda pct: f'{pct:.1f}%\n({int(pct/100.*sum(class_counts))})',
+        ordered_counts,
+        labels=ordered_classes,
+        autopct=lambda pct: f'{pct:.1f}%\n({int(pct/100.*sum(ordered_counts))})',
         colors=colors_nbf,
         startangle=90,
-        explode=[0.03]*len(class_counts),
-        textprops={'fontsize': 10, 'weight': 'bold'}
+        explode=[0.03]*len(ordered_classes),
+        textprops={'fontsize': 12, 'weight': 'bold'}
     )
     
-    # Make percentage text more readable
+    # Make percentage text more readable with better size
     for autotext in autotexts:
         autotext.set_color('white')
-        autotext.set_fontsize(9)
+        autotext.set_fontsize(11)
+    
+    # Color code the label text to match pie slices
+    for text, color in zip(texts, colors_nbf):
+        text.set_color(color)
+        text.set_fontweight('bold')
     
     axes[0].set_title('NonBDNAFinder\nClass Distribution\n(n={:,} motifs)'.format(len(nbf_df)),
-                     fontsize=16, fontweight='bold', pad=20)
+                     fontsize=18, fontweight='bold', pad=20)
     
     # NBST class distribution
     nbst_counts = {
@@ -150,22 +174,22 @@ def create_figure1_distribution(nbf_df: pd.DataFrame, nbst_data: Dict):
         colors=colors_nbst,
         startangle=90,
         explode=[0.03]*len(nbst_series),
-        textprops={'fontsize': 10, 'weight': 'bold'}
+        textprops={'fontsize': 12, 'weight': 'bold'}
     )
     
     for autotext in autotexts2:
         autotext.set_color('white')
-        autotext.set_fontsize(9)
+        autotext.set_fontsize(11)
     
     axes[1].set_title('NBST Benchmark\nClass Distribution\n(n={:,} motifs)'.format(sum(nbst_counts.values())),
-                     fontsize=16, fontweight='bold', pad=20)
+                     fontsize=18, fontweight='bold', pad=20)
     
-    plt.suptitle('Comparative Class Distribution Analysis', fontsize=18, fontweight='bold', y=0.98)
+    plt.suptitle('Comparative Class Distribution Analysis', fontsize=20, fontweight='bold', y=0.98)
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure1_subclass_distribution.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure1_subclass_distribution.png (300 DPI)")
+    print("✓ Saved: figure1_subclass_distribution.png (150 DPI)")
 
 
 # ============================================================================
@@ -176,26 +200,35 @@ def create_figure2_performance_metrics(subclass_summary: pd.DataFrame):
     """
     Create subclass-level performance metrics with grouped bars.
     Separate panels for each major class showing subclass performance.
+    Uses biological taxonomy order, not alphabetical.
     """
-    # Group by NBF_Class
-    classes = subclass_summary['NBF_Class'].unique()
+    # Group by NBF_Class and order by taxonomy
+    taxonomy_classes = get_all_classes_taxonomy_order()
+    present_classes = [cls for cls in taxonomy_classes if cls in subclass_summary['NBF_Class'].values]
     
     # Create figure with subplots
-    n_classes = len(classes)
+    n_classes = len(present_classes)
     fig, axes = plt.subplots(n_classes, 1, figsize=(14, 4*n_classes))
     
     if n_classes == 1:
         axes = [axes]
     
-    for idx, cls in enumerate(classes):
+    for idx, cls in enumerate(present_classes):
         ax = axes[idx]
         subset = subclass_summary[subclass_summary['NBF_Class'] == cls].copy()
         
         if len(subset) == 0:
             continue
         
-        # Sort by F1 score for better visualization
-        subset = subset.sort_values('F1_Score', ascending=False)
+        # Order subclasses by taxonomy, not F1 score
+        try:
+            taxonomy_subclasses = get_subclasses_for_class(cls)
+            ordered_subclasses = [sub for sub in taxonomy_subclasses if sub in subset['NBF_Subclass'].values]
+            # Reindex subset to maintain taxonomy order
+            subset = subset.set_index('NBF_Subclass').loc[ordered_subclasses].reset_index()
+        except (KeyError, ValueError):
+            # If taxonomy not available, keep original order
+            pass
         
         x = np.arange(len(subset))
         width = 0.25
@@ -207,33 +240,37 @@ def create_figure2_performance_metrics(subclass_summary: pd.DataFrame):
         bars3 = ax.bar(x + width, subset['F1_Score'], width,
                       label='F1 Score', color=COLORBLIND_PALETTE[2], alpha=0.9)
         
-        ax.set_xlabel('Subclass', fontsize=13, fontweight='bold')
-        ax.set_ylabel('Score', fontsize=13, fontweight='bold')
+        ax.set_xlabel('Subclass', fontsize=15, fontweight='bold')
+        ax.set_ylabel('Score', fontsize=15, fontweight='bold')
         ax.set_title(f'{cls} Subclass Performance vs NBST',
-                    fontsize=14, fontweight='bold', pad=10)
+                    fontsize=16, fontweight='bold', pad=10)
         ax.set_xticks(x)
-        ax.set_xticklabels(subset['NBF_Subclass'], rotation=45, ha='right', fontsize=10)
+        
+        # Color code the subclass labels
+        class_color = UNIFIED_MOTIF_COLORS.get(cls, '#808080')
+        ax.set_xticklabels(subset['NBF_Subclass'], rotation=45, ha='right', fontsize=12, color=class_color)
+        
         ax.legend(loc='upper right', framealpha=0.9)
         ax.set_ylim(0, 1.1)
         ax.grid(axis='y', alpha=0.3, linestyle='--')
         ax.axhline(y=0.5, color='gray', linestyle='--', alpha=0.5, linewidth=1)
         
-        # Add value labels
+        # Add value labels with better font size
         for bars in [bars1, bars2, bars3]:
             for bar in bars:
                 height = bar.get_height()
                 if height > 0.02:
                     ax.text(bar.get_x() + bar.get_width()/2., height,
                            f'{height:.2f}',
-                           ha='center', va='bottom', fontsize=8)
+                           ha='center', va='bottom', fontsize=10)
     
     plt.suptitle('Subclass-Level Performance Metrics Against NBST Benchmark',
-                fontsize=18, fontweight='bold', y=1.0)
+                fontsize=20, fontweight='bold', y=1.0)
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure2_performance_metrics.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure2_performance_metrics.png (300 DPI)")
+    print("✓ Saved: figure2_performance_metrics.png (150 DPI)")
 
 
 # ============================================================================
@@ -243,37 +280,49 @@ def create_figure2_performance_metrics(subclass_summary: pd.DataFrame):
 def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
     """
     Create genomic coverage map with subclass differentiation using shading/patterns.
+    Excludes Hybrid and Non-B_DNA_Clusters to focus on canonical motifs.
+    Uses taxonomy order and unified colors.
     """
     fig, ax = plt.subplots(figsize=(18, 10))
     
     seq_len = 40523
     
-    # Get unique classes and subclasses
-    class_subclass_combos = nbf_df.groupby(['Class', 'Subclass']).size().reset_index()
+    # Filter out Hybrid and Clusters
+    nbf_core = nbf_df[~nbf_df['Class'].isin(['Hybrid', 'Non-B_DNA_Clusters'])].copy()
     
-    # Assign y-positions and colors
+    # Assign y-positions and colors using taxonomy order
     y_pos = 0
     y_positions = {}
     class_colors = {}
     
-    for cls in nbf_df['Class'].unique():
-        base_color_idx = hash(cls) % len(COLORBLIND_PALETTE)
-        base_color = COLORBLIND_PALETTE[base_color_idx]
+    taxonomy_classes = get_all_classes_taxonomy_order()
+    
+    for cls in taxonomy_classes:
+        if cls not in nbf_core['Class'].values:
+            continue
         
-        subclasses = nbf_df[nbf_df['Class'] == cls]['Subclass'].unique()
+        # Use unified color for this class
+        base_color = UNIFIED_MOTIF_COLORS.get(cls, '#808080')
+        
+        # Get subclasses in taxonomy order
+        try:
+            taxonomy_subclasses = get_subclasses_for_class(cls)
+            subclasses = [sub for sub in taxonomy_subclasses if sub in nbf_core[nbf_core['Class'] == cls]['Subclass'].values]
+        except (KeyError, ValueError):
+            subclasses = nbf_core[nbf_core['Class'] == cls]['Subclass'].unique()
         
         for sub_idx, subclass in enumerate(subclasses):
             key = f"{cls}::{subclass}"
             y_positions[key] = y_pos
             
             # Create color variations for subclasses (lighter/darker shades)
-            alpha = 0.5 + (sub_idx * 0.5 / len(subclasses))
+            alpha = 0.6 + (sub_idx * 0.4 / max(len(subclasses) - 1, 1))
             class_colors[key] = (*matplotlib.colors.to_rgb(base_color), alpha)
             
             y_pos += 1
     
     # Plot motifs
-    for _, row in nbf_df.iterrows():
+    for _, row in nbf_core.iterrows():
         key = f"{row['Class']}::{row['Subclass']}"
         if key in y_positions:
             start = row['Start']
@@ -285,17 +334,18 @@ def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
                            linewidth=0.3, alpha=0.8)
             ax.add_patch(rect)
     
-    # Add labels
+    # Add labels with color coding
     for key, y in y_positions.items():
         cls, subclass = key.split('::', 1)
         label = f"{cls}\n{subclass}"
-        ax.text(-1500, y, label, ha='right', va='center', fontsize=8, wrap=True)
+        label_color = UNIFIED_MOTIF_COLORS.get(cls, '#000000')
+        ax.text(-1500, y, label, ha='right', va='center', fontsize=10, wrap=True, color=label_color, fontweight='bold')
     
     ax.set_xlim(-5000, seq_len + 1000)
     ax.set_ylim(-1, len(y_positions))
-    ax.set_xlabel('Genomic Position (bp)', fontsize=14, fontweight='bold')
-    ax.set_title('Subclass-Level Genomic Coverage Map\n(40,523 bp sequence)',
-                fontsize=16, fontweight='bold', pad=15)
+    ax.set_xlabel('Genomic Position (bp)', fontsize=16, fontweight='bold')
+    ax.set_title('Subclass-Level Genomic Coverage Map\n(40,523 bp sequence, excluding Hybrid/Clusters)',
+                fontsize=18, fontweight='bold', pad=15)
     ax.set_yticks([])
     
     # Format x-axis with comma separators
@@ -306,9 +356,9 @@ def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
     
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure3_genomic_coverage.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure3_genomic_coverage.png (300 DPI)")
+    print("✓ Saved: figure3_genomic_coverage.png (150 DPI)")
 
 
 # ============================================================================
@@ -318,11 +368,16 @@ def create_figure3_genomic_coverage(nbf_df: pd.DataFrame, nbst_data: Dict):
 def create_figure4_detection_counts(subclass_summary: pd.DataFrame):
     """
     Create side-by-side comparison of detection counts by subclass.
+    Uses biological taxonomy order, not count-based sorting.
     """
     fig, ax = plt.subplots(figsize=(14, 8))
     
-    # Sort by NBF_Count for better visualization
-    data = subclass_summary.sort_values('NBF_Count', ascending=False)
+    # Order by taxonomy instead of NBF_Count
+    taxonomy_subclasses = get_all_subclasses_taxonomy_order()
+    ordered_subclasses = [sub for sub in taxonomy_subclasses if sub in subclass_summary['NBF_Subclass'].values]
+    
+    # Reindex to maintain taxonomy order
+    data = subclass_summary.set_index('NBF_Subclass').loc[ordered_subclasses].reset_index()
     
     x = np.arange(len(data))
     width = 0.35
@@ -332,29 +387,42 @@ def create_figure4_detection_counts(subclass_summary: pd.DataFrame):
     bars2 = ax.bar(x + width/2, data['NBF_Count'], width,
                   label='NonBDNAFinder Count', color=COLORBLIND_PALETTE[0], alpha=0.9)
     
-    ax.set_xlabel('NBF Subclass', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Number of Motifs', fontsize=14, fontweight='bold')
-    ax.set_title('Detection Count Comparison by Subclass:\nNBST vs NonBDNAFinder',
-                fontsize=16, fontweight='bold', pad=15)
+    ax.set_xlabel('NBF Subclass', fontsize=16, fontweight='bold')
+    ax.set_ylabel('Number of Motifs', fontsize=16, fontweight='bold')
+    ax.set_title('Detection Count Comparison by Subclass:\nNBST vs NonBDNAFinder (Taxonomy Order)',
+                fontsize=18, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels(data['NBF_Subclass'], rotation=45, ha='right', fontsize=10)
+    
+    # Color code subclass labels by their parent class
+    subclass_colors = []
+    for subclass in data['NBF_Subclass']:
+        parent_class = SUBCLASS_TO_CLASS.get(subclass, '')
+        color = UNIFIED_MOTIF_COLORS.get(parent_class, '#000000')
+        subclass_colors.append(color)
+    
+    # Set labels with colors
+    labels = ax.set_xticklabels(data['NBF_Subclass'], rotation=45, ha='right', fontsize=12)
+    for label, color in zip(labels, subclass_colors):
+        label.set_color(color)
+        label.set_fontweight('bold')
+    
     ax.legend(loc='upper right', framealpha=0.9)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     
-    # Add value labels
+    # Add value labels with better font
     for bars in [bars1, bars2]:
         for bar in bars:
             height = bar.get_height()
             if height > 0:
                 ax.text(bar.get_x() + bar.get_width()/2., height,
                        f'{int(height)}',
-                       ha='center', va='bottom', fontsize=8, fontweight='bold')
+                       ha='center', va='bottom', fontsize=10, fontweight='bold')
     
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure4_detection_counts.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure4_detection_counts.png (300 DPI)")
+    print("✓ Saved: figure4_detection_counts.png (150 DPI)")
 
 
 # ============================================================================
@@ -364,15 +432,27 @@ def create_figure4_detection_counts(subclass_summary: pd.DataFrame):
 def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
     """
     Create overlap heatmap at subclass level with proper color scheme.
+    Excludes Hybrid and Non-B_DNA_Clusters to focus on canonical motif overlaps.
+    Uses taxonomy ordering.
     """
+    # Filter out Hybrid and Clusters
+    nbf_core = nbf_df[~nbf_df['Class'].isin(['Hybrid', 'Non-B_DNA_Clusters'])].copy()
+    
     # Create subclass combinations
-    nbf_df['Class_Subclass'] = nbf_df['Class'] + ' / ' + nbf_df['Subclass']
-    subclasses = nbf_df['Class_Subclass'].unique()
+    nbf_core['Class_Subclass'] = nbf_core['Class'] + ' / ' + nbf_core['Subclass']
     
-    # Calculate overlap matrix
-    overlap_matrix = pd.DataFrame(0, index=subclasses, columns=subclasses)
+    # Order subclasses by taxonomy
+    taxonomy_subclasses = get_all_subclasses_taxonomy_order()
+    ordered_combos = []
+    for sub in taxonomy_subclasses:
+        for combo in nbf_core['Class_Subclass'].unique():
+            if combo.endswith(' / ' + sub):
+                ordered_combos.append(combo)
     
-    motifs = nbf_df.to_dict('records')
+    # Calculate overlap matrix with ordered indices
+    overlap_matrix = pd.DataFrame(0, index=ordered_combos, columns=ordered_combos)
+    
+    motifs = nbf_core.to_dict('records')
     
     for i, m1 in enumerate(motifs):
         for j, m2 in enumerate(motifs):
@@ -386,9 +466,10 @@ def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
             if not (end1 <= start2 or end2 <= start1):
                 key1 = m1['Class_Subclass']
                 key2 = m2['Class_Subclass']
-                overlap_matrix.loc[key1, key2] += 1
-                if key1 != key2:
-                    overlap_matrix.loc[key2, key1] += 1
+                if key1 in overlap_matrix.index and key2 in overlap_matrix.columns:
+                    overlap_matrix.loc[key1, key2] += 1
+                    if key1 != key2:
+                        overlap_matrix.loc[key2, key1] += 1
     
     # Filter to non-zero rows/cols for readability
     non_zero_mask = (overlap_matrix.sum(axis=1) > 0) | (overlap_matrix.sum(axis=0) > 0)
@@ -400,22 +481,22 @@ def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
     # Use a colorblind-friendly sequential colormap
     sns.heatmap(filtered, annot=True, fmt='d', cmap='YlOrRd',
                linewidths=0.5, ax=ax, cbar_kws={'label': 'Number of Overlaps'},
-               square=True)
+               square=True, annot_kws={'fontsize': 9})
     
-    ax.set_title('Subclass-Level Overlap Matrix\n(Cross-class and cross-subclass overlaps)',
-                fontsize=16, fontweight='bold', pad=15)
-    ax.set_xlabel('Subclass', fontsize=13, fontweight='bold')
-    ax.set_ylabel('Subclass', fontsize=13, fontweight='bold')
+    ax.set_title('Subclass-Level Overlap Matrix\n(Canonical motifs only, excluding Hybrid/Clusters)',
+                fontsize=18, fontweight='bold', pad=15)
+    ax.set_xlabel('Subclass', fontsize=15, fontweight='bold')
+    ax.set_ylabel('Subclass', fontsize=15, fontweight='bold')
     
-    # Rotate labels for better readability
-    plt.xticks(rotation=45, ha='right', fontsize=9)
-    plt.yticks(rotation=0, fontsize=9)
+    # Rotate labels for better readability with larger font
+    plt.xticks(rotation=45, ha='right', fontsize=11)
+    plt.yticks(rotation=0, fontsize=11)
     
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure5_overlap_heatmap.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure5_overlap_heatmap.png (300 DPI)")
+    print("✓ Saved: figure5_overlap_heatmap.png (150 DPI)")
 
 
 # ============================================================================
@@ -425,10 +506,14 @@ def create_figure5_overlap_heatmap(nbf_df: pd.DataFrame):
 def create_figure6_subclass_distribution(nbf_df: pd.DataFrame):
     """
     Create comprehensive subclass breakdown with horizontal bars for readability.
+    Excludes Hybrid and Non-B_DNA_Clusters. Uses taxonomy order and color-coded labels.
     """
-    # Group by class and count subclasses
-    major_classes = ['G-Quadruplex', 'Curved_DNA', 'Slipped_DNA', 'Cruciform',
-                    'R-Loop', 'Z-DNA', 'i-Motif', 'Triplex']
+    # Filter out Hybrid and Clusters
+    nbf_core = nbf_df[~nbf_df['Class'].isin(['Hybrid', 'Non-B_DNA_Clusters'])].copy()
+    
+    # Use taxonomy order for classes
+    taxonomy_classes = get_all_classes_taxonomy_order()
+    major_classes = [cls for cls in taxonomy_classes if cls in nbf_core['Class'].values]
     
     n_rows = 4
     n_cols = 2
@@ -440,49 +525,63 @@ def create_figure6_subclass_distribution(nbf_df: pd.DataFrame):
             break
             
         ax = axes[idx]
-        subset = nbf_df[nbf_df['Class'] == cls]
+        subset = nbf_core[nbf_core['Class'] == cls]
         
         if len(subset) > 0:
-            subclass_counts = subset['Subclass'].value_counts()
+            # Order subclasses by taxonomy
+            try:
+                taxonomy_subclasses = get_subclasses_for_class(cls)
+                present_subclasses = [sub for sub in taxonomy_subclasses if sub in subset['Subclass'].values]
+                subclass_counts = pd.Series([len(subset[subset['Subclass'] == sub]) for sub in present_subclasses],
+                                           index=present_subclasses)
+            except (KeyError, ValueError):
+                subclass_counts = subset['Subclass'].value_counts()
+            
             total = len(subset)
+            
+            # Use unified color for this class with variations
+            base_color = UNIFIED_MOTIF_COLORS.get(cls, '#808080')
+            colors = [base_color] * len(subclass_counts)
             
             # Create horizontal bar chart
             y_pos = np.arange(len(subclass_counts))
-            colors = [EXTENDED_PALETTE[i % len(EXTENDED_PALETTE)]
-                     for i in range(len(subclass_counts))]
-            
-            bars = ax.barh(y_pos, subclass_counts.values, color=colors, alpha=0.8)
+            bars = ax.barh(y_pos, subclass_counts.values, color=colors, alpha=0.7)
             
             ax.set_yticks(y_pos)
-            ax.set_yticklabels(subclass_counts.index, fontsize=10)
-            ax.set_xlabel('Count', fontsize=11, fontweight='bold')
+            # Color code the y-axis labels
+            labels = ax.set_yticklabels(subclass_counts.index, fontsize=11)
+            for label in labels:
+                label.set_color(base_color)
+                label.set_fontweight('bold')
+            
+            ax.set_xlabel('Count', fontsize=13, fontweight='bold')
             ax.set_title(f'{cls}\n(n={total:,} total)',
-                        fontsize=13, fontweight='bold', pad=10)
+                        fontsize=15, fontweight='bold', pad=10, color=base_color)
             ax.grid(axis='x', alpha=0.3, linestyle='--')
             
-            # Add value labels and percentages
+            # Add value labels and percentages with better font
             for i, (bar, count) in enumerate(zip(bars, subclass_counts.values)):
                 width = bar.get_width()
                 pct = 100 * count / total
                 ax.text(width, bar.get_y() + bar.get_height()/2.,
                        f' {int(count)} ({pct:.1f}%)',
-                       ha='left', va='center', fontsize=9, fontweight='bold')
+                       ha='left', va='center', fontsize=10, fontweight='bold')
         else:
             ax.text(0.5, 0.5, 'No motifs', ha='center', va='center',
-                   transform=ax.transAxes, fontsize=12)
-            ax.set_title(cls, fontsize=13, fontweight='bold')
+                   transform=ax.transAxes, fontsize=14)
+            ax.set_title(cls, fontsize=15, fontweight='bold')
     
     # Hide unused subplots
     for idx in range(len(major_classes), len(axes)):
         axes[idx].axis('off')
     
-    plt.suptitle('Comprehensive Subclass Distribution by Major Class',
-                fontsize=18, fontweight='bold', y=0.995)
+    plt.suptitle('Comprehensive Subclass Distribution by Major Class\n(Canonical motifs only)',
+                fontsize=20, fontweight='bold', y=0.995)
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure6_subclass_distribution.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure6_subclass_distribution.png (300 DPI)")
+    print("✓ Saved: figure6_subclass_distribution.png (150 DPI)")
 
 
 # ============================================================================
@@ -507,12 +606,12 @@ def create_figure7_precision_recall(subclass_summary: pd.DataFrame):
                   s=200, alpha=0.7, color=color, label=cls,
                   edgecolors='black', linewidth=1.5)
         
-        # Add subclass labels
+        # Add subclass labels with better font size
         for _, row in subset.iterrows():
             ax.annotate(row['NBF_Subclass'][:20],
                        (row['Recall'], row['Precision']),
                        xytext=(5, 5), textcoords='offset points',
-                       fontsize=8, alpha=0.8)
+                       fontsize=10, alpha=0.8)
     
     # Add diagonal reference line (F1 = 0.5)
     x = np.linspace(0, 1, 100)
@@ -521,12 +620,12 @@ def create_figure7_precision_recall(subclass_summary: pd.DataFrame):
         y = np.clip(y, 0, 1)
         ax.plot(x, y, '--', alpha=0.3, linewidth=1, color='gray')
         ax.text(0.9, (f1 * 0.9) / (2 * 0.9 - f1), f'F1={f1}',
-               fontsize=9, alpha=0.6)
+               fontsize=11, alpha=0.6)
     
-    ax.set_xlabel('Recall', fontsize=14, fontweight='bold')
-    ax.set_ylabel('Precision', fontsize=14, fontweight='bold')
+    ax.set_xlabel('Recall', fontsize=16, fontweight='bold')
+    ax.set_ylabel('Precision', fontsize=16, fontweight='bold')
     ax.set_title('Precision-Recall Analysis by Subclass\n(vs NBST Benchmark)',
-                fontsize=16, fontweight='bold', pad=15)
+                fontsize=18, fontweight='bold', pad=15)
     ax.set_xlim(-0.05, 1.05)
     ax.set_ylim(-0.05, 1.05)
     ax.grid(True, alpha=0.3, linestyle='--')
@@ -535,9 +634,9 @@ def create_figure7_precision_recall(subclass_summary: pd.DataFrame):
     
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure7_precision_recall_curves.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure7_precision_recall_curves.png (300 DPI)")
+    print("✓ Saved: figure7_precision_recall_curves.png (150 DPI)")
 
 
 # ============================================================================
@@ -584,14 +683,14 @@ def create_figure8_venn_diagrams(subclass_summary: pd.DataFrame):
             venn.get_patch_by_id('11').set_color(COLORBLIND_PALETTE[2])
         
         ax.set_title(f'NBST {nbst_cls}\n{len(subset)} NBF subclasses',
-                    fontsize=13, fontweight='bold')
+                    fontsize=15, fontweight='bold')
         
-        # Add legend
+        # Add legend with better font
         nbf_subclasses_str = ', '.join(subset['NBF_Subclass'].head(3).tolist())
         if len(subset) > 3:
             nbf_subclasses_str += '...'
         ax.text(0.5, -0.2, f'NBF: {nbf_subclasses_str}',
-               transform=ax.transAxes, ha='center', fontsize=9,
+               transform=ax.transAxes, ha='center', fontsize=11,
                wrap=True)
     
     # Hide unused subplots
@@ -599,12 +698,12 @@ def create_figure8_venn_diagrams(subclass_summary: pd.DataFrame):
         axes[idx].axis('off')
     
     plt.suptitle('Overlap Between NonBDNAFinder Subclasses and NBST Classes',
-                fontsize=18, fontweight='bold', y=0.995)
+                fontsize=20, fontweight='bold', y=0.995)
     plt.tight_layout()
     fig.savefig(VALIDATION_DIR / 'figure8_venn_diagrams.png',
-                dpi=300, bbox_inches='tight', facecolor='white')
+                dpi=150, bbox_inches='tight', facecolor='white')
     plt.close()
-    print("✓ Saved: figure8_venn_diagrams.png (300 DPI)")
+    print("✓ Saved: figure8_venn_diagrams.png (150 DPI)")
 
 
 # ============================================================================
