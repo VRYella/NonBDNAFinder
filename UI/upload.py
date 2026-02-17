@@ -1258,11 +1258,11 @@ def render():
                         from concurrent.futures import ProcessPoolExecutor, as_completed
                         import multiprocessing
                         
-                        def process_single_sequence(seq_id, name, selected_classes):
+                        def process_single_sequence(seq_id, name, selected_classes, selected_subclasses, storage):
                             """Worker function to process a single sequence in parallel"""
                             try:
                                 # Load sequence from storage
-                                seq = st.session_state.seq_storage.load_sequence(seq_id)
+                                seq = storage.load_sequence(seq_id)
                                 
                                 # Run analysis
                                 results = analyze_sequence(
@@ -1286,9 +1286,7 @@ def render():
                                 
                                 # Filter results based on selected subclasses
                                 selected_classes_set = set(selected_classes) if selected_classes else set()
-                                selected_subclasses_set = st.session_state.get('selected_subclasses', set())
-                                if isinstance(selected_subclasses_set, (list, tuple)):
-                                    selected_subclasses_set = set(selected_subclasses_set)
+                                selected_subclasses_set = set(selected_subclasses) if selected_subclasses else set()
                                 
                                 filtered_results = []
                                 for motif in safe_results:
@@ -1309,9 +1307,15 @@ def render():
                                 return (seq_id, name, filtered_results, len(seq), None)
                             except Exception as e:
                                 return (seq_id, name, [], 0, str(e))
+                                return (seq_id, name, [], 0, str(e))
                         
                         # Submit all sequences for parallel processing
                         max_workers = min(num_sequences, max(1, multiprocessing.cpu_count() - 1))
+                        
+                        # Get selected subclasses for filtering
+                        selected_subclasses = st.session_state.get('selected_subclasses', set())
+                        if isinstance(selected_subclasses, (list, tuple)):
+                            selected_subclasses = set(selected_subclasses)
                         
                         with st.status(f"🧬 Analyzing {num_sequences} sequences in parallel...", expanded=True) as status:
                             st.write(f"⚡ Using {max_workers} parallel workers")
@@ -1327,7 +1331,9 @@ def render():
                                         process_single_sequence, 
                                         seq_id, 
                                         name, 
-                                        st.session_state.selected_classes
+                                        st.session_state.selected_classes,
+                                        selected_subclasses,
+                                        st.session_state.seq_storage
                                     ): (seq_id, name)
                                     for seq_id, name in zip(seq_ids, names)
                                 }
