@@ -9,11 +9,30 @@ This module contains analysis parameters:
 - GC balance thresholds
 - Results display settings
 
-PARAMETERS USED IN THIS MODULE
+IMPORTANT THRESHOLDS DISTINCTION
 --------------------------------
-CHUNK_THRESHOLD = 50_000 bp
-DEFAULT_CHUNK_SIZE = 50_000 bp
-DEFAULT_CHUNK_OVERLAP = 5_000 bp
+TWO DIFFERENT thresholds control TWO DIFFERENT features:
+
+1. DETECTOR PARALLELIZATION THRESHOLD (in nonbscanner.py):
+   - CHUNK_THRESHOLD = 50,000 bp (50KB)
+   - Triggers parallel detector execution for sequences > 50KB
+   - Runs 9 detectors in parallel using ThreadPoolExecutor
+   - Added in PR#5 for 1.5-2x speedup
+
+2. SEQUENCE CHUNKING THRESHOLD (in this config):
+   - chunk_threshold = 1,000,000 bp (1MB)  
+   - Triggers sequence splitting for sequences > 1MB
+   - Splits into 5MB chunks using ProcessPoolExecutor
+   - Updated to 1MB in PR#7 (was 50KB)
+
+PERFORMANCE BEHAVIOR
+--------------------
+- < 50KB: Sequential detectors, no chunking
+- 50KB - 1MB: Parallel detectors (1.5-2x), no chunking
+- > 1MB: Parallel detectors + chunking (4-12x speedup)
+
+OTHER PARAMETERS
+----------------
 GC_BALANCE_MIN = 30%
 GC_BALANCE_MAX = 70%
 MAX_OVERLAP_DISPLAY = 10

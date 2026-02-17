@@ -26,13 +26,22 @@ except ImportError: STREAMLIT_PROGRESS_AVAILABLE = False
 # TUNABLE PARAMETERS - All configuration values at the top for easy modification
 # ═══════════════════════════════════════════════════════════════════════════════
 __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
-# Standardized to match triple adaptive chunking: 50KB chunks with 5KB overlap
+
+# === DETECTOR PARALLELIZATION THRESHOLD (PR#5) ===
+# CHUNK_THRESHOLD = 50KB triggers parallel detector execution (NOT sequence chunking!)
+# For sequences > 50KB, runs 9 detectors in parallel using ThreadPoolExecutor (1.5-2x speedup)
+# This is SEPARATE from sequence chunking threshold (1MB in config/UI)
 CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 5000
+
 # Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
 # MAX_DETECTOR_WORKERS limited to 9 because there are exactly 9 detector types in the system
 USE_PARALLEL_DETECTORS = True; MAX_DETECTOR_WORKERS = min(9, os.cpu_count() or 4)  # Up to 9 detectors (one per detector type)
+
+# === MOTIF CLUSTERING & OVERLAP PARAMETERS ===
 HYBRID_MIN_OVERLAP = 0.50; HYBRID_MAX_OVERLAP = 0.99
 CLUSTER_WINDOW_SIZE = 300; CLUSTER_MIN_MOTIFS = 4; CLUSTER_MIN_CLASSES = 3
+
+# === DETECTOR NAME MAPPINGS ===
 DETECTOR_DISPLAY_NAMES = {'curved_dna': 'Curved DNA', 'slipped_dna': 'Slipped DNA', 'cruciform': 'Cruciform', 'r_loop': 'R-Loop', 'triplex': 'Triplex', 'g_quadruplex': 'G-Quadruplex', 'i_motif': 'i-Motif', 'z_dna': 'Z-DNA', 'a_philic': 'A-philic DNA'}
 CLASS_TO_DETECTOR = {'Curved_DNA': 'curved_dna', 'Slipped_DNA': 'slipped_dna', 'Cruciform': 'cruciform', 'R-Loop': 'r_loop', 'Triplex': 'triplex', 'G-Quadruplex': 'g_quadruplex', 'i-Motif': 'i_motif', 'Z-DNA': 'z_dna', 'A-philic_DNA': 'a_philic'}
 DETECTOR_TO_CLASS = {v: k for k, v in CLASS_TO_DETECTOR.items()}
