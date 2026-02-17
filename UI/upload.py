@@ -1277,10 +1277,11 @@ def render():
                                 # Store results storage
                                 st.session_state.results_storage[seq_id] = results_storage
                                 
-                                # Get results for filtering
-                                results = list(results_storage.iter_results(limit=10000))
-                                
-                                st.write(f"✓ Chunk analysis complete: {len(results):,} motifs found")
+                                # Get results for filtering - Load ALL results (no limit)
+                                results = list(results_storage.iter_results())
+                                # Get actual total count from summary stats
+                                total_motifs = results_storage.get_summary_stats()['total_count']
+                                st.write(f"✓ Chunk analysis complete: {total_motifs:,} total motifs found")
                             else:
                                 # Small sequence: use standard analysis
                                 st.write("⏳ Running detectors...")
@@ -1322,25 +1323,36 @@ def render():
                             # Step 4: Filtering
                             st.write("⏳ Applying filters...")
                         
-                            # Ensure all motifs have required fields
-                            results = [ensure_subclass(motif) for motif in results]
+                            # Ensure all motifs have required fields - safe iteration with bounds checking
+                            safe_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    safe_results.append(ensure_subclass(motif))
+                                except (IndexError, KeyError) as e:
+                                    logger.error(f"Error processing motif at index {idx}: {e}")
+                                    continue  # Skip problematic motif instead of crashing
+                            results = safe_results
                             
                             # Filter results based on selected subclasses
                             selected_classes_set = set(st.session_state.selected_classes)
                             selected_subclasses_set = set(st.session_state.selected_subclasses)
                             
                             filtered_results = []
-                            for motif in results:
-                                motif_class = motif.get('Class', '')
-                                motif_subclass = motif.get('Subclass', '')
-                                
-                                if motif_class in selected_classes_set:
-                                    if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                        component_classes = motif.get('Component_Classes', [])
-                                        if not component_classes or any(c in selected_classes_set for c in component_classes):
+                            for idx, motif in enumerate(results):
+                                try:
+                                    motif_class = motif.get('Class', '')
+                                    motif_subclass = motif.get('Subclass', '')
+                                    
+                                    if motif_class in selected_classes_set:
+                                        if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                            component_classes = motif.get('Component_Classes', [])
+                                            if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                                filtered_results.append(motif)
+                                        elif motif_subclass in selected_subclasses_set:
                                             filtered_results.append(motif)
-                                    elif motif_subclass in selected_subclasses_set:
-                                        filtered_results.append(motif)
+                                except (IndexError, KeyError) as e:
+                                    logger.error(f"Error filtering motif at index {idx}: {e}")
+                                    continue  # Skip problematic motif instead of crashing
                             
                             results = filtered_results
                             st.write(f"✓ Filters applied: {len(results):,} motifs retained")
@@ -1402,25 +1414,36 @@ def render():
                             # Step 3: Filtering
                             st.write("⏳ Applying filters...")
                             
-                            # Ensure all motifs have required fields
-                            results = [ensure_subclass(motif) for motif in results]
+                            # Ensure all motifs have required fields - safe iteration with bounds checking
+                            safe_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    safe_results.append(ensure_subclass(motif))
+                                except (IndexError, KeyError) as e:
+                                    logger.error(f"Error processing motif at index {idx}: {e}")
+                                    continue  # Skip problematic motif instead of crashing
+                            results = safe_results
                             
                             # Filter results based on selected subclasses
                             selected_classes_set = set(st.session_state.selected_classes)
                             selected_subclasses_set = set(st.session_state.selected_subclasses)
                             
                             filtered_results = []
-                            for motif in results:
-                                motif_class = motif.get('Class', '')
-                                motif_subclass = motif.get('Subclass', '')
-                                
-                                if motif_class in selected_classes_set:
-                                    if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                        component_classes = motif.get('Component_Classes', [])
-                                        if not component_classes or any(c in selected_classes_set for c in component_classes):
+                            for idx, motif in enumerate(results):
+                                try:
+                                    motif_class = motif.get('Class', '')
+                                    motif_subclass = motif.get('Subclass', '')
+                                    
+                                    if motif_class in selected_classes_set:
+                                        if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                            component_classes = motif.get('Component_Classes', [])
+                                            if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                                filtered_results.append(motif)
+                                        elif motif_subclass in selected_subclasses_set:
                                             filtered_results.append(motif)
-                                    elif motif_subclass in selected_subclasses_set:
-                                        filtered_results.append(motif)
+                                except (IndexError, KeyError) as e:
+                                    logger.error(f"Error filtering motif at index {idx}: {e}")
+                                    continue  # Skip problematic motif instead of crashing
                             
                             results = filtered_results
                             st.write(f"✓ Filters applied: {len(results):,} motifs retained")
