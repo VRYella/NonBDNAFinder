@@ -2029,12 +2029,57 @@ def render():
                 if not save_success:
                     logger.warning(f"Failed to persist results for job {job_id} - results available in session only")
                 
-            except Exception as e:
+            except IndexError as e:
+                # Specific handling for IndexError - likely empty results or data
                 progress_placeholder.empty()
                 status_placeholder.empty()
                 detailed_progress_placeholder.empty()
                 timer_placeholder.empty()
-                st.error(f"Analysis failed: {str(e)}")
+                
+                # Log detailed error for debugging
+                import traceback
+                logger.error(f"IndexError during analysis: {str(e)}")
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                
+                # User-friendly error message with actionable guidance
+                st.error(
+                    "⚠️ **Analysis failed due to unexpected data structure**\n\n"
+                    "This typically occurs when:\n"
+                    "- The sequence(s) are too short or contain no analyzable regions\n"
+                    "- Selected motif classes produced no detectable patterns\n"
+                    "- Input data format is unexpected\n\n"
+                    "**Suggested actions:**\n"
+                    "1. Try analyzing longer sequences (>1000 bp recommended)\n"
+                    "2. Select different motif classes to analyze\n"
+                    "3. Verify your FASTA file is properly formatted\n"
+                    "4. Check that sequences contain valid DNA characters (A, T, C, G, N)"
+                )
+                
+                # Still show technical details in expander for advanced users
+                with st.expander("🔧 Technical Details (for debugging)"):
+                    st.code(f"IndexError: {str(e)}\n\n{traceback.format_exc()}")
+                
+                st.session_state.analysis_status = "Error"
+                
+            except Exception as e:
+                # Generic exception handler for other errors
+                progress_placeholder.empty()
+                status_placeholder.empty()
+                detailed_progress_placeholder.empty()
+                timer_placeholder.empty()
+                
+                # Log the error for debugging
+                import traceback
+                logger.error(f"Unexpected error during analysis: {str(e)}")
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                
+                # Display error to user
+                st.error(f"❌ **Analysis failed:** {str(e)}")
+                
+                # Show traceback in expander for debugging
+                with st.expander("🔧 Technical Details (for debugging)"):
+                    st.code(traceback.format_exc())
+                
                 st.session_state.analysis_status = "Error"
 
     # End of Upload & Analyze tab
