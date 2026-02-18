@@ -38,10 +38,13 @@ benchmark_results.json
 # Notebook output files
 nonbdna_results.csv
 nonbdna_summary.csv
+nonbdna_visualization.pdf
 test_nonbdna_results.csv
 test_nonbdna_summary.csv
+test_nonbdna_visualization.pdf
 *_results.csv
 *_summary.csv
+*_visualization.pdf
 
 # Erroneous pip/package manager artifacts
 =*
