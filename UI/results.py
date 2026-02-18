@@ -33,6 +33,7 @@ from Utilities.utilities import (
     plot_structural_competition_upset
 )
 from Utilities.visualization import NATURE_MOTIF_COLORS
+from Utilities.multifasta_engine import MultiFastaEngine
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,78 @@ def render():
     names, lengths, seq_count = get_sequences_info()
     
     # ═══════════════════════════════════════════════════════════════════════════════
-    # MULTIFASTA UNIFIED VISUALIZATIONS (NEW)
+    # AGGREGATED MODE IF >20 SEQUENCES
+    # ═══════════════════════════════════════════════════════════════════════════════
+    
+    if seq_count > 20:
+        st.info("📊 Aggregated visualization mode enabled (>20 sequences detected)")
+        
+        # Collect annotations by sequence
+        annotations_by_sequence = {}
+        sequence_lengths = {}
+        
+        for i in range(seq_count):
+            fasta_id = names[i]
+            motifs_i = get_results(i)
+            annotations_by_sequence[fasta_id] = motifs_i
+            sequence_lengths[fasta_id] = lengths[i]
+        
+        engine = MultiFastaEngine(
+            annotations_by_sequence,
+            sequence_lengths
+        )
+        
+        # ---------------------------------------------------------
+        # 1. GLOBAL CLASS DISTRIBUTION
+        # ---------------------------------------------------------
+        st.subheader("Global Motif Class Distribution")
+        class_dist = engine.global_class_distribution()
+        if class_dist:
+            st.bar_chart(class_dist)
+        else:
+            st.info("No motifs detected across sequences.")
+        
+        # ---------------------------------------------------------
+        # 2. CLASS COVERAGE (% sequences)
+        # ---------------------------------------------------------
+        st.subheader("% Sequences Containing Each Motif Class")
+        coverage = engine.class_sequence_coverage()
+        if coverage:
+            st.bar_chart(coverage)
+        else:
+            st.info("No class coverage data available.")
+        
+        # ---------------------------------------------------------
+        # 3. MOTIF DENSITY HISTOGRAM
+        # ---------------------------------------------------------
+        st.subheader("Motif Density Distribution (motifs per kb)")
+        densities = engine.motif_density_per_sequence()
+        if densities:
+            density_df = pd.DataFrame({"Density": densities})
+            st.bar_chart(density_df["Density"])
+        else:
+            st.info("No density data available.")
+        
+        # ---------------------------------------------------------
+        # 4. POSITIONAL CONSERVATION (if equal length)
+        # ---------------------------------------------------------
+        equal_length = len(set(lengths)) == 1
+        
+        if equal_length:
+            st.subheader("Positional Conservation")
+            seq_length = lengths[0]
+            conservation = engine.positional_conservation(seq_length)
+            if conservation:
+                st.line_chart(conservation)
+            else:
+                st.info("No conservation data available.")
+        else:
+            st.info("⚠️ Positional conservation analysis requires equal-length sequences.")
+        
+        return
+    
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # MULTIFASTA UNIFIED VISUALIZATIONS (≤20 SEQUENCES)
     # ═══════════════════════════════════════════════════════════════════════════════
     if seq_count > 1:
         st.markdown("---")
