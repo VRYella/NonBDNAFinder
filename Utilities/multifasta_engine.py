@@ -116,7 +116,10 @@ class MultiFastaEngine:
 
         for seq, motifs in self.annotations.items():
             length = self.sequence_lengths.get(seq, 1)
-            density = len(motifs) / (length / 1000)
+            if length > 0:
+                density = len(motifs) / (length / 1000)
+            else:
+                density = 0.0
             densities.append(density)
 
         return densities
