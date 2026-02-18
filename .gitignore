@@ -35,5 +35,13 @@ dist/
 # Benchmark results
 benchmark_results.json
 
+# Notebook output files
+nonbdna_results.csv
+nonbdna_summary.csv
+test_nonbdna_results.csv
+test_nonbdna_summary.csv
+*_results.csv
+*_summary.csv
+
 # Erroneous pip/package manager artifacts
 =*
