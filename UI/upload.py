@@ -2065,10 +2065,7 @@ def render():
                     logger.warning(f"Failed to persist results for job {job_id} - results available in session only")
                 
             except IndexError:
-                # IndexError occurs when accessing empty lists during analysis pipeline:
-                # - Empty results list from detectors (no patterns found)
-                # - Empty intermediate data structures during filtering/merging
-                # - Accessing first element of empty validation results
+                # Occurs when accessing empty lists during analysis (e.g., no patterns found, empty results)
                 clear_analysis_placeholders(progress_placeholder, status_placeholder,
                                             detailed_progress_placeholder, timer_placeholder)
                 
@@ -2095,7 +2092,7 @@ def render():
                 st.session_state.analysis_status = "Error"
                 
             except Exception as e:
-                # Catch-all for other unexpected errors (KeyError, TypeError, AttributeError, RuntimeError, etc.)
+                # Catch-all for other unexpected errors
                 clear_analysis_placeholders(progress_placeholder, status_placeholder,
                                             detailed_progress_placeholder, timer_placeholder)
                 
