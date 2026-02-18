@@ -2053,7 +2053,7 @@ def render():
                 
                 # User-friendly error message with actionable guidance
                 st.error(
-                    "⚠️ **Analysis failed due to unexpected data structure**\n\n"
+                    "⚠️ **Analysis could not be completed**\n\n"
                     "This typically occurs when:\n"
                     "- The sequence(s) are too short or contain no analyzable regions\n"
                     "- Selected motif classes produced no detectable patterns\n"
@@ -2072,8 +2072,7 @@ def render():
                 st.session_state.analysis_status = "Error"
                 
             except Exception as e:
-                # Catch-all for unexpected errors (KeyError, TypeError, AttributeError, RuntimeError, etc.)
-                # All other exceptions not specifically handled above
+                # Catch-all for other unexpected errors (KeyError, TypeError, AttributeError, RuntimeError, etc.)
                 clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                           detailed_progress_placeholder, timer_placeholder)
                 
