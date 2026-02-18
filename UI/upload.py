@@ -234,6 +234,17 @@ def clear_analysis_placeholders(progress_placeholder, status_placeholder,
     timer_placeholder.empty()
 
 
+def show_technical_details(title="Technical Details (for debugging)"):
+    """
+    Show technical error details in collapsible expander.
+    
+    Args:
+        title: Title for the expander section
+    """
+    with st.expander(f"🔧 {title}"):
+        st.code(traceback.format_exc())
+
+
 # Example FASTA data
 EXAMPLE_FASTA = """>Example Sequence
 ATCGATCGATCGAAAATTTTATTTAAATTTAAATTTGGGTTAGGGTTAGGGTTAGGGCCCCCTCCCCCTCCCCCTCCCC
@@ -2047,7 +2058,7 @@ def render():
                 if not save_success:
                     logger.warning(f"Failed to persist results for job {job_id} - results available in session only")
                 
-            except IndexError as e:
+            except IndexError:
                 # IndexError occurs when accessing empty lists during analysis pipeline:
                 # - Empty results list from detectors (no patterns found)
                 # - Empty intermediate data structures during filtering/merging
@@ -2073,8 +2084,7 @@ def render():
                 )
                 
                 # Show technical details in expander for advanced users
-                with st.expander("🔧 Technical Details (for debugging)"):
-                    st.code(traceback.format_exc())
+                show_technical_details()
                 
                 st.session_state.analysis_status = "Error"
                 
@@ -2090,8 +2100,7 @@ def render():
                 st.error(f"❌ **Analysis failed:** {str(e)}")
                 
                 # Show traceback in expander for debugging
-                with st.expander("🔧 Technical Details (for debugging)"):
-                    st.code(traceback.format_exc())
+                show_technical_details()
                 
                 st.session_state.analysis_status = "Error"
 
