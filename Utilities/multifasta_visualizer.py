@@ -28,10 +28,12 @@ MAIN FUNCTIONS:
 """
 
 from __future__ import annotations
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any, Tuple, Optional, Callable
 from collections import defaultdict, Counter
 import logging
 import numpy as np
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -495,3 +497,149 @@ def prepare_multifasta_excel_data(
             result['Positional_Occurrence'] = positional_occurrence
     
     return result
+
+
+# =============================================================================
+# PARALLEL VISUALIZATION GENERATION
+# =============================================================================
+
+def _generate_plot_worker(plot_spec: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Worker function to generate a single plot in parallel.
+    
+    Args:
+        plot_spec: Dictionary containing:
+            - plot_type: Type of plot to generate
+            - plot_params: Parameters for the plot function
+            - plot_name: Name/identifier for the plot
+    
+    Returns:
+        Dict with plot result and metadata
+    """
+    import time
+    
+    try:
+        start_time = time.time()
+        
+        plot_type = plot_spec['plot_type']
+        plot_params = plot_spec['plot_params']
+        plot_name = plot_spec['plot_name']
+        
+        visualizer = plot_params.pop('visualizer')
+        
+        # Generate the appropriate plot
+        if plot_type == 'class_distribution':
+            fig = visualizer.generate_class_distribution_plot(**plot_params)
+        elif plot_type == 'density_heatmap':
+            fig = visualizer.generate_density_heatmap(**plot_params)
+        elif plot_type == 'positional_panels':
+            figs_dict = visualizer.generate_positional_panels(**plot_params)
+            elapsed = time.time() - start_time
+            return {
+                'success': True,
+                'plot_name': plot_name,
+                'figures': figs_dict,
+                'elapsed': elapsed
+            }
+        else:
+            raise ValueError(f"Unknown plot type: {plot_type}")
+        
+        elapsed = time.time() - start_time
+        
+        return {
+            'success': True,
+            'plot_name': plot_name,
+            'figure': fig,
+            'elapsed': elapsed
+        }
+    
+    except Exception as e:
+        logger.error(f"Error generating plot {plot_name}: {e}")
+        return {
+            'success': False,
+            'plot_name': plot_name,
+            'error': str(e)
+        }
+
+
+def generate_visualizations_parallel(
+    visualizer: 'MultiFastaVisualizer',
+    plot_specs: List[Dict[str, Any]],
+    max_workers: Optional[int] = None,
+    progress_callback: Optional[Callable[[int, int, str], None]] = None
+) -> Dict[str, Any]:
+    """
+    Generate multiple visualizations in parallel using ThreadPoolExecutor.
+    
+    Args:
+        visualizer: MultiFastaVisualizer instance
+        plot_specs: List of plot specifications, each containing:
+            - plot_type: Type of plot ('class_distribution', 'density_heatmap', 'positional_panels')
+            - plot_params: Parameters for the plot function
+            - plot_name: Identifier for the plot
+        max_workers: Maximum number of worker threads (default: CPU count)
+        progress_callback: Optional callback function(completed, total, plot_name)
+    
+    Returns:
+        Dict mapping plot names to figures
+    """
+    if not plot_specs:
+        return {}
+    
+    # Determine number of workers
+    if max_workers is None:
+        max_workers = min(len(plot_specs), os.cpu_count() or 4)
+    
+    # Inject visualizer into each plot_spec
+    for spec in plot_specs:
+        if 'plot_params' not in spec:
+            spec['plot_params'] = {}
+        spec['plot_params']['visualizer'] = visualizer
+    
+    results = {}
+    completed_count = 0
+    total_count = len(plot_specs)
+    
+    logger.info(f"Starting parallel generation of {total_count} plots with {max_workers} workers")
+    
+    try:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_spec = {
+                executor.submit(_generate_plot_worker, spec): spec
+                for spec in plot_specs
+            }
+            
+            # Process completed tasks as they finish
+            for future in as_completed(future_to_spec):
+                try:
+                    result = future.result()
+                    completed_count += 1
+                    
+                    # Call progress callback if provided
+                    if progress_callback:
+                        progress_callback(completed_count, total_count, result['plot_name'])
+                    
+                    if result['success']:
+                        if 'figures' in result:
+                            # Multiple figures (e.g., positional panels)
+                            for key, fig in result['figures'].items():
+                                results[f"{result['plot_name']}_{key}"] = fig
+                        else:
+                            # Single figure
+                            results[result['plot_name']] = result['figure']
+                        
+                        logger.info(f"Completed plot {completed_count}/{total_count}: {result['plot_name']} ({result['elapsed']:.2f}s)")
+                    else:
+                        logger.error(f"Failed plot {completed_count}/{total_count}: {result['plot_name']} - {result.get('error')}")
+                
+                except Exception as e:
+                    logger.error(f"Error processing future: {e}")
+                    completed_count += 1
+    
+    except Exception as e:
+        logger.error(f"Error in parallel visualization: {e}")
+        raise
+    
+    logger.info(f"Parallel visualization complete: {total_count} plots generated")
+    return results
