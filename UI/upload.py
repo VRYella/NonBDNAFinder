@@ -234,14 +234,20 @@ def clear_analysis_placeholders(progress_placeholder, status_placeholder,
     timer_placeholder.empty()
 
 
-def show_technical_details(title="Technical Details (for debugging)"):
+def show_technical_details():
     """
     Show technical error details in collapsible expander.
     
-    Args:
-        title: Title for the expander section
+    Must be called within an exception handler context where traceback.format_exc()
+    can capture the active exception information.
+    
+    Example:
+        try:
+            risky_operation()
+        except Exception:
+            show_technical_details()  # Shows traceback of caught exception
     """
-    with st.expander(f"🔧 {title}"):
+    with st.expander("🔧 Technical Details (for debugging)"):
         st.code(traceback.format_exc())
 
 
@@ -2066,7 +2072,7 @@ def render():
                 clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                           detailed_progress_placeholder, timer_placeholder)
                 
-                # Log detailed error for debugging (logger.exception automatically includes traceback)
+                # Log with automatic traceback for developer debugging
                 logger.exception("IndexError during analysis")
                 
                 # User-friendly error message with actionable guidance
@@ -2093,7 +2099,7 @@ def render():
                 clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                           detailed_progress_placeholder, timer_placeholder)
                 
-                # Log the error for debugging (logger.exception automatically includes traceback)
+                # Log with automatic traceback for developer debugging
                 logger.exception("Unexpected error during analysis")
                 
                 # Display error to user
