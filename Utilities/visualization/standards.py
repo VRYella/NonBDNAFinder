@@ -334,7 +334,7 @@ class ValidationThresholds:
     
     MAX_COLORS_PER_FIGURE = 6           # Nature guideline
     MAX_TEXT_OVERLAP_PCT = 0.0          # Zero tolerance
-    MIN_DPI = 150                       # Screen quality (reduced from 300)
+    MIN_DPI = 300                       # Publication quality
     REQUIRED_FORMATS = ['png', 'pdf']   # Raster + vector
     
     @classmethod
@@ -449,9 +449,9 @@ def get_nature_style_params() -> Dict[str, any]:
         'legend.borderpad': 0.4,
         
         # Figure
-        'figure.dpi': 150,
+        'figure.dpi': 300,
         'figure.facecolor': 'white',
-        'savefig.dpi': 150,
+        'savefig.dpi': 300,
         'savefig.format': 'pdf',
         'savefig.bbox': 'tight',
         'savefig.pad_inches': 0.05
