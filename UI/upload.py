@@ -217,7 +217,7 @@ def calculate_gc_percentage(sequences: list) -> float:
     return total_gc_weighted / total_bp
 
 
-def clear_analysis_placeholders(progress_placeholder, status_placeholder, 
+def clear_analysis_placeholders(progress_placeholder, status_placeholder,
                                 detailed_progress_placeholder, timer_placeholder):
     """
     Helper function to clear all analysis UI placeholders during error handling.
@@ -2069,8 +2069,8 @@ def render():
                 # - Empty results list from detectors (no patterns found)
                 # - Empty intermediate data structures during filtering/merging
                 # - Accessing first element of empty validation results
-                clear_analysis_placeholders(progress_placeholder, status_placeholder, 
-                                          detailed_progress_placeholder, timer_placeholder)
+                clear_analysis_placeholders(progress_placeholder, status_placeholder,
+                                            detailed_progress_placeholder, timer_placeholder)
                 
                 # Log with automatic traceback for developer debugging
                 logger.exception("IndexError during analysis")
@@ -2096,8 +2096,8 @@ def render():
                 
             except Exception as e:
                 # Catch-all for other unexpected errors (KeyError, TypeError, AttributeError, RuntimeError, etc.)
-                clear_analysis_placeholders(progress_placeholder, status_placeholder, 
-                                          detailed_progress_placeholder, timer_placeholder)
+                clear_analysis_placeholders(progress_placeholder, status_placeholder,
+                                            detailed_progress_placeholder, timer_placeholder)
                 
                 # Log with automatic traceback for developer debugging
                 logger.exception("Unexpected error during analysis")
