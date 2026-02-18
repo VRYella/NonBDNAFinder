@@ -201,13 +201,14 @@ jupyter notebook NonBDNAFinder_SingleCell.ipynb
 # Edit the configuration in the notebook:
 # - Set file_patterns to your FASTA file(s)
 # - Run the single cell (Shift+Enter)
-# - Results saved to CSV files automatically
+# - Results saved to CSV files and PDF visualizations automatically
 ```
 
 **Features:**
 - ✅ Single cell execution - minimal code
 - ✅ Accepts single file, list of files, or glob patterns
 - ✅ Automatic CSV export with summary statistics
+- ✅ PDF visualizations with plots and charts
 - ✅ Works on local machine without web interface
 
 **Example patterns:**
@@ -246,7 +247,7 @@ The repository includes two Jupyter notebooks for different use cases:
 - ✅ **Single cell execution** - Edit config, run cell, get results
 - ✅ **Batch processing** - Analyze multiple files with one execution
 - ✅ **Flexible input** - Single file, list of files, or glob patterns (e.g., `*.fasta`, `data/**/*.fa`)
-- ✅ **Automatic export** - Results and summary statistics saved to CSV
+- ✅ **Automatic export** - Results and summary statistics saved to CSV, visualizations to PDF
 - ✅ **Local machine ready** - No server or web interface needed
 
 **Perfect for:** Production workflows, batch analysis, automated pipelines

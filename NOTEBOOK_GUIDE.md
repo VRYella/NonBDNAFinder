@@ -18,7 +18,7 @@ A minimal, efficient single-cell notebook for batch processing multiple DNA sequ
 - ✅ **Single cell execution** - Edit config, run once, get results
 - ✅ **Batch processing** - Process multiple files automatically
 - ✅ **Flexible input** - Single file, list of files, or glob patterns
-- ✅ **Automatic export** - CSV results with summary statistics
+- ✅ **Automatic export** - CSV results with summary statistics and PDF visualizations
 - ✅ **Production ready** - Minimal code, maximum efficiency
 
 ### Usage
@@ -48,7 +48,7 @@ A minimal, efficient single-cell notebook for batch processing multiple DNA sequ
    file_patterns = 'data/**/*.fa'
    
    # Output prefix
-   output_prefix = 'nonbdna'  # Creates nonbdna_results.csv and nonbdna_summary.csv
+   output_prefix = 'nonbdna'  # Creates nonbdna_results.csv, nonbdna_summary.csv, and nonbdna_visualization.pdf
    ```
 
 4. **Run the cell** (Shift+Enter)
@@ -56,6 +56,7 @@ A minimal, efficient single-cell notebook for batch processing multiple DNA sequ
 5. **Check outputs:**
    - `{output_prefix}_results.csv` - All detected motifs with full details
    - `{output_prefix}_summary.csv` - Summary statistics by motif class
+   - `{output_prefix}_visualization.pdf` - Visual plots and charts (multi-page PDF)
 
 ### Input Format
 - Accepts standard FASTA files (.fasta, .fa, .fna)
@@ -109,6 +110,9 @@ Motifs by class:
 💾 Detailed results saved to: nonbdna_results.csv
 💾 Summary statistics saved to: nonbdna_summary.csv
 
+📊 Generating visualizations...
+📊 Visualizations saved to: nonbdna_visualization.pdf
+
 ✨ Analysis complete! Check the output files for results.
 ```
 
@@ -157,7 +161,7 @@ Perfect for:
 | **Input Method** | Edit config variable | File upload widget |
 | **Batch Processing** | ✅ Yes | ❌ No (single file) |
 | **Glob Patterns** | ✅ Yes | ❌ No |
-| **Auto Export** | ✅ Yes (CSV) | ✅ Yes (CSV) |
+| **Auto Export** | ✅ Yes (CSV + PDF) | ✅ Yes (CSV) |
 | **Documentation** | Minimal (succinct) | Extensive (educational) |
 | **Best For** | Automated workflows | Interactive analysis |
 
