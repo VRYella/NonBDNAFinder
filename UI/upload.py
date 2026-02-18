@@ -1237,7 +1237,7 @@ def render():
                 # Check if we should use parallel processing (2+ sequences)
                 use_parallel = num_sequences >= PARALLEL_PROCESSING_THRESHOLD
                 
-                if use_parallel and num_sequences > 1:
+                if use_parallel:
                     # ============================================================
                     # PARALLEL PROCESSING MODE - Multi-FASTA Optimization
                     # ============================================================

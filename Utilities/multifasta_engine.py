@@ -208,9 +208,11 @@ def _analyze_single_sequence_worker(args):
             # Determine whether to use chunking
             if seq_length > chunk_threshold:
                 # Use chunk analyzer
+                # NOTE: use_parallel=False to avoid nested parallelism since we're already
+                # in a parallel worker. The sequence-level parallelism is sufficient.
                 analyzer = ChunkAnalyzer(
                     seq_storage,
-                    use_parallel=True,
+                    use_parallel=False,  # Disable nested parallelism
                     max_workers=None,
                     use_adaptive=False
                 )
