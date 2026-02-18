@@ -63,10 +63,11 @@ from Utilities.utilities import (
 # =============================================================================
 # PLOTTING FUNCTIONS - Comprehensive visualization suite
 # =============================================================================
+from Utilities.visualization.stacked_bar_class_subclass import plot_stacked_bar_class_subclass, plot_nested_pie_chart
+
 from Utilities.utilities import (
     # Core distribution plots
     plot_motif_distribution,
-    plot_nested_pie_chart,
     plot_class_subclass_sunburst,
     
     # Coverage and density visualization
@@ -157,7 +158,8 @@ __all__ = [
     
     # Core distribution plots
     'plot_motif_distribution',
-    'plot_nested_pie_chart',
+    'plot_stacked_bar_class_subclass',
+    'plot_nested_pie_chart',  # Now redirects to stacked bar
     'plot_class_subclass_sunburst',
     
     # Coverage and density visualization

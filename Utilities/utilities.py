@@ -4716,155 +4716,27 @@ def plot_class_subclass_sunburst(motifs: List[Dict[str, Any]],
 
 def plot_nested_pie_chart(motifs: List[Dict[str, Any]], 
                          title: str = "Motif Distribution",
-                         figsize: Tuple[float, float] = None) -> plt.Figure:
+                         figsize: Tuple[float, float] = None,
+                         **kwargs) -> plt.Figure:
     """
-    Create nested donut chart with improved text placement to avoid overlapping labels.
+    Create stacked bar chart for Class → Subclass visualization.
     
-    Publication-quality hierarchical pie chart following Nature guidelines.
+    NOTE: This function now redirects to plot_stacked_bar_class_subclass for 
+    improved clarity and biological ordering. The nested pie chart has been 
+    replaced with a stacked bar plot.
     
     Args:
         motifs: List of motif dictionaries
         title: Plot title
         figsize: Figure size (width, height) in inches
+        **kwargs: Additional arguments passed to plot_stacked_bar_class_subclass
         
     Returns:
         Matplotlib figure object (publication-ready)
     """
-    plt, sns, patches, PdfPages = _ensure_matplotlib()
-    set_scientific_style('nature')
-    
-    if figsize is None:
-        figsize = FIGURE_SIZES['square']
-    
-    # Count by class and subclass
-    class_counts = Counter(m.get('Class', 'Unknown') for m in motifs)
-    class_subclass_counts = defaultdict(lambda: defaultdict(int))
-    
-    for motif in motifs:
-        class_name = motif.get('Class', 'Unknown')
-        subclass_name = motif.get('Subclass', 'Unknown')
-        class_subclass_counts[class_name][subclass_name] += 1
-    
-    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
-    
-    # Inner donut (classes)
-    class_names = list(class_counts.keys())
-    class_values = list(class_counts.values())
-    class_colors = [MOTIF_CLASS_COLORS.get(name, '#808080') for name in class_names]
-    
-    # Create inner donut with Nature-style clean design
-    # Use labels=None to manually place labels later for better control
-    wedges1, texts1, autotexts1 = ax.pie(
-        class_values, 
-        labels=None,  # We'll add labels manually
-        colors=class_colors,
-        radius=0.65,
-        autopct=lambda pct: f'{pct:.1f}%' if pct > 3 else '',  # Show more percentage labels with 1 decimal
-        pctdistance=0.80,
-        startangle=90,
-        wedgeprops=dict(width=0.35, edgecolor='white', linewidth=2)  # Thicker edge for better clarity
-    )
-    
-    # Manually add class labels with better positioning (replace underscores with spaces)
-    for i, (wedge, class_name) in enumerate(zip(wedges1, class_names)):
-        angle = (wedge.theta2 + wedge.theta1) / 2
-        x = 0.5 * np.cos(np.radians(angle))
-        y = 0.5 * np.sin(np.radians(angle))
-        # Replace underscores with spaces in labels
-        display_name = class_name.replace('_', ' ')
-        # Add white background box for better readability
-        ax.text(x, y, display_name, ha='center', va='center', fontsize=8, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='none', alpha=0.8))
-    
-    # Outer donut (subclasses)
-    all_subclass_counts = []
-    all_subclass_colors = []
-    all_subclass_labels = []
-    
-    for class_name in class_names:
-        subclass_dict = class_subclass_counts[class_name]
-        base_color = MOTIF_CLASS_COLORS.get(class_name, '#808080')
-        
-        for subclass_name, count in subclass_dict.items():
-            all_subclass_counts.append(count)
-            # Truncate long names for clean appearance and replace underscores with spaces
-            # Use consistent truncation length (15 chars max, including ellipsis)
-            display_name = subclass_name.replace('_', ' ')
-            MAX_LABEL_LENGTH = 15
-            label = display_name if len(display_name) <= MAX_LABEL_LENGTH else display_name[:MAX_LABEL_LENGTH-1] + '…'
-            all_subclass_labels.append(label)
-            all_subclass_colors.append(base_color)
-    
-    # Use smarter labeling strategy to avoid overlap
-    # For many subclasses, hide labels and rely on legend instead
-    if len(all_subclass_labels) > 10:
-        # Hide outer ring labels when there are too many
-        wedges2, texts2 = ax.pie(
-            all_subclass_counts,
-            labels=None,  # No labels for cleaner appearance
-            colors=all_subclass_colors,
-            radius=1.0,
-            startangle=90,
-            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1.5)  # Thicker edge for clarity
-        )
-        
-        # Add a legend for subclasses instead
-        # Note: All subclasses of the same parent class share the same color by design.
-        # This ensures visual grouping in the nested donut chart.
-        # Track first occurrence of each unique label for the legend.
-        seen_labels = {}
-        legend_handles = []
-        legend_labels = []
-        for i, (label, color) in enumerate(zip(all_subclass_labels, all_subclass_colors)):
-            if label not in seen_labels:
-                seen_labels[label] = color
-                legend_handles.append(plt.Rectangle((0,0),1,1, fc=color, ec='white', lw=1))
-                legend_labels.append(label)
-                if len(legend_labels) >= 12:  # Limit to 12 for better display
-                    break
-        
-        ax.legend(legend_handles, legend_labels, loc='center left', bbox_to_anchor=(1, 0.5),
-                 fontsize=7, frameon=True, title='Top Subclasses', title_fontsize=8,
-                 framealpha=0.95, edgecolor='lightgray')
-    else:
-        # For fewer subclasses, show labels with improved spacing
-        wedges2, texts2 = ax.pie(
-            all_subclass_counts,
-            labels=all_subclass_labels,
-            colors=all_subclass_colors,
-            radius=1.0,
-            labeldistance=1.18,  # Push labels further out to avoid overlap
-            startangle=90,
-            wedgeprops=dict(width=0.35, edgecolor='white', linewidth=1.5),  # Thicker edge
-            textprops={'fontsize': 7, 'weight': 'medium'}  # Larger, bolder text
-        )
-        
-        # Adjust label positions to avoid overlap
-        for text in texts2:
-            text.set_fontsize(7)
-            text.set_weight('medium')
-            # Add slight rotation for better readability
-            angle = text.get_rotation()
-            if 90 < angle < 270:
-                text.set_rotation(angle - 180)
-    
-    if title:
-        # Use standardized title formatting with consistent style
-        display_title = format_plot_title(title)
-        ax.set_title(display_title, fontweight='bold', fontsize=12, pad=15)
-    
-    # Style percentage labels - larger and bolder
-    for autotext in autotexts1:
-        autotext.set_fontsize(7)
-        autotext.set_weight('bold')
-        autotext.set_color('white')
-    
-    # Add center label with total count for enhanced donut chart
-    total_motifs = sum(class_values)
-    ax.text(0, 0, f'{total_motifs:,}\nMotifs', ha='center', va='center',
-           fontsize=10, fontweight='bold', color='#334155')  # UNIFORM: base font size
-    
-    return fig
+    from Utilities.visualization.stacked_bar_class_subclass import plot_stacked_bar_class_subclass
+    if figsize is not None: kwargs['figsize'] = figsize
+    return plot_stacked_bar_class_subclass(motifs, title=title, **kwargs)
 
 
 # =============================================================================
