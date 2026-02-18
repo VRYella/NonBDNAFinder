@@ -46,6 +46,7 @@ from Utilities.job_manager import save_job_results, generate_job_id
 from Utilities.disk_storage import UniversalSequenceStorage, UniversalResultsStorage
 from Utilities.chunk_analyzer import ChunkAnalyzer
 from Utilities.detectors_utils import calc_gc_content
+from Utilities.multifasta_engine import analyze_sequences_parallel
 
 # Import progress tracking for Streamlit UI (optional, graceful degradation)
 try:
@@ -68,6 +69,8 @@ GRID_COLUMNS = 6; GRID_GAP = "0.10rem"; ROW_GAP = "0.10rem"; DOT_SIZE = 5; GLOW_
 # Disk storage chunk threshold: sequences larger than this use ChunkAnalyzer with simple chunking
 # Changed from 50KB to 1MB based on problem statement - start chunking from 1MB sequences
 CHUNK_ANALYSIS_THRESHOLD_BP = 1_000_000  # 1MB (simple chunking threshold)
+# Parallel processing threshold: multi-FASTA with >= this many sequences will use parallel processing
+PARALLEL_PROCESSING_THRESHOLD = 2  # Use parallel processing for 2+ sequences
 SUBMOTIF_ABBREVIATIONS = {
     'Global Curvature': 'Global Curv', 'Local Curvature': 'Local Curv',
     'Direct Repeat': 'DR', 'STR': 'STR', 'Cruciform forming IRs': 'Cruciform',
@@ -1231,8 +1234,130 @@ def render():
                 # Ensures identical behavior for single and multi-FASTA inputs.
                 # ============================================================
                 
-                # Support both disk storage and legacy in-memory mode
-                if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                # Check if we should use parallel processing (2+ sequences)
+                use_parallel = num_sequences >= PARALLEL_PROCESSING_THRESHOLD
+                
+                if use_parallel:
+                    # ============================================================
+                    # PARALLEL PROCESSING MODE - Multi-FASTA Optimization
+                    # ============================================================
+                    st.info(f"🚀 Using parallel processing for {num_sequences} sequences")
+                    
+                    # Import helper functions
+                    from Utilities.parallel_analysis_helper import (
+                        prepare_parallel_analysis,
+                        get_optimal_workers
+                    )
+                    
+                    # Prepare data for parallel processing
+                    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                        sequences_data, analysis_params = prepare_parallel_analysis(
+                            num_sequences=num_sequences,
+                            use_disk_storage=True,
+                            seq_ids=st.session_state.seq_ids,
+                            names=st.session_state.names,
+                            seq_storage=st.session_state.seq_storage,
+                            enabled_classes=list(analysis_classes) if analysis_classes else None,
+                            chunk_threshold=CHUNK_ANALYSIS_THRESHOLD_BP
+                        )
+                    else:
+                        sequences_data, analysis_params = prepare_parallel_analysis(
+                            num_sequences=num_sequences,
+                            use_disk_storage=False,
+                            seqs=st.session_state.seqs,
+                            names=st.session_state.names,
+                            enabled_classes=list(analysis_classes) if analysis_classes else None,
+                            chunk_threshold=CHUNK_ANALYSIS_THRESHOLD_BP
+                        )
+                    
+                    # Progress tracking
+                    progress_status = st.empty()
+                    
+                    # Progress callback closure - captures progress_placeholder and pbar from outer scope
+                    # These must be initialized before this function is defined
+                    def parallel_progress_callback(completed, total, seq_name):
+                        """Update progress bar and status. Closure depends on progress_placeholder and pbar."""
+                        progress = completed / total
+                        with progress_placeholder.container():
+                            pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
+                        progress_status.info(f"⏳ Completed: {seq_name}")
+                    
+                    # Run parallel analysis
+                    with st.status("🧬 Running parallel sequence analysis...", expanded=True) as parallel_status:
+                        st.write(f"Analyzing {num_sequences} sequences in parallel...")
+                        
+                        parallel_results = analyze_sequences_parallel(
+                            sequences_data=sequences_data,
+                            analysis_params=analysis_params,
+                            max_workers=get_optimal_workers(num_sequences),
+                            progress_callback=parallel_progress_callback,
+                            use_processes=False  # Use threads for I/O-bound operations
+                        )
+                        
+                        parallel_status.update(label="✅ Parallel analysis complete", state="complete")
+                    
+                    progress_status.empty()
+                    
+                    # Process parallel results
+                    for result in parallel_results:
+                        if result['success']:
+                            i = result['index']
+                            name = result['name']
+                            results = result['results']
+                            seq_length = result['seq_length']
+                            
+                            # Store results storage if using disk mode
+                            if result.get('use_disk_storage') and result.get('results_storage'):
+                                seq_id = result['seq_id']
+                                st.session_state.results_storage[seq_id] = result['results_storage']
+                            
+                            # Update performance tracker
+                            perf_tracker.add_sequence_result(name, seq_length, result['elapsed'], len(results))
+                            
+                            # Apply filters (same as sequential mode)
+                            safe_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    safe_results.append(ensure_subclass(motif))
+                                except (KeyError, AttributeError, TypeError) as e:
+                                    logger.error(f"Error processing motif at index {idx}: {e}")
+                                    continue
+                            results = safe_results
+                            
+                            # Filter by selected subclasses
+                            selected_classes_set = set(st.session_state.selected_classes)
+                            selected_subclasses_set = set(st.session_state.selected_subclasses)
+                            
+                            filtered_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    motif_class = motif.get('Class', '')
+                                    motif_subclass = motif.get('Subclass', '')
+                                    
+                                    if motif_class in selected_classes_set:
+                                        if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                            component_classes = motif.get('Component_Classes', [])
+                                            if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                                filtered_results.append(motif)
+                                        elif motif_subclass in selected_subclasses_set:
+                                            filtered_results.append(motif)
+                                except (KeyError, AttributeError, TypeError) as e:
+                                    logger.error(f"Error filtering motif at index {idx}: {e}")
+                                    continue
+                            
+                            results = filtered_results
+                            all_results.append(results)
+                            total_bp_processed += seq_length
+                            
+                            st.toast(f"✅ {name}: {len(results):,} motifs", icon="✅")
+                        else:
+                            st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
+                            all_results.append([])
+                    
+                    # Memory management
+                    trigger_garbage_collection()
+                    
+                elif st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
                     # === DISK STORAGE MODE: Use ChunkAnalyzer ===
                     seq_ids = st.session_state.seq_ids
                     names = st.session_state.names
