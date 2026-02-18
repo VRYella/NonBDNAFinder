@@ -187,20 +187,79 @@ for name, seq in parse_fasta(large_fasta, streaming=True):
 
 ## 🚀 Quick Start
 
+### Option 1: Single-Cell Jupyter Notebook (Recommended for Local Analysis)
+
+**Perfect for:** Batch processing multiple files with minimal setup
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Open Jupyter notebook
+jupyter notebook NonBDNAFinder_SingleCell.ipynb
+
+# Edit the configuration in the notebook:
+# - Set file_patterns to your FASTA file(s)
+# - Run the single cell (Shift+Enter)
+# - Results saved to CSV files automatically
+```
+
+**Features:**
+- ✅ Single cell execution - minimal code
+- ✅ Accepts single file, list of files, or glob patterns
+- ✅ Automatic CSV export with summary statistics
+- ✅ Works on local machine without web interface
+
+**Example patterns:**
+```python
+file_patterns = 'genome.fasta'              # Single file
+file_patterns = ['file1.fasta', 'file2.fa'] # Multiple files
+file_patterns = 'data/*.fasta'              # Glob pattern
+file_patterns = 'data/**/*.fa'              # Recursive glob
+```
+
+### Option 2: Web Interface (Interactive Analysis)
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
 # Run web interface
 streamlit run app.py
+```
 
-# Or use Python API
-python3 -c "
-from nonbscanner import analyze_sequence
+### Option 3: Python API (Programmatic Use)
+
+```python
+from Utilities.nonbscanner import analyze_sequence
 motifs = analyze_sequence('AGGGGGGGGGCCCCCCCCCTAGGGGGGGGG', 'test')
 print(f'Found {len(motifs)} motifs')
-"
 ```
+
+## 📓 Jupyter Notebooks
+
+The repository includes two Jupyter notebooks for different use cases:
+
+### 1. NonBDNAFinder_SingleCell.ipynb (NEW!)
+**Single-cell batch processing notebook** - Minimal code, maximum efficiency
+
+- ✅ **Single cell execution** - Edit config, run cell, get results
+- ✅ **Batch processing** - Analyze multiple files with one execution
+- ✅ **Flexible input** - Single file, list of files, or glob patterns (e.g., `*.fasta`, `data/**/*.fa`)
+- ✅ **Automatic export** - Results and summary statistics saved to CSV
+- ✅ **Local machine ready** - No server or web interface needed
+
+**Perfect for:** Production workflows, batch analysis, automated pipelines
+
+### 2. NonBDNAFinder_Demo.ipynb
+**Interactive demo notebook** - Step-by-step guide with explanations
+
+- 📤 File upload widget for interactive sequence selection
+- 🔬 Cell-by-cell execution with detailed explanations
+- 📊 Results display with visualizations
+- 📚 Educational comments and documentation
+
+**Perfect for:** Learning the tool, exploring features, interactive analysis
 
 ## 📊 What's New in 2025.1
 
