@@ -18,8 +18,9 @@ ARCHITECTURE:
 
 MEMORY GUARANTEES:
     - Processes one chunk at a time
-    - Maximum memory: chunk_size + results buffer (~50MB with 100MB ceiling)
+    - Maximum memory: ~50-70MB for processing (chunk + results buffer)
     - Aggressive GC between chunks
+    - Supports file uploads up to 100MB
 """
 
 import gc

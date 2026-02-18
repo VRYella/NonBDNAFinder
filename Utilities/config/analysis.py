@@ -44,7 +44,7 @@ ANALYSIS_CONFIG = {
     # Sequence processing thresholds
     'chunk_threshold': 1_000_000,     # Sequences > this size use chunking (bp) - Changed from 50KB to 1MB
     'default_chunk_size': 50_000,     # Default chunk size for large sequences (bp) - ALWAYS use 50KB chunks
-    'default_chunk_overlap': 2_000,   # Overlap between chunks to catch motifs at boundaries (bp)
+    'default_chunk_overlap': 2_000,   # 2KB overlap ensures motifs at boundaries are captured (optimized balance of performance/accuracy)
     
     # Performance and display settings
     'max_sequences_preview': 3,    # Number of sequences to show in file preview
