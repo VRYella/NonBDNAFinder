@@ -164,7 +164,7 @@ class UniversalSequenceStorage:
     def iter_chunks(
         self,
         seq_id: str,
-        chunk_size: int = 50_000,       # ALWAYS use 50Kbp chunks
+        chunk_size: int = 50_000,       # Recommended: 50Kbp chunks
         overlap: int = 2_000            # 2Kbp overlap (optimized)
     ) -> Iterator[Tuple[str, int, int]]:
         """
@@ -172,7 +172,7 @@ class UniversalSequenceStorage:
         
         Args:
             seq_id: Sequence identifier
-            chunk_size: Size of each chunk in base pairs (default: 50Kbp - ALWAYS use 50Kbp chunks)
+            chunk_size: Size of each chunk in base pairs (default: 50Kbp, recommended for optimal performance)
             overlap: Overlap between chunks in base pairs (default: 2Kbp, balanced for performance and accuracy)
             
         Yields:
