@@ -217,6 +217,15 @@ def calculate_gc_percentage(sequences: list) -> float:
     return total_gc_weighted / total_bp
 
 
+def clear_analysis_placeholders(progress_placeholder, status_placeholder, 
+                                detailed_progress_placeholder, timer_placeholder):
+    """Helper function to clear all analysis UI placeholders during error handling"""
+    progress_placeholder.empty()
+    status_placeholder.empty()
+    detailed_progress_placeholder.empty()
+    timer_placeholder.empty()
+
+
 # Example FASTA data
 EXAMPLE_FASTA = """>Example Sequence
 ATCGATCGATCGAAAATTTTATTTAAATTTAAATTTGGGTTAGGGTTAGGGTTAGGGCCCCCTCCCCCTCCCCCTCCCC
@@ -2035,10 +2044,8 @@ def render():
                 # - Empty results list from detectors (no patterns found)
                 # - Empty intermediate data structures during filtering/merging
                 # - Accessing first element of empty validation results
-                progress_placeholder.empty()
-                status_placeholder.empty()
-                detailed_progress_placeholder.empty()
-                timer_placeholder.empty()
+                clear_analysis_placeholders(progress_placeholder, status_placeholder, 
+                                          detailed_progress_placeholder, timer_placeholder)
                 
                 # Log detailed error for debugging
                 logger.error(f"IndexError during analysis: {str(e)}")
@@ -2058,19 +2065,17 @@ def render():
                     "4. Check that sequences contain valid DNA characters (A, T, C, G, N)"
                 )
                 
-                # Still show technical details in expander for advanced users
+                # Show technical details in expander for advanced users
                 with st.expander("🔧 Technical Details (for debugging)"):
-                    st.code(f"IndexError: {str(e)}\n\n{traceback.format_exc()}")
+                    st.code(traceback.format_exc())
                 
                 st.session_state.analysis_status = "Error"
                 
             except Exception as e:
                 # Catch-all for unexpected errors (KeyError, TypeError, AttributeError, RuntimeError, etc.)
                 # All other exceptions not specifically handled above
-                progress_placeholder.empty()
-                status_placeholder.empty()
-                detailed_progress_placeholder.empty()
-                timer_placeholder.empty()
+                clear_analysis_placeholders(progress_placeholder, status_placeholder, 
+                                          detailed_progress_placeholder, timer_placeholder)
                 
                 # Log the error for debugging
                 logger.error(f"Unexpected error during analysis: {str(e)}")
