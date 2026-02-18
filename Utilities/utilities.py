@@ -9076,7 +9076,7 @@ def save_figures_to_pdf(figures: List[plt.Figure], output_path: str) -> None:
     with PdfPages(output_path) as pdf:
         for fig in figures:
             if fig is not None:
-                pdf.savefig(fig, bbox_inches='tight', dpi=300)
+                pdf.savefig(fig, bbox_inches='tight', dpi=PUBLICATION_DPI)
                 plt.close(fig)
 
 
@@ -9285,7 +9285,7 @@ def export_to_pdf(motifs: List[Dict[str, Any]],
         with PdfPages(pdf_buffer) as pdf:
             for fig in figures:
                 if fig is not None:
-                    pdf.savefig(fig, bbox_inches='tight', dpi=300)
+                    pdf.savefig(fig, bbox_inches='tight', dpi=PUBLICATION_DPI)
                     plt.close(fig)
         
         # Get PDF data from buffer
