@@ -15,6 +15,7 @@ import gc
 import numpy as np
 import pandas as pd
 import logging
+import traceback
 
 from Utilities.config.text import UI_TEXT
 from Utilities.config.typography import FONT_CONFIG
@@ -214,6 +215,40 @@ def calculate_gc_percentage(sequences: list) -> float:
         return 0.0
     
     return total_gc_weighted / total_bp
+
+
+def clear_analysis_placeholders(progress_placeholder, status_placeholder,
+                                detailed_progress_placeholder, timer_placeholder):
+    """
+    Helper function to clear all analysis UI placeholders during error handling.
+    
+    Args:
+        progress_placeholder: Streamlit placeholder for progress bar
+        status_placeholder: Streamlit placeholder for status messages
+        detailed_progress_placeholder: Streamlit placeholder for detailed progress info
+        timer_placeholder: Streamlit placeholder for timer/elapsed time display
+    """
+    progress_placeholder.empty()
+    status_placeholder.empty()
+    detailed_progress_placeholder.empty()
+    timer_placeholder.empty()
+
+
+def show_technical_details():
+    """
+    Show technical error details in collapsible expander.
+    
+    Must be called within an exception handler context where traceback.format_exc()
+    can capture the active exception information.
+    
+    Example:
+        try:
+            risky_operation()
+        except Exception:
+            show_technical_details()  # Shows traceback of caught exception
+    """
+    with st.expander("🔧 Technical Details (for debugging)"):
+        st.code(traceback.format_exc())
 
 
 # Example FASTA data
@@ -2029,12 +2064,47 @@ def render():
                 if not save_success:
                     logger.warning(f"Failed to persist results for job {job_id} - results available in session only")
                 
+            except IndexError:
+                # Occurs when accessing empty lists during analysis (e.g., no patterns found, empty results)
+                clear_analysis_placeholders(progress_placeholder, status_placeholder,
+                                            detailed_progress_placeholder, timer_placeholder)
+                
+                # Log with automatic traceback for developer debugging
+                logger.exception("IndexError during analysis")
+                
+                # User-friendly error message with actionable guidance
+                st.error(
+                    "⚠️ **Analysis could not be completed**\n\n"
+                    "This typically occurs when:\n"
+                    "- The sequence(s) are too short or contain no analyzable regions\n"
+                    "- Selected motif classes produced no detectable patterns\n"
+                    "- Input data format is unexpected\n\n"
+                    "**Suggested actions:**\n"
+                    "1. Try analyzing longer sequences (>1000 bp recommended)\n"
+                    "2. Select different motif classes to analyze\n"
+                    "3. Verify your FASTA file is properly formatted\n"
+                    "4. Check that sequences contain valid DNA characters (A, T, C, G, N)"
+                )
+                
+                # Show technical details in expander for advanced users
+                show_technical_details()
+                
+                st.session_state.analysis_status = "Error"
+                
             except Exception as e:
-                progress_placeholder.empty()
-                status_placeholder.empty()
-                detailed_progress_placeholder.empty()
-                timer_placeholder.empty()
-                st.error(f"Analysis failed: {str(e)}")
+                # Catch-all for other unexpected errors
+                clear_analysis_placeholders(progress_placeholder, status_placeholder,
+                                            detailed_progress_placeholder, timer_placeholder)
+                
+                # Log with automatic traceback for developer debugging
+                logger.exception("Unexpected error during analysis")
+                
+                # Display error to user
+                st.error(f"❌ **Analysis failed:** {str(e)}")
+                
+                # Show traceback in expander for debugging
+                show_technical_details()
+                
                 st.session_state.analysis_status = "Error"
 
     # End of Upload & Analyze tab
