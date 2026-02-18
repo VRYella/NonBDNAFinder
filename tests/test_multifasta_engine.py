@@ -235,7 +235,8 @@ class TestMultiFastaEngine(unittest.TestCase):
         for i in range(25):
             seq_id = f'Seq{i}'
             large_annotations[seq_id] = [
-                {'Start': j * 100, 'End': j * 100 + 50, 'Class': f'Class{j % 5}', 'Subclass': f'Sub{j % 10}'}
+                {'Start': j * 100, 'End': j * 100 + 50, 'Class': f'Class{j % 5}', 
+                 'Subclass': f'Sub{j % 10}', 'Length': 51}
                 for j in range(10)
             ]
             large_lengths[seq_id] = 10000
@@ -300,7 +301,7 @@ class TestMultiFastaEngineEdgeCases(unittest.TestCase):
         """Test handling of zero-length sequence."""
         annotations = {
             'Seq1': [
-                {'Start': 10, 'End': 20, 'Class': 'Test'}
+                {'Start': 10, 'End': 20, 'Class': 'Test', 'Subclass': 'Test_Sub', 'Length': 11}
             ]
         }
         
@@ -317,7 +318,7 @@ class TestMultiFastaEngineEdgeCases(unittest.TestCase):
         """Test motif that spans multiple conservation bins."""
         annotations = {
             'Seq1': [
-                {'Start': 900, 'End': 1100, 'Class': 'A'}  # Spans bins 0 and 1
+                {'Start': 900, 'End': 1100, 'Class': 'A', 'Subclass': 'A1', 'Length': 201}  # Spans bins 0 and 1
             ]
         }
         
