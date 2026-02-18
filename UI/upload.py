@@ -1234,131 +1234,130 @@ def render():
                 # Ensures identical behavior for single and multi-FASTA inputs.
                 # ============================================================
                 
-                # ============================================================
-                # PARALLEL PROCESSING: Multi-FASTA optimization
-                # ============================================================
-                # For multi-FASTA files with multiple sequences, use parallel
-                # processing to analyze sequences concurrently for better performance
-                # ============================================================
+                # Check if we should use parallel processing (2+ sequences)
                 use_parallel = num_sequences >= PARALLEL_PROCESSING_THRESHOLD
                 
-                if use_parallel:
+                if use_parallel and num_sequences > 1:
+                    # ============================================================
+                    # PARALLEL PROCESSING MODE - Multi-FASTA Optimization
+                    # ============================================================
                     st.info(f"🚀 Using parallel processing for {num_sequences} sequences")
-                
-                # Support both disk storage and legacy in-memory mode
-                if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
-                    # === DISK STORAGE MODE ===
+                    
+                    # Import helper functions
+                    from Utilities.parallel_analysis_helper import (
+                        prepare_parallel_analysis,
+                        get_optimal_workers
+                    )
+                    
+                    # Prepare data for parallel processing
+                    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                        sequences_data, analysis_params = prepare_parallel_analysis(
+                            num_sequences=num_sequences,
+                            use_disk_storage=True,
+                            seq_ids=st.session_state.seq_ids,
+                            names=st.session_state.names,
+                            seq_storage=st.session_state.seq_storage,
+                            enabled_classes=list(analysis_classes) if analysis_classes else None,
+                            chunk_threshold=CHUNK_ANALYSIS_THRESHOLD_BP
+                        )
+                    else:
+                        sequences_data, analysis_params = prepare_parallel_analysis(
+                            num_sequences=num_sequences,
+                            use_disk_storage=False,
+                            seqs=st.session_state.seqs,
+                            names=st.session_state.names,
+                            enabled_classes=list(analysis_classes) if analysis_classes else None,
+                            chunk_threshold=CHUNK_ANALYSIS_THRESHOLD_BP
+                        )
+                    
+                    # Progress tracking
+                    progress_status = st.empty()
+                    
+                    def parallel_progress_callback(completed, total, seq_name):
+                        progress = completed / total
+                        with progress_placeholder.container():
+                            pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
+                        progress_status.info(f"⏳ Completed: {seq_name}")
+                    
+                    # Run parallel analysis
+                    with st.status("🧬 Running parallel sequence analysis...", expanded=True) as parallel_status:
+                        st.write(f"Analyzing {num_sequences} sequences in parallel...")
+                        
+                        parallel_results = analyze_sequences_parallel(
+                            sequences_data=sequences_data,
+                            analysis_params=analysis_params,
+                            max_workers=get_optimal_workers(num_sequences),
+                            progress_callback=parallel_progress_callback,
+                            use_processes=False  # Use threads for I/O-bound operations
+                        )
+                        
+                        parallel_status.update(label="✅ Parallel analysis complete", state="complete")
+                    
+                    progress_status.empty()
+                    
+                    # Process parallel results
+                    for result in parallel_results:
+                        if result['success']:
+                            i = result['index']
+                            name = result['name']
+                            results = result['results']
+                            seq_length = result['seq_length']
+                            
+                            # Store results storage if using disk mode
+                            if result.get('use_disk_storage') and result.get('results_storage'):
+                                seq_id = result['seq_id']
+                                st.session_state.results_storage[seq_id] = result['results_storage']
+                            
+                            # Update performance tracker
+                            perf_tracker.add_sequence_result(name, seq_length, result['elapsed'], len(results))
+                            
+                            # Apply filters (same as sequential mode)
+                            safe_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    safe_results.append(ensure_subclass(motif))
+                                except (KeyError, AttributeError, TypeError) as e:
+                                    logger.error(f"Error processing motif at index {idx}: {e}")
+                                    continue
+                            results = safe_results
+                            
+                            # Filter by selected subclasses
+                            selected_classes_set = set(st.session_state.selected_classes)
+                            selected_subclasses_set = set(st.session_state.selected_subclasses)
+                            
+                            filtered_results = []
+                            for idx, motif in enumerate(results):
+                                try:
+                                    motif_class = motif.get('Class', '')
+                                    motif_subclass = motif.get('Subclass', '')
+                                    
+                                    if motif_class in selected_classes_set:
+                                        if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
+                                            component_classes = motif.get('Component_Classes', [])
+                                            if not component_classes or any(c in selected_classes_set for c in component_classes):
+                                                filtered_results.append(motif)
+                                        elif motif_subclass in selected_subclasses_set:
+                                            filtered_results.append(motif)
+                                except (KeyError, AttributeError, TypeError) as e:
+                                    logger.error(f"Error filtering motif at index {idx}: {e}")
+                                    continue
+                            
+                            results = filtered_results
+                            all_results.append(results)
+                            total_bp_processed += seq_length
+                            
+                            st.toast(f"✅ {name}: {len(results):,} motifs", icon="✅")
+                        else:
+                            st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
+                            all_results.append([])
+                    
+                    # Memory management
+                    trigger_garbage_collection()
+                    
+                elif st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                    # === DISK STORAGE MODE: Use ChunkAnalyzer ===
                     seq_ids = st.session_state.seq_ids
                     names = st.session_state.names
-                    
-                    if use_parallel:
-                        # ============================================================
-                        # PARALLEL PROCESSING PATH - Disk Storage Mode
-                        # ============================================================
-                        
-                        # Prepare analysis parameters
-                        analysis_params = {
-                            'use_disk_storage': True,
-                            'seq_storage': st.session_state.seq_storage,
-                            'enabled_classes': list(analysis_classes) if analysis_classes else None,
-                            'chunk_threshold': CHUNK_ANALYSIS_THRESHOLD_BP
-                        }
-                        
-                        # Prepare sequence data for parallel processing
-                        sequences_data = [(seq_id, name, i) for i, (seq_id, name) in enumerate(zip(seq_ids, names))]
-                        
-                        # Progress tracking
-                        progress_status = st.empty()
-                        parallel_progress = {'completed': 0, 'total': num_sequences}
-                        
-                        def parallel_progress_callback(completed, total, seq_name):
-                            parallel_progress['completed'] = completed
-                            progress = completed / total
-                            with progress_placeholder.container():
-                                pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
-                            progress_status.info(f"⏳ Completed: {seq_name}")
-                        
-                        # Run parallel analysis
-                        with st.status("🧬 Running parallel sequence analysis...", expanded=True) as parallel_status:
-                            st.write(f"Analyzing {num_sequences} sequences in parallel...")
-                            
-                            parallel_results = analyze_sequences_parallel(
-                                sequences_data=sequences_data,
-                                analysis_params=analysis_params,
-                                max_workers=min(num_sequences, os.cpu_count() or 4),
-                                progress_callback=parallel_progress_callback,
-                                use_processes=False  # Use threads for I/O-bound operations
-                            )
-                            
-                            parallel_status.update(label="✅ Parallel analysis complete", state="complete")
-                        
-                        progress_status.empty()
-                        
-                        # Process results
-                        for result in parallel_results:
-                            if result['success']:
-                                i = result['index']
-                                seq_id = result['seq_id']
-                                name = result['name']
-                                results = result['results']
-                                results_storage = result.get('results_storage')
-                                seq_length = result['seq_length']
-                                
-                                # Store results storage
-                                if results_storage:
-                                    st.session_state.results_storage[seq_id] = results_storage
-                                
-                                # Update performance tracker
-                                perf_tracker.add_sequence_result(name, seq_length, result['elapsed'], len(results))
-                                
-                                # Apply filters
-                                safe_results = []
-                                for idx, motif in enumerate(results):
-                                    try:
-                                        safe_results.append(ensure_subclass(motif))
-                                    except (KeyError, AttributeError, TypeError) as e:
-                                        logger.error(f"Error processing motif at index {idx}: {e}")
-                                        continue
-                                results = safe_results
-                                
-                                # Filter results based on selected subclasses
-                                selected_classes_set = set(st.session_state.selected_classes)
-                                selected_subclasses_set = set(st.session_state.selected_subclasses)
-                                
-                                filtered_results = []
-                                for idx, motif in enumerate(results):
-                                    try:
-                                        motif_class = motif.get('Class', '')
-                                        motif_subclass = motif.get('Subclass', '')
-                                        
-                                        if motif_class in selected_classes_set:
-                                            if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                                component_classes = motif.get('Component_Classes', [])
-                                                if not component_classes or any(c in selected_classes_set for c in component_classes):
-                                                    filtered_results.append(motif)
-                                            elif motif_subclass in selected_subclasses_set:
-                                                filtered_results.append(motif)
-                                    except (KeyError, AttributeError, TypeError) as e:
-                                        logger.error(f"Error filtering motif at index {idx}: {e}")
-                                        continue
-                                
-                                results = filtered_results
-                                all_results.append(results)
-                                
-                                total_bp_processed += seq_length
-                                
-                                st.toast(f"✅ {name}: {len(results):,} motifs", icon="✅")
-                            else:
-                                st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
-                                all_results.append([])
-                        
-                        # Memory management
-                        trigger_garbage_collection()
-                        
-                    else:
-                        # ============================================================
-                        # SEQUENTIAL PROCESSING PATH - Disk Storage Mode
-                        # ============================================================
                     
                     for i, (seq_id, name) in enumerate(zip(seq_ids, names)):
                         progress = (i + 1) / num_sequences
@@ -1522,110 +1521,6 @@ def render():
                     
                 else:
                     # === LEGACY IN-MEMORY MODE ===
-                    seqs = st.session_state.seqs
-                    names = st.session_state.names
-                    
-                    if use_parallel:
-                        # ============================================================
-                        # PARALLEL PROCESSING PATH - Legacy In-Memory Mode
-                        # ============================================================
-                        
-                        # Prepare analysis parameters
-                        analysis_params = {
-                            'use_disk_storage': False,
-                            'enabled_classes': list(analysis_classes) if analysis_classes else None,
-                            'chunk_threshold': CHUNK_ANALYSIS_THRESHOLD_BP
-                        }
-                        
-                        # Prepare sequence data for parallel processing
-                        sequences_data = [(seq, name, i) for i, (seq, name) in enumerate(zip(seqs, names))]
-                        
-                        # Progress tracking
-                        progress_status = st.empty()
-                        parallel_progress = {'completed': 0, 'total': num_sequences}
-                        
-                        def parallel_progress_callback(completed, total, seq_name):
-                            parallel_progress['completed'] = completed
-                            progress = completed / total
-                            with progress_placeholder.container():
-                                pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
-                            progress_status.info(f"⏳ Completed: {seq_name}")
-                        
-                        # Run parallel analysis
-                        with st.status("🧬 Running parallel sequence analysis...", expanded=True) as parallel_status:
-                            st.write(f"Analyzing {num_sequences} sequences in parallel...")
-                            
-                            parallel_results = analyze_sequences_parallel(
-                                sequences_data=sequences_data,
-                                analysis_params=analysis_params,
-                                max_workers=min(num_sequences, os.cpu_count() or 4),
-                                progress_callback=parallel_progress_callback,
-                                use_processes=False  # Use threads for I/O-bound operations
-                            )
-                            
-                            parallel_status.update(label="✅ Parallel analysis complete", state="complete")
-                        
-                        progress_status.empty()
-                        
-                        # Process results
-                        for result in parallel_results:
-                            if result['success']:
-                                i = result['index']
-                                name = result['name']
-                                results = result['results']
-                                seq_length = result['seq_length']
-                                
-                                # Update performance tracker
-                                perf_tracker.add_sequence_result(name, seq_length, result['elapsed'], len(results))
-                                
-                                # Apply filters
-                                safe_results = []
-                                for idx, motif in enumerate(results):
-                                    try:
-                                        safe_results.append(ensure_subclass(motif))
-                                    except (KeyError, AttributeError, TypeError) as e:
-                                        logger.error(f"Error processing motif at index {idx}: {e}")
-                                        continue
-                                results = safe_results
-                                
-                                # Filter results based on selected subclasses
-                                selected_classes_set = set(st.session_state.selected_classes)
-                                selected_subclasses_set = set(st.session_state.selected_subclasses)
-                                
-                                filtered_results = []
-                                for idx, motif in enumerate(results):
-                                    try:
-                                        motif_class = motif.get('Class', '')
-                                        motif_subclass = motif.get('Subclass', '')
-                                        
-                                        if motif_class in selected_classes_set:
-                                            if motif_class in ['Hybrid', 'Non-B_DNA_Clusters']:
-                                                component_classes = motif.get('Component_Classes', [])
-                                                if not component_classes or any(c in selected_classes_set for c in component_classes):
-                                                    filtered_results.append(motif)
-                                            elif motif_subclass in selected_subclasses_set:
-                                                filtered_results.append(motif)
-                                    except (KeyError, AttributeError, TypeError) as e:
-                                        logger.error(f"Error filtering motif at index {idx}: {e}")
-                                        continue
-                                
-                                results = filtered_results
-                                all_results.append(results)
-                                
-                                total_bp_processed += seq_length
-                                
-                                st.toast(f"✅ {name}: {len(results):,} motifs", icon="✅")
-                            else:
-                                st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
-                                all_results.append([])
-                        
-                        # Memory management
-                        trigger_garbage_collection()
-                        
-                    else:
-                        # ============================================================
-                        # SEQUENTIAL PROCESSING PATH - Legacy In-Memory Mode
-                        # ============================================================
                     for i, (seq, name) in enumerate(zip(st.session_state.seqs, st.session_state.names)):
                         progress = (i + 1) / num_sequences
                         
