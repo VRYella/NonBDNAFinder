@@ -522,7 +522,8 @@ def _generate_plot_worker(plot_spec: Dict[str, Any]) -> Dict[str, Any]:
         start_time = time.time()
         
         plot_type = plot_spec['plot_type']
-        plot_params = plot_spec['plot_params']
+        # Create a copy to avoid mutating the input dictionary
+        plot_params = plot_spec['plot_params'].copy()
         plot_name = plot_spec['plot_name']
         
         visualizer = plot_params.pop('visualizer')

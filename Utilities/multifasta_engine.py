@@ -231,7 +231,9 @@ def _analyze_single_sequence_worker(args):
                 seq = seq_storage.get_sequence_chunk(seq_id, 0, seq_length)
                 results = analyze_sequence(seq, name, enabled_classes=enabled_classes)
                 
-                # Create results storage
+                # Create results storage and save results
+                # NOTE: This path handles non-chunked disk storage scenarios
+                # Test coverage: Requires test with disk storage + sequence < chunk_threshold
                 results_storage = UniversalResultsStorage(
                     base_dir=str(seq_storage.base_dir / "results"),
                     seq_id=seq_id

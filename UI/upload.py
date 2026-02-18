@@ -1273,7 +1273,10 @@ def render():
                     # Progress tracking
                     progress_status = st.empty()
                     
+                    # Progress callback closure - captures progress_placeholder and pbar from outer scope
+                    # These must be initialized before this function is defined
                     def parallel_progress_callback(completed, total, seq_name):
+                        """Update progress bar and status. Closure depends on progress_placeholder and pbar."""
                         progress = completed / total
                         with progress_placeholder.container():
                             pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
