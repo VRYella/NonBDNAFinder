@@ -44,7 +44,7 @@ __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
 # CHUNK_THRESHOLD = 50KB triggers parallel detector execution (NOT sequence chunking!)
 # For sequences > 50KB, runs 9 detectors in parallel using ThreadPoolExecutor (1.5-2x speedup)
 # This is SEPARATE from sequence chunking threshold (1MB in config/UI)
-CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 5000
+CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 2000
 
 # Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
 # MAX_DETECTOR_WORKERS limited to 9 because there are exactly 9 detector types in the system

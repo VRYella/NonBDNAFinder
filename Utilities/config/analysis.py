@@ -44,7 +44,7 @@ ANALYSIS_CONFIG = {
     # Sequence processing thresholds
     'chunk_threshold': 1_000_000,     # Sequences > this size use chunking (bp) - Changed from 50KB to 1MB
     'default_chunk_size': 50_000,     # Default chunk size for large sequences (bp) - ALWAYS use 50KB chunks
-    'default_chunk_overlap': 5_000,   # Overlap between chunks to catch motifs at boundaries (bp)
+    'default_chunk_overlap': 2_000,   # Overlap between chunks to catch motifs at boundaries (bp)
     
     # Performance and display settings
     'max_sequences_preview': 3,    # Number of sequences to show in file preview
@@ -61,7 +61,7 @@ ANALYSIS_CONFIG = {
     'include_clusters_in_distribution': True, # Include Cluster motifs in plots
     
     # File upload limits
-    'max_file_size_mb': 1024,      # Maximum file size in MB (1 GB default)
+    'max_file_size_mb': 100,       # Maximum file size in MB (100 MB ceiling for optimal performance)
 }
 
 # ==================== TRIPLE ADAPTIVE CHUNKING CONFIG ====================
@@ -70,15 +70,15 @@ ANALYSIS_CONFIG = {
 CHUNKING_CONFIG = {
     # Micro-tier (base analysis level) - ALWAYS USE 50KB CHUNKS
     'micro_chunk_size': 50_000,       # 50KB chunks for fast analysis
-    'micro_overlap': 2_000,            # 2KB overlap to catch boundary motifs
+    'micro_overlap': 2_000,           # 2KB overlap to catch boundary motifs (optimized)
     
     # Meso-tier (memory management level) - ALWAYS USE 50KB CHUNKS
     'meso_chunk_size': 50_000,        # 50KB chunks for consistency
-    'meso_overlap': 2_000,            # 2KB overlap between meso-chunks
+    'meso_overlap': 2_000,            # 2KB overlap between meso-chunks (optimized)
     
     # Macro-tier (parallelization level) - ALWAYS USE 50KB CHUNKS
     'macro_chunk_size': 50_000,       # 50KB chunks for consistency
-    'macro_overlap': 2_000,           # 2KB overlap between macro-chunks
+    'macro_overlap': 2_000,           # 2KB overlap between macro-chunks (optimized)
     
     # Adaptive thresholds for automatic strategy selection
     'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED
