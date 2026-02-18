@@ -7,8 +7,8 @@
 
 DESCRIPTION:
     Implements disk-based storage for sequences and results to maintain constant
-    memory usage. Enables analysis of up to 100MB genomes on Streamlit Community
-    Cloud free tier (1GB RAM limit) with disk-based storage.
+    memory usage. Enables analysis of genomes up to 100MB in size on Streamlit
+    Community Cloud free tier (1GB RAM limit) with disk-based storage.
 
 ARCHITECTURE:
     - UniversalSequenceStorage: Saves sequences to disk, provides chunk-based iteration
@@ -16,8 +16,8 @@ ARCHITECTURE:
     
 MEMORY GUARANTEES:
     - Sequence storage: Never loads full sequence into memory
-    - Results storage: Never loads all results into memory  
-    - Chunk iteration: 50KB chunks with 2KB overlap (balanced for performance/accuracy)
+    - Results storage: Never loads all results into memory
+    - Chunk iteration: 50Kbp chunks with 2Kbp overlap (balanced for performance/accuracy)
     - Memory overhead: ~50-70MB total including active chunk and results buffering
     - Summary stats: Computed incrementally without full load
 """
@@ -46,7 +46,7 @@ class UniversalSequenceStorage:
     
     Features:
         - Automatic temp directory management
-        - Chunk-based iteration (default: 50KB chunks, 2KB overlap for performance/accuracy balance)
+        - Chunk-based iteration (default: 50Kbp chunks, 2Kbp overlap for performance/accuracy balance)
         - Metadata caching (length, GC%, etc.)
         - Memory-safe operations (never loads full sequence)
         
@@ -164,16 +164,16 @@ class UniversalSequenceStorage:
     def iter_chunks(
         self,
         seq_id: str,
-        chunk_size: int = 50_000,       # ALWAYS use 50KB chunks
-        overlap: int = 2_000            # 2KB overlap (optimized)
+        chunk_size: int = 50_000,       # ALWAYS use 50Kbp chunks
+        overlap: int = 2_000            # 2Kbp overlap (optimized)
     ) -> Iterator[Tuple[str, int, int]]:
         """
         Iterate over sequence in overlapping chunks.
         
         Args:
             seq_id: Sequence identifier
-            chunk_size: Size of each chunk in base pairs (default: 50KB - ALWAYS use 50KB chunks)
-            overlap: Overlap between chunks in base pairs (default: 2KB, balanced for performance and accuracy)
+            chunk_size: Size of each chunk in base pairs (default: 50Kbp - ALWAYS use 50Kbp chunks)
+            overlap: Overlap between chunks in base pairs (default: 2Kbp, balanced for performance and accuracy)
             
         Yields:
             Tuple of (chunk_sequence, chunk_start, chunk_end)

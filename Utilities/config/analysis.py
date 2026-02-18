@@ -43,8 +43,8 @@ MAX_OVERLAP_DISPLAY = 10
 ANALYSIS_CONFIG = {
     # Sequence processing thresholds
     'chunk_threshold': 1_000_000,     # Sequences > this size use chunking (bp) - Changed from 50KB to 1MB
-    'default_chunk_size': 50_000,     # Default chunk size for large sequences (bp) - ALWAYS use 50KB chunks
-    'default_chunk_overlap': 2_000,   # 2KB overlap ensures motifs at boundaries are captured (optimized balance of performance/accuracy)
+    'default_chunk_size': 50_000,     # Default chunk size for large sequences (bp) - ALWAYS use 50Kbp chunks
+    'default_chunk_overlap': 2_000,   # 2Kbp (2,000bp) overlap ensures motifs at boundaries are captured (balanced for performance/accuracy)
     
     # Performance and display settings
     'max_sequences_preview': 3,    # Number of sequences to show in file preview
@@ -68,17 +68,17 @@ ANALYSIS_CONFIG = {
 # Three-tier hierarchical chunking for genome-scale analysis
 # Automatically selects optimal strategy based on sequence size
 CHUNKING_CONFIG = {
-    # Micro-tier (base analysis level) - ALWAYS USE 50KB CHUNKS
-    'micro_chunk_size': 50_000,       # 50KB chunks for fast analysis
-    'micro_overlap': 2_000,           # 2KB overlap to catch boundary motifs (optimized)
+    # Micro-tier (base analysis level) - ALWAYS USE 50Kbp CHUNKS
+    'micro_chunk_size': 50_000,       # 50Kbp chunks for fast analysis
+    'micro_overlap': 2_000,           # 2Kbp overlap to catch boundary motifs (optimized)
     
-    # Meso-tier (memory management level) - ALWAYS USE 50KB CHUNKS
-    'meso_chunk_size': 50_000,        # 50KB chunks for consistency
-    'meso_overlap': 2_000,            # 2KB overlap between meso-chunks (optimized)
+    # Meso-tier (memory management level) - ALWAYS USE 50Kbp CHUNKS
+    'meso_chunk_size': 50_000,        # 50Kbp chunks for consistency
+    'meso_overlap': 2_000,            # 2Kbp overlap between meso-chunks (optimized)
     
-    # Macro-tier (parallelization level) - ALWAYS USE 50KB CHUNKS
-    'macro_chunk_size': 50_000,       # 50KB chunks for consistency
-    'macro_overlap': 2_000,           # 2KB overlap between macro-chunks (optimized)
+    # Macro-tier (parallelization level) - ALWAYS USE 50Kbp CHUNKS
+    'macro_chunk_size': 50_000,       # 50Kbp chunks for consistency
+    'macro_overlap': 2_000,           # 2Kbp overlap between macro-chunks (optimized)
     
     # Adaptive thresholds for automatic strategy selection
     'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED

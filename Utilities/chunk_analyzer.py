@@ -7,7 +7,7 @@
 
 DESCRIPTION:
     Implements chunk-based genome analysis with deduplication at boundaries.
-    Analyzes genomes in 50KB chunks with 2KB overlap to handle motifs that
+    Analyzes genomes in 50Kbp chunks with 2Kbp overlap to handle motifs that
     span chunk boundaries without duplication.
 
 ARCHITECTURE:
@@ -41,8 +41,8 @@ class ChunkAnalyzer:
     Automatically deduplicates motifs found in overlap regions.
     
     Features:
-        - Configurable chunk size (default: 50KB)
-        - Configurable overlap (default: 2KB, optimized for performance)
+        - Configurable chunk size (default: 50Kbp)
+        - Configurable overlap (default: 2Kbp, optimized for performance)
         - Automatic boundary deduplication
         - Progress callbacks for UI integration
         - Aggressive garbage collection
@@ -67,8 +67,8 @@ class ChunkAnalyzer:
     def __init__(
         self,
         sequence_storage,
-        chunk_size: int = 50_000,       # ALWAYS use 50KB chunks
-        overlap: int = 2_000,           # 2KB overlap (optimized)
+        chunk_size: int = 50_000,       # ALWAYS use 50Kbp chunks
+        overlap: int = 2_000,           # 2Kbp overlap (optimized)
         use_parallel: bool = True,
         max_workers: Optional[int] = None,
         use_adaptive: bool = False
@@ -78,8 +78,8 @@ class ChunkAnalyzer:
         
         Args:
             sequence_storage: UniversalSequenceStorage instance
-            chunk_size: Size of each chunk in base pairs (default: 50KB - ALWAYS use 50KB chunks)
-            overlap: Overlap between chunks in base pairs (default: 2KB, optimized for performance)
+            chunk_size: Size of each chunk in base pairs (default: 50Kbp - ALWAYS use 50Kbp chunks)
+            overlap: Overlap between chunks in base pairs (default: 2Kbp, optimized for performance)
             use_parallel: Enable parallel processing of chunks (default: True)
             max_workers: Maximum number of parallel workers (default: CPU count - 1)
             use_adaptive: Enable triple adaptive chunking strategy (default: False)
