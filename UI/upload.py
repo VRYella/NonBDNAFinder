@@ -219,7 +219,15 @@ def calculate_gc_percentage(sequences: list) -> float:
 
 def clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                 detailed_progress_placeholder, timer_placeholder):
-    """Helper function to clear all analysis UI placeholders during error handling"""
+    """
+    Helper function to clear all analysis UI placeholders during error handling.
+    
+    Args:
+        progress_placeholder: Streamlit placeholder for progress bar
+        status_placeholder: Streamlit placeholder for status messages
+        detailed_progress_placeholder: Streamlit placeholder for detailed progress info
+        timer_placeholder: Streamlit placeholder for timer/elapsed time display
+    """
     progress_placeholder.empty()
     status_placeholder.empty()
     detailed_progress_placeholder.empty()
@@ -2047,9 +2055,8 @@ def render():
                 clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                           detailed_progress_placeholder, timer_placeholder)
                 
-                # Log detailed error for debugging
-                logger.error(f"IndexError during analysis: {str(e)}")
-                logger.error(f"Traceback: {traceback.format_exc()}")
+                # Log detailed error for debugging (logger.exception automatically includes traceback)
+                logger.exception("IndexError during analysis")
                 
                 # User-friendly error message with actionable guidance
                 st.error(
@@ -2076,9 +2083,8 @@ def render():
                 clear_analysis_placeholders(progress_placeholder, status_placeholder, 
                                           detailed_progress_placeholder, timer_placeholder)
                 
-                # Log the error for debugging
-                logger.error(f"Unexpected error during analysis: {str(e)}")
-                logger.error(f"Traceback: {traceback.format_exc()}")
+                # Log the error for debugging (logger.exception automatically includes traceback)
+                logger.exception("Unexpected error during analysis")
                 
                 # Display error to user
                 st.error(f"❌ **Analysis failed:** {str(e)}")
