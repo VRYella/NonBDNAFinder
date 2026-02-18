@@ -15,6 +15,7 @@ import gc
 import numpy as np
 import pandas as pd
 import logging
+import traceback
 
 from Utilities.config.text import UI_TEXT
 from Utilities.config.typography import FONT_CONFIG
@@ -2037,7 +2038,6 @@ def render():
                 timer_placeholder.empty()
                 
                 # Log detailed error for debugging
-                import traceback
                 logger.error(f"IndexError during analysis: {str(e)}")
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 
@@ -2069,7 +2069,6 @@ def render():
                 timer_placeholder.empty()
                 
                 # Log the error for debugging
-                import traceback
                 logger.error(f"Unexpected error during analysis: {str(e)}")
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 
