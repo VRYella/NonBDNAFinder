@@ -81,8 +81,8 @@ CHUNKING_CONFIG = {
     'macro_overlap': 2_000,           # 2Kbp overlap between macro-chunks (optimized)
     
     # Adaptive thresholds for automatic strategy selection
-    'direct_threshold': 50_000,              # <50KB: direct analysis (no chunking) - CORRECTED
-    'single_tier_threshold': 1_000_000,      # 50KB-1MB: micro-tier only - CORRECTED
+    'direct_threshold': 50_000,              # <50Kbp: direct analysis (no chunking) - CORRECTED
+    'single_tier_threshold': 1_000_000,      # 50Kbp-1MB: micro-tier only - CORRECTED
     'double_tier_threshold': 100_000_000,    # >=100MB: triple-tier begins (macro+meso+micro) - CORRECTED
     # 1MB-100MB: double-tier (meso+micro tiers)
     
