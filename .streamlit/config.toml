@@ -1,0 +1,25 @@
+# Streamlit Configuration for NonBDNAFinder
+# Performance Stabilization & Memory Optimization (100MB Ceiling)
+
+[server]
+# Maximum file upload size (100MB ceiling for optimal performance)
+maxUploadSize = 100
+
+# Enable file watcher for development
+fileWatcherType = "auto"
+
+# Increase message size limit for large result transfers
+maxMessageSize = 200
+
+[browser]
+# Automatically open browser on server start (development)
+gatherUsageStats = false
+
+[theme]
+# Use default theme (can be customized by user)
+base = "light"
+
+[runner]
+# Prevent long-running scripts from being interrupted
+magicEnabled = true
+fastReruns = true
