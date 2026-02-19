@@ -305,7 +305,9 @@ class ChunkAnalyzer:
                    f"chunk_size={self.chunk_size:,}, overlap={self.overlap:,})")
         
         # Choose processing mode based on configuration
-        if self.use_parallel and total_chunks > 1:
+        _run_parallel = self.use_parallel and total_chunks > 1
+
+        if _run_parallel:
             # Parallel processing mode
             logger.info(f"Using parallel processing with {self.max_workers} workers")
             logger.info(f"Processing {total_chunks} chunks in parallel batches")
@@ -325,97 +327,112 @@ class ChunkAnalyzer:
                     enabled_classes
                 ))
             
-            # Process chunks in parallel
+            # Process chunks in parallel, with fallback to sequential on any failure
             completed_chunks = 0
             all_chunk_results = {}
             
-            with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-                # Submit all chunks
-                future_to_chunk = {
-                    executor.submit(self._process_chunk_worker, data): idx
-                    for idx, data in enumerate(chunk_data)
-                }
-                
-                # Collect results as they complete
-                for future in as_completed(future_to_chunk):
-                    chunk_idx = future_to_chunk[future]
-                    try:
-                        chunk_start, adjusted_motifs = future.result()
-                        all_chunk_results[chunk_idx] = (chunk_start, adjusted_motifs)
-                        completed_chunks += 1
-                        
-                        logger.info(f"Chunk {completed_chunks}/{total_chunks} completed: "
-                                   f"detected {len(adjusted_motifs)} motifs at position {chunk_start:,}")
-                        
-                        # Update progress
-                        if progress_callback:
-                            progress_pct = (completed_chunks / total_chunks) * 100
-                            progress_callback(progress_pct)
-                            logger.info(f"Overall progress: {progress_pct:.1f}% ({completed_chunks}/{total_chunks} chunks)")
-                    except Exception as e:
-                        logger.error(f"Error processing chunk {chunk_idx}: {e}")
-                        # Re-raise with better context for debugging
-                        chunk_tuple = chunk_data[chunk_idx] if chunk_idx < len(chunk_data) else None
-                        chunk_pos = chunk_tuple[2] if chunk_tuple and len(chunk_tuple) > 2 else "unknown"
-                        raise RuntimeError(
-                            f"Failed to process chunk {chunk_idx + 1}/{total_chunks} "
-                            f"at position {chunk_pos}: {e}"
-                        ) from e
-            
-            # Process results in order and deduplicate
-            logger.info(f"Deduplicating motifs across {len(all_chunk_results)} chunk boundaries")
-            for chunk_idx in sorted(all_chunk_results.keys()):
-                chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
-                
-                # Validate chunk_data access with bounds checking
-                if chunk_idx >= len(chunk_data):
-                    logger.error(f"Missing chunk_data for chunk {chunk_idx}")
-                    continue
-                
-                chunk_tuple = chunk_data[chunk_idx]
-                if len(chunk_tuple) < 4:
-                    logger.error(f"Invalid chunk_data tuple for chunk {chunk_idx}: "
-                                f"expected 4+ elements, got {len(chunk_tuple)}")
-                    continue
-                
-                # Get chunk_end from original data (index 3 in the tuple)
-                chunk_end = chunk_tuple[3]
-                
-                # Filter out duplicates from overlap region
-                unique_motifs = []
-                duplicates_removed = 0
-                for motif in adjusted_motifs:
-                    motif_key = self._create_motif_key(motif)
+            try:
+                with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+                    # Submit all chunks
+                    future_to_chunk = {
+                        executor.submit(self._process_chunk_worker, data): idx
+                        for idx, data in enumerate(chunk_data)
+                    }
                     
-                    if motif_key not in overlap_motifs:
-                        unique_motifs.append(motif)
+                    # Collect results as they complete
+                    for future in as_completed(future_to_chunk):
+                        chunk_idx = future_to_chunk[future]
+                        try:
+                            chunk_start, adjusted_motifs = future.result()
+                            all_chunk_results[chunk_idx] = (chunk_start, adjusted_motifs)
+                            completed_chunks += 1
+                            
+                            logger.info(f"Chunk {completed_chunks}/{total_chunks} completed: "
+                                       f"detected {len(adjusted_motifs)} motifs at position {chunk_start:,}")
+                            
+                            # Update progress
+                            if progress_callback:
+                                progress_pct = (completed_chunks / total_chunks) * 100
+                                progress_callback(progress_pct)
+                                logger.info(f"Overall progress: {progress_pct:.1f}% ({completed_chunks}/{total_chunks} chunks)")
+                        except Exception as e:
+                            logger.error(f"Error processing chunk {chunk_idx}: {e}")
+                            chunk_tuple = chunk_data[chunk_idx] if chunk_idx < len(chunk_data) else None
+                            chunk_pos = chunk_tuple[2] if chunk_tuple and len(chunk_tuple) > 2 else "unknown"
+                            raise RuntimeError(
+                                f"Failed to process chunk {chunk_idx + 1}/{total_chunks} "
+                                f"at position {chunk_pos}: {e}"
+                            ) from e
+                
+                # Process results in order and deduplicate
+                logger.info(f"Deduplicating motifs across {len(all_chunk_results)} chunk boundaries")
+                for chunk_idx in sorted(all_chunk_results.keys()):
+                    chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
+                    
+                    # Validate chunk_data access with bounds checking
+                    if chunk_idx >= len(chunk_data):
+                        logger.error(f"Missing chunk_data for chunk {chunk_idx}")
+                        continue
+                    
+                    chunk_tuple = chunk_data[chunk_idx]
+                    if len(chunk_tuple) < 4:
+                        logger.error(f"Invalid chunk_data tuple for chunk {chunk_idx}: "
+                                    f"expected 4+ elements, got {len(chunk_tuple)}")
+                        continue
+                    
+                    # Get chunk_end from original data (index 3 in the tuple)
+                    chunk_end = chunk_tuple[3]
+                    
+                    # Filter out duplicates from overlap region
+                    unique_motifs = []
+                    duplicates_removed = 0
+                    for motif in adjusted_motifs:
+                        motif_key = self._create_motif_key(motif)
                         
-                        # If motif is in overlap region, track it for next chunk
-                        if self._is_in_overlap_region(motif, chunk_start, chunk_end, self.overlap):
-                            overlap_motifs.add(motif_key)
-                    else:
-                        duplicates_removed += 1
+                        if motif_key not in overlap_motifs:
+                            unique_motifs.append(motif)
+                            
+                            # If motif is in overlap region, track it for next chunk
+                            if self._is_in_overlap_region(motif, chunk_start, chunk_end, self.overlap):
+                                overlap_motifs.add(motif_key)
+                        else:
+                            duplicates_removed += 1
+                    
+                    # Save results to disk
+                    results_storage.append_batch(unique_motifs)
+                    
+                    logger.info(f"Chunk {chunk_idx + 1}: {len(adjusted_motifs)} motifs detected, "
+                               f"{len(unique_motifs)} unique after deduplication "
+                               f"({duplicates_removed} duplicates removed)")
+                    
+                    # Free memory for processed chunk results
+                    del all_chunk_results[chunk_idx]
+                    del adjusted_motifs
+                    del unique_motifs
+                    gc.collect()
                 
-                # Save results to disk
-                results_storage.append_batch(unique_motifs)
-                
-                logger.info(f"Chunk {chunk_idx + 1}: {len(adjusted_motifs)} motifs detected, "
-                           f"{len(unique_motifs)} unique after deduplication "
-                           f"({duplicates_removed} duplicates removed)")
-                
-                # Free memory for processed chunk results
-                del all_chunk_results[chunk_idx]
-                del adjusted_motifs
-                del unique_motifs
+                # Final cleanup
+                del all_chunk_results
+                del chunk_data
                 gc.collect()
-            
-            # Final cleanup
-            del all_chunk_results
-            del chunk_data
-            gc.collect()
-            
-        else:
-            # Sequential processing mode (original code)
+
+            except Exception as e:
+                logger.warning(
+                    f"Parallel chunk analysis failed ({type(e).__name__}: {e}), "
+                    f"falling back to sequential processing"
+                )
+                # Reset state for clean sequential fallback.
+                # all_chunk_results and overlap_motifs may be partially populated;
+                # reset them so the sequential path starts fresh.
+                # chunk_data is freed here; sequential path uses iter_chunks() directly.
+                _run_parallel = False
+                all_chunk_results = {}
+                overlap_motifs = set()
+                del chunk_data  # sequential path uses iter_chunks(), not chunk_data
+                gc.collect()
+
+        if not _run_parallel:
+            # Sequential processing mode (also used as fallback when parallel fails)
             chunk_num = 0
             for chunk_seq, chunk_start, chunk_end in self.sequence_storage.iter_chunks(
                 seq_id, self.chunk_size, self.overlap
