@@ -369,6 +369,12 @@ The application uses a clean, modular architecture with clear separation of conc
 - **[Tool Documentation](./Consolidated_Writeup/NonBDNAFinder_Tool_Documentation.md)**: Technical documentation
 
 ### Technical Guides
+- **[Detector Reference Guide](./DETECTOR_REFERENCE.md)**: ⭐ **NEW** - Comprehensive tabular reference for all 11 detector classes
+  - Detection methods, scoring systems, and parameters for each class
+  - Complete subclass documentation (24+ variants)
+  - Normalization methods and output fields
+  - Disease associations and clinical thresholds
+  - Performance optimizations and acceleration methods
 - **[Output Schema](./OUTPUT_SCHEMA.md)**: Minimal reporting format (if available)
 - **[Motif Classification](./MOTIF_CLASSIFICATION.md)**: Canonical taxonomy system (if available)
 - **[Performance Improvements](./docs/changelog/PERFORMANCE_IMPROVEMENTS.md)**: Speed and memory improvements
