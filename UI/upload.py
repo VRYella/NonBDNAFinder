@@ -956,6 +956,10 @@ def render():
         # ============================================================
         # RUN AND RESET BUTTONS - Inside Detection Scope Section
         # ============================================================
+        # Initialize analysis_done flag if not present (idempotent run button)
+        if "analysis_done" not in st.session_state:
+            st.session_state.analysis_done = False
+        
         st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
         
         # Check if valid input is present (sequences AND at least one class selected)
@@ -1068,9 +1072,9 @@ def render():
     # Support both disk storage and legacy in-memory mode
     has_sequences = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
     has_valid_input = has_sequences and bool(st.session_state.get('selected_classes'))
-        
-        # Placeholder for progress area
-        progress_placeholder = st.empty()
+    
+    # Placeholder for progress area
+    progress_placeholder = st.empty()
     
     # ========== RUN ANALYSIS BUTTON LOGIC ========== 
     # Only run if button clicked AND not already done (idempotent)
