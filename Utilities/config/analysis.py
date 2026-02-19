@@ -22,7 +22,7 @@ TWO DIFFERENT thresholds control TWO DIFFERENT features:
 2. SEQUENCE CHUNKING THRESHOLD (in this config):
    - chunk_threshold = 1,000,000 bp (1MB)  
    - Triggers sequence splitting for sequences > 1MB
-   - Splits into 5MB chunks using ProcessPoolExecutor
+   - Splits into 50KB chunks using ProcessPoolExecutor
    - Updated to 1MB in PR#7 (was 50KB)
 
 PERFORMANCE BEHAVIOR

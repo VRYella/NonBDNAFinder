@@ -10,8 +10,8 @@ DESCRIPTION:
     Automatically selects optimal chunking strategy based on sequence size.
 
 ARCHITECTURE:
-    - Tier 1 (Macro): 50MB chunks - Distributed across CPU cores
-    - Tier 2 (Meso): 5MB chunks - Memory management layer
+    - Tier 1 (Macro): 50KB chunks - Distributed across CPU cores
+    - Tier 2 (Meso): 50KB chunks - Memory management layer
     - Tier 3 (Micro): 50KB chunks - Fast analysis with 2KB overlap
     
 ADAPTIVE STRATEGY:
