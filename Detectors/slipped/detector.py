@@ -268,48 +268,53 @@ class SlippedDNADetector(BaseMotifDetector):
         """Return empty patterns; uses optimized k-mer scanner for detection."""
         return {"short_tandem_repeats": [], "direct_repeats": []}
 
+    # Module-level cache for compiled tandem-repeat patterns (keyed by (k, min_copies))
+    _TR_PATTERNS: Dict[tuple, Any] = {}
+
     def find_all_tandem_repeats(self, sequence: str) -> List[Dict[str, Any]]:
-        """Unified tandem repeat finder for k=1 to MAX_UNIT_SIZE. Efficient algorithmic detection, no catastrophic backtracking. Returns candidate repeat dicts with raw data."""
+        """Unified tandem repeat finder for k=1 to MAX_UNIT_SIZE.
+
+        Uses pre-compiled regex patterns for each unit size instead of nested
+        Python while-loops, eliminating O(k×n) Python-level iteration overhead
+        and avoiding spurious single-copy "candidates" that were previously
+        created whenever k >= MIN_TRACT_LENGTH.
+
+        The pattern ``(.{k})\\1{m-1,}`` requires at least *m* consecutive exact
+        copies of a k-character unit, where m = max(2, ceil(MIN_TRACT_LENGTH/k)).
+        This is semantically identical to the previous double-loop but runs at
+        C speed via the ``re`` module.
+        """
         seq = sequence.upper()
         n = len(seq)
         candidates = []
-        
+
         for k in range(1, min(self.MAX_UNIT_SIZE + 1, n // 2)):
-            # Slide window across sequence looking for repeats
-            current_pos = 0
-            while current_pos < n - k:
-                unit = seq[current_pos:current_pos+k]
-                
-                # Skip units with ambiguous bases
+            # Minimum copy count: at least 2 AND enough copies to meet MIN_TRACT_LENGTH
+            min_copies = max(2, math.ceil(self.MIN_TRACT_LENGTH / k))
+
+            key = (k, min_copies)
+            if key not in SlippedDNADetector._TR_PATTERNS:
+                SlippedDNADetector._TR_PATTERNS[key] = re.compile(
+                    r'(.{' + str(k) + r'})\1{' + str(min_copies - 1) + r',}'
+                )
+            pattern = SlippedDNADetector._TR_PATTERNS[key]
+
+            for m in pattern.finditer(seq):
+                unit = m.group(1)
                 if 'N' in unit:
-                    current_pos += 1
                     continue
-                
-                # Count consecutive copies of this unit
-                copies = 1
-                repeat_end_pos = current_pos + k
-                while repeat_end_pos + k <= n and seq[repeat_end_pos:repeat_end_pos+k] == unit:
-                    copies += 1
-                    repeat_end_pos += k
-                
-                tract_length = copies * k
-                if tract_length >= self.MIN_TRACT_LENGTH:
-                    # Record this candidate
-                    candidates.append({
-                        'start': current_pos,
-                        'end': repeat_end_pos,
-                        'length': tract_length,
-                        'unit': unit,
-                        'unit_size': k,
-                        'copies': copies,
-                        'sequence': seq[current_pos:repeat_end_pos]
-                    })
-                    
-                    # Skip past this repeat to avoid overlapping detections
-                    current_pos = repeat_end_pos
-                else:
-                    current_pos += 1
-        
+                full_seq = m.group(0)
+                copies = len(full_seq) // k
+                candidates.append({
+                    'start': m.start(),
+                    'end': m.end(),
+                    'length': len(full_seq),
+                    'unit': unit,
+                    'unit_size': k,
+                    'copies': copies,
+                    'sequence': full_seq,
+                })
+
         return candidates
     
     def apply_stringent_criteria(self, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
