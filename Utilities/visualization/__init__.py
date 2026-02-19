@@ -53,6 +53,14 @@ from Utilities.visualization.standards import (
 )
 
 # =============================================================================
+# STACKED BAR VISUALIZATION - New Class → Subclass plot
+# =============================================================================
+from Utilities.visualization.stacked_bar_class_subclass import (
+    plot_stacked_bar_class_subclass,
+    plot_nested_pie_chart,  # Backward-compatible wrapper
+)
+
+# =============================================================================
 # DENSITY CALCULATION FUNCTIONS
 # =============================================================================
 from Utilities.utilities import (
