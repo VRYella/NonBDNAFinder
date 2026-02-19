@@ -46,6 +46,11 @@ __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
 # This is SEPARATE from sequence chunking threshold (1MB in config/UI)
 CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 2000
 
+# === SEQUENCE CHUNKING THRESHOLD ===
+# SEQUENCE_CHUNKING_THRESHOLD = 1MB triggers sequence splitting into chunks
+# For sequences > 1MB, splits into 50KB chunks with 2KB overlap for memory efficiency
+SEQUENCE_CHUNKING_THRESHOLD = 1_000_000  # 1MB
+
 # Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
 # MAX_DETECTOR_WORKERS limited to 9 because there are exactly 9 detector types in the system
 USE_PARALLEL_DETECTORS = True; MAX_DETECTOR_WORKERS = min(9, os.cpu_count() or 4)  # Up to 9 detectors (one per detector type)
@@ -371,7 +376,7 @@ def analyze_sequence(sequence: str, sequence_name: str = "sequence", use_fast_mo
         raise TypeError(f"Sequence must be string, got {type(sequence)}")
     
     seq_len = len(sequence); chunk_size = chunk_size or DEFAULT_CHUNK_SIZE; chunk_overlap = chunk_overlap or DEFAULT_CHUNK_OVERLAP
-    if use_chunking is None: use_chunking = seq_len > CHUNK_THRESHOLD
+    if use_chunking is None: use_chunking = seq_len > SEQUENCE_CHUNKING_THRESHOLD
     if not use_chunking or seq_len <= chunk_size:
         if use_fast_mode:
             try: from parallel_scanner import analyze_sequence_parallel; return analyze_sequence_parallel(sequence, sequence_name, use_parallel=True, enabled_classes=enabled_classes)
