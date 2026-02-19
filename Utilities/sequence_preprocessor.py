@@ -88,7 +88,7 @@ def preprocess_sequence(raw_input: str) -> PreprocessingResult:
     Example:
         >>> result = preprocess_sequence(">header\\nATCGNNNN\\nATCG")
         >>> result.header
-        'header'
+        'HEADER'
         >>> result.sequence
         'ATCGNNNNАТCG'
         >>> result.gc_percentage

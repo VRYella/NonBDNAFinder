@@ -54,14 +54,14 @@ def _count_bases(seq: str) -> tuple:
     """
     a_count = t_count = g_count = c_count = 0
     
-    for c in seq:
-        if c in {'A', 'a'}:
+    for base in seq:
+        if base in {'A', 'a'}:
             a_count += 1
-        elif c in {'T', 't'}:
+        elif base in {'T', 't'}:
             t_count += 1
-        elif c in {'G', 'g'}:
+        elif base in {'G', 'g'}:
             g_count += 1
-        elif c in {'C', 'c'}:
+        elif base in {'C', 'c'}:
             c_count += 1
     
     return a_count, t_count, g_count, c_count
