@@ -4719,14 +4719,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
                          figsize: Tuple[float, float] = None,
                          **kwargs) -> plt.Figure:
     """
-    Create stacked bar chart for Class → Subclass visualization.
-    
-    NOTE: This function now redirects to plot_stacked_bar_class_subclass for 
-    improved clarity and biological ordering. The nested pie chart has been 
-    replaced with a stacked bar plot.
-                         exclude_classes: List[str] = None) -> plt.Figure:
-    """
-    Create stacked bar chart showing Class → Subclass hierarchy.
+    Create stacked bar chart for Class -> Subclass visualization.
     
     DEPRECATED: This function now redirects to plot_stacked_bar_class_subclass()
     for improved clarity and publication-quality visualization.
@@ -4742,27 +4735,14 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
         title: Plot title
         figsize: Figure size (width, height) in inches
         **kwargs: Additional arguments passed to plot_stacked_bar_class_subclass
-        exclude_classes: Optional list of class names to exclude from plot
         
     Returns:
         Matplotlib figure object (publication-ready stacked bar chart)
     """
     from Utilities.visualization.stacked_bar_class_subclass import plot_stacked_bar_class_subclass
-    if figsize is not None: kwargs['figsize'] = figsize
+    if figsize is not None:
+        kwargs['figsize'] = figsize
     return plot_stacked_bar_class_subclass(motifs, title=title, **kwargs)
-    # Redirect to new stacked bar implementation
-    from Utilities.visualization.stacked_bar_class_subclass import plot_stacked_bar_class_subclass
-    
-    # Adjust title if it's the default
-    if title == "Motif Distribution":
-        title = "Motif Distribution: Class → Subclass"
-    
-    return plot_stacked_bar_class_subclass(
-        motifs=motifs,
-        title=title,
-        figsize=figsize,
-        exclude_classes=exclude_classes
-    )
 
 
 # =============================================================================
