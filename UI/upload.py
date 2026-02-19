@@ -1770,12 +1770,20 @@ def render():
                 # Generate summary
                 summary = []
                 for i, results in enumerate(all_results):
-                    seq = st.session_state.seqs[i]
-                    stats = get_basic_stats(seq, results)
+                    # Support both disk storage and legacy in-memory modes
+                    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                        # Disk storage mode: get metadata
+                        seq_id = st.session_state.seq_ids[i]; metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                        name = st.session_state.names[i]; seq_length = metadata['length']; gc_content = metadata['gc_content']
+                    else:
+                        # Legacy in-memory mode
+                        seq = st.session_state.seqs[i]; name = st.session_state.names[i]
+                        stats = get_basic_stats(seq, results); seq_length = stats['Length']; gc_content = stats['GC%']
+                    
                     summary.append({
-                        'Sequence': st.session_state.names[i],
-                        'Length': stats['Length'],
-                        'GC Content': f"{stats['GC%']:.1f}%",
+                        'Sequence': name,
+                        'Length': seq_length,
+                        'GC Content': f"{gc_content:.1f}%",
                         'Motifs Found': len(results),
                         'Unique Types': len(set(m.get('Type', 'Unknown') for m in results)),
                         'Avg Score': f"{np.mean([m.get('Score', 0) for m in results]):.3f}" if results else "0.000"
@@ -1806,14 +1814,20 @@ def render():
                 total_viz_count = 0
                 
                 # Reduce UI updates by batching - only update every N sequences or at end
-                UPDATE_INTERVAL = max(1, len(st.session_state.seqs) // 5)  # Update 5 times max
+                # Support both storage modes for UPDATE_INTERVAL calculation
+                num_seqs = len(st.session_state.seq_ids) if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids') else len(st.session_state.seqs)
+                UPDATE_INTERVAL = max(1, num_seqs // 5)  # Update 5 times max
                 
-                for seq_idx, (seq, name, motifs) in enumerate(zip(st.session_state.seqs, st.session_state.names, all_results)):
-                    sequence_length = len(seq)
+                for seq_idx, results in enumerate(all_results):
+                    # Support both storage modes
+                    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                        seq_id = st.session_state.seq_ids[seq_idx]; metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                        sequence_length = metadata['length']; name = st.session_state.names[seq_idx]
+                    else:
+                        seq = st.session_state.seqs[seq_idx]; sequence_length = len(seq); name = st.session_state.names[seq_idx]
                     
-                    # Show all motifs including hybrid/cluster motifs
-                    # No filtering is applied - all results are included in visualizations
-                    filtered_motifs = motifs
+                    # Continue with existing motif filtering logic
+                    filtered_motifs = results
                     
                     if not filtered_motifs:
                         continue
