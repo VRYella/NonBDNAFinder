@@ -52,7 +52,7 @@ for each motif in sorted_by_position(motifs):
 | **500KB (no chunk)** | ✅ Works | ✅ Works | No change |
 | **1.5MB (chunking)** | ❌ 0 motifs | ✅ 245 motifs | **Fixed!** |
 | **Throughput** | 168K bp/s | 168K bp/s | No impact |
-| **Memory** | 690 MB | 690 MB | No impact |
+| **Memory** | ~70 MB | ~70 MB | No impact |
 
 ## Testing
 

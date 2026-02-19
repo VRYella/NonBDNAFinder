@@ -78,14 +78,21 @@ class TestChunkingDeduplication(unittest.TestCase):
         """Test and compare performance for sequences below and above 1MB threshold."""
         import time
         
+        # Use pattern-rich sequences for meaningful motif detection
+        gquad = "GGGTAGGGTAGGGTAGGG"
+        filler = "ATCGATCGATCGATCG"
+        pattern = gquad + filler * 10
+        
         # 500KB sequence (no chunking)
-        seq_500kb = "ATCGATCG" * 62500  # 500,000 bp
+        target_500kb = 500_000
+        seq_500kb = (pattern * (target_500kb // len(pattern) + 1))[:target_500kb]
         start = time.time()
         motifs_500kb = analyze_sequence(seq_500kb, "test_500kb")
         time_500kb = time.time() - start
         
         # 1.5MB sequence (with chunking)
-        seq_1_5mb = "ATCGATCG" * 187500  # 1,500,000 bp
+        target_1_5mb = 1_500_000
+        seq_1_5mb = (pattern * (target_1_5mb // len(pattern) + 1))[:target_1_5mb]
         start = time.time()
         motifs_1_5mb = analyze_sequence(seq_1_5mb, "test_1_5mb")
         time_1_5mb = time.time() - start
