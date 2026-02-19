@@ -40,6 +40,33 @@ def revcomp(seq: str) -> str:
     return seq.translate(_REVCOMP_TABLE)[::-1]
 
 
+def _count_bases(seq: str) -> tuple:
+    """
+    Single-pass base counting for performance optimization.
+    
+    Args:
+        seq: DNA sequence string (case-insensitive)
+        
+    Returns:
+        Tuple of (a_count, t_count, g_count, c_count)
+        
+    Performance: O(n) single pass through sequence
+    """
+    a_count = t_count = g_count = c_count = 0
+    
+    for c in seq:
+        if c in {'A', 'a'}:
+            a_count += 1
+        elif c in {'T', 't'}:
+            t_count += 1
+        elif c in {'G', 'g'}:
+            g_count += 1
+        elif c in {'C', 'c'}:
+            c_count += 1
+    
+    return a_count, t_count, g_count, c_count
+
+
 def calc_gc_content(seq: str) -> float:
     """
     Calculate GC content percentage using genomic standard formula.
@@ -66,11 +93,8 @@ def calc_gc_content(seq: str) -> float:
     if not seq:
         return 0.0
     
-    # Count each valid base separately using O(1) set membership test
-    a_count = sum(1 for c in seq if c in _AT_BASES and c in {'A', 'a'})
-    t_count = sum(1 for c in seq if c in _AT_BASES and c in {'T', 't'})
-    g_count = sum(1 for c in seq if c in _GC_BASES and c in {'G', 'g'})
-    c_count = sum(1 for c in seq if c in _GC_BASES and c in {'C', 'c'})
+    # Single-pass base counting (O(n) performance)
+    a_count, t_count, g_count, c_count = _count_bases(seq)
     
     # Calculate valid base total (denominator)
     valid_bases = a_count + t_count + g_count + c_count
@@ -108,11 +132,8 @@ def calc_at_content(seq: str) -> float:
     if not seq:
         return 0.0
     
-    # Count each valid base separately using O(1) set membership test
-    a_count = sum(1 for c in seq if c in _AT_BASES and c in {'A', 'a'})
-    t_count = sum(1 for c in seq if c in _AT_BASES and c in {'T', 't'})
-    g_count = sum(1 for c in seq if c in _GC_BASES and c in {'G', 'g'})
-    c_count = sum(1 for c in seq if c in _GC_BASES and c in {'C', 'c'})
+    # Single-pass base counting (O(n) performance)
+    a_count, t_count, g_count, c_count = _count_bases(seq)
     
     # Calculate valid base total (denominator)
     valid_bases = a_count + t_count + g_count + c_count
