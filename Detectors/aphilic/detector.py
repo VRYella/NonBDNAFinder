@@ -54,9 +54,35 @@ logger = logging.getLogger(__name__)
 MIN_SUM_LOG2 = 0.5  # Minimum sum_log2 for A-philic regions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.5         │ Minimal A-philic propensity            │
+# │ RAW_MAX      │ 0.95        │ High A-tract density                   │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'linear'    │ Linear interpolation                   │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+APHILIC_RAW_SCORE_MIN = 0.5; APHILIC_RAW_SCORE_MAX = 0.95
+APHILIC_NORMALIZED_MIN = 1.0; APHILIC_NORMALIZED_MAX = 3.0
+APHILIC_NORMALIZATION_METHOD = 'linear'
+APHILIC_SCORE_REFERENCE = 'Gorin et al. 1995, Vinogradov et al. 2003'
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 class APhilicDetector(BaseMotifDetector):
     """A-philic DNA detector using 10-mer scoring table."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = APHILIC_RAW_SCORE_MIN
+    RAW_SCORE_MAX = APHILIC_RAW_SCORE_MAX
+    NORMALIZED_MIN = APHILIC_NORMALIZED_MIN
+    NORMALIZED_MAX = APHILIC_NORMALIZED_MAX
+    NORMALIZATION_METHOD = APHILIC_NORMALIZATION_METHOD
+    SCORE_REFERENCE = APHILIC_SCORE_REFERENCE
 
     MIN_SUM_LOG2 = MIN_SUM_LOG2
 
@@ -111,7 +137,7 @@ class APhilicDetector(BaseMotifDetector):
                 motifs.append({
                     'ID': f"{sequence_name}_APHIL_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                     'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': region['length'],
-                    'Sequence': motif_seq, 'Score': round(region['sum_log2'], 3), 'Strand': '+',
+                    'Sequence': motif_seq, 'Raw_Score': round(region['sum_log2'], 3), 'Score': self._normalize_score(region['sum_log2']), 'Strand': '+',
                     'Method': 'A-philic_detection', 'Pattern_ID': f'APHIL_{i+1}',
                     'Contributing_10mers': region.get('n_10mers', 0),
                     'Mean_10mer_Log2': round(region.get('mean_log2_per10mer', 0), 3),

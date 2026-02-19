@@ -186,8 +186,10 @@ class NonBScanner:
         filtered_motifs = self._remove_overlaps(all_motifs)
         hybrid_motifs = self._detect_hybrid_motifs(filtered_motifs, sequence)
         cluster_motifs = self._detect_clusters(filtered_motifs, sequence)
-        # Combine and do final overlap removal only once
-        final_motifs = normalize_motif_scores(filtered_motifs + hybrid_motifs + cluster_motifs); final_motifs.sort(key=lambda x: x.get('Start', 0))
+        # Combine and sort (normalization now handled by detectors)
+        # NOTE: normalize_motif_scores() deprecated - detectors self-normalize scores
+        final_motifs = filtered_motifs + hybrid_motifs + cluster_motifs
+        final_motifs.sort(key=lambda x: x.get('Start', 0))
         return final_motifs
     
     def _analyze_parallel_detectors(self, sequence: str, sequence_name: str, detectors_to_run: Dict, progress_callback: Optional[Callable] = None) -> List[Dict[str, Any]]:

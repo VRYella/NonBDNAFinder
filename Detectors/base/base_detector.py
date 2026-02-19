@@ -26,6 +26,15 @@ from Utilities.detectors_utils import (
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 DEFAULT_MIN_SCORE_THRESHOLD = 0.5
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Default - Override in subclasses)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Universal normalization scale: 1.0 (weak) → 3.0 (strong)
+# Subclasses should override these with class-specific values
+DEFAULT_RAW_SCORE_MIN = 0.0; DEFAULT_RAW_SCORE_MAX = 1.0
+DEFAULT_NORMALIZED_MIN = 1.0; DEFAULT_NORMALIZED_MAX = 3.0
+DEFAULT_NORMALIZATION_METHOD = 'linear'  # Options: 'linear', 'log', 'g4hunter', 'zdna_cumulative'
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -36,9 +45,18 @@ class BaseMotifDetector(ABC):
     # Motif Output Structure:
     """
     
+    # Normalization parameters (override in subclasses)
+    RAW_SCORE_MIN = DEFAULT_RAW_SCORE_MIN
+    RAW_SCORE_MAX = DEFAULT_RAW_SCORE_MAX
+    NORMALIZED_MIN = DEFAULT_NORMALIZED_MIN
+    NORMALIZED_MAX = DEFAULT_NORMALIZED_MAX
+    NORMALIZATION_METHOD = DEFAULT_NORMALIZATION_METHOD
+    SCORE_REFERENCE = 'Override in subclass'
+    
     def __init__(self):
         self.patterns = self.get_patterns()
         self.compiled_patterns = self._compile_patterns()
+        self._last_raw_score = None  # Store raw score for motif dict creation
         # Detector execution audit - tracks detection pipeline
         self.audit = {
             'invoked': False,
@@ -166,6 +184,61 @@ class BaseMotifDetector(ABC):
             min_threshold = pattern_info[6]
             return score >= min_threshold
         return score >= DEFAULT_MIN_SCORE_THRESHOLD
+    
+    def _normalize_score(self, raw_score: float) -> float:
+        """
+        Convert raw detector-specific score to universal 1-3 scale.
+        
+        Universal Score Interpretation:
+        ┌────────────┬──────────────────┬─────────────────────────────────────┐
+        │ Score      │ Interpretation   │ Biological Meaning                  │
+        ├────────────┼──────────────────┼─────────────────────────────────────┤
+        │ 1.0 - 1.7  │ Weak/Conditional │ Low confidence, context-dependent   │
+        │ 1.7 - 2.3  │ Moderate         │ Reasonable confidence, likely valid │
+        │ 2.3 - 3.0  │ Strong/High      │ High confidence, well-characterized │
+        └────────────┴──────────────────┴─────────────────────────────────────┘
+        
+        Args:
+            raw_score: Raw detector-specific score
+            
+        Returns:
+            Normalized score in range [1.0, 3.0]
+        """
+        if self.NORMALIZATION_METHOD == 'linear':
+            # Linear interpolation: raw ∈ [RAW_MIN, RAW_MAX] → norm ∈ [1, 3]
+            clamped = max(self.RAW_SCORE_MIN, min(raw_score, self.RAW_SCORE_MAX))
+            if self.RAW_SCORE_MAX == self.RAW_SCORE_MIN:
+                return self.NORMALIZED_MIN
+            normalized = self.NORMALIZED_MIN + (clamped - self.RAW_SCORE_MIN) * \
+                        (self.NORMALIZED_MAX - self.NORMALIZED_MIN) / \
+                        (self.RAW_SCORE_MAX - self.RAW_SCORE_MIN)
+            return round(normalized, 2)
+        
+        elif self.NORMALIZATION_METHOD == 'log':
+            # Log scaling for cumulative scores (e.g., Z-DNA)
+            import math
+            log_raw = math.log10(max(1, raw_score))
+            log_min = math.log10(max(1, self.RAW_SCORE_MIN))
+            log_max = math.log10(self.RAW_SCORE_MAX)
+            if log_max == log_min:
+                return self.NORMALIZED_MIN
+            normalized = self.NORMALIZED_MIN + (log_raw - log_min) * \
+                        (self.NORMALIZED_MAX - self.NORMALIZED_MIN) / (log_max - log_min)
+            return round(max(self.NORMALIZED_MIN, min(normalized, self.NORMALIZED_MAX)), 2)
+        
+        elif self.NORMALIZATION_METHOD == 'g4hunter':
+            # G4Hunter special normalization (absolute values)
+            effective_score = abs(raw_score)
+            if effective_score < 0.5:
+                return 1.0
+            elif effective_score >= 1.0:
+                return min(3.0, 2.0 + (effective_score - 0.5) * 2.0)
+            else:
+                return round(1.0 + (effective_score - 0.5) * 2.0, 2)
+        
+        else:
+            # Fallback: no transformation
+            return round(raw_score, 2)
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get detector statistics"""

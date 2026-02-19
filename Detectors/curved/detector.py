@@ -23,9 +23,35 @@ MIN_AT_TRACT = 3; MAX_AT_WINDOW = None; PHASING_CENTER_SPACING = 11.0
 PHASING_TOL_LOW = 9.9; PHASING_TOL_HIGH = 11.1; MIN_APR_TRACTS = 3; LOCAL_LONG_TRACT = 7; SCORE_THRESHOLD = 0.1
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.1         │ Koo 1986 - minimal curvature threshold │
+# │ RAW_MAX      │ 0.95        │ Koo 1986 - strong curvature (APR)      │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'linear'    │ Linear interpolation                   │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+CURVED_RAW_SCORE_MIN = 0.1; CURVED_RAW_SCORE_MAX = 0.95
+CURVED_NORMALIZED_MIN = 1.0; CURVED_NORMALIZED_MAX = 3.0
+CURVED_NORMALIZATION_METHOD = 'linear'
+CURVED_SCORE_REFERENCE = 'Koo et al. 1986, Olson et al. 1998'
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 class CurvedDNADetector(BaseMotifDetector):
     """Curved DNA detector using A-tract and T-tract phasing patterns."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = CURVED_RAW_SCORE_MIN
+    RAW_SCORE_MAX = CURVED_RAW_SCORE_MAX
+    NORMALIZED_MIN = CURVED_NORMALIZED_MIN
+    NORMALIZED_MAX = CURVED_NORMALIZED_MAX
+    NORMALIZATION_METHOD = CURVED_NORMALIZATION_METHOD
+    SCORE_REFERENCE = CURVED_SCORE_REFERENCE
 
     MIN_AT_TRACT = MIN_AT_TRACT; MAX_AT_WINDOW = MAX_AT_WINDOW; PHASING_CENTER_SPACING = PHASING_CENTER_SPACING
     PHASING_TOL_LOW = PHASING_TOL_LOW; PHASING_TOL_HIGH = PHASING_TOL_HIGH; MIN_APR_TRACTS = MIN_APR_TRACTS
@@ -72,7 +98,7 @@ class CurvedDNADetector(BaseMotifDetector):
                 motifs.append({
                     'ID': f"{sequence_name}_CRV_APR_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                     'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': end_pos - start_pos,
-                    'Sequence': motif_seq, 'Score': round(apr.get('score', 0), 3), 'Strand': '+', 'Method': 'Curved_DNA_detection',
+                    'Sequence': motif_seq, 'Raw_Score': round(apr.get('score', 0), 3), 'Score': self._normalize_score(apr.get('score', 0)), 'Strand': '+', 'Method': 'Curved_DNA_detection',
                     'Pattern_ID': f'CRV_APR_{i+1}', 'A_Tracts': a_tracts, 'T_Tracts': t_tracts, 'Num_A_Tracts': len(a_tracts),
                     'Num_T_Tracts': len(t_tracts), 'A_Tract_Lengths': [len(t) for t in a_tracts],
                     'T_Tract_Lengths': [len(t) for t in t_tracts], 'GC_Content': round(gc_total, 2),
@@ -94,7 +120,7 @@ class CurvedDNADetector(BaseMotifDetector):
                 motifs.append({
                     'ID': f"{sequence_name}_CRV_TRACT_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                     'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': end_pos - start_pos,
-                    'Sequence': motif_seq, 'Score': round(tract.get('score', 0), 3), 'Strand': '+', 'Method': 'Curved_DNA_detection',
+                    'Sequence': motif_seq, 'Raw_Score': round(tract.get('score', 0), 3), 'Score': self._normalize_score(tract.get('score', 0)), 'Strand': '+', 'Method': 'Curved_DNA_detection',
                     'Pattern_ID': f'CRV_TRACT_{i+1}', 'Tract_Type': tract_type, 'Tract_Length': end_pos - start_pos,
                     'GC_Content': round(gc_total, 2), 'AT_Content': round(at_content, 2),
                     'Arm_Length': 'N/A',  # Not applicable for A/T-tract patterns

@@ -31,9 +31,35 @@ NN_ENERGY = {"AA": -1.0, "AC": -1.44, "AG": -1.28, "AT": -0.88, "CA": -1.45, "CC
              "GA": -1.30, "GC": -2.24, "GG": -1.84, "GT": -1.44, "TA": -0.58, "TC": -1.30, "TG": -1.45, "TT": -1.0}
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.5         │ Minimum palindrome stability           │
+# │ RAW_MAX      │ 0.95        │ Strong inverted repeat                 │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'linear'    │ Linear interpolation                   │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+CRUCIFORM_RAW_SCORE_MIN = 0.5; CRUCIFORM_RAW_SCORE_MAX = 0.95
+CRUCIFORM_NORMALIZED_MIN = 1.0; CRUCIFORM_NORMALIZED_MAX = 3.0
+CRUCIFORM_NORMALIZATION_METHOD = 'linear'
+CRUCIFORM_SCORE_REFERENCE = 'Lilley et al. 2000, Sinden et al. 1994'
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 class CruciformDetector(BaseMotifDetector):
     """Cruciform (thermodynamic inverted repeat) DNA detector using seed-and-extend indexing."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = CRUCIFORM_RAW_SCORE_MIN
+    RAW_SCORE_MAX = CRUCIFORM_RAW_SCORE_MAX
+    NORMALIZED_MIN = CRUCIFORM_NORMALIZED_MIN
+    NORMALIZED_MAX = CRUCIFORM_NORMALIZED_MAX
+    NORMALIZATION_METHOD = CRUCIFORM_NORMALIZATION_METHOD
+    SCORE_REFERENCE = CRUCIFORM_SCORE_REFERENCE
 
     MIN_ARM = MIN_ARM; MAX_ARM = MAX_ARM; MAX_LOOP = MAX_LOOP; MAX_MISMATCHES = MAX_MISMATCHES
     MAX_SEQUENCE_LENGTH = MAX_SEQUENCE_LENGTH; SCORE_THRESHOLD = SCORE_THRESHOLD
@@ -269,7 +295,8 @@ class CruciformDetector(BaseMotifDetector):
                 'End': end_pos,
                 'Length': end_pos - start_pos,
                 'Sequence': full_seq,
-                'Score': round(repeat['score'], 3),
+                'Raw_Score': round(repeat['score'], 3),  # Detector-specific scale
+                'Score': self._normalize_score(repeat['score']),  # Universal 1-3 scale
                 'Strand': '+',
                 'Method': 'Cruciform_detection',
                 'Pattern_ID': f'CRU_{i+1}',
