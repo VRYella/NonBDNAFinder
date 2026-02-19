@@ -743,10 +743,10 @@ def render():
     # ============================================================
     with right_col:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
+        <div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); 
                     padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
-                    border-left: 3px solid #3b82f6;'>
-            <h4 style='margin: 0; color: #1e3a8a; font-size: 0.95rem; font-weight: 600;'>
+                    border-left: 3px solid #8b5cf6;'>
+            <h4 style='margin: 0; color: #5b21b6; font-size: 0.95rem; font-weight: 600;'>
                 Detection Scope: Select Non-B DNA Motifs
             </h4>
         </div>
@@ -942,16 +942,93 @@ def render():
 
         if enabled_classes:
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            <div style='background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
                         padding: 6px 10px; border-radius: 6px; margin-top: 8px;
-                        border: 1px solid #bfdbfe; font-size: 0.78rem;'>
-                <span style='font-weight: 600; color: #1e40af;'>
+                        border: 1px solid #c4b5fd; font-size: 0.78rem;'>
+                <span style='font-weight: 600; color: #6d28d9;'>
                     {len(enabled_classes)} classes · {num_enabled}/{total_submotifs} submotifs
                 </span>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.warning("Select at least one submotif to enable analysis.")
+        
+        # ============================================================
+        # RUN AND RESET BUTTONS - Inside Detection Scope Section
+        # ============================================================
+        st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+        
+        # Check if valid input is present (sequences AND at least one class selected)
+        # Support both disk storage and legacy in-memory mode
+        has_sequences_inner = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
+        has_valid_input_inner = has_sequences_inner and bool(enabled_classes)
+        
+        # Create two columns for Run and Reset buttons (no clock)
+        col_run_inner, col_reset_inner = st.columns([3, 1])
+        
+        with col_run_inner:
+            # Primary action button with clear scientific terminology
+            if has_valid_input_inner and not st.session_state.analysis_done:
+                run_button = st.button(
+                    "🧬 Run Non-B DNA Analysis",
+                    type="primary",
+                    use_container_width=True,
+                    key="run_motif_analysis_main",
+                    help="Start analyzing uploaded sequences for Non-B DNA elements"
+                )
+            elif st.session_state.analysis_done:
+                # Show analysis complete status
+                st.markdown("""
+                <div role="status" aria-label="Analysis Complete"
+                     style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                            color: white; padding: 12px; 
+                            border-radius: 8px; text-align: center; font-weight: 600;
+                            font-size: 0.95rem;'>
+                    ✓ Analysis Complete — View results in 'Results' tab
+                </div>
+                """, unsafe_allow_html=True)
+                run_button = False
+            else:
+                # Disabled button appearance with accessibility
+                st.markdown(f"""
+                <div role="button" aria-disabled="true" aria-label="Run Analysis - Disabled"
+                     style='background: #e5e7eb; color: #9ca3af; padding: 12px; 
+                            border-radius: 8px; text-align: center; font-weight: 600;
+                            font-size: 0.95rem; cursor: not-allowed;'>
+                    🧬 Run Non-B DNA Analysis
+                </div>
+                <p style='text-align: center; color: #9ca3af; font-size: 0.75rem; margin-top: 4px;'>
+                    Upload sequences and select submotifs to enable
+                </p>
+                """, unsafe_allow_html=True)
+                run_button = False
+        
+        with col_reset_inner:
+            # Vibrant Reset button styling
+            st.markdown("""
+            <style>
+            div[data-testid="column"] button[kind="secondary"] {
+                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+                color: white !important;
+                border: none !important;
+                font-weight: 700 !important;
+            }
+            div[data-testid="column"] button[kind="secondary"]:hover {
+                background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
+                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4) !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            # Reset button to allow re-running analysis
+            if st.button("🔄 Reset", use_container_width=True, help="Clear results and reset", key="reset_button_inner"):
+                st.session_state.analysis_done = False
+                st.session_state.results = []
+                st.session_state.performance_metrics = None
+                st.session_state.cached_visualizations = {}
+                st.session_state.analysis_time = None
+                # analysis_mode is always "Submotif Level" (fixed), no reset needed
+                st.rerun()
+
     
         # ============================================================
         # ANALYSIS OPTIONS - Always ON, Hidden from UI
@@ -980,10 +1057,8 @@ def render():
         overlap_option = "Remove overlaps within subclasses"
     
     # ============================================================
-    # ANALYSIS EXECUTION - Full-Width Section Below Two Columns
-    # Clear visual and spatial separation from configuration
+    # ANALYSIS EXECUTION - Variable Setup
     # ============================================================
-    st.markdown("---")
     
     # Initialize analysis_done flag if not present (idempotent run button)
     if "analysis_done" not in st.session_state:
@@ -993,91 +1068,6 @@ def render():
     # Support both disk storage and legacy in-memory mode
     has_sequences = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
     has_valid_input = has_sequences and bool(st.session_state.get('selected_classes'))
-    
-    # Create a full-width container for the run button
-    run_button_container = st.container()
-    with run_button_container:
-        # Create three columns for Run, Reset buttons and Clock
-        col_run, col_reset, col_clock = st.columns([4, 1, 1])
-        
-        with col_run:
-            # Primary action button with clear scientific terminology
-            if has_valid_input and not st.session_state.analysis_done:
-                run_button = st.button(
-                    "Run Non-B DNA Analysis",
-                    type="primary",
-                    use_container_width=True,
-                    key="run_motif_analysis_main",
-                    help="Start analyzing uploaded sequences for Non-B DNA elements"
-                )
-            elif st.session_state.analysis_done:
-                # Show analysis complete status
-                st.markdown("""
-                <div role="status" aria-label="Analysis Complete"
-                     style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                            color: white; padding: 14px; 
-                            border-radius: 8px; text-align: center; font-weight: 600;
-                            font-size: 1rem;'>
-                    ✓ Analysis Complete — View results in 'Results' tab
-                </div>
-                """, unsafe_allow_html=True)
-                run_button = False
-            else:
-                # Disabled button appearance with accessibility
-                st.markdown(f"""
-                <div role="button" aria-disabled="true" aria-label="Run Analysis - Disabled"
-                     style='background: #e5e7eb; color: #9ca3af; padding: 14px; 
-                            border-radius: 8px; text-align: center; font-weight: 600;
-                            font-size: 1rem; cursor: not-allowed;'>
-                    Run Non-B DNA Analysis
-                </div>
-                <p style='text-align: center; color: #9ca3af; font-size: 0.8rem; margin-top: 6px;'>
-                    Upload sequences and select submotifs to enable
-                </p>
-                """, unsafe_allow_html=True)
-                run_button = False
-        
-        with col_reset:
-            # Vibrant Reset button styling
-            st.markdown("""
-            <style>
-            div[data-testid="column"]:nth-child(2) button {
-                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
-                color: white !important;
-                border: none !important;
-                font-weight: 700 !important;
-            }
-            div[data-testid="column"]:nth-child(2) button:hover {
-                background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
-                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4) !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            # Reset button to allow re-running analysis
-            if st.button("🔄 Reset", use_container_width=True, help="Clear results and reset"):
-                st.session_state.analysis_done = False
-                st.session_state.results = []
-                st.session_state.performance_metrics = None
-                st.session_state.cached_visualizations = {}
-                st.session_state.analysis_time = None
-                # analysis_mode is always "Submotif Level" (fixed), no reset needed
-                st.rerun()
-        
-        with col_clock:
-            # Display current time (page load time) as a clock
-            from datetime import datetime
-            current_time = datetime.now().strftime("%H:%M:%S")
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
-                        color: white; padding: 10px 8px; 
-                        border-radius: 8px; text-align: center; font-weight: 600;
-                        font-size: 0.9rem; height: 100%; display: flex; 
-                        flex-direction: column; justify-content: center;
-                        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);'>
-                <div style='font-size: 0.7rem; opacity: 0.9;'>🕐 Time</div>
-                <div style='font-family: monospace; font-size: 1rem;'>{current_time}</div>
-            </div>
-            """, unsafe_allow_html=True)
         
         # Placeholder for progress area
         progress_placeholder = st.empty()
@@ -1151,8 +1141,9 @@ def render():
             # ============================================================
             start_time = time.time()
             
-            # Show initial toast notification
-            st.toast("🧬 Starting Non-B DNA Analysis...", icon="🚀")
+            # Simple status message instead of toast
+            status_placeholder.info("🧬 Starting Non-B DNA Analysis...")
+
             
             # Define detector processes for display
             DETECTOR_PROCESSES = [
@@ -1276,7 +1267,7 @@ def render():
                     # ============================================================
                     # PARALLEL PROCESSING MODE - Multi-FASTA Optimization
                     # ============================================================
-                    st.info(f"🚀 Using parallel processing for {num_sequences} sequences")
+                    status_placeholder.info(f"🚀 Using parallel processing for {num_sequences} sequences")
                     
                     # Import helper functions
                     from Utilities.parallel_analysis_helper import (
@@ -1384,7 +1375,8 @@ def render():
                             all_results.append(results)
                             total_bp_processed += seq_length
                             
-                            st.toast(f"✅ {name}: {len(results):,} motifs", icon="✅")
+                            # Brief status update without popup
+                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs")
                         else:
                             st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
                             all_results.append([])
@@ -1418,7 +1410,7 @@ def render():
                             if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
                                 # Step 2: Chunking
                                 st.write(f"✓ Using chunk-based analysis (5MB chunks)")
-                                st.toast(f"📦 Chunking large sequence: {name}", icon="📦")
+                                status_placeholder.info(f"📦 Chunking large sequence: {name}")
                                 
                                 # Create chunk progress callback with status updates
                                 chunk_progress = {'current': 0, 'total': 0}
@@ -1542,8 +1534,8 @@ def render():
                             # Update status to complete
                             status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
                             
-                            # Show toast notification for completion
-                            st.toast(f"✅ {name}: {len(results):,} motifs found", icon="✅")
+                            # Brief status update without popup
+                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs found")
                         
                         all_results.append(results)
                         
@@ -1640,8 +1632,8 @@ def render():
                             # Update status to complete
                             status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
                             
-                            # Show toast notification
-                            st.toast(f"✅ {name}: {len(results):,} motifs found", icon="✅")
+                            # Brief status update without popup
+                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs found")
                         
                         all_results.append(results)
                     
@@ -2019,10 +2011,10 @@ def render():
                         help="Memory usage at completion"
                     )
                 
-                # Final toast notification
-                st.toast(
-                    f"🎉 Analysis complete! {sum(len(r) for r in all_results):,} motifs found in {format_time(total_time)}",
-                    icon="🎉"
+                # Summary at the end (no popup)
+                status_placeholder.empty()  # Clear the status
+                st.success(
+                    f"🎉 Analysis complete! {sum(len(r) for r in all_results):,} motifs found in {format_time(total_time)}"
                 )
                 
                 st.session_state.analysis_status = "Complete"
@@ -2080,7 +2072,7 @@ def render():
                     "- Selected motif classes produced no detectable patterns\n"
                     "- Input data format is unexpected\n\n"
                     "**Suggested actions:**\n"
-                    "1. Try analyzing longer sequences (>1000 bp recommended)\n"
+                    "1. Try analyzing longer sequences (>6 bp recommended)\n"
                     "2. Select different motif classes to analyze\n"
                     "3. Verify your FASTA file is properly formatted\n"
                     "4. Check that sequences contain valid DNA characters (A, T, C, G, N)"
