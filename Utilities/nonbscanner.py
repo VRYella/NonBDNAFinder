@@ -522,13 +522,11 @@ def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     
     for motif in sorted_motifs:
         is_duplicate = False
+        best_match_idx = -1
+        best_match_score = -1
         
         # Check overlap with already-added motifs
         for i, existing in enumerate(deduplicated):
-            # Early exit: if we've gone past possible overlaps, stop checking
-            if existing.get('Start', 0) > motif.get('End', 0):
-                break
-            
             # Must be same motif type
             if (motif.get('Class') != existing.get('Class') or
                 motif.get('Subclass') != existing.get('Subclass')):
@@ -553,14 +551,16 @@ def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 # 50% overlap threshold
                 if overlap_pct >= 0.5:
                     is_duplicate = True
-                    
-                    # Keep the one with higher score
-                    if motif.get('Score', 0) > existing.get('Score', 0):
-                        deduplicated[i] = motif
-                    
-                    break
+                    # Track best match (highest score among duplicates)
+                    if existing.get('Score', 0) > best_match_score:
+                        best_match_idx = i
+                        best_match_score = existing.get('Score', 0)
         
-        if not is_duplicate:
+        # Handle duplicate: replace with higher scoring motif if needed
+        if is_duplicate and best_match_idx >= 0:
+            if motif.get('Score', 0) > best_match_score:
+                deduplicated[best_match_idx] = motif
+        elif not is_duplicate:
             deduplicated.append(motif)
     
     # Final sort by position
