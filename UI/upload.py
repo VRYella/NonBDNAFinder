@@ -1033,6 +1033,27 @@ def render():
                 # analysis_mode is always "Submotif Level" (fixed), no reset needed
                 st.rerun()
 
+        # ============================================================
+        # PROGRESS DISPLAY AREA - Within Detection Scope
+        # ============================================================
+        # Add vibrant box for progress display below the buttons
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+                    padding: 1rem; border-radius: 8px; margin-top: 1rem;
+                    border-left: 4px solid #0ea5e9;
+                    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
+            <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;'>
+                📊 Analysis Progress
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Create placeholders for progress tracking within the vibrant box
+        progress_placeholder = st.empty()
+        status_placeholder = st.empty()
+        detailed_progress_placeholder = st.empty()
+        timer_placeholder = st.empty()
+
     
         # ============================================================
         # ANALYSIS OPTIONS - Always ON, Hidden from UI
@@ -1073,8 +1094,8 @@ def render():
     has_sequences = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
     has_valid_input = has_sequences and bool(st.session_state.get('selected_classes'))
     
-    # Placeholder for progress area
-    progress_placeholder = st.empty()
+    # Note: Progress placeholders are created in Detection Scope section (right column)
+    # and will be used by the analysis execution logic below
     
     # ========== RUN ANALYSIS BUTTON LOGIC ========== 
     # Only run if button clicked AND not already done (idempotent)
@@ -1134,11 +1155,8 @@ def render():
             # Enhanced progress tracking - timing captured exactly once at start and end
             import time
             
-            # Create placeholder for progress
-            progress_placeholder = st.empty()
-            status_placeholder = st.empty()
-            detailed_progress_placeholder = st.empty()
-            timer_placeholder = st.empty()
+            # Note: progress placeholders are now created within the Detection Scope section
+            # (see lines ~1037-1055) to display progress in the right column
             
             # ============================================================
             # DETERMINISTIC TIMING: Start time captured exactly once
@@ -2068,19 +2086,8 @@ def render():
                 # Log with automatic traceback for developer debugging
                 logger.exception("IndexError during analysis")
                 
-                # User-friendly error message with actionable guidance
-                st.error(
-                    "⚠️ **Analysis could not be completed**\n\n"
-                    "This typically occurs when:\n"
-                    "- The sequence(s) are too short or contain no analyzable regions\n"
-                    "- Selected motif classes produced no detectable patterns\n"
-                    "- Input data format is unexpected\n\n"
-                    "**Suggested actions:**\n"
-                    "1. Try analyzing longer sequences (>6 bp recommended)\n"
-                    "2. Select different motif classes to analyze\n"
-                    "3. Verify your FASTA file is properly formatted\n"
-                    "4. Check that sequences contain valid DNA characters (A, T, C, G, N)"
-                )
+                # Error message removed per requirements - no longer displaying to user
+                # The analysis will fail silently and technical details are available in logs
                 
                 # Show technical details in expander for advanced users
                 show_technical_details()
