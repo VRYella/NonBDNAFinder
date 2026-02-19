@@ -129,8 +129,8 @@ class TestTripleChunking(unittest.TestCase):
     
     def test_meso_tier_deduplication(self):
         """Test deduplication at meso-chunk boundaries."""
-        # Create sequence with pattern at meso chunk boundary
-        # Meso chunk size is 5MB, place pattern near that boundary
+        # Create sequence with pattern spanning multiple meso chunks
+        # Meso chunk size is 50KB; use a large sequence to cover many chunks
         pre_sequence = "ATCG" * 1248000  # 4,992,000 bp
         g4_motif = "GGGTTAGGGTTAGGGTTAGGG"
         post_sequence = "ATCG" * 1248000  # 4,992,000 bp

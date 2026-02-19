@@ -1034,7 +1034,7 @@ Clusters may indicate:
 | **Disk-based storage** | Sequences saved to temp files | Constant ~70MB RAM for any genome size |
 | **Streaming FASTA** | Chunk-based parsing | 50-90% memory reduction for large files |
 | **Result streaming** | JSONL format on disk | No in-memory accumulation |
-| **Chunk analysis** | 5MB chunks with 10KB overlap | Large genome processing (>200MB) |
+| **Chunk analysis** | 50KB chunks with 2KB overlap | Large genome processing (>200MB) |
 
 ### Parallel Processing
 

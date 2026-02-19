@@ -85,7 +85,7 @@ NonBDNAFinder 2025.1 introduces a breakthrough disk-based storage system that ma
 
 1. **Disk-Based Sequence Storage**: Sequences saved to temporary files, never fully loaded into memory
 2. **Streaming Results**: Analysis results streamed to JSONL format on disk
-3. **Chunk-Based Analysis**: Large genomes analyzed in 5MB chunks with 10KB overlap
+3. **Chunk-Based Analysis**: Large genomes analyzed in 50KB chunks with 2KB overlap
 4. **Automatic Deduplication**: Motifs at chunk boundaries handled intelligently
 
 **See [DISK_STORAGE_ARCHITECTURE.md](DISK_STORAGE_ARCHITECTURE.md) for complete technical details.**
@@ -158,8 +158,8 @@ Implemented three-tier hierarchical chunking for **6-15x faster** genome-scale a
 | 1GB | ~120 min | **< 8 min** | **15x** ⚡ |
 
 **Architecture:**
-- **Macro-tier (50MB)**: Parallelization across CPU cores
-- **Meso-tier (5MB)**: Memory management layer
+- **Macro-tier (50KB)**: Parallelization across CPU cores
+- **Meso-tier (50KB)**: Memory management layer
 - **Micro-tier (50KB)**: Fast analysis with 2KB overlap
 
 **Adaptive Strategy:**

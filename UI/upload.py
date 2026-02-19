@@ -461,6 +461,7 @@ def render():
                             key="upload_method")
 
         seqs, names = [], []
+        disk_seq_ids = []  # Sequences saved directly to disk during file upload parsing
 
         if input_method == UI_TEXT['upload_method_file']:
             fasta_file = st.file_uploader(UI_TEXT['upload_file_prompt'], 
@@ -509,6 +510,10 @@ def render():
                     # Now parse all sequences using chunked parsing for memory efficiency
                     seqs, names = [], []
                     has_large_sequences = False
+                    use_disk = (
+                        st.session_state.get('use_disk_storage') and
+                        st.session_state.get('seq_storage') is not None
+                    )
                 
                     if preview_info['num_sequences'] > 10:
                         # Show progress bar for files with many sequences
@@ -516,12 +521,17 @@ def render():
                         status_text = st.empty()
                     
                         for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
-                            names.append(name)
-                            seqs.append(seq)
-                        
-                            # Track if we have very large sequences
                             if len(seq) > 10_000_000:
                                 has_large_sequences = True
+                            if use_disk:
+                                # Save directly to disk to avoid holding large sequences in RAM
+                                seq_id = st.session_state.seq_storage.save_sequence(seq, name)
+                                disk_seq_ids.append(seq_id)
+                                names.append(name)
+                                del seq  # Free RAM immediately
+                            else:
+                                names.append(name)
+                                seqs.append(seq)
                         
                             # Update progress
                             progress = (idx + 1) / preview_info['num_sequences']
@@ -534,18 +544,23 @@ def render():
                     else:
                         # Fast path for small files
                         for name, seq in parse_fasta_chunked(fasta_file):
-                            names.append(name)
-                            seqs.append(seq)
-                        
-                            # Track if we have very large sequences
                             if len(seq) > 10_000_000:
                                 has_large_sequences = True
+                            if use_disk:
+                                # Save directly to disk to avoid holding large sequences in RAM
+                                seq_id = st.session_state.seq_storage.save_sequence(seq, name)
+                                disk_seq_ids.append(seq_id)
+                                names.append(name)
+                                del seq  # Free RAM immediately
+                            else:
+                                names.append(name)
+                                seqs.append(seq)
                 
                     # Force garbage collection after loading all sequences if we had large ones
                     if has_large_sequences:
                         gc.collect()
                 
-                    if not seqs:
+                    if not seqs and not disk_seq_ids:
                         st.warning(UI_TEXT['upload_no_sequences'])
 
         elif input_method == UI_TEXT['upload_method_paste']:
@@ -650,7 +665,15 @@ def render():
                     st.warning(UI_TEXT['upload_ncbi_empty_warning'])
 
         # Persist sequences to session state if any found from input
-        if seqs:
+        if disk_seq_ids:
+            # Sequences were saved directly to disk during file upload parsing
+            st.session_state.seq_ids = disk_seq_ids
+            st.session_state.names = names
+            st.session_state.results_storage = {}
+            # Keep legacy fields empty for compatibility
+            st.session_state.seqs = []
+            st.session_state.results = []
+        elif seqs:
             # Support both disk storage and legacy in-memory mode
             if st.session_state.get('use_disk_storage') and st.session_state.get('seq_storage'):
                 # Use disk-based storage
@@ -1432,7 +1455,7 @@ def render():
                             # Determine whether to use chunking based on sequence size
                             if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
                                 # Step 2: Chunking
-                                st.write(f"✓ Using chunk-based analysis (5MB chunks)")
+                                st.write(f"✓ Using chunk-based analysis (50KB chunks)")
                                 status_placeholder.info(f"📦 Chunking large sequence: {name}")
                                 
                                 # Create chunk progress callback with status updates
