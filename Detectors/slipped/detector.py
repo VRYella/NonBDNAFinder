@@ -43,6 +43,24 @@ STR_DIRECT_THRESHOLD = 7  # Unit size threshold: <7 = STR, >=7 = Direct Repeat
 SCORING_MODE = "CORE"  # "CORE" or "LENIENT"
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.3         │ Minimal repeat instability             │
+# │ RAW_MAX      │ 0.98        │ High repeat instability (STRs)         │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'linear'    │ Linear interpolation                   │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+SLIPPED_RAW_SCORE_MIN = 0.3; SLIPPED_RAW_SCORE_MAX = 0.98
+SLIPPED_NORMALIZED_MIN = 1.0; SLIPPED_NORMALIZED_MAX = 3.0
+SLIPPED_NORMALIZATION_METHOD = 'linear'
+SLIPPED_SCORE_REFERENCE = 'Schlötterer et al. 2000, Weber et al. 1989'
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # JIT-COMPILED HELPER FUNCTIONS FOR PERFORMANCE
@@ -102,6 +120,14 @@ def _compute_slippage_base_score_jit(tract_length, copy_number, k, purity, gc_fr
 
 class SlippedDNADetector(BaseMotifDetector):
     """Unified detector for slippage-prone DNA: STRs (k=1-6) and direct repeats (k≥7). Requires ≥20 bp tracts with ≥90% purity."""
+    
+    # Override normalization parameters
+    RAW_SCORE_MIN = SLIPPED_RAW_SCORE_MIN
+    RAW_SCORE_MAX = SLIPPED_RAW_SCORE_MAX
+    NORMALIZED_MIN = SLIPPED_NORMALIZED_MIN
+    NORMALIZED_MAX = SLIPPED_NORMALIZED_MAX
+    NORMALIZATION_METHOD = SLIPPED_NORMALIZATION_METHOD
+    SCORE_REFERENCE = SLIPPED_SCORE_REFERENCE
     
     MIN_TRACT_LENGTH = MIN_TRACT_LENGTH; MIN_PURITY = MIN_PURITY
     MIN_COPIES_STR_CORE = MIN_COPIES_STR_CORE; MIN_COPIES_STR_RELAXED = MIN_COPIES_STR_RELAXED
@@ -447,7 +473,8 @@ class SlippedDNADetector(BaseMotifDetector):
                 'Entropy': round(entropy, 3),
                 'GC_Content': gc_content,
                 'Slippage_Score': round(ann['slippage_score'], 3),
-                'Score': round(ann['slippage_score'], 3),  # For compatibility
+                'Raw_Score': round(ann['slippage_score'], 3),  # Detector-specific scale
+                'Score': self._normalize_score(ann['slippage_score']),  # Universal 1-3 scale
                 'Strand': '+',
                 'Method': 'Slipped_DNA_detection',
                 'Pattern_ID': f'SLIPPED_{i+1}',

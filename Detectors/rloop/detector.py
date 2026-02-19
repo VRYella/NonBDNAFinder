@@ -36,9 +36,35 @@ MIN_PERC_G_RIZ = 50; NUM_LINKER = 50; WINDOW_STEP = 100
 MAX_LENGTH_REZ = 2000; MIN_PERC_G_REZ = 40; QUALITY_THRESHOLD = 0.4
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.4         │ Minimal R-loop potential               │
+# │ RAW_MAX      │ 0.95        │ High R-loop formation                  │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'linear'    │ Linear interpolation                   │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+RLOOP_RAW_SCORE_MIN = 0.4; RLOOP_RAW_SCORE_MAX = 0.95
+RLOOP_NORMALIZED_MIN = 1.0; RLOOP_NORMALIZED_MAX = 3.0
+RLOOP_NORMALIZATION_METHOD = 'linear'
+RLOOP_SCORE_REFERENCE = 'Aguilera et al. 2012, Jenjaroenpun et al. 2016'
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 class RLoopDetector(BaseMotifDetector):
     """QmRLFS-finder R-loop detector (literature-faithful, accelerated)."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = RLOOP_RAW_SCORE_MIN
+    RAW_SCORE_MAX = RLOOP_RAW_SCORE_MAX
+    NORMALIZED_MIN = RLOOP_NORMALIZED_MIN
+    NORMALIZED_MAX = RLOOP_NORMALIZED_MAX
+    NORMALIZATION_METHOD = RLOOP_NORMALIZATION_METHOD
+    SCORE_REFERENCE = RLOOP_SCORE_REFERENCE
 
     MIN_PERC_G_RIZ = MIN_PERC_G_RIZ; NUM_LINKER = NUM_LINKER; WINDOW_STEP = WINDOW_STEP
     MAX_LENGTH_REZ = MAX_LENGTH_REZ; MIN_PERC_G_REZ = MIN_PERC_G_REZ; QUALITY_THRESHOLD = QUALITY_THRESHOLD
@@ -357,7 +383,8 @@ class RLoopDetector(BaseMotifDetector):
                     'End': end,
                     'Length': end - start,
                     'Sequence': motif_seq,
-                    'Score': round(min(score, 1.0), 3),
+                    'Raw_Score': round(min(score, 1.0), 3),  # Detector-specific scale
+                    'Score': self._normalize_score(min(score, 1.0)),  # Universal 1-3 scale
                     'Strand': strand,
                     'Method': 'QmRLFS_detection',
                     'Pattern_ID': f'RLOOP_{ann["model"]}_{i+1}',
