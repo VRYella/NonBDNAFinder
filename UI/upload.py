@@ -1773,12 +1773,18 @@ def render():
                     # Support both disk storage and legacy in-memory modes
                     if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
                         # Disk storage mode: get metadata
-                        seq_id = st.session_state.seq_ids[i]; metadata = st.session_state.seq_storage.get_metadata(seq_id)
-                        name = st.session_state.names[i]; seq_length = metadata['length']; gc_content = metadata['gc_content']
+                        seq_id = st.session_state.seq_ids[i]
+                        metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                        name = st.session_state.names[i]
+                        seq_length = metadata['length']
+                        gc_content = metadata['gc_content']
                     else:
                         # Legacy in-memory mode
-                        seq = st.session_state.seqs[i]; name = st.session_state.names[i]
-                        stats = get_basic_stats(seq, results); seq_length = stats['Length']; gc_content = stats['GC%']
+                        seq = st.session_state.seqs[i]
+                        name = st.session_state.names[i]
+                        stats = get_basic_stats(seq, results)
+                        seq_length = stats['Length']
+                        gc_content = stats['GC%']
                     
                     summary.append({
                         'Sequence': name,
@@ -1821,10 +1827,14 @@ def render():
                 for seq_idx, results in enumerate(all_results):
                     # Support both storage modes
                     if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
-                        seq_id = st.session_state.seq_ids[seq_idx]; metadata = st.session_state.seq_storage.get_metadata(seq_id)
-                        sequence_length = metadata['length']; name = st.session_state.names[seq_idx]
+                        seq_id = st.session_state.seq_ids[seq_idx]
+                        metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                        sequence_length = metadata['length']
+                        name = st.session_state.names[seq_idx]
                     else:
-                        seq = st.session_state.seqs[seq_idx]; sequence_length = len(seq); name = st.session_state.names[seq_idx]
+                        seq = st.session_state.seqs[seq_idx]
+                        sequence_length = len(seq)
+                        name = st.session_state.names[seq_idx]
                     
                     # Continue with existing motif filtering logic
                     filtered_motifs = results
