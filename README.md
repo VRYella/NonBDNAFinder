@@ -128,6 +128,23 @@ Based on real-world performance testing (PRs #1-7), the tool now uses an optimiz
 
 **See [CHUNKING_AND_PARALLEL_IMPLEMENTATION.md](docs/changelog/CHUNKING_AND_PARALLEL_IMPLEMENTATION.md) for complete details.**
 
+## 🔧 Recent Critical Fixes
+
+### v2025.1.4 - Critical Bug Fix: >1MB Sequence Support
+
+**Fixed**: Sequences >1MB now correctly report motifs (was returning 0 results)
+
+**Root Cause**: Deduplication function used exact coordinate matching, failed for boundary motifs in chunk overlaps.
+
+**Solution**: Implemented overlap-based deduplication (50% threshold) to correctly handle motifs at chunk boundaries.
+
+**Impact**:
+- ✅ Sequences >1MB now work correctly
+- ✅ No performance degradation (168K bp/s maintained)
+- ✅ All test sequences now pass
+
+See [CHUNKING_FIX.md](docs/CHUNKING_FIX.md) for technical details.
+
 ### Previous Performance Enhancements
 
 **Triple Adaptive Chunking (v2025.1.2)** - Sub-5-Minute Genome Analysis

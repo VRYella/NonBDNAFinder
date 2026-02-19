@@ -42,6 +42,12 @@ def test_1mb_sequence_detection():
         print(f"✓ Motif detection completed successfully!")
         print(f"  Found {len(motifs)} motifs")
         
+        # Check for critical bug
+        if len(motifs) == 0:
+            print("❌ CRITICAL BUG: No motifs detected!")
+            print("   This indicates the deduplication bug is still present")
+            return False
+        
         # Show some statistics
         if motifs:
             motif_classes = {}
