@@ -466,12 +466,80 @@ def _analyze_sequence_chunked(sequence: str, sequence_name: str, chunk_size: int
     return deduplicated_motifs
 
 def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    if not motifs: return motifs
-    sorted_motifs = sorted(motifs, key=lambda x: (x.get('Class', ''), x.get('Start', 0), x.get('End', 0), -x.get('Score', 0)))
-    deduplicated = []; seen = set()
+    """
+    Remove duplicate motifs using overlap-based matching for boundary motifs.
+    
+    Key Changes:
+    - Sort by POSITION first (not class)
+    - Use 50% overlap threshold to detect duplicates
+    - Keep motif with highest score when duplicates found
+    
+    Scientific Basis:
+    - Motifs in chunk overlaps (2KB) can differ by up to overlap size
+    - 50% threshold balances precision (no false merges) vs recall (catch all duplicates)
+    - Position-first sorting ensures adjacent duplicates are compared
+    
+    Args:
+        motifs: List of all motifs from all chunks (may contain duplicates)
+        
+    Returns:
+        Deduplicated list sorted by genomic position
+    """
+    if not motifs:
+        return motifs
+    
+    # Sort by POSITION first (critical for boundary detection)
+    sorted_motifs = sorted(motifs, key=lambda x: (
+        x.get('Start', 0),        # Position FIRST
+        x.get('End', 0),
+        x.get('Class', ''),       # Then class
+        -x.get('Score', 0)        # Highest score first
+    ))
+    
+    deduplicated = []
+    
     for motif in sorted_motifs:
-        key = (motif.get('Class', ''), motif.get('Subclass', ''), motif.get('Start', 0), motif.get('End', 0))
-        if key not in seen: seen.add(key); deduplicated.append(motif)
+        is_duplicate = False
+        
+        # Check overlap with already-added motifs
+        for i, existing in enumerate(deduplicated):
+            # Must be same motif type
+            if (motif.get('Class') != existing.get('Class') or
+                motif.get('Subclass') != existing.get('Subclass')):
+                continue
+            
+            # Calculate overlap
+            start1, end1 = motif.get('Start', 0), motif.get('End', 0)
+            start2, end2 = existing.get('Start', 0), existing.get('End', 0)
+            
+            overlap_start = max(start1, start2)
+            overlap_end = min(end1, end2)
+            overlap_len = max(0, overlap_end - overlap_start)
+            
+            # Calculate overlap percentage relative to shorter motif
+            len1 = end1 - start1
+            len2 = end2 - start2
+            min_len = min(len1, len2)
+            
+            if min_len > 0:
+                overlap_pct = overlap_len / min_len
+                
+                # 50% overlap threshold
+                if overlap_pct >= 0.5:
+                    is_duplicate = True
+                    
+                    # Keep the one with higher score
+                    if motif.get('Score', 0) > existing.get('Score', 0):
+                        deduplicated[i] = motif
+                    
+                    break
+        
+        if not is_duplicate:
+            deduplicated.append(motif)
+    
+    # Final sort by position
+    deduplicated.sort(key=lambda x: x.get('Start', 0))
+    
     return deduplicated
 
 def analyze_fasta(fasta_content: str) -> Dict[str, List[Dict[str, Any]]]:
