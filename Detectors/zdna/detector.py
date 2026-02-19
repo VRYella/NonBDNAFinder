@@ -111,7 +111,7 @@ class ZDNADetector(BaseMotifDetector):
         seq = sequence.upper(); annotations = []
         matches = self._find_10mer_matches(seq)
         if matches:
-            merged = self._merge_matches(matches); contrib = self._build_per_base_contrib(seq)
+            merged = self._merge_matches(matches); contrib = self._build_per_base_contrib(seq, matches=matches)
             for (s, e, region_matches) in merged:
                 sum_score = sum(contrib[s:e]); n10 = len(region_matches)
                 mean10 = (sum(m[2] for m in region_matches) / n10) if n10 > 0 else 0.0
@@ -312,13 +312,18 @@ class ZDNADetector(BaseMotifDetector):
         matches = self._find_10mer_matches(seq); merged = self._merge_matches(matches, merge_gap=merge_gap)
         return [(s, e) for (s, e, _) in merged]
 
-    def _build_per_base_contrib(self, seq: str) -> List[float]:
+    def _build_per_base_contrib(self, seq: str, matches: List[Tuple] = None) -> List[float]:
         """Build per-base contribution array.
-        
+
+        Accepts pre-computed *matches* from a prior ``_find_10mer_matches`` call
+        to avoid scanning the sequence a second time.  Falls back to calling
+        ``_find_10mer_matches`` internally only when *matches* is not provided.
+
         Uses NumPy vectorization for 2-3x speedup on large sequences when available.
         """
         n = len(seq)
-        matches = self._find_10mer_matches(seq)
+        if matches is None:
+            matches = self._find_10mer_matches(seq)
         
         # Use vectorized version for large sequences if NumPy is available
         if _NUMPY_AVAILABLE and n > 1000 and len(matches) > 0:
