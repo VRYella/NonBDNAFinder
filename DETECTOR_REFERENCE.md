@@ -17,8 +17,10 @@
 7. [Cruciform](#7-cruciform)
 8. [Triplex DNA](#8-triplex-dna)
 9. [Slipped DNA](#9-slipped-dna)
-10. [Cross-Detector Comparison](#cross-detector-comparison)
-11. [Performance & Acceleration](#performance--acceleration)
+10. [Hybrid Motifs](#10-hybrid-motifs)
+11. [Non-B DNA Clusters](#11-non-b-dna-clusters)
+12. [Cross-Detector Comparison](#cross-detector-comparison)
+13. [Performance & Acceleration](#performance--acceleration)
 
 ---
 
@@ -785,6 +787,163 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 
 ---
 
+## 10. Hybrid Motifs
+
+### Overview
+**Detection Method:** Post-processing analysis of overlapping primary motifs  
+**Biological Basis:** Regions where multiple Non-B DNA structures co-occur, potentially indicating structural hotspots  
+**File:** `Utilities/nonbscanner.py` (method: `_detect_hybrid_motifs`)
+
+### Subclasses/Variants
+
+| Subclass | Pattern | Description |
+|----------|---------|-------------|
+| **Class1_Class2_Overlap** | Dynamic (any two classes) | Named by constituent classes (e.g., "G-Quadruplex_Z-DNA_Overlap") |
+
+### Detection Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `HYBRID_MIN_OVERLAP` | 0.50 (50%) | Minimum overlap fraction for hybrid detection |
+| `HYBRID_MAX_OVERLAP` | 0.99 (99%) | Maximum overlap fraction (excludes complete overlaps) |
+| **Minimum motifs** | 2 | At least 2 primary motifs required in sequence |
+
+### Detection Algorithm
+
+```
+For each pair of motifs (i, j) where i < j:
+    1. Check: different classes (Class[i] ≠ Class[j])
+    2. Calculate: overlap_length = min(End[i], End[j]) - max(Start[i], Start[j])
+    3. Calculate: overlap_fraction = overlap_length / min(Length[i], Length[j])
+    4. Accept if: HYBRID_MIN_OVERLAP < overlap_fraction < HYBRID_MAX_OVERLAP
+    5. Create: hybrid motif spanning union of both motifs
+```
+
+### Scoring System
+
+| Component | Formula | Description |
+|-----------|---------|-------------|
+| **Hybrid score** | `(Score[motif1] + Score[motif2]) / 2` | Average of constituent motif scores |
+| **No independent scoring** | Derived from primary detectors | Inherits scoring from constituent motifs |
+
+### Normalization Method
+
+| Method | Description |
+|--------|-------------|
+| **Average scoring** | Simple arithmetic mean of two constituent scores |
+| **Range preservation** | Maintains score interpretation from primary detectors |
+
+### Output Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Class` | string | Always "Hybrid" |
+| `Subclass` | string | Format: "{Class1}_{Class2}_Overlap" |
+| `Component_Classes` | list | List of constituent motif classes [Class1, Class2] |
+| `Score` | float | Average of constituent motif scores |
+| `Start` | int | Start of hybrid region (minimum of constituent starts) |
+| `End` | int | End of hybrid region (maximum of constituent ends) |
+| `Length` | int | Total length spanning both motifs |
+
+### Biological Significance
+
+Hybrid motifs may represent:
+- **Structural competition zones:** Regions where multiple conformations compete
+- **Regulatory hotspots:** Areas with enhanced regulatory potential
+- **Genomic instability:** Sites prone to multiple structural transitions
+- **Cooperative structures:** Adjacent structures that may influence each other
+
+### Overlap Resolution
+
+| Method | Description |
+|--------|-------------|
+| **De-duplication** | Same hybrid (start, end, class pair) reported only once |
+| **Independent from primary** | Does not affect primary motif reporting |
+| **All valid overlaps** | All qualifying overlaps reported (not greedy) |
+
+---
+
+## 11. Non-B DNA Clusters
+
+### Overview
+**Detection Method:** Sliding window analysis of primary motif density and diversity  
+**Biological Basis:** Regions with high concentration of multiple Non-B DNA structure types  
+**File:** `Utilities/nonbscanner.py` (method: `_detect_clusters`)
+
+### Subclasses/Variants
+
+| Subclass | Pattern | Description |
+|----------|---------|-------------|
+| **Mixed_Cluster_N_classes** | Variable | Dynamic naming by number of classes (N = 3, 4, 5, etc.) |
+
+### Detection Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `CLUSTER_WINDOW_SIZE` | 300 bp | Sliding window size for cluster detection |
+| `CLUSTER_MIN_MOTIFS` | 4 | Minimum number of motifs in window |
+| `CLUSTER_MIN_CLASSES` | 3 | Minimum number of different motif classes |
+| **Minimum motifs total** | 3 | At least 3 primary motifs required in sequence |
+
+### Detection Algorithm
+
+```
+For each position i in sequence:
+    1. Define window: [i, i + CLUSTER_WINDOW_SIZE]
+    2. Count motifs: N_motifs in window
+    3. Count classes: N_classes (unique motif classes)
+    4. Accept if: N_motifs ≥ CLUSTER_MIN_MOTIFS AND N_classes ≥ CLUSTER_MIN_CLASSES
+    5. Create: cluster motif spanning [min(motif_starts), max(motif_ends)]
+    6. De-duplicate: Skip if window already processed
+```
+
+### Scoring System
+
+| Component | Formula | Description |
+|-----------|---------|-------------|
+| **Cluster score** | `Σ(motif_scores) / N_motifs` | Average score of constituent motifs |
+| **No independent scoring** | Derived from primary detectors | Aggregate measure of cluster quality |
+
+### Normalization Method
+
+| Method | Description |
+|--------|-------------|
+| **Average scoring** | Arithmetic mean of all motifs in cluster window |
+| **Complexity indicator** | Higher diversity (more classes) suggests structural complexity |
+
+### Output Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Class` | string | Always "Non-B_DNA_Clusters" |
+| `Subclass` | string | Format: "Mixed_Cluster_{N}_classes" where N = number of classes |
+| `Motif_Count` | int | Total number of motifs in cluster window |
+| `Class_Diversity` | int | Number of different motif classes in cluster |
+| `Component_Classes` | list | List of motif classes present in cluster |
+| `Score` | float | Average score of constituent motifs |
+| `Start` | int | Start of cluster region (minimum motif start) |
+| `End` | int | End of cluster region (maximum motif end) |
+| `Length` | int | Total length of cluster region |
+
+### Biological Significance
+
+Clusters may indicate:
+- **Genomic hotspots:** Regions prone to multiple structural transitions
+- **Regulatory hubs:** Areas with enhanced regulatory complexity
+- **Instability zones:** Sites with elevated recombination/mutation risk
+- **Chromatin remodeling sites:** Regions requiring complex chromatin modifications
+- **Transcriptional complexity:** Areas with multiple regulatory mechanisms
+
+### Overlap Resolution
+
+| Method | Description |
+|--------|-------------|
+| **Window-based de-duplication** | Each window start position processed only once |
+| **Binary search optimization** | O(n log n) complexity via sorted motif list |
+| **No greedy selection** | All qualifying windows reported independently |
+
+---
+
 ## Cross-Detector Comparison
 
 ### Summary Table
@@ -800,6 +959,8 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **Cruciform** | 1 | [0, 1] (ΔG: [-∞, -5]) | Thermodynamic ΔG | None | Recombination hotspots |
 | **Triplex** | 2 (H-DNA, Sticky) | [1, 3] | Mechanistic + piecewise | Numba JIT | FRDA (GAA/TTC) |
 | **Slipped DNA** | 2 (STR, DR) | [1, 3+] | Mechanistic slippage | Numba JIT | HD, DM1, FXS, FRDA, ALS |
+| **Hybrid Motifs** | Dynamic (N² pairs) | Average of pair | Overlap detection | None | Structural hotspots |
+| **Non-B DNA Clusters** | Dynamic (by diversity) | Average of cluster | Density + diversity | Binary search | Instability zones |
 
 ### Normalization Methods Comparison
 
@@ -815,6 +976,8 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **Triplex H-DNA** | Mechanistic weighted | 4-factor composite (log, exp, linear) | [1, 3] |
 | **Sticky DNA** | Piecewise linear | 4-segment threshold-based | [1, 3+] |
 | **Slipped DNA** | Mechanistic weighted | 5-factor composite (2× log-scaled) | [1, 3+] |
+| **Hybrid Motifs** | Average scoring | Arithmetic mean of constituent scores | Inherited from primaries |
+| **Non-B DNA Clusters** | Average scoring | Arithmetic mean of cluster motifs | Inherited from primaries |
 
 ### Overlap Resolution Strategies
 
@@ -829,6 +992,8 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **Cruciform** | Greedy max-score | Highest scoring palindrome wins overlaps |
 | **Triplex** | Subclass separation | H-DNA and Sticky DNA independent |
 | **Slipped DNA** | Max-k dominance | Longest primitive unit wins (absorbs nested repeats) |
+| **Hybrid Motifs** | De-duplication | Same hybrid pair reported once; independent from primaries |
+| **Non-B DNA Clusters** | Window-based | Each window start processed once; no greedy selection |
 
 ---
 
@@ -847,6 +1012,10 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **Cruciform** | O(n²) worst | Seed-and-extend palindrome | Seed pruning (→ O(n)) |
 | **Triplex** | O(n²) worst | Seed-and-extend mirror | Seed pruning (→ O(n)), Numba JIT |
 | **Slipped DNA** | O(n × k) | Repeat unit extraction | Numba JIT (entropy, scoring) |
+| **Hybrid Motifs** | O(m²) | Pairwise overlap detection | Early exit on no overlap |
+| **Non-B DNA Clusters** | O(m log m) | Sliding window + sorting | Binary search optimization |
+
+*Note: n = sequence length, w = window size, k = max unit size, m = number of primary motifs*
 
 ### Acceleration Technologies
 
@@ -1034,7 +1203,8 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **Structural geometry** | Curved (phasing) | Geometric relationships (spacing, periodicity) |
 | **Thermodynamic** | Cruciform (ΔG) | Free energy calculations |
 | **Mechanistic modeling** | Triplex, Slipped | Multi-factor composite scoring based on biological mechanisms |
-| **Pattern matching** | All | Initial seed/candidate identification |
+| **Pattern matching** | All primary detectors | Initial seed/candidate identification |
+| **Derived metrics** | Hybrid, Clusters | Post-processing aggregate metrics |
 
 ### Score Interpretation
 
@@ -1044,6 +1214,7 @@ final_score = base_score × disease_motif_bonus(1.15 for CAG/CTG/CGG/GAA/TTC)
 | **[0, ∞)** | Unbounded cumulative score | A-philic, G4, Z-DNA |
 | **[1, 3]** | Mechanistic risk scale | Triplex (H-DNA, Sticky), Slipped DNA |
 | **Negative** | Free energy (kcal/mol) | Cruciform (ΔG, more negative = more stable) |
+| **Inherited** | Derived from constituents | Hybrid Motifs, Clusters (average of components) |
 
 ---
 
@@ -1196,6 +1367,8 @@ All detectors meet the following quality standards:
 | **Triplex H-DNA** | Mirror repeats, mechanistic 4-factor scoring | Purity, interruptions |
 | **Triplex Sticky** | GAA/TTC repeats, piecewise clinical thresholds | Copy number, FRDA flags |
 | **Slipped DNA** | STR (k=1-6) + DR (k≥7), mechanistic slippage scoring | Repeat unit, copy number, disease flags |
+| **Hybrid Motifs** | Overlapping primary motifs (50-99% overlap); averaged scoring | Component classes, overlap fraction |
+| **Non-B DNA Clusters** | High-density regions (≥4 motifs, ≥3 classes in 300bp window) | Motif count, class diversity |
 
 ---
 
@@ -1312,6 +1485,21 @@ CTG_DM1_PATHOGENIC = 50
 CGG_FXS_PATHOGENIC = 200
 GAA_FRDA_PATHOGENIC = 66
 GGGGCC_C9_PATHOGENIC = 30
+```
+
+### Hybrid Motifs Parameters
+```python
+HYBRID_MIN_OVERLAP = 0.50  # 50% minimum overlap fraction
+HYBRID_MAX_OVERLAP = 0.99  # 99% maximum (excludes complete overlaps)
+# Minimum 2 primary motifs required for hybrid detection
+```
+
+### Non-B DNA Clusters Parameters
+```python
+CLUSTER_WINDOW_SIZE = 300      # bp
+CLUSTER_MIN_MOTIFS = 4         # Minimum motifs in window
+CLUSTER_MIN_CLASSES = 3        # Minimum different classes
+# Minimum 3 primary motifs total required for cluster detection
 ```
 
 ---
