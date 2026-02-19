@@ -155,7 +155,7 @@ _HASH_TABLE_SIZE: int = 4 ** 10
 # Cached numpy lookup table: maps 10-mer hash → score (0.0 = not in table)
 # Built lazily on first call and reused for subsequent calls.
 _NUMPY_LOOKUP: "Optional[np.ndarray]" = None
-_NUMPY_LOOKUP_KEY: "Optional[frozenset]" = None
+_NUMPY_LOOKUP_KEY: "Optional[int]" = None  # id() of the tenmer_score dict
 
 
 def _build_numpy_lookup(tenmer_score: Dict[str, float]) -> "np.ndarray":
@@ -224,7 +224,9 @@ def vectorized_find_matches(seq: str, tenmer_score: Dict[str, float]) -> List[Tu
         return py_find_matches_loop(seq, tenmer_score)
 
     # --- Build / retrieve cached lookup table ---
-    current_key = frozenset(tenmer_score.items())
+    # Use id() for fast identity check — TENMER_SCORE is a module-level constant
+    # that never changes, so object identity is a safe and cheap cache key.
+    current_key = id(tenmer_score)
     if _NUMPY_LOOKUP is None or _NUMPY_LOOKUP_KEY != current_key:
         _NUMPY_LOOKUP = _build_numpy_lookup(tenmer_score)
         _NUMPY_LOOKUP_KEY = current_key

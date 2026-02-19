@@ -61,6 +61,10 @@ SLIPPED_NORMALIZATION_METHOD = 'linear'
 SLIPPED_SCORE_REFERENCE = 'Schlötterer et al. 2000, Weber et al. 1989'
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Module-level cache for pre-compiled tandem-repeat regex patterns.
+# Keyed by (k, min_copies); shared across all SlippedDNADetector instances.
+_TR_PATTERN_CACHE: Dict[tuple, Any] = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # JIT-COMPILED HELPER FUNCTIONS FOR PERFORMANCE
@@ -268,9 +272,6 @@ class SlippedDNADetector(BaseMotifDetector):
         """Return empty patterns; uses optimized k-mer scanner for detection."""
         return {"short_tandem_repeats": [], "direct_repeats": []}
 
-    # Module-level cache for compiled tandem-repeat patterns (keyed by (k, min_copies))
-    _TR_PATTERNS: Dict[tuple, Any] = {}
-
     def find_all_tandem_repeats(self, sequence: str) -> List[Dict[str, Any]]:
         """Unified tandem repeat finder for k=1 to MAX_UNIT_SIZE.
 
@@ -283,6 +284,9 @@ class SlippedDNADetector(BaseMotifDetector):
         copies of a k-character unit, where m = max(2, ceil(MIN_TRACT_LENGTH/k)).
         This is semantically identical to the previous double-loop but runs at
         C speed via the ``re`` module.
+
+        Compiled patterns are cached in the module-level ``_TR_PATTERN_CACHE``
+        dict and shared across all ``SlippedDNADetector`` instances.
         """
         seq = sequence.upper()
         n = len(seq)
@@ -293,11 +297,11 @@ class SlippedDNADetector(BaseMotifDetector):
             min_copies = max(2, math.ceil(self.MIN_TRACT_LENGTH / k))
 
             key = (k, min_copies)
-            if key not in SlippedDNADetector._TR_PATTERNS:
-                SlippedDNADetector._TR_PATTERNS[key] = re.compile(
-                    r'(.{' + str(k) + r'})\1{' + str(min_copies - 1) + r',}'
+            if key not in _TR_PATTERN_CACHE:
+                _TR_PATTERN_CACHE[key] = re.compile(
+                    rf'(.{{{k}}})\1{{{min_copies - 1},}}'
                 )
-            pattern = SlippedDNADetector._TR_PATTERNS[key]
+            pattern = _TR_PATTERN_CACHE[key]
 
             for m in pattern.finditer(seq):
                 unit = m.group(1)
