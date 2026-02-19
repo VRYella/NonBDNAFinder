@@ -155,6 +155,48 @@ class TestGCConsistency(unittest.TestCase):
                 
                 self.assertAlmostEqual(result1, expected, places=5,
                                      msg=f"Expected {expected}% for '{seq}', got {result1}%")
+    
+    def test_gc_calculation_excludes_ambiguous_bases(self):
+        """
+        Test GC% uses (A+T+G+C) denominator, not total length.
+        
+        This is the gold standard for genomic analysis:
+        - NCBI, Ensembl, UCSC all exclude N's from denominator
+        - Formula: GC% = (G+C) / (A+T+G+C) × 100
+        """
+        # Sequence with N's
+        seq = "ATCGNNNN"
+        gc_pct = calc_gc_content(seq)
+        
+        # Should be 50% (2 GC / 4 ATGC), NOT 25% (2 GC / 8 total)
+        self.assertAlmostEqual(gc_pct, 50.0, places=2,
+                              msg="GC% should exclude N's from denominator")
+        
+        # Test with gc_content from utilities
+        gc_pct2 = gc_content(seq)
+        self.assertAlmostEqual(gc_pct2, 50.0, places=2,
+                              msg="gc_content should also exclude N's")
+        
+        # Test sequence with only N's
+        seq_only_n = "NNNN"
+        self.assertEqual(calc_gc_content(seq_only_n), 0.0,
+                        "Sequence with only N's should return 0.0")
+        
+        # Test various N positions
+        test_cases = [
+            ("NNNATCG", 50.0),  # N's at start
+            ("ATCGNNN", 50.0),  # N's at end
+            ("ATNNCG", 50.0),   # N's in middle
+            ("NANTNCGN", 50.0), # N's scattered
+            ("GCGCNNNN", 100.0), # Only GC valid bases
+            ("ATANNNN", 0.0),   # Only AT valid bases
+        ]
+        
+        for seq, expected in test_cases:
+            with self.subTest(seq=seq):
+                result = calc_gc_content(seq)
+                self.assertAlmostEqual(result, expected, places=2,
+                                     msg=f"For '{seq}', expected {expected}%, got {result}%")
 
 
 if __name__ == '__main__':
