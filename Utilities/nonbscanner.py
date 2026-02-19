@@ -187,7 +187,7 @@ class NonBScanner:
         
         # Auto-enable parallel detectors for large sequences if not specified
         if use_parallel_detectors is None:
-            use_parallel_detectors = len(sequence) > CHUNK_THRESHOLD and USE_PARALLEL_DETECTORS
+            use_parallel_detectors = len(sequence) >= CHUNK_THRESHOLD and USE_PARALLEL_DETECTORS
         
         all_motifs = []
         if enabled_classes:
