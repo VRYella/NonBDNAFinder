@@ -23,6 +23,47 @@ NonBDNAFinder is a comprehensive, publication-quality system for detecting and a
 | **Performance** | **NEW: 2-10x faster** ⚡ | Standard |
 | **Memory Usage** | **NEW: Constant ~70MB** 💾 | Scales with genome size |
 
+## 🧬 Sequence Quality Standards (NEW!)
+
+NonBDNAFinder implements **gold-standard genomic preprocessing** following the same standards used by NCBI, Ensembl, and UCSC Genome Browser:
+
+### ✅ Accurate GC% Calculation
+
+Uses the scientifically correct formula:
+```
+GC% = (G + C) / (A + T + G + C) × 100
+```
+
+**Why this matters:**
+- **Excludes ambiguous bases** (N, R, Y, etc.) from denominator
+- Matches NCBI/Ensembl standard
+- Ensures accurate genomic composition analysis
+
+**Example:** Sequence `ATCGNNNN`
+- ❌ Old calculation: 25% (includes N's in denominator)
+- ✅ New calculation: 50% (excludes N's - correct!)
+
+### ✅ Comprehensive Validation
+
+- **Character-level analysis** with position reporting
+- **FASTA compliance** (multi-line concatenation, header parsing)
+- **Detailed statistics** before analysis (A/T/G/C counts, N positions, invalid characters)
+- **Quality reporting** for batch processing
+
+### Integration
+
+```python
+from Utilities.nonbscanner import NonBScanner
+
+scanner = NonBScanner()
+motifs = scanner.analyze_sequence(
+    sequence=your_sequence,
+    use_preprocessing=True  # Enable gold-standard validation
+)
+```
+
+📖 **[Complete documentation →](docs/SEQUENCE_PREPROCESSING.md)**
+
 ## 💾 Universal Low-Memory Architecture (NEW!)
 
 NonBDNAFinder 2025.1 introduces a breakthrough disk-based storage system that maintains **constant memory usage (~70MB)** regardless of genome size:

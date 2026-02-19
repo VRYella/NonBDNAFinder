@@ -40,42 +40,109 @@ def revcomp(seq: str) -> str:
     return seq.translate(_REVCOMP_TABLE)[::-1]
 
 
-def calc_gc_content(seq: str) -> float:
+def _count_bases(seq: str) -> tuple:
     """
-    Optimized GC content percentage calculation using set membership (O(1) lookup).
+    Single-pass base counting for performance optimization.
     
     Args:
         seq: DNA sequence string (case-insensitive)
         
     Returns:
-        GC content as percentage (0-100)
+        Tuple of (a_count, t_count, g_count, c_count)
+        
+    Performance: O(n) single pass through sequence
+    """
+    a_count = t_count = g_count = c_count = 0
+    
+    for base in seq:
+        if base in {'A', 'a'}:
+            a_count += 1
+        elif base in {'T', 't'}:
+            t_count += 1
+        elif base in {'G', 'g'}:
+            g_count += 1
+        elif base in {'C', 'c'}:
+            c_count += 1
+    
+    return a_count, t_count, g_count, c_count
+
+
+def calc_gc_content(seq: str) -> float:
+    """
+    Calculate GC content percentage using genomic standard formula.
+    
+    Formula: GC% = (G + C) / (A + T + G + C) × 100
+    
+    Args:
+        seq: DNA sequence string (case-insensitive)
+        
+    Returns:
+        GC content as percentage (0-100), or 0.0 if no valid ATGC bases
+        
+    Scientific Basis:
+        - Excludes ambiguous bases (N, R, Y, etc.) from denominator
+        - Only counts definitive nucleotides (A, T, G, C)
+        - Standard used in genomics (NCBI, Ensembl, UCSC Genome Browser)
         
     Example:
         >>> calc_gc_content("ATCG")
         50.0
+        >>> calc_gc_content("ATCGNNNN")  # N's excluded
+        50.0  # (2 / 4) * 100, not (2 / 8) * 100
     """
     if not seq:
         return 0.0
-    # Single pass with O(1) set membership test
-    gc_count = sum(1 for c in seq if c in _GC_BASES)
-    return (gc_count / len(seq)) * 100
+    
+    # Single-pass base counting (O(n) performance)
+    a_count, t_count, g_count, c_count = _count_bases(seq)
+    
+    # Calculate valid base total (denominator)
+    valid_bases = a_count + t_count + g_count + c_count
+    
+    if valid_bases == 0:
+        return 0.0
+    
+    # Gold standard formula: (G+C) / (A+T+G+C) × 100
+    return ((g_count + c_count) / valid_bases) * 100
 
 
 def calc_at_content(seq: str) -> float:
     """
-    Optimized AT content percentage calculation using set membership (O(1) lookup).
+    Calculate AT content percentage using genomic standard formula.
+    
+    Formula: AT% = (A + T) / (A + T + G + C) × 100
     
     Args:
         seq: DNA sequence string (case-insensitive)
         
     Returns:
-        AT content as percentage (0-100)
+        AT content as percentage (0-100), or 0.0 if no valid ATGC bases
+        
+    Scientific Basis:
+        - Excludes ambiguous bases (N, R, Y, etc.) from denominator
+        - Only counts definitive nucleotides (A, T, G, C)
+        - Consistent with GC% calculation (AT% + GC% = 100%)
+        
+    Example:
+        >>> calc_at_content("ATCG")
+        50.0
+        >>> calc_at_content("ATCGNNNN")  # N's excluded
+        50.0  # (2 / 4) * 100, not (2 / 8) * 100
     """
     if not seq:
         return 0.0
-    # Single pass with O(1) set membership test
-    at_count = sum(1 for c in seq if c in _AT_BASES)
-    return (at_count / len(seq)) * 100
+    
+    # Single-pass base counting (O(n) performance)
+    a_count, t_count, g_count, c_count = _count_bases(seq)
+    
+    # Calculate valid base total (denominator)
+    valid_bases = a_count + t_count + g_count + c_count
+    
+    if valid_bases == 0:
+        return 0.0
+    
+    # Standard formula: (A+T) / (A+T+G+C) × 100
+    return ((a_count + t_count) / valid_bases) * 100
 
 
 def remove_overlaps(motifs: List[Dict[str, Any]], 
