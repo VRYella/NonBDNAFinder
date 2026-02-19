@@ -105,8 +105,11 @@ class UniversalSequenceStorage:
         """
         Save sequence to disk and return unique ID.
         
+        Sanitizes the sequence by removing all whitespace and converting to uppercase
+        to ensure consistent byte-offset based chunking.
+        
         Args:
-            sequence: DNA sequence string (uppercase recommended)
+            sequence: DNA sequence string (may contain whitespace/newlines)
             name: Sequence identifier (e.g., "chr1", "genome")
             
         Returns:
@@ -115,16 +118,27 @@ class UniversalSequenceStorage:
         seq_id = self._generate_seq_id(name)
         seq_file = self.base_dir / f"{seq_id}.seq"
         
-        # Write sequence to disk
-        with open(seq_file, 'w') as f:
-            f.write(sequence)
+        # Sanitize sequence: remove all whitespace (newlines, spaces, tabs) and convert to uppercase
+        # This ensures byte-offset based chunking works correctly
+        original_length = len(sequence)
+        sanitized_sequence = ''.join(sequence.split()).upper()
+        sanitized_length = len(sanitized_sequence)
         
-        # Calculate and store metadata
+        # Log if sanitization removed characters
+        if sanitized_length != original_length:
+            logger.info(f"Sanitized sequence '{name}': removed {original_length - sanitized_length} "
+                       f"whitespace characters ({original_length:,} -> {sanitized_length:,} bp)")
+        
+        # Write sanitized sequence to disk (no newlines, no whitespace)
+        with open(seq_file, 'w') as f:
+            f.write(sanitized_sequence)
+        
+        # Calculate and store metadata using sanitized sequence
         metadata = {
             'seq_id': seq_id,
             'name': name,
-            'length': len(sequence),
-            'gc_content': self._calculate_gc_content(sequence),
+            'length': sanitized_length,  # Length of actual stored sequence
+            'gc_content': self._calculate_gc_content(sanitized_sequence),
             'file_path': str(seq_file),
             'created_at': datetime.now().isoformat()
         }
@@ -132,7 +146,7 @@ class UniversalSequenceStorage:
         self.metadata[seq_id] = metadata
         self._save_metadata()
         
-        logger.info(f"Saved sequence '{name}' (length: {len(sequence):,} bp) as {seq_id}")
+        logger.info(f"Saved sequence '{name}' (length: {sanitized_length:,} bp) as {seq_id}")
         return seq_id
     
     def _save_metadata(self):
@@ -170,6 +184,9 @@ class UniversalSequenceStorage:
         """
         Iterate over sequence in overlapping chunks.
         
+        Validates that chunks contain only expected base characters (no whitespace/newlines).
+        If whitespace is detected, raises an error instructing to re-save the sequence.
+        
         Args:
             seq_id: Sequence identifier
             chunk_size: Size of each chunk in base pairs (default: 50Kbp, recommended for optimal performance)
@@ -177,6 +194,9 @@ class UniversalSequenceStorage:
             
         Yields:
             Tuple of (chunk_sequence, chunk_start, chunk_end)
+            
+        Raises:
+            ValueError: If chunk contains unexpected whitespace/newlines
             
         Example:
             for seq_chunk, start, end in storage.iter_chunks(seq_id):
@@ -189,6 +209,7 @@ class UniversalSequenceStorage:
         seq_file = Path(self.metadata[seq_id]['file_path'])
         seq_length = self.metadata[seq_id]['length']
         
+        chunk_num = 0
         start = 0
         
         with open(seq_file, 'r') as f:
@@ -198,6 +219,21 @@ class UniversalSequenceStorage:
                 f.seek(start)
                 chunk = f.read(end - start)
                 
+                chunk_num += 1
+                
+                # Defensive validation: check for unexpected whitespace/newlines
+                # This catches cases where sequences were stored with FASTA formatting
+                if any(c.isspace() for c in chunk):
+                    logger.error(f"Chunk {chunk_num} [{start}-{end}] contains whitespace/newlines!")
+                    logger.error(f"First 100 chars: {repr(chunk[:100])}")
+                    raise ValueError(
+                        f"Sequence file '{seq_file}' contains whitespace/newlines in chunk {chunk_num} "
+                        f"[{start}-{end}]. This indicates the sequence was saved with FASTA formatting. "
+                        f"Please re-upload the sequence to allow automatic sanitization, or use the "
+                        f"updated save_sequence() method which now strips whitespace automatically."
+                    )
+                
+                logger.debug(f"Yielding chunk {chunk_num} [{start}-{end}], length={len(chunk)}")
                 yield (chunk, start, end)
                 
                 # If we've reached the end, stop
@@ -206,6 +242,8 @@ class UniversalSequenceStorage:
                 
                 # Move to next chunk with overlap
                 start = end - overlap
+        
+        logger.info(f"Completed iteration of {chunk_num} chunks for sequence {seq_id}")
     
     def get_metadata(self, seq_id: str) -> Dict[str, Any]:
         """

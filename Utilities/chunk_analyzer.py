@@ -301,13 +301,14 @@ class ChunkAnalyzer:
         for _ in self.sequence_storage.iter_chunks(seq_id, self.chunk_size, self.overlap):
             total_chunks += 1
         
-        logger.info(f"Processing {total_chunks} chunks (parallel={self.use_parallel})")
+        logger.info(f"Processing {total_chunks} chunks (parallel={self.use_parallel}, "
+                   f"chunk_size={self.chunk_size:,}, overlap={self.overlap:,})")
         
         # Choose processing mode based on configuration
         if self.use_parallel and total_chunks > 1:
             # Parallel processing mode
             logger.info(f"Using parallel processing with {self.max_workers} workers")
-            logger.info(f"Processing {total_chunks} chunks in parallel")
+            logger.info(f"Processing {total_chunks} chunks in parallel batches")
             
             # Collect all chunk data
             chunk_data = []
@@ -315,6 +316,7 @@ class ChunkAnalyzer:
                 seq_id, self.chunk_size, self.overlap
             ):
                 chunk_num = len(chunk_data) + 1
+                logger.debug(f"Prepared chunk {chunk_num} [{chunk_start:,}-{chunk_end:,}] ({len(chunk_seq):,} bp)")
                 chunk_data.append((
                     chunk_seq,
                     f"{seq_name}_chunk{chunk_num}",
@@ -342,17 +344,26 @@ class ChunkAnalyzer:
                         all_chunk_results[chunk_idx] = (chunk_start, adjusted_motifs)
                         completed_chunks += 1
                         
-                        logger.info(f"Chunk {completed_chunks}/{total_chunks} completed "
-                                   f"({len(adjusted_motifs)} motifs)")
+                        logger.info(f"Chunk {completed_chunks}/{total_chunks} completed: "
+                                   f"detected {len(adjusted_motifs)} motifs at position {chunk_start:,}")
                         
                         # Update progress
                         if progress_callback:
                             progress_pct = (completed_chunks / total_chunks) * 100
                             progress_callback(progress_pct)
+                            logger.info(f"Overall progress: {progress_pct:.1f}% ({completed_chunks}/{total_chunks} chunks)")
                     except Exception as e:
                         logger.error(f"Error processing chunk {chunk_idx}: {e}")
+                        # Re-raise with better context for debugging
+                        chunk_tuple = chunk_data[chunk_idx] if chunk_idx < len(chunk_data) else None
+                        chunk_pos = chunk_tuple[2] if chunk_tuple and len(chunk_tuple) > 2 else "unknown"
+                        raise RuntimeError(
+                            f"Failed to process chunk {chunk_idx + 1}/{total_chunks} "
+                            f"at position {chunk_pos}: {e}"
+                        ) from e
             
             # Process results in order and deduplicate
+            logger.info(f"Deduplicating motifs across {len(all_chunk_results)} chunk boundaries")
             for chunk_idx in sorted(all_chunk_results.keys()):
                 chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
                 
@@ -372,6 +383,7 @@ class ChunkAnalyzer:
                 
                 # Filter out duplicates from overlap region
                 unique_motifs = []
+                duplicates_removed = 0
                 for motif in adjusted_motifs:
                     motif_key = self._create_motif_key(motif)
                     
@@ -381,12 +393,15 @@ class ChunkAnalyzer:
                         # If motif is in overlap region, track it for next chunk
                         if self._is_in_overlap_region(motif, chunk_start, chunk_end, self.overlap):
                             overlap_motifs.add(motif_key)
+                    else:
+                        duplicates_removed += 1
                 
                 # Save results to disk
                 results_storage.append_batch(unique_motifs)
                 
                 logger.info(f"Chunk {chunk_idx + 1}: {len(adjusted_motifs)} motifs detected, "
-                           f"{len(unique_motifs)} unique after deduplication")
+                           f"{len(unique_motifs)} unique after deduplication "
+                           f"({duplicates_removed} duplicates removed)")
                 
                 # Free memory for processed chunk results
                 del all_chunk_results[chunk_idx]
@@ -408,7 +423,7 @@ class ChunkAnalyzer:
                 chunk_num += 1
                 
                 logger.info(f"Processing chunk {chunk_num}/{total_chunks} "
-                           f"[{chunk_start:,}-{chunk_end:,}]")
+                           f"[{chunk_start:,}-{chunk_end:,}] ({len(chunk_seq):,} bp)")
                 
                 # Analyze chunk
                 chunk_motifs = analyze_sequence(
@@ -417,6 +432,8 @@ class ChunkAnalyzer:
                     use_fast_mode=True,
                     enabled_classes=enabled_classes
                 )
+                
+                logger.info(f"Chunk {chunk_num}: detected {len(chunk_motifs)} raw motifs")
                 
                 # Adjust positions to global coordinates
                 adjusted_motifs = self._adjust_motif_positions(chunk_motifs, chunk_start)
@@ -440,12 +457,13 @@ class ChunkAnalyzer:
                 results_storage.append_batch(unique_motifs)
                 
                 logger.info(f"Chunk {chunk_num}: {len(chunk_motifs)} motifs detected, "
-                           f"{len(unique_motifs)} unique")
+                           f"{len(unique_motifs)} unique after deduplication")
                 
-                # Update progress
+                # Update progress (including percentage)
                 if progress_callback:
                     progress_pct = (chunk_num / total_chunks) * 100
                     progress_callback(progress_pct)
+                    logger.info(f"Overall progress: {progress_pct:.1f}% ({chunk_num}/{total_chunks} chunks)")
                 
                 # Aggressive garbage collection
                 del chunk_seq
