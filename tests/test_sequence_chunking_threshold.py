@@ -18,7 +18,8 @@ def test_threshold_values():
     assert CHUNK_THRESHOLD == 50000, f"CHUNK_THRESHOLD should be 50000, got {CHUNK_THRESHOLD}"
     
     # SEQUENCE_CHUNKING_THRESHOLD should be 1MB for sequence chunking
-    assert SEQUENCE_CHUNKING_THRESHOLD == 1000000, f"SEQUENCE_CHUNKING_THRESHOLD should be 1000000, got {SEQUENCE_CHUNKING_THRESHOLD}"
+    assert SEQUENCE_CHUNKING_THRESHOLD == 1_000_000, \
+        f"SEQUENCE_CHUNKING_THRESHOLD should be 1_000_000, got {SEQUENCE_CHUNKING_THRESHOLD}"
     
     # The chunking threshold should be much larger than the detector parallelization threshold
     assert SEQUENCE_CHUNKING_THRESHOLD > CHUNK_THRESHOLD, "SEQUENCE_CHUNKING_THRESHOLD should be greater than CHUNK_THRESHOLD"
