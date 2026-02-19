@@ -219,10 +219,11 @@ class UniversalSequenceStorage:
                 f.seek(start)
                 chunk = f.read(end - start)
                 
+                chunk_num += 1
+                
                 # Defensive validation: check for unexpected whitespace/newlines
                 # This catches cases where sequences were stored with FASTA formatting
                 if any(c.isspace() for c in chunk):
-                    chunk_num += 1
                     logger.error(f"Chunk {chunk_num} [{start}-{end}] contains whitespace/newlines!")
                     logger.error(f"First 100 chars: {repr(chunk[:100])}")
                     raise ValueError(
@@ -232,7 +233,6 @@ class UniversalSequenceStorage:
                         f"updated save_sequence() method which now strips whitespace automatically."
                     )
                 
-                chunk_num += 1
                 logger.debug(f"Yielding chunk {chunk_num} [{start}-{end}], length={len(chunk)}")
                 yield (chunk, start, end)
                 

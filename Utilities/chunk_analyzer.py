@@ -354,8 +354,13 @@ class ChunkAnalyzer:
                             logger.info(f"Overall progress: {progress_pct:.1f}% ({completed_chunks}/{total_chunks} chunks)")
                     except Exception as e:
                         logger.error(f"Error processing chunk {chunk_idx}: {e}")
-                        # Re-raise to propagate to UI (don't silently swallow)
-                        raise
+                        # Re-raise with better context for debugging
+                        chunk_tuple = chunk_data[chunk_idx] if chunk_idx < len(chunk_data) else None
+                        chunk_pos = chunk_tuple[2] if chunk_tuple and len(chunk_tuple) > 2 else "unknown"
+                        raise RuntimeError(
+                            f"Failed to process chunk {chunk_idx + 1}/{total_chunks} "
+                            f"at position {chunk_pos}: {e}"
+                        ) from e
             
             # Process results in order and deduplicate
             logger.info(f"Deduplicating motifs across {len(all_chunk_results)} chunk boundaries")
