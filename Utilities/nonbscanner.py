@@ -47,9 +47,9 @@ __version__ = "2024.2"; __author__ = "Dr. Venkata Rajesh Yella"
 CHUNK_THRESHOLD = 50000; DEFAULT_CHUNK_SIZE = 50000; DEFAULT_CHUNK_OVERLAP = 2000
 
 # === SEQUENCE CHUNKING THRESHOLD ===
-# SEQUENCE_CHUNKING_THRESHOLD = 1MB triggers sequence splitting into chunks
-# For sequences > 1MB, splits into 50KB chunks with 2KB overlap for memory efficiency
-SEQUENCE_CHUNKING_THRESHOLD = 1_000_000  # 1MB
+# SEQUENCE_CHUNKING_THRESHOLD = 0 so ALL sequences use 50KB chunks with 2KB overlap
+# regardless of sequence size (RAM-only processing)
+SEQUENCE_CHUNKING_THRESHOLD = 0  # Always chunk
 
 # Parallel detector execution for maximum performance (enabled by default for sequences >50KB)
 # MAX_DETECTOR_WORKERS limited to 9 because there are exactly 9 detector types in the system
