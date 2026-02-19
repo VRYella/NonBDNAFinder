@@ -6,7 +6,7 @@ automatic logging and graceful fallbacks.
 """
 
 import logging
-from typing import List, Any, Optional, Union
+from typing import List, Any, Optional, Union, Dict
 import pandas as pd
 import re
 
@@ -158,3 +158,101 @@ def validate_sequence_input(sequences: List[str], min_length: int = 10) -> tuple
             logger.warning(issue)
     
     return valid_sequences, issues
+
+
+def generate_sequence_quality_report(sequences: List[str]) -> Dict[str, Any]:
+    """
+    Generate comprehensive quality report for input sequences.
+    
+    Uses the gold-standard preprocessing pipeline to analyze each sequence
+    and provide detailed statistics.
+    
+    Args:
+        sequences: List of DNA sequences to analyze
+        
+    Returns:
+        Dictionary with comprehensive quality metrics:
+        {
+            'total_sequences': int,
+            'total_length': int,
+            'average_gc': float,
+            'sequences': [
+                {
+                    'name': str,
+                    'length': int,
+                    'valid_bases': int,
+                    'n_count': int,
+                    'gc_percentage': float,
+                    'at_percentage': float,
+                    'invalid_chars': Dict[str, int],
+                    'status': str  # "valid" | "warning" | "error"
+                },
+                ...
+            ],
+            'global_warnings': List[str],
+            'global_errors': List[str]
+        }
+        
+    Example:
+        >>> sequences = ["ATCGATCG", "ATCGNNNN", "ATCG123"]
+        >>> report = generate_sequence_quality_report(sequences)
+        >>> report['total_sequences']
+        3
+        >>> len(report['global_errors'])
+        1  # One sequence has invalid characters
+    """
+    from Utilities.sequence_preprocessor import preprocess_sequence
+    
+    report = {
+        'total_sequences': len(sequences),
+        'total_length': 0,
+        'average_gc': 0.0,
+        'sequences': [],
+        'global_warnings': [],
+        'global_errors': []
+    }
+    
+    gc_values = []
+    
+    for i, seq in enumerate(sequences):
+        seq_name = f"sequence_{i+1}"
+        
+        try:
+            result = preprocess_sequence(seq)
+            
+            # Build sequence report
+            seq_report = {
+                'name': seq_name,
+                'length': result.length,
+                'valid_bases': result.valid_bases,
+                'n_count': result.character_counts.get('N', 0),
+                'gc_percentage': result.gc_percentage,
+                'at_percentage': result.at_percentage,
+                'invalid_chars': {char: len(positions) for char, positions in result.invalid_characters.items()},
+                'status': result.validation_status
+            }
+            
+            report['sequences'].append(seq_report)
+            report['total_length'] += result.length
+            
+            # Collect GC values for average (only from valid sequences)
+            if result.valid_bases > 0:
+                gc_values.append(result.gc_percentage)
+            
+            # Collect global warnings and errors
+            for warning in result.warnings:
+                report['global_warnings'].append(f"{seq_name}: {warning}")
+            
+            for error in result.errors:
+                report['global_errors'].append(f"{seq_name}: {error}")
+                
+        except Exception as e:
+            # Handle any preprocessing errors
+            logger.error(f"Error processing {seq_name}: {e}")
+            report['global_errors'].append(f"{seq_name}: Preprocessing exception - {str(e)}")
+    
+    # Calculate average GC content
+    if gc_values:
+        report['average_gc'] = sum(gc_values) / len(gc_values)
+    
+    return report

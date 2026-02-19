@@ -146,7 +146,7 @@ class NonBScanner:
     def __init__(self, enable_all_detectors: bool = True):
         self.detectors = {'curved_dna': CurvedDNADetector(), 'slipped_dna': SlippedDNADetector(), 'cruciform': CruciformDetector(), 'r_loop': RLoopDetector(), 'triplex': TriplexDetector(), 'g_quadruplex': GQuadruplexDetector(), 'i_motif': IMotifDetector(), 'z_dna': ZDNADetector(), 'a_philic': APhilicDetector()} if enable_all_detectors else {}
     
-    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence", progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None, enabled_classes: Optional[List[str]] = None, use_parallel_detectors: bool = None) -> List[Dict[str, Any]]:
+    def analyze_sequence(self, sequence: str, sequence_name: str = "sequence", progress_callback: Optional[Callable[[str, int, int, float, int], None]] = None, enabled_classes: Optional[List[str]] = None, use_parallel_detectors: bool = None, use_preprocessing: bool = False) -> List[Dict[str, Any]]:
         """Optimized sequence analysis with optional parallel detector execution.
         
         Args:
@@ -155,12 +155,35 @@ class NonBScanner:
             progress_callback: Optional callback for progress updates
             enabled_classes: Optional list of motif classes to detect (None = all)
             use_parallel_detectors: Enable parallel detector execution (None = auto based on sequence length)
+            use_preprocessing: Enable comprehensive preprocessing with validation (default: False for backward compatibility)
         
         Returns:
             List of detected motif dictionaries
         """
-        sequence = sequence.upper().strip(); is_valid, msg = validate_sequence(sequence)
-        if not is_valid: raise ValueError(f"Invalid sequence: {msg}")
+        # Optional: Use comprehensive preprocessing pipeline
+        if use_preprocessing:
+            from Utilities.sequence_preprocessor import preprocess_sequence
+            
+            preprocessing_result = preprocess_sequence(sequence)
+            
+            # Check for errors
+            if preprocessing_result.validation_status == "error":
+                error_msg = "; ".join(preprocessing_result.errors)
+                raise ValueError(f"Sequence preprocessing failed: {error_msg}")
+            
+            # Log warnings (e.g., N's present)
+            if preprocessing_result.warnings:
+                for warning in preprocessing_result.warnings:
+                    logger.warning(f"Sequence '{sequence_name}': {warning}")
+            
+            # Use cleaned sequence
+            sequence = preprocessing_result.sequence
+        else:
+            # Original validation (backward compatibility)
+            sequence = sequence.upper().strip()
+            is_valid, msg = validate_sequence(sequence)
+            if not is_valid:
+                raise ValueError(f"Invalid sequence: {msg}")
         
         # Auto-enable parallel detectors for large sequences if not specified
         if use_parallel_detectors is None:
