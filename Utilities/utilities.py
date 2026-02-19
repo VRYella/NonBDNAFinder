@@ -489,7 +489,14 @@ SCORE_NORMALIZATION_PARAMS = {
 
 def normalize_score_to_1_3(raw_score: float, motif_class: str) -> float:
     """
+    DEPRECATED: Normalization now handled by detector classes.
+    
     Normalize raw detector score to 1-3 scale.
+    
+    **NEW ARCHITECTURE (2024.2+):**
+    - Each detector class has internal `_normalize_score()` method
+    - Normalization parameters are tunable class constants
+    - This function is maintained for backward compatibility only
     
     Scientific basis:
     - 1.0 = Minimal (below typical formation threshold)
@@ -509,6 +516,13 @@ def normalize_score_to_1_3(raw_score: float, motif_class: str) -> float:
         >>> normalize_score_to_1_3(0.8, 'G-Quadruplex')
         2.6
     """
+    import warnings
+    warnings.warn(
+        "normalize_score_to_1_3() is deprecated. Use detector._normalize_score() instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    
     # Get normalization parameters for this class
     params = SCORE_NORMALIZATION_PARAMS.get(motif_class)
     
@@ -572,7 +586,20 @@ def normalize_score_to_1_3(raw_score: float, motif_class: str) -> float:
 
 def normalize_motif_scores(motifs: list) -> list:
     """
-    Normalize all motif scores to universal 1-3 scale for cross-motif comparability.
+    DEPRECATED: Normalization now handled by detector classes.
+    
+    This function is maintained for backward compatibility but no longer performs
+    normalization since detector classes now self-normalize scores to the universal
+    1-3 scale during detection.
+    
+    **NEW ARCHITECTURE (2024.2+):**
+    - Each detector normalizes scores internally via `_normalize_score()` method
+    - Detectors return both 'Raw_Score' (detector-specific) and 'Score' (universal 1-3)
+    - Normalization parameters are tunable class constants in each detector
+    
+    **MIGRATION:**
+    - If using detectors directly: No changes needed, scores are already normalized
+    - If calling this function directly: Update code to use detector output directly
     
     UNIVERSAL SCORE DISCIPLINE (ΔG-inspired Scale):
     ═══════════════════════════════════════════════════════════════════════
@@ -613,7 +640,7 @@ def normalize_motif_scores(motifs: list) -> list:
         motifs: List of motif dictionaries with 'Score' and 'Class' fields
         
     Returns:
-        List of motifs with updated 'Score' field (1-3 scale)
+        List of motifs unchanged (already normalized by detectors)
         
     Note:
         Original raw score is preserved in 'Raw_Score' field for reference.
@@ -621,30 +648,24 @@ def normalize_motif_scores(motifs: list) -> list:
     
     Example:
         >>> motifs = [
-        ...     {'Class': 'G-Quadruplex', 'Score': 0.8},
-        ...     {'Class': 'Curved_DNA', 'Score': 0.6}
+        ...     {'Class': 'G-Quadruplex', 'Score': 2.5, 'Raw_Score': 0.8},
+        ...     {'Class': 'Curved_DNA', 'Score': 2.2, 'Raw_Score': 0.6}
         ... ]
         >>> normalized = normalize_motif_scores(motifs)
-        >>> # Both scores now on comparable 1-3 scale
-        >>> assert 1.0 <= normalized[0]['Score'] <= 3.0
-        >>> assert 1.0 <= normalized[1]['Score'] <= 3.0
+        >>> # Returns motifs unchanged (scores already normalized)
+        >>> assert normalized[0]['Score'] == 2.5
+        >>> assert normalized[1]['Score'] == 2.2
     """
-    normalized_motifs = []
+    import warnings
+    warnings.warn(
+        "normalize_motif_scores() is deprecated. Detectors now self-normalize scores. "
+        "This function returns motifs unchanged for backward compatibility.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     
-    for motif in motifs:
-        m = motif.copy()
-        raw_score = m.get('Score', 0.0)
-        motif_class = m.get('Class', 'Unknown')
-        
-        # Store raw score for reference (class-specific scale)
-        m['Raw_Score'] = raw_score
-        
-        # Normalize to universal 1-3 scale (cross-motif comparable)
-        m['Score'] = round(normalize_score_to_1_3(raw_score, motif_class), 2)
-        
-        normalized_motifs.append(m)
-    
-    return normalized_motifs
+    # Return motifs unchanged - they're already normalized by detectors
+    return motifs
 
 
 """
