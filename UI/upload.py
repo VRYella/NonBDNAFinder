@@ -1036,23 +1036,24 @@ def render():
         # ============================================================
         # PROGRESS DISPLAY AREA - Within Detection Scope
         # ============================================================
-        # Add vibrant box for progress display below the buttons
-        st.markdown("""
-        <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
-                    padding: 1rem; border-radius: 8px; margin-top: 1rem;
-                    border-left: 4px solid #0ea5e9;
-                    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
-            <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;'>
-                📊 Analysis Progress
+        # Create a vibrant container for progress display below the buttons
+        with st.container():
+            st.markdown("""
+            <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+                        padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem;
+                        border-left: 4px solid #0ea5e9;
+                        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
+                <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem;'>
+                    📊 Analysis Progress
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Create placeholders for progress tracking within the vibrant box
-        progress_placeholder = st.empty()
-        status_placeholder = st.empty()
-        detailed_progress_placeholder = st.empty()
-        timer_placeholder = st.empty()
+            """, unsafe_allow_html=True)
+            
+            # Create placeholders for progress tracking within the container
+            progress_placeholder = st.empty()
+            status_placeholder = st.empty()
+            detailed_progress_placeholder = st.empty()
+            timer_placeholder = st.empty()
 
     
         # ============================================================
