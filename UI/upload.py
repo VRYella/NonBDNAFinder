@@ -67,9 +67,8 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 CONFIG_AVAILABLE = False
 GRID_COLUMNS = 6; GRID_GAP = "0.10rem"; ROW_GAP = "0.10rem"; DOT_SIZE = 5; GLOW_SIZE = 5
-# Disk storage chunk threshold: sequences larger than this use ChunkAnalyzer with simple chunking
-# Changed from 50KB to 1MB based on problem statement - start chunking from 1MB sequences
-CHUNK_ANALYSIS_THRESHOLD_BP = 1_000_000  # 1MB (simple chunking threshold)
+# Chunk analysis threshold: always use ChunkAnalyzer for all sequences (0 = no minimum)
+CHUNK_ANALYSIS_THRESHOLD_BP = 0  # Always chunk with 50KB/2KB approach
 # Parallel processing threshold: multi-FASTA with >= this many sequences will use parallel processing
 PARALLEL_PROCESSING_THRESHOLD = 2  # Use parallel processing for 2+ sequences
 SUBMOTIF_ABBREVIATIONS = {

@@ -25,7 +25,6 @@ from Utilities.config.themes import TAB_THEMES
 from UI.css import load_css
 from UI import home, upload, results, download, documentation
 from Utilities.nonbscanner import get_motif_info as get_motif_classification_info
-from Utilities.disk_storage import UniversalSequenceStorage
 
 # BioPython availability check
 try:
@@ -71,11 +70,11 @@ SESSION_DEFAULTS = {
     'selected_classes_used': [],
     'selected_subclasses_used': [],
     'current_job_id': None,
-    # New disk-based storage
-    'use_disk_storage': True,  # Enable disk storage by default
-    'seq_storage': None,  # UniversalSequenceStorage instance
-    'seq_ids': [],  # Sequence IDs instead of full sequences
-    'results_storage': {}  # Dict mapping seq_id to UniversalResultsStorage
+    # Disk-based storage disabled: all processing uses RAM with 50KB/2KB chunking
+    'use_disk_storage': False,
+    'seq_storage': None,
+    'seq_ids': [],
+    'results_storage': {}
 }
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -98,10 +97,6 @@ for k in _THEME_DEFAULTS:
 for k, v in SESSION_DEFAULTS.items():
     if k not in st.session_state:
         st.session_state[k] = v
-
-# Initialize disk storage if enabled and not already initialized
-if st.session_state.get('use_disk_storage') and st.session_state.get('seq_storage') is None:
-    st.session_state.seq_storage = UniversalSequenceStorage()
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN APPLICATION
