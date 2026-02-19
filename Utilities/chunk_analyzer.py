@@ -368,7 +368,7 @@ class ChunkAnalyzer:
                 chunk_start, adjusted_motifs = all_chunk_results[chunk_idx]
                 
                 # Validate chunk_data access with bounds checking
-                if chunk_idx not in chunk_data:
+                if chunk_idx >= len(chunk_data):
                     logger.error(f"Missing chunk_data for chunk {chunk_idx}")
                     continue
                 
