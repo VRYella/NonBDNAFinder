@@ -348,6 +348,44 @@ class VisualizationPipeline:
             "cooccurrence_heatmap": self.plot_cooccurrence_heatmap(),
         }
 
+    def generate_all_parallel(
+        self,
+        max_workers: int = 4,
+        progress_callback=None,
+    ) -> Dict[str, Any]:
+        """
+        Render all standard plots concurrently using a ``ThreadPoolExecutor``.
+
+        Visualization must not block the UI.  This method submits all five
+        plot tasks to a thread pool simultaneously so total render time
+        approaches that of the single slowest plot rather than their sum.
+
+        Args:
+            max_workers:       Number of concurrent plot threads (default 4).
+            progress_callback: Optional ``callback(event_dict)`` fired after
+                               each plot finishes.  The dict has keys
+                               ``stage``, ``component``, and ``elapsed``.
+
+        Returns:
+            Dict with keys::
+
+                {
+                    "figures":       {plot_name: Figure, ...},
+                    "timings":       {plot_name: elapsed_seconds, ...},
+                    "total_elapsed": float,
+                }
+        """
+        from Utilities.visualization.parallel_visualization import (
+            ParallelVisualization,
+        )
+
+        runner = ParallelVisualization(
+            pipeline=self,
+            max_workers=max_workers,
+            progress_callback=progress_callback,
+        )
+        return runner.generate_all()
+
     # ------------------------------------------------------------------
     # HELPER
     # ------------------------------------------------------------------

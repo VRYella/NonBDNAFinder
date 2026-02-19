@@ -2,7 +2,7 @@
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ Motif Detection Engine - Adaptive Analysis Orchestrator                      │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
+│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.2            │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 DESCRIPTION:
@@ -15,16 +15,31 @@ DESCRIPTION:
             → numba-only (direct analysis, no chunking)
 
         100 000 ≤ sequence_length < 5 000 000 bp
-            → numba + 2-worker chunk processing
-              (StreamlitSafeExecutor with ProcessPoolExecutor)
+            → chunk-parallel single-pass (ChunkExecutor, 4 workers)
 
         sequence_length ≥ 5 000 000 bp
             → disk-backed chunk streaming mode
               (sequential, one chunk at a time, constant RAM)
 
-    Visualisation always uses a VisualizationAccumulator populated while
-    streaming results – the full motif table is never loaded into RAM for
-    plotting.
+    Visualisation is generated in parallel using ``VisualizationPipeline
+    .generate_all_parallel()`` backed by a ``ThreadPoolExecutor``.
+
+    Real-time performance telemetry is provided via ``progress_callback``
+    which receives either a plain float (legacy) or a rich dict::
+
+        {
+            "stage":        "detection" | "visualization",
+            "chunk_id":     int,
+            "elapsed":      float,
+            "bp_processed": int,
+            "throughput":   float,   # bp/sec
+            "memory_mb":    float,
+            "progress_pct": float,   # 0–100
+        }
+
+    After ``analyze()`` returns, call ``get_performance_summary()`` on the
+    engine instance to retrieve a full breakdown of per-detector, per-chunk,
+    and stage-level timings.
 
 MEMORY GUARANTEES:
     - Peak RAM proportional to chunk_size, not total genome size
@@ -66,6 +81,10 @@ class MotifDetectionEngine:
 
         summary = results_storage.get_summary_stats()
         vis_data = accumulator.get_summary()
+
+        # Full performance breakdown after analysis
+        perf = engine.get_performance_summary()
+        print(perf["detector_breakdown"])
     """
 
     def __init__(
@@ -86,6 +105,7 @@ class MotifDetectionEngine:
         self.chunk_size = chunk_size
         self.overlap = overlap
         self.max_workers = max_workers
+        self._last_executor = None
 
     # ------------------------------------------------------------------
     # PUBLIC API
@@ -94,15 +114,28 @@ class MotifDetectionEngine:
     def analyze(
         self,
         seq_id: str,
-        progress_callback: Optional[Callable[[float], None]] = None,
+        progress_callback: Optional[Callable] = None,
         enabled_classes: Optional[List[str]] = None,
     ) -> Tuple[Any, Any]:
         """
         Analyse a stored sequence with the adaptive strategy.
 
+        ``progress_callback`` accepts either a legacy ``float`` (0–100) or a
+        rich telemetry ``dict``::
+
+            {
+                "stage":        "detection" | "visualization",
+                "chunk_id":     int,
+                "elapsed":      float,
+                "bp_processed": int,
+                "throughput":   float,
+                "memory_mb":    float,
+                "progress_pct": float,
+            }
+
         Args:
             seq_id:            Sequence ID from ``UniversalSequenceStorage``.
-            progress_callback: Optional ``callback(progress_pct: float)``.
+            progress_callback: Optional callback receiving progress info.
             enabled_classes:   Motif classes to analyse (``None`` = all).
 
         Returns:
@@ -110,6 +143,7 @@ class MotifDetectionEngine:
                 - ``UniversalResultsStorage`` – results on disk
                 - ``VisualizationAccumulator`` – pre-aggregated vis data
         """
+        from Utilities.core.chunk_executor import ChunkExecutor
         from Utilities.streamlit_safe_executor import StreamlitSafeExecutor
         from Utilities.visualization_accumulator import VisualizationAccumulator
 
@@ -122,18 +156,34 @@ class MotifDetectionEngine:
             f"length={seq_length:,} bp → strategy='{strategy}'"
         )
 
-        executor = StreamlitSafeExecutor(
-            sequence_storage=self.sequence_storage,
-            chunk_size=self.chunk_size,
-            overlap=self.overlap,
-            max_workers=self.max_workers,
-        )
-
-        results_storage = executor.run(
-            seq_id=seq_id,
-            progress_callback=progress_callback,
-            enabled_classes=enabled_classes,
-        )
+        if strategy in ("chunk_workers",):
+            # Use the new chunk-parallel executor for medium sequences
+            executor = ChunkExecutor(
+                sequence_storage=self.sequence_storage,
+                chunk_size=self.chunk_size,
+                overlap=self.overlap,
+                max_workers=self.max_workers,
+            )
+            self._last_executor = executor
+            results_storage = executor.run(
+                seq_id=seq_id,
+                progress_callback=progress_callback,
+                enabled_classes=enabled_classes,
+            )
+        else:
+            # Small or very large sequences → StreamlitSafeExecutor
+            executor = StreamlitSafeExecutor(
+                sequence_storage=self.sequence_storage,
+                chunk_size=self.chunk_size,
+                overlap=self.overlap,
+                max_workers=self.max_workers,
+            )
+            self._last_executor = executor
+            results_storage = executor.run(
+                seq_id=seq_id,
+                progress_callback=progress_callback,
+                enabled_classes=enabled_classes,
+            )
 
         # Build VisualizationAccumulator by streaming the final results
         accumulator = VisualizationAccumulator(seq_length=seq_length)
@@ -145,6 +195,22 @@ class MotifDetectionEngine:
             f"({results_storage.get_summary_stats()['total_count']} motifs)"
         )
         return results_storage, accumulator
+
+    def get_performance_summary(self) -> Optional[Dict[str, Any]]:
+        """
+        Return performance telemetry from the most recent ``analyze()`` call.
+
+        Returns ``None`` if no analysis has been run or if the last run used
+        a strategy without telemetry (e.g. StreamlitSafeExecutor fallback).
+
+        Returns:
+            Performance summary dict (same structure as
+            ``PerformanceMonitor.get_summary()``) or ``None``.
+        """
+        if self._last_executor is None:
+            return None
+        fn = getattr(self._last_executor, "get_performance_summary", None)
+        return fn() if callable(fn) else None
 
     # ------------------------------------------------------------------
     # STRATEGY SELECTION
@@ -164,3 +230,4 @@ class MotifDetectionEngine:
         if seq_length < _THRESHOLD_CHUNK:
             return "chunk_workers"
         return "disk_streaming"
+

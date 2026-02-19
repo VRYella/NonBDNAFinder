@@ -250,6 +250,23 @@ class BaseMotifDetector(ABC):
             'patterns_by_group': {k: len(v) for k, v in self.patterns.items()}
         }
     
+    def scan(self, context) -> List[Dict[str, Any]]:
+        """
+        Run detection on a pre-processed ``SequenceContext``.
+
+        This is the preferred entry-point when using the chunk-based execution
+        engine (``ChunkExecutor``).  The sequence inside ``context`` has already
+        been uppercased and stripped, so no redundant preprocessing is done.
+
+        Args:
+            context: A ``SequenceContext`` instance
+                     (``Utilities.core.sequence_context.SequenceContext``).
+
+        Returns:
+            List of motif dictionaries – same format as ``detect_motifs``.
+        """
+        return self.detect_motifs(context.sequence, context.name)
+
     def get_audit_info(self) -> Dict[str, Any]:
         """Get detector execution audit information"""
         return self.audit.copy()
