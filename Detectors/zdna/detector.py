@@ -46,11 +46,36 @@ logger = logging.getLogger(__name__)
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 MIN_EGZ_REPEATS = 3; EGZ_BASE_SCORE = 0.85; EGZ_MIN_SCORE_THRESHOLD = 0.80; MIN_Z_SCORE = 50.0
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 50.0        │ Ho 1986 - single Z-DNA 10-mer minimum  │
+# │ RAW_MAX      │ 2000.0      │ Ho 1986 - cumulative max for long runs │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'log'       │ Log-linear scaling for cumulative sums │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+ZDNA_RAW_SCORE_MIN = 50.0; ZDNA_RAW_SCORE_MAX = 2000.0
+ZDNA_NORMALIZED_MIN = 1.0; ZDNA_NORMALIZED_MAX = 3.0
+ZDNA_NORMALIZATION_METHOD = 'log'  # Log scaling for cumulative scores
+ZDNA_SCORE_REFERENCE = 'Ho et al. 1986 (EMBO J) - Z-DNA propensity'
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 class ZDNADetector(BaseMotifDetector):
     """Z-DNA detector: 10-mer scoring (Ho 1986) + eGZ-motifs (Herbert 1997)."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = ZDNA_RAW_SCORE_MIN
+    RAW_SCORE_MAX = ZDNA_RAW_SCORE_MAX
+    NORMALIZED_MIN = ZDNA_NORMALIZED_MIN
+    NORMALIZED_MAX = ZDNA_NORMALIZED_MAX
+    NORMALIZATION_METHOD = ZDNA_NORMALIZATION_METHOD
+    SCORE_REFERENCE = ZDNA_SCORE_REFERENCE
 
     MIN_EGZ_REPEATS = MIN_EGZ_REPEATS; EGZ_BASE_SCORE = EGZ_BASE_SCORE; EGZ_MIN_SCORE_THRESHOLD = EGZ_MIN_SCORE_THRESHOLD
     MIN_Z_SCORE = MIN_Z_SCORE
@@ -116,12 +141,16 @@ class ZDNADetector(BaseMotifDetector):
                     # Enhanced features for eGZ motifs
                     repeat_unit = region.get('repeat_unit', '')
                     repeat_count = region.get('repeat_count', 0)
+                    raw_score = region['sum_score']
+                    normalized_score = self._normalize_score(raw_score)
                     
                     motifs.append({
                         'ID': f"{sequence_name}_{region['pattern_id']}_{start_pos+1}", 'Sequence_Name': sequence_name,
                         'Class': canonical_class, 'Subclass': canonical_subclass,
                         'Start': start_pos + 1, 'End': end_pos, 'Length': region['length'], 'Sequence': motif_seq,
-                        'Score': round(region['sum_score'], 3), 'Strand': '+', 'Method': 'Z-DNA_detection',
+                        'Raw_Score': round(raw_score, 3),  # Detector-specific scale
+                        'Score': normalized_score,          # Universal 1-3 scale
+                        'Strand': '+', 'Method': 'Z-DNA_detection',
                         'Pattern_ID': region['pattern_id'], 
                         'Repeat_Unit': repeat_unit,
                         'Repeat_Count': repeat_count, 
@@ -143,12 +172,16 @@ class ZDNADetector(BaseMotifDetector):
                     
                     # Determine Z-DNA type
                     zdna_type = self._classify_zdna_type(motif_seq, alternating_cg, alternating_at)
+                    raw_score = region['sum_score']
+                    normalized_score = self._normalize_score(raw_score)
                     
                     motifs.append({
                         'ID': f"{sequence_name}_ZDNA_{start_pos+1}", 'Sequence_Name': sequence_name,
                         'Class': canonical_class, 'Subclass': canonical_subclass,
                         'Start': start_pos + 1, 'End': end_pos, 'Length': region['length'], 'Sequence': motif_seq,
-                        'Score': round(region['sum_score'], 3), 'Strand': '+', 'Method': 'Z-DNA_detection',
+                        'Raw_Score': round(raw_score, 3),  # Detector-specific scale
+                        'Score': normalized_score,          # Universal 1-3 scale
+                        'Strand': '+', 'Method': 'Z-DNA_detection',
                         'Pattern_ID': f'ZDNA_{i+1}', 
                         'Contributing_10mers': region.get('n_10mers', 0),
                         'Mean_10mer_Score': region.get('mean_score_per10mer', 0), 

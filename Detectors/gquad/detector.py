@@ -32,6 +32,23 @@ except ImportError:
 WINDOW_SIZE_DEFAULT = 25
 MIN_REGION_LEN = 8
 CLASS_PRIORITY = ["telomeric_g4", "stacked_canonical_g4s", "stacked_g4s_linker", "canonical_g4", "extended_loop_g4", "higher_order_g4", "g_triplex", "weak_pqs"]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NORMALIZATION PARAMETERS (Tunable)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ┌──────────────┬─────────────┬────────────────────────────────────────┐
+# │ Parameter    │ Value       │ Scientific Basis                       │
+# ├──────────────┼─────────────┼────────────────────────────────────────┤
+# │ RAW_MIN      │ 0.5         │ Bedrat 2016 - minimal G4 stability     │
+# │ RAW_MAX      │ 1.0         │ Bedrat 2016 - maximal G4Hunter score   │
+# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
+# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
+# │ METHOD       │ 'g4hunter'  │ G4Hunter-specific normalization        │
+# └──────────────┴─────────────┴────────────────────────────────────────┘
+G4_RAW_SCORE_MIN = 0.5; G4_RAW_SCORE_MAX = 1.0
+G4_NORMALIZED_MIN = 1.0; G4_NORMALIZED_MAX = 3.0
+G4_NORMALIZATION_METHOD = 'g4hunter'  # G4Hunter abs-value based scoring
+G4_SCORE_REFERENCE = 'Bedrat et al. 2016 (Bioinformatics)'
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -62,6 +79,14 @@ def _compute_max_window_sum_jit(vals, ws, L):
 
 class GQuadruplexDetector(BaseMotifDetector):
     """Ultra-fast seeded G4 detector with priority logic retained."""
+
+    # Override normalization parameters
+    RAW_SCORE_MIN = G4_RAW_SCORE_MIN
+    RAW_SCORE_MAX = G4_RAW_SCORE_MAX
+    NORMALIZED_MIN = G4_NORMALIZED_MIN
+    NORMALIZED_MAX = G4_NORMALIZED_MAX
+    NORMALIZATION_METHOD = G4_NORMALIZATION_METHOD
+    SCORE_REFERENCE = G4_SCORE_REFERENCE
 
     # -------------------------
     # Core Interface
@@ -126,6 +151,10 @@ class GQuadruplexDetector(BaseMotifDetector):
             motif_seq = sequence[ann['start']:ann['end']]
             structural_features = self._extract_g4_features(motif_seq, ann['class_name'])
             
+            # Store raw score and calculate normalized score
+            raw_score = ann['score']
+            normalized_score = self._normalize_score(raw_score)
+            
             motif = {
                 'ID': f"{sequence_name}_{ann['pattern_id']}_{ann['start']+1}",
                 'Sequence_Name': sequence_name,
@@ -135,7 +164,8 @@ class GQuadruplexDetector(BaseMotifDetector):
                 'End': ann['end'],
                 'Length': ann['end'] - ann['start'],
                 'Sequence': motif_seq,
-                'Score': round(ann['score'], 4),
+                'Raw_Score': round(raw_score, 4),      # Detector-specific scale
+                'Score': normalized_score,              # Universal 1-3 scale
                 'Strand': '+',
                 'Method': 'Seeded_G4Hunter',
                 'Pattern_ID': ann['pattern_id']
