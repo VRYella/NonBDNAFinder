@@ -33,7 +33,7 @@ psutil>=5.8.0
 # Optional: Performance Acceleration (install separately for production use)
 # hyperscan>=0.7.0  # High-performance pattern matching (optional acceleration)
 # pyfastx>=0.8.0    # Fast FASTA/FASTQ parsing (optional acceleration)
-numba>=0.56.0     # JIT compilation for 2-5x speedup in scoring functions
+# numba>=0.56.0   # JIT compilation for 2-5x speedup (optional; causes _frozen_importlib._DeadlockError on Streamlit Cloud)
 
 # === Streamlit Cloud Optimizations (NEW) ===
 pyahocorasick>=2.0.0  # Aho-Corasick multi-pattern matching (50-200x speedup)
