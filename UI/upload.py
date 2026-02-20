@@ -2083,6 +2083,7 @@ def render():
                 # ============================================================
                 # PERFORMANCE SUMMARY: Display comprehensive statistics
                 # ============================================================
+                perf_tracker.add_task_time('visualization', viz_total_time)
                 perf_tracker.end()
                 
                 # Calculate motif distribution by class

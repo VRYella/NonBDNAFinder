@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import re
 import io
+import time
 import traceback
 from collections import Counter
 from Utilities.config.text import UI_TEXT
@@ -59,23 +60,35 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     csv_data = None; excel_data = None; excel_label = "📊 Excel"; excel_fname = f"{safe_fn}_results.xlsx"; json_data = None; bed_data = None; pdf_data = None
     excel_error = None; pdf_error = None
+    export_times: dict = {}
     if all_motifs:
-        try: csv_data = export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8')
+        try:
+            _t0 = time.time(); csv_data = export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8'); export_times['csv'] = time.time() - _t0
         except Exception as e: csv_data = None
         try:
+            _t0 = time.time()
             if seq_count > 1:
                 excel_data = generate_multifasta_excel_bytes(names, lengths, seq_count)
                 excel_label = "📊 Excel (MultiFASTA)"; excel_fname = f"{safe_fn}_multifasta_results.xlsx"
             else:
                 excel_data = generate_excel_bytes(all_motifs, simple_format=True)
+            export_times['excel'] = time.time() - _t0
         except Exception as e: excel_error = str(e)
-        try: json_data = export_to_json(all_motifs, pretty=True).encode('utf-8')
+        try:
+            _t0 = time.time(); json_data = export_to_json(all_motifs, pretty=True).encode('utf-8'); export_times['json'] = time.time() - _t0
         except Exception: json_data = None
-        try: bed_data = export_to_bed(all_motifs, names[0]).encode('utf-8') if names else None
+        try:
+            _t0 = time.time()
+            if names:
+                bed_data = export_to_bed(all_motifs, names[0]).encode('utf-8')
+                export_times['bed'] = time.time() - _t0
         except Exception: bed_data = None
         try:
             slen = lengths[0] if lengths else 0
-            pdf_data = export_to_pdf(all_motifs, slen, seq_name) if slen > 0 else None
+            if slen > 0:
+                _t0 = time.time()
+                pdf_data = export_to_pdf(all_motifs, slen, seq_name)
+                export_times['pdf'] = time.time() - _t0
         except Exception as e: pdf_error = str(e)
 
     st.markdown("### Export Options"); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.8rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
@@ -93,6 +106,18 @@ def render():
         if pdf_data is not None: st.download_button("📑 PDF", data=pdf_data, file_name=f"{safe_fn}_viz.pdf", mime="application/pdf", use_container_width=True, type="primary", key="dl_pdf")
         elif pdf_error: st.error(f"PDF error: {pdf_error}")
         elif all_motifs and not (lengths and lengths[0] > 0): st.warning("No sequence for PDF")
+    
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # EXPORT TIMING SUMMARY
+    # ═══════════════════════════════════════════════════════════════════════════════
+    if export_times:
+        with st.expander("⏱️ Export Preparation Times", expanded=False):
+            _fmt_labels = {'csv': '📄 CSV', 'excel': '📊 Excel', 'json': '🔗 JSON', 'bed': '🧬 BED', 'pdf': '📑 PDF'}
+            _cols = st.columns(len(export_times))
+            for _col, (_fmt, _elapsed) in zip(_cols, export_times.items()):
+                _ms = _elapsed * 1000
+                _label = _fmt_labels.get(_fmt, _fmt.upper())
+                _col.metric(_label, f"{_ms:.0f} ms")
     
     # ═══════════════════════════════════════════════════════════════════════════════
     # STATISTICAL ANALYSIS TABLES
