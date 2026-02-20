@@ -1,14 +1,5 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ Curved DNA Detector - A-tract and T-tract phasing patterns                   │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-│ References: Koo 1986, Olson 1998                                             │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
-# ═══════════════════════════════════════════════════════════════════════════════
+"""Curved DNA detector using A-tract and T-tract phasing patterns."""
 # IMPORTS
-# ═══════════════════════════════════════════════════════════════════════════════
 import re
 from typing import List, Dict, Any, Tuple
 from ..base.base_detector import BaseMotifDetector
@@ -16,16 +7,11 @@ from Utilities.detectors_utils import revcomp
 from .patterns import _generate_phased_repeat_patterns
 from Utilities.core.motif_normalizer import normalize_class_subclass
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
-# ═══════════════════════════════════════════════════════════════════════════════
 MIN_AT_TRACT = 3; MAX_AT_WINDOW = None; PHASING_CENTER_SPACING = 11.0
 PHASING_TOL_LOW = 9.9; PHASING_TOL_HIGH = 11.1; MIN_APR_TRACTS = 3; LOCAL_LONG_TRACT = 7; SCORE_THRESHOLD = 0.1
-# ═══════════════════════════════════════════════════════════════════════════════
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # NORMALIZATION PARAMETERS (Tunable)
-# ═══════════════════════════════════════════════════════════════════════════════
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
 # │ Parameter    │ Value       │ Scientific Basis                       │
 # ├──────────────┼─────────────┼────────────────────────────────────────┤
@@ -39,7 +25,6 @@ CURVED_RAW_SCORE_MIN = 0.1; CURVED_RAW_SCORE_MAX = 0.95
 CURVED_NORMALIZED_MIN = 1.0; CURVED_NORMALIZED_MAX = 3.0
 CURVED_NORMALIZATION_METHOD = 'linear'
 CURVED_SCORE_REFERENCE = 'Koo et al. 1986, Olson et al. 1998'
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 class CurvedDNADetector(BaseMotifDetector):
@@ -81,7 +66,6 @@ class CurvedDNADetector(BaseMotifDetector):
 
         for i, apr in enumerate(annotation.get('aprs', [])):
             if apr.get('score', 0) > self.SCORE_THRESHOLD:
-                # Ensure center_positions is not empty before accessing
                 center_positions = apr.get('center_positions', [])
                 if not center_positions:
                     continue
@@ -92,7 +76,6 @@ class CurvedDNADetector(BaseMotifDetector):
                 gc_total = self._calc_gc(motif_seq); at_content = self._calc_at(motif_seq)
                 canonical_class, canonical_subclass = normalize_class_subclass(self.get_motif_class_name(), 'Global Curvature', strict=False, auto_correct=True)
                 
-                # Add universal features
                 spacing_info = self._get_spacing_info(apr.get('center_positions', []))
                 
                 motifs.append({
@@ -103,8 +86,8 @@ class CurvedDNADetector(BaseMotifDetector):
                     'Num_T_Tracts': len(t_tracts), 'A_Tract_Lengths': [len(t) for t in a_tracts],
                     'T_Tract_Lengths': [len(t) for t in t_tracts], 'GC_Content': round(gc_total, 2),
                     'AT_Content': round(at_content, 2), 'Center_Positions': apr.get('center_positions', []),
-                    'Arm_Length': 'N/A',  # Not applicable for A/T-tract patterns
-                    'Loop_Length': 'N/A',  # Not applicable for A/T-tract patterns
+                    'Arm_Length': 'N/A',
+                    'Loop_Length': 'N/A',
                     'Type_Of_Repeat': 'A/T-tract phased repeat (global APR)',
                     'Criterion': self._get_curved_criterion(apr, 'APR'),
                     'Disease_Relevance': self._get_curved_disease_relevance(at_content, end_pos - start_pos),
@@ -123,8 +106,8 @@ class CurvedDNADetector(BaseMotifDetector):
                     'Sequence': motif_seq, 'Raw_Score': round(tract.get('score', 0), 3), 'Score': self._normalize_score(tract.get('score', 0)), 'Strand': '+', 'Method': 'Curved_DNA_detection',
                     'Pattern_ID': f'CRV_TRACT_{i+1}', 'Tract_Type': tract_type, 'Tract_Length': end_pos - start_pos,
                     'GC_Content': round(gc_total, 2), 'AT_Content': round(at_content, 2),
-                    'Arm_Length': 'N/A',  # Not applicable for A/T-tract patterns
-                    'Loop_Length': 'N/A',  # Not applicable for A/T-tract patterns
+                    'Arm_Length': 'N/A',
+                    'Loop_Length': 'N/A',
                     'Type_Of_Repeat': f'{tract_type} homopolymer',
                     'Criterion': self._get_curved_criterion(tract, 'TRACT'),
                     'Disease_Relevance': self._get_curved_disease_relevance(at_content, end_pos - start_pos),
@@ -158,15 +141,12 @@ class CurvedDNADetector(BaseMotifDetector):
         """Annotate disease relevance for curved DNA"""
         disease_notes = []
         
-        # High AT content - nucleosome positioning
         if at_content > 80:
             disease_notes.append('High AT-content curvature - nucleosome positioning, chromatin structure')
         
-        # Long curved regions
         if length > 100:
             disease_notes.append('Extended curvature - DNA packaging, gene regulation')
         
-        # General associations
         disease_notes.append('Curved DNA - transcription factor binding, replication origin, chromatin organization')
         
         return '; '.join(disease_notes)
@@ -180,7 +160,6 @@ class CurvedDNADetector(BaseMotifDetector):
     def find_a_tracts(self, sequence: str, minAT: int = None, max_window: int = None) -> List[Dict[str, Any]]:
         """Detect A-tract candidates using AT-window analysis. Returns dicts with start/end, maxATlen, maxTlen, a_center, call, window info."""
         seq = sequence.upper()
-        len(seq)
         if minAT is None:
             minAT = self.MIN_AT_TRACT
         if max_window is None:
@@ -193,9 +172,7 @@ class CurvedDNADetector(BaseMotifDetector):
             window_seq = seq[wstart:wend]
             window_len = wend - wstart
 
-            # analyze forward strand window
             maxATlen, maxATend, maxTlen = self._analyze_at_window(window_seq)
-            # analyze reverse complement window (to mimic C code check on reverse)
             rc_window = revcomp(window_seq)
             maxATlen_rc, maxATend_rc, maxTlen_rc = self._analyze_at_window(rc_window)
 
@@ -207,19 +184,11 @@ class CurvedDNADetector(BaseMotifDetector):
 
             if diff_forward >= minAT or diff_rc >= minAT:
                 call = True
-                # choose the strand giving larger difference
                 if diff_forward >= diff_rc:
                     chosen_maxATlen = maxATlen
-                    # in C code: a_center = maxATend - ((maxATlen-1)/2) + 1  (1-based)
-                    # we'll produce 0-based center = (wstart + maxATend - ((maxATlen-1)/2))
                     chosen_center = (wstart + maxATend) - ((maxATlen - 1) / 2.0)
                 else:
                     chosen_maxATlen = maxATlen_rc
-                    # maxATend_rc is position in RC sequence; convert to original coords:
-                    # RC index i corresponds to original index: wstart + (window_len - 1 - i)
-                    # maxATend_rc is index in window_rc (end position index)
-                    # In C, they convert similarly; for simplicity compute center via rc mapping
-                    # rc_end_original = wstart + (window_len - 1 - i_rc)
                     rc_end_original = wstart + (window_len - 1 - maxATend_rc)
                     chosen_center = rc_end_original - ((chosen_maxATlen - 1) / 2.0)
 
@@ -254,7 +223,6 @@ class CurvedDNADetector(BaseMotifDetector):
         maxATend = 0
         # we'll iterate from index 0..len(window_seq)-1
         L = len(window_seq)
-        # to mimic C code scanning with lookbacks, we iterate straightforwardly
         for i in range(L):
             ch = window_seq[i]
             prev = window_seq[i-1] if i>0 else None
@@ -310,7 +278,6 @@ class CurvedDNADetector(BaseMotifDetector):
         if len(centers_sorted) < min_apr_tracts:
             return aprs
 
-        # find runs of centers where consecutive spacing is within tolerance
         i = 0
         while i < len(centers_sorted):
             run = [centers_sorted[i]]
@@ -322,15 +289,10 @@ class CurvedDNADetector(BaseMotifDetector):
                     j += 1
                 else:
                     break
-            # if run has enough tracts, call APR
             if len(run) >= min_apr_tracts:
-                # score APR by how close spacings are to ideal spacing
                 spacings = [run[k+1] - run[k] for k in range(len(run)-1)]
-                # closeness = product of gaussian-like terms, but simpler: average deviation
                 devs = [abs(sp - self.PHASING_CENTER_SPACING) for sp in spacings]
-                # normalized closeness
                 mean_dev = sum(devs) / len(devs) if devs else 0.0
-                # phasing_score between 0..1: 1 when mean_dev==0, drop linearly with dev up to tolerance
                 max_dev_allowed = max(abs(self.PHASING_TOL_HIGH - self.PHASING_CENTER_SPACING),
                                       abs(self.PHASING_CENTER_SPACING - self.PHASING_TOL_LOW))
                 phasing_score = max(0.0, 1.0 - (mean_dev / (max_dev_allowed if max_dev_allowed>0 else 1.0)))
@@ -356,13 +318,11 @@ class CurvedDNADetector(BaseMotifDetector):
             min_len = self.LOCAL_LONG_TRACT
         seq = sequence.upper()
         results = []
-        # A runs
         for m in re.finditer(r'A{' + str(min_len) + r',}', seq):
             ln = m.end() - m.start()
             # simple local score: normalized by (len/(len+6)) to saturate
             score = float(ln) / (ln + 6.0)
             results.append({'start': m.start(), 'end': m.end(), 'base': 'A', 'len': ln, 'score': round(score, 6), 'seq': seq[m.start():m.end()]})
-        # T runs
         for m in re.finditer(r'T{' + str(min_len) + r',}', seq):
             ln = m.end() - m.start()
             score = float(ln) / (ln + 6.0)
@@ -392,7 +352,6 @@ class CurvedDNADetector(BaseMotifDetector):
         aprs = self.find_aprs(seq, min_tract=self.MIN_AT_TRACT, min_apr_tracts=self.MIN_APR_TRACTS)
         long_tracts = self.find_long_tracts(seq, min_len=self.LOCAL_LONG_TRACT)
 
-        # annotate aprs with constituent windows (optional)
         for apr in aprs:
             apr['constituent_windows'] = []
             for center in apr['center_positions']:
