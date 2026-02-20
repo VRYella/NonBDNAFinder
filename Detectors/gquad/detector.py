@@ -19,7 +19,25 @@ except ImportError:
 # TUNABLE PARAMETERS
 WINDOW_SIZE_DEFAULT = 25
 MIN_REGION_LEN = 8
-CLASS_PRIORITY = ["telomeric_g4", "stacked_g4", "canonical_g4", "extended_loop_g4", "higher_order_g4", "g_triplex", "weak_pqs", "bulged_g4"]
+# Priority reflects structural hierarchy and biological relevance:
+# 1. Telomeric motifs are sequence-specific functional repeats.
+# 2. Higher-order G4 arrays (G-wires) represent extended structural assemblies.
+# 3. Stacked G4s are multi-quadruplex assemblies.
+# 4. Canonical G4 is the baseline intramolecular structure.
+# 5. Bulged G4 introduces structural distortion within canonical architecture.
+# 6. Extended-loop G4 relaxes loop constraint but retains tetrad integrity.
+# 7. G-triplex is a three-tract intermediate state.
+# 8. Weak PQS (two-tetrad) represents lowest stability motifs.
+CLASS_PRIORITY = [
+    "telomeric_g4",      # biologically unique repeat
+    "higher_order_g4",   # G-wire / extended arrays
+    "stacked_g4",        # multi-quadruplex assemblies
+    "canonical_g4",      # classical intramolecular G4
+    "bulged_g4",         # distorted canonical
+    "extended_loop_g4",  # relaxed loop canonical
+    "g_triplex",         # 3-tract intermediate
+    "weak_pqs"           # lowest stability
+]
 
 # NORMALIZATION PARAMETERS (Tunable)
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐

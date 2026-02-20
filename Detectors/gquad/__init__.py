@@ -16,7 +16,7 @@ Constants:
 ----------
 - WINDOW_SIZE_DEFAULT: Default window size for G4Hunter scoring (25)
 - MIN_REGION_LEN: Minimum length for valid G4 regions (8)
-- CLASS_PRIORITY: Priority ordering for overlap resolution
+- CLASS_PRIORITY: Priority ordering for overlap resolution (telomeric > higher_order > stacked > canonical > bulged > extended_loop > g_triplex > weak_pqs)
 """
 
 from .detector import GQuadruplexDetector, WINDOW_SIZE_DEFAULT, MIN_REGION_LEN, CLASS_PRIORITY
