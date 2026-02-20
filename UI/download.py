@@ -54,32 +54,45 @@ def render():
     
     # ═══════════════════════════════════════════════════════════════════════════════
     # STANDARD EXPORT FORMATS
+    # Pre-compute all download data before rendering buttons so that an error in
+    # one format never prevents the other download buttons from appearing.
     # ═══════════════════════════════════════════════════════════════════════════════
+    csv_data = None; excel_data = None; excel_label = "📊 Excel"; excel_fname = f"{safe_fn}_results.xlsx"; json_data = None; bed_data = None; pdf_data = None
+    excel_error = None; pdf_error = None
+    if all_motifs:
+        try: csv_data = export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8')
+        except Exception as e: csv_data = None
+        try:
+            if seq_count > 1:
+                excel_data = generate_multifasta_excel_bytes(names, lengths, seq_count)
+                excel_label = "📊 Excel (MultiFASTA)"; excel_fname = f"{safe_fn}_multifasta_results.xlsx"
+            else:
+                excel_data = generate_excel_bytes(all_motifs, simple_format=True)
+        except Exception as e: excel_error = str(e)
+        try: json_data = export_to_json(all_motifs, pretty=True).encode('utf-8')
+        except Exception: json_data = None
+        try: bed_data = export_to_bed(all_motifs, names[0]).encode('utf-8') if names else None
+        except Exception: bed_data = None
+        try:
+            slen = lengths[0] if lengths else 0
+            pdf_data = export_to_pdf(all_motifs, slen, seq_name) if slen > 0 else None
+        except Exception as e: pdf_error = str(e)
+
     st.markdown("### Export Options"); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.8rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
     st.markdown("#### Data Formats"); c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
-        if all_motifs: st.download_button("📄 CSV", data=export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8'), file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs")
+        if csv_data is not None: st.download_button("📄 CSV", data=csv_data, file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs", key="dl_csv")
     with c2:
-        if all_motifs:
-            try:
-                # Use MultiFASTA export if multiple sequences
-                if seq_count > 1:
-                    excel_bytes = generate_multifasta_excel_bytes(names, lengths, seq_count)
-                    st.download_button("📊 Excel (MultiFASTA)", data=excel_bytes, file_name=f"{safe_fn}_multifasta_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="MultiFASTA Excel workbook with unified summaries")
-                else:
-                    st.download_button("📊 Excel", data=generate_excel_bytes(all_motifs, simple_format=True), file_name=f"{safe_fn}_results.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="Excel workbook")
-            except Exception as e: st.error(f"Excel error: {e}")
+        if excel_data is not None: st.download_button(excel_label, data=excel_data, file_name=excel_fname, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, type="primary", help="Excel workbook", key="dl_excel")
+        elif excel_error: st.error(f"Excel error: {excel_error}")
     with c3:
-        if all_motifs: st.download_button("🔗 JSON", data=export_to_json(all_motifs, pretty=True).encode('utf-8'), file_name=f"{safe_fn}_results.json", mime="application/json", use_container_width=True, type="primary")
+        if json_data is not None: st.download_button("🔗 JSON", data=json_data, file_name=f"{safe_fn}_results.json", mime="application/json", use_container_width=True, type="primary", key="dl_json")
     with c4:
-        if all_motifs and names: st.download_button("🧬 BED", data=export_to_bed(all_motifs, names[0]).encode('utf-8'), file_name=f"{safe_fn}_results.bed", mime="text/plain", use_container_width=True, type="primary")
+        if bed_data is not None: st.download_button("🧬 BED", data=bed_data, file_name=f"{safe_fn}_results.bed", mime="text/plain", use_container_width=True, type="primary", key="dl_bed")
     with c5:
-        if all_motifs:
-            try:
-                slen = lengths[0] if lengths else 0
-                if slen > 0: st.download_button("📑 PDF", data=export_to_pdf(all_motifs, slen, seq_name), file_name=f"{safe_fn}_viz.pdf", mime="application/pdf", use_container_width=True, type="primary")
-                else: st.warning("No sequence for PDF")
-            except Exception as e: st.error(f"PDF error: {e}")
+        if pdf_data is not None: st.download_button("📑 PDF", data=pdf_data, file_name=f"{safe_fn}_viz.pdf", mime="application/pdf", use_container_width=True, type="primary", key="dl_pdf")
+        elif pdf_error: st.error(f"PDF error: {pdf_error}")
+        elif all_motifs and not (lengths and lengths[0] > 0): st.warning("No sequence for PDF")
     
     # ═══════════════════════════════════════════════════════════════════════════════
     # STATISTICAL ANALYSIS TABLES
@@ -121,16 +134,16 @@ def render():
                 s1, s2, s3 = st.columns(3)
                 with s1: 
                     if not dist_df.empty:
-                        st.download_button("📈 Class Statistics (CSV)", data=dist_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_class_statistics.csv", mime="text/csv", use_container_width=True)
+                        st.download_button("📈 Class Statistics (CSV)", data=dist_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_class_statistics.csv", mime="text/csv", use_container_width=True, key="dl_class_stats_csv")
                 with s2: 
                     if not sub_df.empty:
-                        st.download_button("📉 Subclass Statistics (CSV)", data=sub_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_subclass_statistics.csv", mime="text/csv", use_container_width=True)
+                        st.download_button("📉 Subclass Statistics (CSV)", data=sub_df.to_csv(index=False).encode('utf-8'), file_name=f"{safe_fn}_subclass_statistics.csv", mime="text/csv", use_container_width=True, key="dl_subclass_stats_csv")
                 with s3:
                     if not dist_df.empty and not sub_df.empty:
                         try:
                             out = io.BytesIO()
                             with pd.ExcelWriter(out, engine='openpyxl') as w: dist_df.to_excel(w, sheet_name='Class Statistics', index=False); sub_df.to_excel(w, sheet_name='Subclass Statistics', index=False)
-                            out.seek(0); st.download_button("📊 All Statistics (Excel)", data=out.getvalue(), file_name=f"{safe_fn}_all_statistics.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                            out.seek(0); st.download_button("📊 All Statistics (Excel)", data=out.getvalue(), file_name=f"{safe_fn}_all_statistics.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True, key="dl_all_stats_xlsx")
                         except Exception as e: st.error(f"Excel error: {e}")
         except Exception as e: st.error(f"Error generating statistics: {e}"); st.code(traceback.format_exc(), language="python")
     
