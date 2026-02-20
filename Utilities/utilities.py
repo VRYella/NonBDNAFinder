@@ -141,8 +141,12 @@ from Utilities.config.motif_taxonomy import (
     MOTIF_CLASSIFICATION
 )
 
-# Import standardized GC content calculation
-from Utilities.detectors_utils import calc_gc_content
+# Import standardized GC content calculation and base counting
+from Utilities.detectors_utils import calc_gc_content, _count_bases
+
+# Pre-compiled regex to strip characters that are not valid IUPAC nucleotide codes
+# Keeps: A T G C N R Y S W K M B D H V (standard IUPAC, upper and lower case)
+_NON_IUPAC_RE = re.compile(r'[^ATGCNRYSWKMBDHVatgcnryswkmbdhv]')
 
 # Try to import plotly for interactive plots
 try:
@@ -1990,8 +1994,10 @@ def parse_fasta(fasta_content: str, streaming: bool = False) -> Union[Dict[str, 
                 current_name = f"sequence_{len(sequences) + 1}"
             current_seq = []
         else:
-            # Add to current sequence
-            current_seq.append(line.upper())
+            # Add to current sequence, filtering non-IUPAC characters
+            filtered = _NON_IUPAC_RE.sub('', line.upper())
+            if filtered:
+                current_seq.append(filtered)
     
     # Save last sequence
     if current_name and current_seq:
@@ -2049,8 +2055,10 @@ def parse_fasta_streaming(fasta_content: str):
                 current_name = f"sequence_{sequence_counter}"
             current_seq = []
         else:
-            # Add to current sequence
-            current_seq.append(line.upper())
+            # Add to current sequence, filtering non-IUPAC characters
+            filtered = _NON_IUPAC_RE.sub('', line.upper())
+            if filtered:
+                current_seq.append(filtered)
     
     # Yield last sequence
     if current_name and current_seq:
@@ -2114,12 +2122,16 @@ def parse_fasta_chunked(file_object, chunk_size_mb: int = 2):
                     current_name = f"sequence_{id(line)}"
                 current_seq_parts = []
             else:
-                # Add to current sequence
-                current_seq_parts.append(line.upper())
+                # Add to current sequence, filtering non-IUPAC characters
+                filtered = _NON_IUPAC_RE.sub('', line.upper())
+                if filtered:
+                    current_seq_parts.append(filtered)
     
     # Process remaining buffer
     if buffer.strip() and not buffer.startswith('>'):
-        current_seq_parts.append(buffer.strip().upper())
+        filtered = _NON_IUPAC_RE.sub('', buffer.strip().upper())
+        if filtered:
+            current_seq_parts.append(filtered)
     
     # Yield last sequence
     if current_name and current_seq_parts:
@@ -2210,7 +2222,8 @@ def get_file_preview(file_object, max_sequences: int = 3, max_preview_chars: int
         
     Returns:
         Dict with keys: 'num_sequences', 'total_bp', 'previews' (list of dicts)
-        Each preview dict contains: 'name', 'length', 'preview', 'gc_percent', 'at_percent'
+        Each preview dict contains: 'name', 'length', 'preview', 'gc_percent', 'at_percent',
+        'a_count', 't_count', 'g_count', 'c_count', 'n_count'
     """
     file_object.seek(0)  # Reset to beginning
     
@@ -2227,6 +2240,8 @@ def get_file_preview(file_object, max_sequences: int = 3, max_preview_chars: int
             # Calculate stats from full sequence (not just preview)
             gc_pct = gc_content(seq)
             at_pct = 100.0 - gc_pct
+            a_count, t_count, g_count, c_count = _count_bases(seq)
+            n_count = seq.count('N')
             
             preview_seq = seq[:max_preview_chars]
             if len(seq) > max_preview_chars:
@@ -2237,7 +2252,12 @@ def get_file_preview(file_object, max_sequences: int = 3, max_preview_chars: int
                 'length': seq_len,
                 'preview': preview_seq,
                 'gc_percent': gc_pct,
-                'at_percent': at_pct
+                'at_percent': at_pct,
+                'a_count': a_count,
+                't_count': t_count,
+                'g_count': g_count,
+                'c_count': c_count,
+                'n_count': n_count,
             })
     
     file_object.seek(0)  # Reset for subsequent use

@@ -12,6 +12,7 @@ import streamlit as st
 import time
 import os
 import gc
+import hashlib
 import numpy as np
 import pandas as pd
 import logging
@@ -40,13 +41,14 @@ from Utilities.utilities import (
     parse_fasta,
     get_memory_usage_mb,
     calculate_genomic_density,
-    calculate_positional_density
+    calculate_positional_density,
+    _NON_IUPAC_RE,
 )
 from Utilities.nonbscanner import analyze_sequence
 from Utilities.job_manager import save_job_results, generate_job_id
 from Utilities.disk_storage import UniversalSequenceStorage, UniversalResultsStorage
 from Utilities.chunk_analyzer import ChunkAnalyzer
-from Utilities.detectors_utils import calc_gc_content
+from Utilities.detectors_utils import calc_gc_content, _count_bases
 from Utilities.multifasta_engine import analyze_sequences_parallel
 
 # Import progress tracking for Streamlit UI (optional, graceful degradation)
@@ -476,10 +478,22 @@ def render():
                     # Get preview first (lightweight operation)
                     preview_info = get_file_preview(fasta_file, max_sequences=3)
                 
-                    # Calculate aggregate QC stats for compact summary
-                    total_gc = sum(p['gc_percent'] * p['length'] for p in preview_info['previews'])
-                    total_len = sum(p['length'] for p in preview_info['previews'])
-                    avg_gc = total_gc / total_len if total_len > 0 else 0.0
+                    # Calculate aggregate QC stats for compact summary using ATGC-weighted GC%
+                    # GC% = (G+C)/(A+T+G+C)*100  — only ATGC bases in denominator
+                    total_atgc = sum(
+                        p['a_count'] + p['t_count'] + p['g_count'] + p['c_count']
+                        for p in preview_info['previews']
+                    )
+                    total_gc_bases = sum(
+                        p['g_count'] + p['c_count'] for p in preview_info['previews']
+                    )
+                    avg_gc = (total_gc_bases / total_atgc * 100) if total_atgc > 0 else 0.0
+                    # Aggregate character counts for display
+                    sum_a = sum(p['a_count'] for p in preview_info['previews'])
+                    sum_t = sum(p['t_count'] for p in preview_info['previews'])
+                    sum_g = sum(p['g_count'] for p in preview_info['previews'])
+                    sum_c = sum(p['c_count'] for p in preview_info['previews'])
+                    sum_n = sum(p['n_count'] for p in preview_info['previews'])
                 
                     # Compact QC Summary Strip (replaces individual cards)
                     st.markdown(f"""
@@ -498,6 +512,9 @@ def render():
                             </span>
                             <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
                                 GC: <strong>{avg_gc:.1f}%</strong>
+                            </span>
+                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                                A:<strong>{sum_a:,}</strong> T:<strong>{sum_t:,}</strong> G:<strong>{sum_g:,}</strong> C:<strong>{sum_c:,}</strong>{f' N:<strong>{sum_n:,}</strong>' if sum_n > 0 else ''}
                             </span>
                             <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
                                 ✓ Valid
@@ -578,14 +595,22 @@ def render():
                         cur_name = line.strip().lstrip(">")
                         cur_seq = ""
                     else:
-                        cur_seq += line.strip()
+                        # Uppercase, strip whitespace, then filter non-IUPAC characters
+                        cur_seq += _NON_IUPAC_RE.sub('', line.strip().upper())
                 if cur_seq:
                     seqs.append(cur_seq)
                     names.append(cur_name if cur_name else f"Seq{len(seqs)}")
                 if seqs:
                     # Compact QC summary strip for pasted sequences
+                    # GC% = (G+C)/(A+T+G+C)*100 — only ATGC in denominator
+                    all_a = all_t = all_g = all_c = all_n = 0
+                    for s in seqs:
+                        a, t, g, c = _count_bases(s)
+                        all_a += a; all_t += t; all_g += g; all_c += c
+                        all_n += s.count('N')
+                    total_atgc = all_a + all_t + all_g + all_c
+                    avg_gc = (all_g + all_c) / total_atgc * 100 if total_atgc > 0 else 0.0
                     total_bp = sum(len(s) for s in seqs)
-                    avg_gc = calculate_gc_percentage(seqs)
                     st.markdown(f"""
                     <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
                                 border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
@@ -602,6 +627,9 @@ def render():
                             </span>
                             <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
                                 GC: <strong>{avg_gc:.1f}%</strong>
+                            </span>
+                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                                A:<strong>{all_a:,}</strong> T:<strong>{all_t:,}</strong> G:<strong>{all_g:,}</strong> C:<strong>{all_c:,}</strong>{f' N:<strong>{all_n:,}</strong>' if all_n > 0 else ''}
                             </span>
                             <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
                                 ✓ Valid
@@ -714,8 +742,18 @@ def render():
             total_bp = sum(len(s) for s in st.session_state.seqs)
         
         if has_sequences:
-            # Cache sequence stats with validation key to handle sequence changes
-            cache_key = f"stats_cache_{num_sequences}"
+            # Build cache key from actual sequence names to prevent stale-cache GC% mismatch
+            # when different genomes with the same sequence count are uploaded in the same session.
+            seq_names = st.session_state.get('names') or []
+            # Include count and all names in hash to prevent collisions
+            names_sig = hashlib.md5(
+                f"{num_sequences}|{'|'.join(seq_names)}".encode()
+            ).hexdigest()[:8]
+            if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
+                cache_key = f"stats_cache_disk_{names_sig}"
+            else:
+                cache_key = f"stats_cache_mem_{names_sig}"
+
             if cache_key not in st.session_state:
                 # Calculate stats for all sequences
                 stats_list = []
@@ -723,9 +761,15 @@ def render():
                     # Disk storage mode: calculate from metadata
                     for seq_id in st.session_state.seq_ids:
                         metadata = st.session_state.seq_storage.get_metadata(seq_id)
+                        base_counts = metadata.get('base_counts', {})
                         stats_list.append({
                             'Length': metadata['length'],
-                            'GC%': metadata['gc_content']
+                            'GC%': metadata['gc_content'],
+                            'A': base_counts.get('A', 0),
+                            'T': base_counts.get('T', 0),
+                            'G': base_counts.get('G', 0),
+                            'C': base_counts.get('C', 0),
+                            'N': base_counts.get('N', 0),
                         })
                 else:
                     # Legacy mode: calculate from in-memory sequences
@@ -736,7 +780,19 @@ def render():
         
             # Use cached stats - show single compact summary strip
             cached_stats = st.session_state[cache_key]
-            avg_gc = sum(s['GC%'] for s in cached_stats) / len(cached_stats) if cached_stats else 0.0
+            # Length-weighted GC% = (total G+C) / (total A+T+G+C) * 100
+            total_atgc = sum(
+                s.get('A', 0) + s.get('T', 0) + s.get('G', 0) + s.get('C', 0)
+                for s in cached_stats
+            )
+            total_gc_bases = sum(s.get('G', 0) + s.get('C', 0) for s in cached_stats)
+            avg_gc = (total_gc_bases / total_atgc * 100) if total_atgc > 0 else 0.0
+            # Aggregate character counts
+            sum_a = sum(s.get('A', 0) for s in cached_stats)
+            sum_t = sum(s.get('T', 0) for s in cached_stats)
+            sum_g = sum(s.get('G', 0) for s in cached_stats)
+            sum_c = sum(s.get('C', 0) for s in cached_stats)
+            sum_n = sum(s.get('N', 0) for s in cached_stats)
             
             st.markdown(f"""
             <div style='background: linear-gradient(135deg, #059669 0%, #047857 100%); 
@@ -753,7 +809,10 @@ def render():
                         <strong>{total_bp:,}</strong> bp total
                     </span>
                     <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
-                        GC: <strong>{avg_gc:.1f}%</strong> avg
+                        GC: <strong>{avg_gc:.1f}%</strong>
+                    </span>
+                    <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                        A:<strong>{sum_a:,}</strong> T:<strong>{sum_t:,}</strong> G:<strong>{sum_g:,}</strong> C:<strong>{sum_c:,}</strong>{f' N:<strong>{sum_n:,}</strong>' if sum_n > 0 else ''}
                     </span>
                 </div>
             </div>
