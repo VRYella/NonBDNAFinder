@@ -1048,9 +1048,37 @@ def render():
         has_sequences_inner = bool(st.session_state.get('seqs')) or bool(st.session_state.get('seq_ids'))
         has_valid_input_inner = has_sequences_inner and bool(enabled_classes)
         
-        # Create two columns for Run and Reset buttons (no clock)
-        col_run_inner, col_reset_inner = st.columns([3, 1])
-        
+        # Create two equal columns for Run and Reset buttons (parallel layout)
+        col_run_inner, col_reset_inner = st.columns([1, 1])
+
+        # Vibrant Reset button styling — scoped to the reset column only
+        # NOTE: CSS uses Streamlit's stable data-testid attributes (baseButton-secondary, column, stHorizontalBlock).
+        # These are consistent across Streamlit >=1.28. Re-verify if upgrading to a major Streamlit version.
+        st.markdown("""
+        <style>
+        /* Reset button: vibrant red gradient, scoped to last column in button row */
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button[data-testid="baseButton-secondary"] {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 700 !important;
+            font-size: 1rem !important;
+            letter-spacing: 0.02em !important;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35) !important;
+            transition: all 0.2s ease !important;
+        }
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button[data-testid="baseButton-secondary"]:hover {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.55) !important;
+            transform: translateY(-1px) !important;
+        }
+        div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button[data-testid="baseButton-secondary"]:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4) !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
         with col_run_inner:
             # Primary action button with clear scientific terminology
             if has_valid_input_inner and not st.session_state.analysis_done:
@@ -1087,31 +1115,26 @@ def render():
                 </p>
                 """, unsafe_allow_html=True)
                 run_button = False
-        
+
         with col_reset_inner:
-            # Vibrant Reset button styling
-            st.markdown("""
-            <style>
-            div[data-testid="column"] button[kind="secondary"] {
-                background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
-                color: white !important;
-                border: none !important;
-                font-weight: 700 !important;
-            }
-            div[data-testid="column"] button[kind="secondary"]:hover {
-                background: linear-gradient(135deg, #fb923c 0%, #f97316 100%) !important;
-                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4) !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            # Reset button to allow re-running analysis
-            if st.button("🔄 Reset", use_container_width=True, help="Clear results and reset", key="reset_button_inner"):
+            # Reset button — clears all uploaded data, sequences, and results
+            if st.button("🔄 Reset", use_container_width=True, help="Clear all uploaded files, sequences, results, and analysis state to start over", key="reset_button_inner"):
+                # Clear analysis flags and computed results
                 st.session_state.analysis_done = False
                 st.session_state.results = []
                 st.session_state.performance_metrics = None
                 st.session_state.cached_visualizations = {}
                 st.session_state.analysis_time = None
-                # analysis_mode is always "Submotif Level" (fixed), no reset needed
+                # Clear loaded sequences and associated data
+                st.session_state.seqs = []
+                st.session_state.names = []
+                st.session_state.seq_ids = []
+                st.session_state.results_storage = {}
+                st.session_state.summary_df = pd.DataFrame()
+                st.session_state.analysis_status = "Ready"
+                st.session_state.current_job_id = None
+                st.session_state.selected_classes_used = []
+                st.session_state.selected_subclasses_used = []
                 st.rerun()
 
         # ============================================================
