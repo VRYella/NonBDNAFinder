@@ -156,7 +156,7 @@ def plot_stacked_bar_class_subclass(
     # ═══════════════════════════════════════════════════════════════════════════
     # PLOT CONSTRUCTION: Build stacked bar chart
     # ═══════════════════════════════════════════════════════════════════════════
-    fig, ax = plt.subplots(figsize=figsize, dpi=100)
+    fig, ax = plt.subplots(figsize=figsize, dpi=72)
     
     x_positions = np.arange(len(ordered_classes)); bar_width = 0.6; bottoms = np.zeros(len(ordered_classes))
     

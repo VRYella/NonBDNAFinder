@@ -44,7 +44,9 @@ logger = logging.getLogger(__name__)
 MAX_WORKERS: int = min(2, os.cpu_count() or 1)
 
 # Thresholds for adaptive strategy selection (base pairs)
-THRESHOLD_DIRECT: int = 100_000        # below → direct (no chunking)
+# THRESHOLD_DIRECT = 0 forces ALL sequences through chunking (50K/2K)
+# This ensures consistent analysis with overlap deduplication regardless of size
+THRESHOLD_DIRECT: int = 0              # always chunk (50K/2K for every sequence)
 THRESHOLD_CHUNK: int = 5_000_000       # below → chunk workers; above → disk streaming
 
 # Default chunk parameters
@@ -318,6 +320,11 @@ class StreamlitSafeExecutor:
         chunk_dir.mkdir(parents=True, exist_ok=True)
 
         total = len(chunk_args)
+        logger.info(
+            f"ChunkWorkers: processing {total} chunks "
+            f"(chunk_size={self.chunk_size:,}, overlap={self.overlap:,}) "
+            f"for '{meta['name']}' ({meta['length']:,} bp)"
+        )
         completed = 0
         chunk_metadata: List[Optional[Dict[str, Any]]] = [None] * total
 
@@ -334,9 +341,11 @@ class StreamlitSafeExecutor:
                     completed += 1
                     if progress_callback:
                         progress_callback(completed / total * 100.0)
-                    logger.debug(
-                        f"Worker chunk {idx} done: "
-                        f"{result_meta['motif_count']} motifs"
+                    logger.info(
+                        f"Chunk {idx + 1}/{total} complete: "
+                        f"{result_meta['motif_count']} motifs at "
+                        f"[{result_meta['chunk_start']:,}–{result_meta['chunk_end']:,}] "
+                        f"({completed / total * 100:.1f}% overall)"
                     )
 
         except Exception as exc:
@@ -347,6 +356,18 @@ class StreamlitSafeExecutor:
             return self._run_disk_streaming(
                 seq_id, meta, progress_callback, enabled_classes
             )
+
+        # Annotate each chunk_metadata entry with core_end for deduplication.
+        # core_end is the exclusive boundary of the authoritative region:
+        #   non-last chunks: core_end = chunk_end - overlap
+        #   last chunk:      core_end = chunk_end  (full chunk is authoritative)
+        for i, cm in enumerate(chunk_metadata):
+            if cm is not None:
+                is_last = (i == total - 1)
+                cm["core_end"] = (
+                    cm["chunk_end"] if is_last
+                    else cm["chunk_end"] - self.overlap
+                )
 
         # Stream chunk files into results_storage, deduplicate at boundaries
         self._merge_chunk_files_to_storage(chunk_metadata, results_storage)
@@ -375,9 +396,16 @@ class StreamlitSafeExecutor:
 
         Each chunk is processed, written to disk, and immediately merged
         into the results storage.  Only one chunk is held in RAM at a time.
+
+        Overlap deduplication uses the core_end boundary from ChunkGenerator:
+        - non-last chunks: core_end = chunk_end - overlap
+        - last chunk:      core_end = chunk_end
+        Only motifs with Start < core_end are kept per chunk, ensuring each
+        motif is counted exactly once in its authoritative (core) region.
         """
         from Utilities.disk_storage import UniversalResultsStorage
         from Utilities.nonbscanner import analyze_sequence
+        from Utilities.overlap_deduplicator import OverlapDeduplicator
 
         seq_name = meta["name"]
         seq_length = meta["length"]
@@ -387,7 +415,9 @@ class StreamlitSafeExecutor:
             seq_id=seq_id,
         )
 
-        # Count total chunks first (needed for accurate progress)
+        # First pass: count total chunks for accurate progress reporting.
+        # This iterates metadata only (reads chunk boundaries, not chunk content)
+        # so memory usage is constant even for very large sequences.
         total_chunks = sum(
             1
             for _ in self.sequence_storage.iter_chunks(
@@ -395,13 +425,27 @@ class StreamlitSafeExecutor:
             )
         )
 
-        seen_keys: set = set()
+        logger.info(
+            f"DiskStreaming: processing {total_chunks} chunks "
+            f"(chunk_size={self.chunk_size:,}, overlap={self.overlap:,}) "
+            f"for '{seq_name}' ({seq_length:,} bp)"
+        )
+
+        dedup = OverlapDeduplicator()
+        total_raw = 0
+        total_kept = 0
         chunk_num = 0
 
+        # Second pass: process one chunk at a time (constant RAM, no list materialisation)
         for chunk_seq, chunk_start, chunk_end in self.sequence_storage.iter_chunks(
             seq_id, self.chunk_size, self.overlap
         ):
             chunk_num += 1
+            is_last = (chunk_num == total_chunks)
+            # core_end: authoritative region is [chunk_start, core_end)
+            # motifs with Start >= core_end are in the overlap zone and will be
+            # re-detected (and kept) by the next chunk's core region
+            core_end = chunk_end if is_last else chunk_end - self.overlap
 
             raw_motifs = analyze_sequence(
                 sequence=chunk_seq,
@@ -410,7 +454,8 @@ class StreamlitSafeExecutor:
                 enabled_classes=enabled_classes,
             )
 
-            unique_motifs = []
+            # Adjust positions to genome-global coordinates
+            globally_positioned_motifs: List[Dict[str, Any]] = []
             for motif in raw_motifs:
                 m = motif.copy()
                 m["Start"] = motif.get("Start", 0) + chunk_start
@@ -420,29 +465,32 @@ class StreamlitSafeExecutor:
                     if len(parts) >= 3:
                         parts[-1] = str(m["Start"])
                         m["ID"] = "_".join(parts)
-                key = (
-                    m.get("Class", ""),
-                    m.get("Subclass", ""),
-                    m.get("Start", 0),
-                    m.get("End", 0),
-                )
-                if key not in seen_keys:
-                    unique_motifs.append(m)
-                    # Track overlap-region motifs for deduplication
-                    if m.get("Start", 0) >= chunk_end - self.overlap:
-                        seen_keys.add(key)
+                globally_positioned_motifs.append(m)
+
+            # Rigorous core-region filtering: keep only motifs in authoritative zone
+            unique_motifs = dedup.filter_core(globally_positioned_motifs, core_end)
+            total_raw += len(raw_motifs)
+            total_kept += len(unique_motifs)
 
             results_storage.append_batch(unique_motifs)
+
+            logger.info(
+                f"Chunk {chunk_num}/{total_chunks} "
+                f"[{chunk_start:,}–{chunk_end:,}] core_end={core_end:,}: "
+                f"{len(raw_motifs)} raw → {len(unique_motifs)} kept "
+                f"({chunk_num / total_chunks * 100:.1f}% done)"
+            )
 
             if progress_callback:
                 progress_callback(chunk_num / total_chunks * 100.0)
 
             # Free memory immediately
-            del chunk_seq, raw_motifs, unique_motifs
+            del chunk_seq, raw_motifs, globally_positioned_motifs, unique_motifs
             gc.collect()
 
         logger.info(
-            f"Disk streaming complete: {results_storage.get_summary_stats()['total_count']} motifs"
+            f"DiskStreaming complete: {total_kept} motifs kept "
+            f"from {total_raw} raw detections across {total_chunks} chunks"
         )
         return results_storage
 
@@ -458,15 +506,25 @@ class StreamlitSafeExecutor:
         """
         Read chunk CSV files in order and append unique motifs to results_storage.
 
-        Performs boundary deduplication: motifs whose positions were seen in
-        the previous chunk's overlap region are skipped.
+        Performs rigorous core-region boundary deduplication using the pre-computed
+        ``core_end`` value in each chunk's metadata entry (set by _run_chunk_workers):
+        - non-last chunks: core_end = chunk_end - overlap
+        - last chunk:      core_end = chunk_end
+
+        Only motifs with Start < core_end are kept, ensuring each motif is counted
+        exactly once in its authoritative (core) region without any cross-chunk
+        seen-key bookkeeping.
         """
         import csv
         from pathlib import Path
+        from Utilities.overlap_deduplicator import OverlapDeduplicator
 
-        seen_keys: set = set()
+        dedup = OverlapDeduplicator()
+        total_raw = 0
+        total_kept = 0
+        total_chunks = len([cm for cm in chunk_metadata if cm is not None])
 
-        for cm in chunk_metadata:
+        for chunk_idx, cm in enumerate(chunk_metadata):
             if cm is None:
                 continue
 
@@ -475,7 +533,10 @@ class StreamlitSafeExecutor:
                 logger.warning(f"Missing chunk file: {file_path}")
                 continue
 
-            unique_motifs = []
+            # core_end was computed in _run_chunk_workers
+            core_end = cm.get("core_end", cm.get("chunk_end", float("inf")))
+
+            chunk_motifs: list = []
             with open(file_path, newline="") as fh:
                 reader = csv.DictReader(fh)
                 for row in reader:
@@ -490,18 +551,18 @@ class StreamlitSafeExecutor:
                             row["Score"] = float(row["Score"])
                         except ValueError:
                             pass
-                    key = (
-                        row.get("Class", ""),
-                        row.get("Subclass", ""),
-                        row.get("Start", 0),
-                        row.get("End", 0),
-                    )
-                    if key not in seen_keys:
-                        unique_motifs.append(dict(row))
-                        chunk_end = cm.get("chunk_end", 0)
-                        overlap = DEFAULT_OVERLAP
-                        if row.get("Start", 0) >= chunk_end - overlap:
-                            seen_keys.add(key)
+                    chunk_motifs.append(dict(row))
+
+            # Rigorous core-region filtering via OverlapDeduplicator
+            unique_motifs = dedup.filter_core(chunk_motifs, int(core_end))
+            total_raw += len(chunk_motifs)
+            total_kept += len(unique_motifs)
+
+            logger.info(
+                f"Merge chunk {chunk_idx + 1}/{total_chunks} "
+                f"[core_end={core_end:,}]: "
+                f"{len(chunk_motifs)} raw → {len(unique_motifs)} kept"
+            )
 
             results_storage.append_batch(unique_motifs)
             gc.collect()

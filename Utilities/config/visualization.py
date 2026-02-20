@@ -15,10 +15,11 @@ from Utilities.config.colors import VISUALIZATION_PALETTE
 # Modify these to customize the appearance of charts and graphs
 VISUALIZATION_CONFIG = {
     # Plot resolution (DPI - dots per inch)
-    # 150: Good for screen viewing (faster rendering)
+    # 72: Standard screen resolution (fastest rendering, lowest memory)
+    # 150: Good for screen viewing
     # 300: Publication quality (Nature, Science journals)
     # 600: High-quality print (posters, large format)
-    'dpi': 300,
+    'dpi': 72,
     
     # Default figure sizes (width, height) in inches
     # 1 inch ≈ 2.54 cm; figures scale proportionally
