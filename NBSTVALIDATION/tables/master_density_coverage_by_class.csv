@@ -1,0 +1,76 @@
+Organism,Class,Count,Coverage_bp,Coverage_pct,Density_per_kb
+Buchnera aphidicola,A-philic_DNA,1,10,0.002,0.002
+Buchnera aphidicola,Cruciform,583,14274,3.157,1.29
+Buchnera aphidicola,Curved_DNA,4618,42039,9.299,10.215
+Buchnera aphidicola,G-Quadruplex,16,350,0.077,0.035
+Buchnera aphidicola,R-Loop,1,16,0.004,0.002
+Buchnera aphidicola,Slipped_DNA,67,1650,0.365,0.148
+Buchnera aphidicola,Triplex,127,3350,0.741,0.281
+Candidatus Carsonella ruddii,Cruciform,270,6390,3.672,1.552
+Candidatus Carsonella ruddii,Curved_DNA,1769,16602,9.541,10.166
+Candidatus Carsonella ruddii,G-Quadruplex,10,189,0.109,0.057
+Candidatus Carsonella ruddii,R-Loop,2,24,0.014,0.011
+Candidatus Carsonella ruddii,Slipped_DNA,10,316,0.182,0.057
+Candidatus Carsonella ruddii,Triplex,18,443,0.255,0.103
+Cellulomonas shaoxiangyii,A-philic_DNA,1524,16452,0.421,0.39
+Cellulomonas shaoxiangyii,Cruciform,4947,114698,2.934,1.265
+Cellulomonas shaoxiangyii,Curved_DNA,1,7,0.0,0.0
+Cellulomonas shaoxiangyii,G-Quadruplex,24172,537822,13.757,6.183
+Cellulomonas shaoxiangyii,R-Loop,1618,2573622,65.832,0.414
+Cellulomonas shaoxiangyii,Slipped_DNA,338,10389,0.266,0.086
+Cellulomonas shaoxiangyii,Triplex,4,97,0.002,0.001
+Cellulomonas shaoxiangyii,Z-DNA,8740,101607,2.599,2.236
+Cellulomonas shaoxiangyii,i-Motif,485,12373,0.316,0.124
+Miltoncostaea marina,A-philic_DNA,1954,21268,0.631,0.58
+Miltoncostaea marina,Cruciform,5207,119660,3.55,1.545
+Miltoncostaea marina,Curved_DNA,2,83,0.002,0.001
+Miltoncostaea marina,G-Quadruplex,25083,554025,16.439,7.442
+Miltoncostaea marina,R-Loop,1393,2261375,67.098,0.413
+Miltoncostaea marina,Slipped_DNA,135,4578,0.136,0.04
+Miltoncostaea marina,Triplex,3,61,0.002,0.001
+Miltoncostaea marina,Z-DNA,7835,91736,2.722,2.325
+Miltoncostaea marina,i-Motif,400,10188,0.302,0.119
+Streptococcus pneumoniae,A-philic_DNA,7,70,0.003,0.003
+Streptococcus pneumoniae,Cruciform,852,20621,0.977,0.404
+Streptococcus pneumoniae,Curved_DNA,1675,34431,1.631,0.793
+Streptococcus pneumoniae,G-Quadruplex,1011,21098,0.999,0.479
+Streptococcus pneumoniae,R-Loop,114,1883,0.089,0.054
+Streptococcus pneumoniae,Slipped_DNA,35,3061,0.145,0.017
+Streptococcus pneumoniae,Triplex,5,108,0.005,0.002
+Streptococcus pneumoniae,Z-DNA,10,113,0.005,0.005
+Streptococcus pneumoniae,i-Motif,1,27,0.001,0.0
+ecoli,A-philic_DNA,67,691,0.015,0.014
+ecoli,Cruciform,1830,44527,0.959,0.394
+ecoli,Curved_DNA,1760,33058,0.712,0.379
+ecoli,G-Quadruplex,6118,127780,2.753,1.318
+ecoli,R-Loop,783,89932,1.937,0.169
+ecoli,Slipped_DNA,19,1182,0.025,0.004
+ecoli,Triplex,8,158,0.003,0.002
+ecoli,Z-DNA,900,9975,0.215,0.194
+ecoli,i-Motif,26,624,0.013,0.006
+hpylori,A-philic_DNA,55,610,0.036,0.033
+hpylori,Cruciform,476,11032,0.659,0.284
+hpylori,Curved_DNA,2795,42230,2.523,1.67
+hpylori,G-Quadruplex,1103,23858,1.425,0.659
+hpylori,R-Loop,772,27855,1.664,0.461
+hpylori,Slipped_DNA,67,2364,0.141,0.04
+hpylori,Triplex,20,407,0.024,0.012
+hpylori,Z-DNA,23,243,0.015,0.014
+hpylori,i-Motif,22,556,0.033,0.013
+saureus,A-philic_DNA,68,688,0.024,0.024
+saureus,Cruciform,879,21748,0.771,0.312
+saureus,Curved_DNA,2318,49989,1.772,0.822
+saureus,G-Quadruplex,341,7209,0.256,0.121
+saureus,R-Loop,41,628,0.022,0.015
+saureus,Slipped_DNA,48,1926,0.068,0.017
+saureus,Triplex,15,312,0.011,0.005
+saureus,Z-DNA,7,82,0.003,0.002
+mtb,A-philic_DNA,799,8545,0.194,0.181
+mtb,Cruciform,2325,53240,1.207,0.527
+mtb,Curved_DNA,66,1964,0.045,0.015
+mtb,G-Quadruplex,20580,452823,10.265,4.665
+mtb,R-Loop,1887,1650014,37.402,0.428
+mtb,Slipped_DNA,192,10466,0.237,0.044
+mtb,Triplex,1,12,0.0,0.0
+mtb,Z-DNA,2385,26803,0.608,0.541
+mtb,i-Motif,231,6064,0.137,0.052
