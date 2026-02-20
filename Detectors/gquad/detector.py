@@ -19,7 +19,7 @@ except ImportError:
 # TUNABLE PARAMETERS
 WINDOW_SIZE_DEFAULT = 25
 MIN_REGION_LEN = 8
-CLASS_PRIORITY = ["telomeric_g4", "stacked_canonical_g4s", "stacked_g4s_linker", "canonical_g4", "extended_loop_g4", "higher_order_g4", "g_triplex", "weak_pqs"]
+CLASS_PRIORITY = ["telomeric_g4", "stacked_g4", "canonical_g4", "extended_loop_g4", "higher_order_g4", "g_triplex", "weak_pqs", "bulged_g4"]
 
 # NORMALIZATION PARAMETERS (Tunable)
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
@@ -76,14 +76,37 @@ class GQuadruplexDetector(BaseMotifDetector):
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         return {
-            'telomeric_g4': [(r'(?:TTAGGG){4,}', 'G4_TEL', 'Telomeric G4', 'Telomeric G4')],
-            'stacked_canonical_g4s': [(r'(?:(?:G{3,}[ACGT]{1,7}){3}G{3,}){2,}', 'G4_STK_CAN', 'Stacked canonical G4s', 'Stacked canonical G4s')],
-            'stacked_g4s_linker': [(r'(?:(?:G{3,}[ACGT]{1,7}){3}G{3,})(?:[ACGT]{0,20}(?:(?:G{3,}[ACGT]{1,7}){3}G{3,})){1,}', 'G4_STK_LNK', 'Stacked G4s with linker', 'Stacked G4s with linker')],
-            'canonical_g4': [(r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_CAN', 'Canonical intramolecular G4', 'Canonical intramolecular G4')],
-            'extended_loop_g4': [(r'G{3,}[ACGT]{1,12}G{3,}[ACGT]{1,12}G{3,}[ACGT]{1,12}G{3,}', 'G4_EXT', 'Extended-loop canonical', 'Extended-loop canonical')],
-            'higher_order_g4': [(r'(?:G{3,}[ACGT]{1,7}){7,}', 'G4_HIGH', 'Higher-order G4 array/G4-wire', 'Higher-order G4 array/G4-wire')],
-            'g_triplex': [(r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}', 'G4_TRX', 'Intramolecular G-triplex', 'Intramolecular G-triplex')],
-            'weak_pqs': [(r'G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}', 'G4_WEAK', 'Two-tetrad weak PQS', 'Two-tetrad weak PQS')],
+            'telomeric_g4': [
+                (r'(?:TTAGGG){4,}', 'G4_TEL', 'Telomeric G4', 'Telomeric G4')
+            ],
+            'stacked_g4': [
+                (r'(?:(?:G{3,}[ACGT]{1,7}){3}G{3,})(?:[ACGT]{0,20}(?:(?:G{3,}[ACGT]{1,7}){3}G{3,}))+',
+                 'G4_STK', 'Stacked G4 (multi-quadruplex assembly)', 'Stacked G4')
+            ],
+            'canonical_g4': [
+                (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}',
+                 'G4_CAN', 'Canonical intramolecular G4', 'Canonical intramolecular G4')
+            ],
+            'extended_loop_g4': [
+                (r'G{3,}[ACGT]{1,12}G{3,}[ACGT]{1,12}G{3,}[ACGT]{1,12}G{3,}',
+                 'G4_EXT', 'Extended-loop canonical', 'Extended-loop canonical')
+            ],
+            'higher_order_g4': [
+                (r'(?:G{3,}[ACGT]{1,7}){7,}',
+                 'G4_HIGH', 'Higher-order G4 array/G4-wire', 'Higher-order G4 array/G4-wire')
+            ],
+            'g_triplex': [
+                (r'G{3,}[ACGT]{1,7}G{3,}[ACGT]{1,7}G{3,}',
+                 'G4_TRX', 'Intramolecular G-triplex', 'Intramolecular G-triplex')
+            ],
+            'weak_pqs': [
+                (r'G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}',
+                 'G4_WEAK', 'Two-tetrad weak PQS', 'Two-tetrad weak PQS')
+            ],
+            'bulged_g4': [
+                (r'(?:G{2,}[ACGT]G{1,}[ACGT]{1,7}){3}G{2,}[ACGT]G{1,}',
+                 'G4_BUL', 'Bulged G4 (interrupted G-tract)', 'Bulged G4')
+            ]
         }
 
     # -------------------------
@@ -108,13 +131,13 @@ class GQuadruplexDetector(BaseMotifDetector):
 
         subclass_map = {
             'telomeric_g4': 'Telomeric G4',
-            'stacked_canonical_g4s': 'Stacked canonical G4s',
-            'stacked_g4s_linker': 'Stacked G4s with linker',
+            'stacked_g4': 'Stacked G4',
             'canonical_g4': 'Canonical intramolecular G4',
             'extended_loop_g4': 'Extended-loop canonical',
             'higher_order_g4': 'Higher-order G4 array/G4-wire',
             'g_triplex': 'Intramolecular G-triplex',
-            'weak_pqs': 'Two-tetrad weak PQS'
+            'weak_pqs': 'Two-tetrad weak PQS',
+            'bulged_g4': 'Bulged G4'
         }
 
         for ann in annotations:
@@ -211,8 +234,10 @@ class GQuadruplexDetector(BaseMotifDetector):
             return 'Telomeric tandem repeat'
         elif class_name == 'g_triplex':
             return 'Three-tetrad G-triplex'
-        elif class_name in ['stacked_canonical_g4s', 'stacked_g4s_linker']:
-            return 'Stacked/higher-order G4'
+        elif class_name == 'stacked_g4':
+            return 'Stacked/higher-order G4 assembly'
+        elif class_name == 'bulged_g4':
+            return 'Bulged intramolecular G4'
         elif class_name == 'higher_order_g4':
             return 'G4 array (G-wire)'
         elif num_tracts >= 4:
@@ -230,10 +255,10 @@ class GQuadruplexDetector(BaseMotifDetector):
             return f'Canonical G4: 4+ G-tracts (≥3G each), loops 1-7bp'
         elif class_name == 'extended_loop_g4':
             return f'Extended-loop G4: 4+ G-tracts (≥3G each), loops 1-12bp'
-        elif class_name == 'stacked_canonical_g4s':
-            return 'Multiple canonical G4 units stacked without linker'
-        elif class_name == 'stacked_g4s_linker':
-            return 'Multiple canonical G4 units with 0-20bp linker'
+        elif class_name == 'stacked_g4':
+            return 'Two or more canonical G4 units with optional linker of 0-20bp'
+        elif class_name == 'bulged_g4':
+            return 'Canonical G4 containing internal single-nucleotide bulge within G-tract'
         elif class_name == 'higher_order_g4':
             return 'G4 array: 7+ G-tract repeats forming G-wire structure'
         elif class_name == 'g_triplex':

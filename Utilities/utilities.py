@@ -1191,11 +1191,8 @@ class PatternRegistry:
         'telomeric_g4': [
             (r'(?:TTAGGG){4,}', 'G4_TEL', 'Telomeric G4', 'Telomeric G4', 24, 'g4hunter_score', 0.95, 'Human telomeric G4 structure', 'Parkinson et al., Nature 2002'),
         ],
-        'stacked_canonical_g4s': [
-            (r'(?:(?:G{3,}[ATGC]{1,7}){3}G{3,}){2,}', 'G4_STK_CAN', 'Stacked canonical G4s', 'Stacked canonical G4s', 30, 'g4hunter_score', 0.90, 'Structural polymorphism & stacking', 'Phan et al., NAR 2007'),
-        ],
-        'stacked_g4s_linker': [
-            (r'(?:(?:G{3,}[ATGC]{1,7}){3}G{3,})(?:[ATGC]{0,20}(?:(?:G{3,}[ATGC]{1,7}){3}G{3,})){1,}', 'G4_STK_LNK', 'Stacked G4s with linker', 'Stacked G4s with linker', 30, 'g4hunter_score', 0.85, 'Clustered G4s in chromatin', 'Hänsel-Hertsch et al., Nat Genet 2016'),
+        'stacked_g4': [
+            (r'(?:(?:G{3,}[ATGC]{1,7}){3}G{3,})(?:[ATGC]{0,20}(?:(?:G{3,}[ATGC]{1,7}){3}G{3,}))+', 'G4_STK', 'Stacked G4 (multi-quadruplex assembly)', 'Stacked G4', 30, 'g4hunter_score', 0.90, 'Clustered G4s in chromatin', 'Hänsel-Hertsch et al., Nat Genet 2016'),
         ],
         'canonical_g4': [
             (r'G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}', 'G4_CAN', 'Canonical intramolecular G4', 'Canonical intramolecular G4', 15, 'g4hunter_score', 0.80, 'Canonical G4 structure', 'Huppert & Balasubramanian, NAR 2005'),
@@ -1211,6 +1208,9 @@ class PatternRegistry:
         ],
         'weak_pqs': [
             (r'G{2,}[ATGC]{1,7}G{2,}[ATGC]{1,7}G{2,}[ATGC]{1,7}G{2,}', 'G4_WEAK', 'Two-tetrad weak PQS', 'Two-tetrad weak PQS', 11, 'g4hunter_score', 0.25, 'QGRS Mapper weak PQS', 'Kikin et al., NAR 2006'),
+        ],
+        'bulged_g4': [
+            (r'(?:G{2,}[ATGC]G{1,}[ATGC]{1,7}){3}G{2,}[ATGC]G{1,}', 'G4_BUL', 'Bulged G4 (interrupted G-tract)', 'Bulged G4', 15, 'g4hunter_score', 0.70, 'G4 with internal G-tract bulge', 'Mukundan & Bhattacharyya, JACS 2011'),
         ]
     }
     
