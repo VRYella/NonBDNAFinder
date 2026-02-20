@@ -57,39 +57,64 @@ def render():
     # STANDARD EXPORT FORMATS
     # Pre-compute all download data before rendering buttons so that an error in
     # one format never prevents the other download buttons from appearing.
+    #
+    # Results are cached in st.session_state so that reruns triggered by clicking
+    # any download button reuse the already-computed bytes instead of regenerating
+    # them. Without this cache, a click-induced rerun that fails to regenerate even
+    # one format (e.g. PDF) would cause all other download buttons to disappear.
+    # The cache is invalidated whenever the underlying results change.
     # ═══════════════════════════════════════════════════════════════════════════════
-    csv_data = None; excel_data = None; excel_label = "📊 Excel"; excel_fname = f"{safe_fn}_results.xlsx"; json_data = None; bed_data = None; pdf_data = None
-    excel_error = None; pdf_error = None
-    export_times: dict = {}
-    if all_motifs:
-        try:
-            _t0 = time.time(); csv_data = export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8'); export_times['csv'] = time.time() - _t0
-        except Exception as e: csv_data = None
-        try:
-            _t0 = time.time()
-            if seq_count > 1:
-                excel_data = generate_multifasta_excel_bytes(names, lengths, seq_count)
-                excel_label = "📊 Excel (MultiFASTA)"; excel_fname = f"{safe_fn}_multifasta_results.xlsx"
-            else:
-                excel_data = generate_excel_bytes(all_motifs, simple_format=True)
-            export_times['excel'] = time.time() - _t0
-        except Exception as e: excel_error = str(e)
-        try:
-            _t0 = time.time(); json_data = export_to_json(all_motifs, pretty=True).encode('utf-8'); export_times['json'] = time.time() - _t0
-        except Exception: json_data = None
-        try:
-            _t0 = time.time()
-            if names:
-                bed_data = export_to_bed(all_motifs, names[0]).encode('utf-8')
-                export_times['bed'] = time.time() - _t0
-        except Exception: bed_data = None
-        try:
-            slen = lengths[0] if lengths else 0
-            if slen > 0:
+    _EXPORT_CACHE_KEY = '_export_cache'
+    _EXPORT_CACHE_VER_KEY = '_export_cache_ver'
+    _cache_ver = (seq_count, len(all_motifs))
+
+    if st.session_state.get(_EXPORT_CACHE_VER_KEY) != _cache_ver or _EXPORT_CACHE_KEY not in st.session_state:
+        csv_data = None; excel_data = None; excel_label = "📊 Excel"; excel_fname = f"{safe_fn}_results.xlsx"; json_data = None; bed_data = None; pdf_data = None
+        excel_error = None; pdf_error = None
+        export_times: dict = {}
+        if all_motifs:
+            try:
+                _t0 = time.time(); csv_data = export_to_csv(all_motifs, non_overlapping_only=False).encode('utf-8'); export_times['csv'] = time.time() - _t0
+            except Exception as e: csv_data = None
+            try:
                 _t0 = time.time()
-                pdf_data = export_to_pdf(all_motifs, slen, seq_name)
-                export_times['pdf'] = time.time() - _t0
-        except Exception as e: pdf_error = str(e)
+                if seq_count > 1:
+                    excel_data = generate_multifasta_excel_bytes(names, lengths, seq_count)
+                    excel_label = "📊 Excel (MultiFASTA)"; excel_fname = f"{safe_fn}_multifasta_results.xlsx"
+                else:
+                    excel_data = generate_excel_bytes(all_motifs, simple_format=True)
+                export_times['excel'] = time.time() - _t0
+            except Exception as e: excel_error = str(e)
+            try:
+                _t0 = time.time(); json_data = export_to_json(all_motifs, pretty=True).encode('utf-8'); export_times['json'] = time.time() - _t0
+            except Exception: json_data = None
+            try:
+                _t0 = time.time()
+                if names:
+                    bed_data = export_to_bed(all_motifs, names[0]).encode('utf-8')
+                    export_times['bed'] = time.time() - _t0
+            except Exception: bed_data = None
+            try:
+                slen = lengths[0] if lengths else 0
+                if slen > 0:
+                    _t0 = time.time()
+                    pdf_data = export_to_pdf(all_motifs, slen, seq_name)
+                    export_times['pdf'] = time.time() - _t0
+            except Exception as e: pdf_error = str(e)
+        st.session_state[_EXPORT_CACHE_KEY] = {
+            'csv': csv_data, 'excel': excel_data, 'excel_label': excel_label,
+            'excel_fname': excel_fname, 'json': json_data, 'bed': bed_data,
+            'pdf': pdf_data, 'excel_error': excel_error, 'pdf_error': pdf_error,
+            'export_times': export_times,
+        }
+        st.session_state[_EXPORT_CACHE_VER_KEY] = _cache_ver
+    else:
+        _c = st.session_state[_EXPORT_CACHE_KEY]
+        csv_data = _c.get('csv'); excel_data = _c.get('excel')
+        excel_label = _c.get('excel_label', "📊 Excel"); excel_fname = _c.get('excel_fname', f"{safe_fn}_results.xlsx")
+        json_data = _c.get('json'); bed_data = _c.get('bed'); pdf_data = _c.get('pdf')
+        excel_error = _c.get('excel_error'); pdf_error = _c.get('pdf_error')
+        export_times = _c.get('export_times', {})
 
     st.markdown("### Export Options"); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.8rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
     st.markdown("#### Data Formats"); c1, c2, c3, c4, c5 = st.columns(5)
