@@ -12,7 +12,7 @@
 import re
 from typing import List, Dict, Any, Tuple, Optional
 from ..base.base_detector import BaseMotifDetector
-from Utilities.detectors_utils import revcomp
+from Utilities.detectors_utils import revcomp, calc_gc_content
 from Utilities.core.motif_normalizer import normalize_class_subclass
 
 # Optional Hyperscan support for high-performance pattern matching
@@ -353,8 +353,7 @@ class RLoopDetector(BaseMotifDetector):
 
                 # Calculate comprehensive features
                 motif_seq = sequence[start:end]
-                gc_count = motif_seq.count('G') + motif_seq.count('C')
-                gc_content = round(gc_count / len(motif_seq) * 100, 2) if len(motif_seq) > 0 else 0.0
+                gc_content = round(calc_gc_content(motif_seq), 2)
                 
                 # Calculate linker length (between RIZ and REZ)
                 riz_len = ann.get('riz_length', 0)

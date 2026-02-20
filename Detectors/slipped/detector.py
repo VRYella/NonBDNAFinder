@@ -18,6 +18,7 @@ import math
 from typing import List, Dict, Any, Tuple
 from ..base.base_detector import BaseMotifDetector
 from Utilities.core.motif_normalizer import normalize_class_subclass
+from Utilities.detectors_utils import calc_gc_content
 
 # Try to import Numba for JIT compilation (2-5x speedup)
 try:
@@ -225,9 +226,8 @@ class SlippedDNADetector(BaseMotifDetector):
         tract_length = len(sequence)
         k = len(unit)
         
-        # Calculate GC fraction
-        gc_count = sequence.count('G') + sequence.count('C')
-        gc_fraction = gc_count / len(sequence) if len(sequence) > 0 else 0.0
+        # Calculate GC fraction (exclude N/ambiguous bases from denominator)
+        gc_fraction = calc_gc_content(sequence) / 100.0
         
         # Use JIT-compiled base score calculation if available
         if NUMBA_AVAILABLE:
@@ -450,9 +450,8 @@ class SlippedDNADetector(BaseMotifDetector):
                 auto_correct=True
             )
             
-            # Calculate GC content
-            gc_count = ann['sequence'].count('G') + ann['sequence'].count('C')
-            gc_content = round(gc_count / len(ann['sequence']) * 100, 2) if len(ann['sequence']) > 0 else 0.0
+            # Calculate GC content (exclude N/ambiguous bases from denominator)
+            gc_content = round(calc_gc_content(ann['sequence']), 2)
             
             # Get entropy - should always be present from annotation
             entropy = ann.get('entropy', 0)  # Entropy calculated in apply_stringent_criteria

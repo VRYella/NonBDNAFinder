@@ -23,6 +23,7 @@ except ImportError:
     from Detectors import BaseMotifDetector
 
 from Utilities.core.motif_normalizer import normalize_class_subclass
+from Utilities.detectors_utils import calc_gc_content, calc_at_content
 from .tenmer_table import TENMER_LOG2
 
 # Optional Hyperscan support (borrowed from Z-DNA detector)
@@ -118,13 +119,11 @@ class APhilicDetector(BaseMotifDetector):
                 start_pos, end_pos = region['start'], region['end']
                 motif_seq = sequence[start_pos:end_pos]
                 
-                # Calculate GC content
-                gc_count = motif_seq.count('G') + motif_seq.count('C')
-                gc_content = round(gc_count / len(motif_seq) * 100, 2) if len(motif_seq) > 0 else 0.0
+                # Calculate GC content (exclude N/ambiguous bases from denominator)
+                gc_content = round(calc_gc_content(motif_seq), 2)
                 
-                # Calculate AT content
-                at_count = motif_seq.count('A') + motif_seq.count('T')
-                at_content = round(at_count / len(motif_seq) * 100, 2) if len(motif_seq) > 0 else 0.0
+                # Calculate AT content (exclude N/ambiguous bases from denominator)
+                at_content = round(calc_at_content(motif_seq), 2)
                 
                 # Get contributing 10-mers summary
                 contributing_10mers = region.get('contributing_10mers', [])

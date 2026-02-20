@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Tuple
 from collections import defaultdict
 from ..base.base_detector import BaseMotifDetector
 from Utilities.core.motif_normalizer import normalize_class_subclass
+from Utilities.detectors_utils import calc_gc_content
 
 # Try to import Numba for JIT compilation (2-5x speedup)
 try:
@@ -534,9 +535,8 @@ class TriplexDetector(BaseMotifDetector):
             # Extract motif sequence
             motif_seq = annotation["matched_seq"]
             
-            # Calculate GC content
-            gc_count = motif_seq.count('G') + motif_seq.count('C')
-            gc_content = round(gc_count / len(motif_seq) * 100, 2) if len(motif_seq) > 0 else 0.0
+            # Calculate GC content (exclude N/ambiguous bases from denominator)
+            gc_content = round(calc_gc_content(motif_seq), 2)
 
             motif = {
                 "ID": f"{sequence_name}_{id_prefix}_{annotation['start']+1}",

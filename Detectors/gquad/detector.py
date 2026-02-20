@@ -13,6 +13,7 @@ import re
 from typing import Dict, List, Tuple, Any
 from ..base.base_detector import BaseMotifDetector
 from Utilities.core.motif_normalizer import normalize_class_subclass
+from Utilities.detectors_utils import calc_gc_content
 
 # Try to import Numba for JIT compilation (2-5x speedup)
 try:
@@ -182,9 +183,8 @@ class GQuadruplexDetector(BaseMotifDetector):
         """Extract comprehensive G4 structural features including tracts, loops, GC content, etc."""
         features = {}
         
-        # Calculate GC content
-        gc_count = sequence.count('G') + sequence.count('C')
-        features['GC_Content'] = round(gc_count / len(sequence) * 100, 2) if len(sequence) > 0 else 0.0
+        # Calculate GC content (exclude N/ambiguous bases from denominator)
+        features['GC_Content'] = round(calc_gc_content(sequence), 2)
         
         # Find G-tracts (runs of 2+ consecutive Gs)
         g_tracts = [m.group() for m in re.finditer(r'G{2,}', sequence)]
