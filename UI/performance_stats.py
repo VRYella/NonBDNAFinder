@@ -25,6 +25,7 @@ class PerformanceTracker:
         self.total_bp_processed = 0
         self.total_motifs_found = 0
         self.chunk_times: List[float] = []
+        self.task_times: Dict[str, float] = {}
         
     def start(self):
         """Start tracking."""
@@ -54,6 +55,10 @@ class PerformanceTracker:
     def add_chunk_time(self, elapsed: float):
         """Record chunk processing time."""
         self.chunk_times.append(elapsed)
+
+    def add_task_time(self, task_name: str, elapsed: float):
+        """Record elapsed time for a named task (e.g., 'visualization', 'export')."""
+        self.task_times[task_name] = elapsed
         
     def get_total_time(self) -> float:
         """Get total elapsed time."""
@@ -83,7 +88,8 @@ class PerformanceTracker:
             'detector_motifs': self.detector_motifs.copy(),
             'sequence_count': len(self.sequence_stats),
             'chunk_count': len(self.chunk_times),
-            'avg_chunk_time': sum(self.chunk_times) / len(self.chunk_times) if self.chunk_times else 0
+            'avg_chunk_time': sum(self.chunk_times) / len(self.chunk_times) if self.chunk_times else 0,
+            'task_times': self.task_times.copy()
         }
         
         return summary
@@ -122,6 +128,16 @@ def format_performance_summary(tracker: PerformanceTracker, format_time_func) ->
     
     lines.append("")
     
+    # Per-task statistics (visualization, export, etc.)
+    if summary.get('task_times'):
+        lines.append("## Task Timing Breakdown")
+        lines.append("")
+        for task_name, elapsed in summary['task_times'].items():
+            task_display = task_name.replace('_', ' ').title()
+            percentage = (elapsed / summary['total_time'] * 100) if summary['total_time'] > 0 else 0
+            lines.append(f"- **{task_display}**: {format_time_func(elapsed)} ({percentage:.1f}% of total)")
+        lines.append("")
+
     # Per-detector statistics
     if summary['detector_times']:
         lines.append("## Detector Performance")
