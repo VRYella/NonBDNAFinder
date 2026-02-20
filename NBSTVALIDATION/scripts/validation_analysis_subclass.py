@@ -62,8 +62,8 @@ SUBCLASS_TO_NBST_MAP = {
     "Intramolecular G-triplex": "GQ",
     "Two-tetrad weak PQS": "GQ",
     "Telomeric G4": "GQ",
-    "Stacked canonical G4s": "GQ",
-    "Stacked G4s with linker": "GQ",
+    "Stacked G4": "GQ",
+    "Bulged G4": "GQ",
     "Higher-order G4 array/G4-wire": "GQ",
     
     # Slipped DNA subclasses

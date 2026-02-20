@@ -61,13 +61,13 @@ MOTIF_CLASSIFICATION: Dict[int, Dict[str, any]] = {
         'class': 'G-Quadruplex',
         'subclasses': [
             'Telomeric G4',
-            'Stacked canonical G4s',
-            'Stacked G4s with linker',
+            'Stacked G4',
             'Canonical intramolecular G4',
             'Extended-loop canonical',
             'Higher-order G4 array/G4-wire',
             'Intramolecular G-triplex',
-            'Two-tetrad weak PQS'
+            'Two-tetrad weak PQS',
+            'Bulged G4'
         ]
     },
     7: {
@@ -217,13 +217,15 @@ SUBCLASS_ALIASES: Dict[str, str] = {
     
     # G-Quadruplex subclasses
     'telomeric g4': 'Telomeric G4',
-    'stacked canonical g4s': 'Stacked canonical G4s',
-    'stacked g4s with linker': 'Stacked G4s with linker',
+    'stacked g4': 'Stacked G4',
+    'stacked canonical g4s': 'Stacked G4',
+    'stacked g4s with linker': 'Stacked G4',
     'canonical intramolecular g4': 'Canonical intramolecular G4',
     'extended-loop canonical': 'Extended-loop canonical',
     'higher-order g4 array/g4-wire': 'Higher-order G4 array/G4-wire',
     'intramolecular g-triplex': 'Intramolecular G-triplex',
     'two-tetrad weak pqs': 'Two-tetrad weak PQS',
+    'bulged g4': 'Bulged G4',
     
     # i-Motif subclasses
     'canonical i-motif': 'Canonical i-motif',
