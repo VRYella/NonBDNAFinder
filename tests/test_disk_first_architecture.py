@@ -219,8 +219,11 @@ class TestStreamlitSafeExecutorStrategySelection:
     def test_direct_below_threshold(self):
         from Utilities.streamlit_safe_executor import StreamlitSafeExecutor
 
-        assert StreamlitSafeExecutor._select_strategy(0) == "direct"
-        assert StreamlitSafeExecutor._select_strategy(99_999) == "direct"
+        # THRESHOLD_DIRECT = 0 means all sequences use chunking (no direct path).
+        # Sequences that were previously "direct" are now "chunk_workers" so that
+        # 50K/2K chunking is applied universally for every sequence.
+        assert StreamlitSafeExecutor._select_strategy(0) == "chunk_workers"
+        assert StreamlitSafeExecutor._select_strategy(99_999) == "chunk_workers"
 
     def test_chunk_workers_middle_band(self):
         from Utilities.streamlit_safe_executor import StreamlitSafeExecutor

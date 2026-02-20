@@ -4379,11 +4379,11 @@ FEATURES:
 # - Clean, minimal design with proper spacing
 # - Colorblind-friendly palettes
 
-# Default DPI for visualization (reduced to 150 to save memory)
-# 150 DPI is suitable for screen display and reduces file sizes significantly
+# Default DPI for visualization (reduced to 72 for screen display)
+# 72 DPI matches standard screen resolution and minimizes rendering time/memory
 # For print/publication quality, Nature journals typically require 300 DPI
-# but we prioritize memory savings for web application performance
-PUBLICATION_DPI = 150
+# but we prioritize performance and memory savings for web application display
+PUBLICATION_DPI = 72
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
 # Single source of truth: config/colors.py → VISUALIZATION_MOTIF_COLORS
@@ -5375,7 +5375,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
     
     saved_files = {}
     
-    # Use publication DPI if not specified
+    # Use publication DPI if not specified (minimum screen DPI)
     if dpi < PUBLICATION_DPI:
         dpi = PUBLICATION_DPI
     
