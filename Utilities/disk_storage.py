@@ -31,7 +31,7 @@ from typing import Dict, Any, List, Optional, Iterator, Tuple
 from pathlib import Path
 import hashlib
 from datetime import datetime
-from Utilities.detectors_utils import calc_gc_content
+from Utilities.detectors_utils import calc_gc_content, _count_bases
 
 logger = logging.getLogger(__name__)
 
@@ -134,11 +134,20 @@ class UniversalSequenceStorage:
             f.write(sanitized_sequence)
         
         # Calculate and store metadata using sanitized sequence
+        a_count, t_count, g_count, c_count = _count_bases(sanitized_sequence)
+        n_count = sanitized_sequence.count('N')
         metadata = {
             'seq_id': seq_id,
             'name': name,
             'length': sanitized_length,  # Length of actual stored sequence
             'gc_content': self._calculate_gc_content(sanitized_sequence),
+            'base_counts': {
+                'A': a_count,
+                'T': t_count,
+                'G': g_count,
+                'C': c_count,
+                'N': n_count,
+            },
             'file_path': str(seq_file),
             'created_at': datetime.now().isoformat()
         }
