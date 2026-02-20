@@ -1,12 +1,4 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ Triplex DNA Detector - Seed-and-extend mirror repeats (H-DNA) & Sticky DNA  │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.4           │
-│ References: Frank-Kamenetskii 1995; Soyfer & Potaman 1995; Sakamoto 1999    │
-│ Subclasses: Triplex (mirror repeats), Sticky DNA (GAA/TTC disease repeats)  │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
+"""Triplex DNA detector: H-DNA mirror repeats and Sticky DNA (GAA/TTC)."""
 
 import re
 import math
@@ -16,13 +8,11 @@ from ..base.base_detector import BaseMotifDetector
 from Utilities.core.motif_normalizer import normalize_class_subclass
 from Utilities.detectors_utils import calc_gc_content
 
-# Try to import Numba for JIT compilation (2-5x speedup)
 try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
     NUMBA_AVAILABLE = False
-    # Create a no-op decorator if Numba is not available
     def jit(*args, **kwargs):
         def decorator(func):
             return func
@@ -36,9 +26,7 @@ PURITY_THRESHOLD = 0.90
 SEED_SIZE = 6
 SCORE_THRESHOLD = 0.25
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Triplex scoring parameters (literature aligned - Frank-Kamenetskii 1995)
-# ──────────────────────────────────────────────────────────────────────────────
 H_REF_ARM = 35          # Reference arm length for full stability
 H_LOOP_ALPHA = 0.4      # Loop penalty exponent
 H_WEIGHT_L = 0.35       # Arm weight
@@ -66,9 +54,7 @@ STICKY_PATHOGENIC_SCALE = 0.01      # Score increment per copy in pathogenic ran
 MIN_STICKY_COPIES = 4  # Minimum 4 copies for Sticky DNA
 MIN_STICKY_LENGTH = 12  # Minimum tract length (4 copies * 3 bp)
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # NORMALIZATION PARAMETERS (Tunable)
-# ═══════════════════════════════════════════════════════════════════════════════
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
 # │ Parameter    │ Value       │ Scientific Basis                       │
 # ├──────────────┼─────────────┼────────────────────────────────────────┤
@@ -82,18 +68,12 @@ TRIPLEX_RAW_SCORE_MIN = 0.5; TRIPLEX_RAW_SCORE_MAX = 0.95
 TRIPLEX_NORMALIZED_MIN = 1.0; TRIPLEX_NORMALIZED_MAX = 3.0
 TRIPLEX_NORMALIZATION_METHOD = 'linear'
 TRIPLEX_SCORE_REFERENCE = 'Frank-Kamenetskii et al. 1995'
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # JIT-COMPILED HELPER FUNCTIONS FOR PERFORMANCE
-# ═══════════════════════════════════════════════════════════════════════════════
 @jit(nopython=True, cache=True)
 def _compute_purity_jit(purine_count, pyr_count, length):
-    """JIT-compiled purity calculation for triplex scoring.
-    
-    This provides 2-3x speedup for purity calculations when Numba is available.
-    """
+    """JIT-compiled purity calculation."""
     if length == 0:
         return 0.0
     
@@ -111,26 +91,19 @@ def _score_mirror_triplex_jit(arm_len, loop_len, purity, interruptions,
                                H_REF_ARM, H_LOOP_ALPHA, H_WEIGHT_L, 
                                H_WEIGHT_H, H_WEIGHT_P, H_WEIGHT_I,
                                H_PURITY_MIN, H_PURITY_RANGE):
-    """JIT-compiled mirror triplex scoring function.
-    
-    This provides 2-3x speedup for scoring calculations when Numba is available.
-    """
-    # Arm length factor (log scaled)
+    """JIT-compiled mirror triplex scoring (returns 1–3 scale)."""
     if H_REF_ARM > 1:
         L = min(1.0, math.log(max(1, arm_len)) / math.log(H_REF_ARM))
     else:
         L = 1.0 if arm_len >= 1 else 0.0
 
-    # Loop penalty (tight loops favored)
     H = math.exp(-H_LOOP_ALPHA * loop_len)
 
-    # Purity factor (require strong Pu/Py bias)
     if purity >= H_PURITY_MIN and H_PURITY_RANGE > 0:
         P = max(0.0, (purity - H_PURITY_MIN) / H_PURITY_RANGE)
     else:
         P = 0.0
 
-    # Interruption penalty
     I = 1.0 / (1.0 + interruptions)
 
     raw = (
@@ -141,7 +114,6 @@ def _score_mirror_triplex_jit(arm_len, loop_len, purity, interruptions,
     )
 
     return 1.0 + 2.0 * min(1.0, raw)
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 class TriplexDetector(BaseMotifDetector):
@@ -204,11 +176,7 @@ class TriplexDetector(BaseMotifDetector):
 
     def _score_mirror_triplex(self, arm_len: int, loop_len: int,
                               purity: float, interruptions: int) -> float:
-        """
-        Mechanistic H-DNA scoring (Frank-Kamenetskii 1995).
-        Returns 1–3 scale.
-        """
-        # Use JIT-compiled version for better performance (2-3x speedup)
+        """Mechanistic H-DNA scoring (Frank-Kamenetskii 1995), returns 1–3 scale."""
         if NUMBA_AVAILABLE:
             score = _score_mirror_triplex_jit(
                 arm_len, loop_len, purity, interruptions,
@@ -218,23 +186,18 @@ class TriplexDetector(BaseMotifDetector):
             )
             return round(score, 3)
         else:
-            # Fallback to original implementation
-            # Arm length factor (log scaled) - guard against H_REF_ARM <= 1
             if H_REF_ARM > 1:
                 L = min(1.0, math.log(max(1, arm_len)) / math.log(H_REF_ARM))
             else:
                 L = 1.0 if arm_len >= 1 else 0.0
 
-            # Loop penalty (tight loops favored)
             H = math.exp(-H_LOOP_ALPHA * loop_len)
 
-            # Purity factor (require strong Pu/Py bias)
             if purity >= H_PURITY_MIN and H_PURITY_RANGE > 0:
                 P = max(0.0, (purity - H_PURITY_MIN) / H_PURITY_RANGE)
             else:
                 P = 0.0
 
-            # Interruption penalty
             I = 1.0 / (1.0 + interruptions)
 
             raw = (
@@ -259,7 +222,6 @@ class TriplexDetector(BaseMotifDetector):
 
         seed_index = defaultdict(list)
 
-        # Build seed index
         for i in range(n - k + 1):
             seed_index[seq[i:i+k]].append(i)
 
@@ -286,7 +248,6 @@ class TriplexDetector(BaseMotifDetector):
                 right_start = j
                 arm_len = k
 
-                # Extend symmetrically (exact mirror)
                 while (
                     left_start > 0 and
                     right_start + arm_len < n and
@@ -301,7 +262,6 @@ class TriplexDetector(BaseMotifDetector):
 
                 left_seq = seq[left_start:left_start + arm_len]
 
-                # Purine / Pyrimidine purity calculation
                 purine_fraction = sum(b in "AG" for b in left_seq) / arm_len
                 pyr_fraction = sum(b in "CT" for b in left_seq) / arm_len
                 purity = max(purine_fraction, pyr_fraction)
@@ -309,14 +269,12 @@ class TriplexDetector(BaseMotifDetector):
                 if purity < self.PURITY_THRESHOLD:
                     continue
 
-                # Calculate interruptions (mismatched bases in dominant tract)
                 interruptions = sum(
                     1 for b in left_seq
                     if (purine_fraction > pyr_fraction and b not in "AG")
                     or (pyr_fraction > purine_fraction and b not in "CT")
                 )
 
-                # Calculate mechanistic score
                 score = self._score_mirror_triplex(
                     arm_len, loop_len, purity, interruptions
                 )
@@ -332,7 +290,6 @@ class TriplexDetector(BaseMotifDetector):
                     "sequence": seq[left_start:right_start + arm_len]
                 })
 
-        # Sort longest arms first (like C maximizing stem)
         hits.sort(key=lambda x: (-x["arm_length"], x["loop_length"], x["start"]))
         return hits
 
@@ -369,18 +326,7 @@ class TriplexDetector(BaseMotifDetector):
         return min(3.0, round(score, 3)), flags
 
     def _find_sticky_dna(self, sequence: str) -> List[Dict[str, Any]]:
-        """
-        Find Sticky DNA regions (GAA/TTC repeats).
-        
-        GAA and TTC repeats are associated with Friedreich ataxia and form 
-        unusual sticky DNA structures. Reference: Sakamoto 1999.
-        
-        Piecewise scoring aligned with biological thresholds:
-        - 4-19 copies: Weak (1.0-1.3)
-        - 20-39 copies: Replication blockage range (1.3-2.0)
-        - 40-59 copies: Sticky threshold range (2.0-2.6)
-        - 60+ copies: Pathogenic/FRDA regime (2.6-3.0)
-        """
+        """Find Sticky DNA (GAA/TTC trinucleotide repeats)."""
         seq = sequence.upper()
         hits = []
 
@@ -389,14 +335,12 @@ class TriplexDetector(BaseMotifDetector):
                 start, end = match.start(), match.end()
                 tract_length = end - start
                 
-                # Calculate copy number
                 if 'GAA' in pattern_id:
                     unit = 'GAA'
                 else:
                     unit = 'TTC'
                 copy_number = tract_length // 3
                 
-                # Calculate piecewise score and biological flags
                 score, flags = self._score_sticky_dna(copy_number)
                 
                 hits.append({
@@ -413,7 +357,6 @@ class TriplexDetector(BaseMotifDetector):
                     "flags": flags
                 })
 
-        # Sort by length (longer tracts more significant)
         hits.sort(key=lambda x: (-x["length"], x["start"]))
         return hits
 
@@ -498,23 +441,12 @@ class TriplexDetector(BaseMotifDetector):
     def detect_motifs(self,
                       sequence: str,
                       sequence_name: str = "sequence") -> List[Dict[str, Any]]:
-        """
-        Detect triplex DNA motifs including mirror repeats and sticky DNA.
-        
-        Returns motifs with proper canonical subclasses:
-        - "Triplex" for H-DNA forming mirror repeats
-        - "Sticky DNA" for GAA/TTC disease-associated repeats
-        
-        Overlaps between different subclasses are allowed (e.g., a region can be
-        both a Triplex and overlap with Slipped DNA since they represent different
-        structural properties).
-        """
+        """Detect triplex DNA motifs (mirror repeats and sticky DNA)."""
         sequence = sequence.upper().strip()
         motifs = []
         annotations = self.annotate_sequence(sequence)
 
         for annotation in annotations:
-            # Use the subclass from annotation (Triplex or Sticky DNA)
             subclass = annotation.get("subclass", "Triplex")
             
             canonical_class, canonical_subclass = normalize_class_subclass(
@@ -524,7 +456,6 @@ class TriplexDetector(BaseMotifDetector):
                 auto_correct=True
             )
             
-            # Determine method and ID prefix based on subclass
             if canonical_subclass == "Sticky DNA":
                 method = "Sticky_DNA_detection"
                 id_prefix = "STICKY"
@@ -532,10 +463,8 @@ class TriplexDetector(BaseMotifDetector):
                 method = "Triplex_seed_mirror_detection"
                 id_prefix = "TRX"
             
-            # Extract motif sequence
             motif_seq = annotation["matched_seq"]
             
-            # Calculate GC content (exclude N/ambiguous bases from denominator)
             gc_content = round(calc_gc_content(motif_seq), 2)
 
             motif = {
@@ -547,8 +476,8 @@ class TriplexDetector(BaseMotifDetector):
                 "End": annotation["end"],
                 "Length": annotation["length"],
                 "Sequence": motif_seq,
-                "Raw_Score": annotation.get("score", 1.0),  # Detector-specific scale
-                "Score": self._normalize_score(annotation.get("score", 1.0)),  # Universal 1-3 scale
+                "Raw_Score": annotation.get("score", 1.0),
+                "Score": self._normalize_score(annotation.get("score", 1.0)),
                 "Strand": "+",
                 "Method": method,
                 "Pattern_ID": annotation["pattern_id"],
@@ -563,14 +492,12 @@ class TriplexDetector(BaseMotifDetector):
                 if annotation.get("copy_number"):
                     motif["Copy_Number"] = annotation["copy_number"]
                 
-                # Add biological flags
                 flags = annotation.get("flags", {})
                 motif.update(flags)
                 
-                # Add comprehensive features for Sticky DNA
                 copy_num = annotation.get("copy_number", 0)
-                motif["Arm_Length"] = "N/A"  # Not applicable for tandem repeats
-                motif["Loop_Length"] = "N/A"  # Not applicable for tandem repeats
+                motif["Arm_Length"] = "N/A"
+                motif["Loop_Length"] = "N/A"
                 motif["Criterion"] = self._get_sticky_criterion(copy_num, flags)
                 motif["Disease_Relevance"] = self._get_sticky_disease_relevance(
                     annotation.get("repeat_unit", ""),
@@ -580,8 +507,6 @@ class TriplexDetector(BaseMotifDetector):
                 motif["Regions_Involved"] = f"{annotation.get('repeat_unit', 'GAA/TTC')} trinucleotide repeat × {copy_num} copies"
                 
             else:
-                # Add comprehensive features for mirror triplex
-                # Extract arm/loop info from annotation if available
                 arm_len = annotation.get("arm_length", 0)
                 loop_len = annotation.get("loop_length", 0)
                 purity = annotation.get("purity", 0)
@@ -666,7 +591,6 @@ class TriplexDetector(BaseMotifDetector):
         if arm_len >= 30:
             disease_notes.append("Long mirror repeat - genomic instability risk, chromosomal rearrangement")
         
-        # PKD1 gene (polycystic kidney disease) has long mirror repeats
         if arm_len >= 50:
             disease_notes.append("PKD1-like structure (polycystic kidney disease associated)")
         

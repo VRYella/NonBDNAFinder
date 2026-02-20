@@ -1,58 +1,19 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ Detectors Utils - Shared utilities for Non-B DNA motif detectors             │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-│ Common functions extracted to reduce code repetition in detectors            │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
-# ═══════════════════════════════════════════════════════════════════════════════
+"""Shared utility functions for Non-B DNA motif detectors."""
 # IMPORTS
-# ═══════════════════════════════════════════════════════════════════════════════
 from typing import List, Dict, Any, Callable, Optional
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
-# ═══════════════════════════════════════════════════════════════════════════════
 DEFAULT_UNKNOWN_SUBCLASS = 'unknown'
-# Pre-compiled translation table for reverse complement (performance optimization)
 _REVCOMP_TABLE = str.maketrans("ACGTacgt", "TGCAtgca")
-# Pre-compiled sets for O(1) membership testing
-_GC_BASES = {'G', 'C', 'g', 'c'}
-_AT_BASES = {'A', 'T', 'a', 't'}
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 def revcomp(seq: str) -> str:
-    """
-    Optimized reverse complement of DNA sequence using cached translation table.
-    
-    Args:
-        seq: DNA sequence string
-        
-    Returns:
-        Reverse complement sequence
-        
-    Example:
-        >>> revcomp("ATCG")
-        'CGAT'
-    """
+    """Return the reverse complement of a DNA sequence."""
     return seq.translate(_REVCOMP_TABLE)[::-1]
 
 
 def _count_bases(seq: str) -> tuple:
-    """
-    Fast base counting using str.count() (C-level, 10-20x faster than Python loop).
-
-    Args:
-        seq: DNA sequence string (case-insensitive)
-
-    Returns:
-        Tuple of (a_count, t_count, g_count, c_count)
-
-    Performance: 4 O(n) C-level calls instead of one O(n) Python loop —
-        roughly 10-20x faster for sequences ≥ 1 Kbp.
-    """
+    """Count A, T, G, C bases; returns (a, t, g, c) counts."""
     a_count = seq.count('A') + seq.count('a')
     t_count = seq.count('T') + seq.count('t')
     g_count = seq.count('G') + seq.count('g')
@@ -61,108 +22,41 @@ def _count_bases(seq: str) -> tuple:
 
 
 def calc_gc_content(seq: str) -> float:
-    """
-    Calculate GC content percentage using genomic standard formula.
-    
-    Formula: GC% = (G + C) / (A + T + G + C) × 100
-    
-    Args:
-        seq: DNA sequence string (case-insensitive)
-        
-    Returns:
-        GC content as percentage (0-100), or 0.0 if no valid ATGC bases
-        
-    Scientific Basis:
-        - Excludes ambiguous bases (N, R, Y, etc.) from denominator
-        - Only counts definitive nucleotides (A, T, G, C)
-        - Standard used in genomics (NCBI, Ensembl, UCSC Genome Browser)
-        
-    Example:
-        >>> calc_gc_content("ATCG")
-        50.0
-        >>> calc_gc_content("ATCGNNNN")  # N's excluded
-        50.0  # (2 / 4) * 100, not (2 / 8) * 100
-    """
+    """Return GC content as percentage (0-100), excluding ambiguous bases."""
     if not seq:
         return 0.0
     
-    # Single-pass base counting (O(n) performance)
     a_count, t_count, g_count, c_count = _count_bases(seq)
     
-    # Calculate valid base total (denominator)
     valid_bases = a_count + t_count + g_count + c_count
     
     if valid_bases == 0:
         return 0.0
     
-    # Gold standard formula: (G+C) / (A+T+G+C) × 100
     return ((g_count + c_count) / valid_bases) * 100
 
 
 def calc_at_content(seq: str) -> float:
-    """
-    Calculate AT content percentage using genomic standard formula.
-    
-    Formula: AT% = (A + T) / (A + T + G + C) × 100
-    
-    Args:
-        seq: DNA sequence string (case-insensitive)
-        
-    Returns:
-        AT content as percentage (0-100), or 0.0 if no valid ATGC bases
-        
-    Scientific Basis:
-        - Excludes ambiguous bases (N, R, Y, etc.) from denominator
-        - Only counts definitive nucleotides (A, T, G, C)
-        - Consistent with GC% calculation (AT% + GC% = 100%)
-        
-    Example:
-        >>> calc_at_content("ATCG")
-        50.0
-        >>> calc_at_content("ATCGNNNN")  # N's excluded
-        50.0  # (2 / 4) * 100, not (2 / 8) * 100
-    """
+    """Return AT content as percentage (0-100), excluding ambiguous bases."""
     if not seq:
         return 0.0
     
-    # Single-pass base counting (O(n) performance)
     a_count, t_count, g_count, c_count = _count_bases(seq)
     
-    # Calculate valid base total (denominator)
     valid_bases = a_count + t_count + g_count + c_count
     
     if valid_bases == 0:
         return 0.0
     
-    # Standard formula: (A+T) / (A+T+G+C) × 100
     return ((a_count + t_count) / valid_bases) * 100
 
 
 def remove_overlaps(motifs: List[Dict[str, Any]], 
                    sort_key: Optional[Callable] = None) -> List[Dict[str, Any]]:
-    """
-    Remove overlapping motifs, keeping highest priority.
-    
-    Args:
-        motifs: List of motif dictionaries with Start/End positions
-        sort_key: Optional sorting function (default: by score desc, then length desc)
-        
-    Returns:
-        List of non-overlapping motifs sorted by Start position
-        
-    Example:
-        >>> motifs = [
-        ...     {'Start': 1, 'End': 10, 'Score': 0.8},
-        ...     {'Start': 5, 'End': 15, 'Score': 0.9}
-        ... ]
-        >>> result = remove_overlaps(motifs)
-        >>> len(result)
-        1
-    """
+    """Remove overlapping motifs, keeping highest-score first."""
     if not motifs:
         return []
     
-    # Default sort: by score (desc), then length (desc)
     if sort_key is None:
         sort_key = lambda x: (-x.get('Score', 0), -(x.get('End', 0) - x.get('Start', 0)))
     
@@ -180,22 +74,12 @@ def remove_overlaps(motifs: List[Dict[str, Any]],
         if not overlaps:
             selected.append(motif)
     
-    # Sort by start position for output
     selected.sort(key=lambda x: x['Start'])
     return selected
 
 
 def remove_overlaps_by_subclass(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Remove overlapping motifs within same subclass only.
-    Allows overlaps between different subclasses.
-    
-    Args:
-        motifs: List of motif dictionaries with Start/End/Subclass
-        
-    Returns:
-        List of non-overlapping motifs (within subclass) sorted by Start
-    """
+    """Remove overlapping motifs within each subclass independently."""
     if not motifs:
         return []
     
@@ -208,7 +92,6 @@ def remove_overlaps_by_subclass(motifs: List[Dict[str, Any]]) -> List[Dict[str, 
     
     non_overlapping = []
     
-    # Process each subclass separately
     for subclass, group_motifs in groups.items():
         # Sort by score (desc), then length (desc)
         sorted_motifs = sorted(
@@ -230,30 +113,13 @@ def remove_overlaps_by_subclass(motifs: List[Dict[str, Any]]) -> List[Dict[str, 
         
         non_overlapping.extend(selected)
     
-    # Sort by start position for output
     non_overlapping.sort(key=lambda x: x['Start'])
     return non_overlapping
 
 
 def load_patterns_with_fallback(patterns: Any, 
                                 fallback: Callable[[], Dict]) -> Dict:
-    """
-    Load patterns with fallback to default patterns.
-    
-    Args:
-        patterns: Imported patterns (may be None or empty dict)
-        fallback: Function that returns default patterns
-        
-    Returns:
-        Pattern dictionary (from import or fallback)
-        
-    Example:
-        >>> def fallback():
-        ...     return {"pattern1": "ATCG"}
-        >>> result = load_patterns_with_fallback(None, fallback)
-        >>> "pattern1" in result
-        True
-    """
+    """Return patterns dict; uses fallback() if patterns is empty/None."""
     if patterns:
         return patterns.copy() if hasattr(patterns, 'copy') else patterns
     else:

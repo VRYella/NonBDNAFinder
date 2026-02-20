@@ -1,14 +1,5 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ Base Detector Class - Abstract base for all Non-B DNA motif detectors        │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-│ O(n) regex matching | Pattern compilation & caching                          │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
-# ═══════════════════════════════════════════════════════════════════════════════
+"""Abstract base class for all Non-B DNA motif detectors."""
 # IMPORTS
-# ═══════════════════════════════════════════════════════════════════════════════
 import re
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Tuple
@@ -22,30 +13,20 @@ from Utilities.detectors_utils import (
     load_patterns_with_fallback
 )
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
-# ═══════════════════════════════════════════════════════════════════════════════
 DEFAULT_MIN_SCORE_THRESHOLD = 0.5
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # NORMALIZATION PARAMETERS (Default - Override in subclasses)
-# ═══════════════════════════════════════════════════════════════════════════════
 # Universal normalization scale: 1.0 (weak) → 3.0 (strong)
 # Subclasses should override these with class-specific values
 DEFAULT_RAW_SCORE_MIN = 0.0; DEFAULT_RAW_SCORE_MAX = 1.0
 DEFAULT_NORMALIZED_MIN = 1.0; DEFAULT_NORMALIZED_MAX = 3.0
 DEFAULT_NORMALIZATION_METHOD = 'linear'  # Options: 'linear', 'log', 'g4hunter', 'zdna_cumulative'
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 class BaseMotifDetector(ABC):
-    """
-    Abstract base class for all Non-B DNA motif detectors.
+    """Abstract base class for all Non-B DNA motif detectors."""
     
-    # Motif Output Structure:
-    """
-    
-    # Normalization parameters (override in subclasses)
     RAW_SCORE_MIN = DEFAULT_RAW_SCORE_MIN
     RAW_SCORE_MAX = DEFAULT_RAW_SCORE_MAX
     NORMALIZED_MIN = DEFAULT_NORMALIZED_MIN
@@ -57,7 +38,6 @@ class BaseMotifDetector(ABC):
         self.patterns = self.get_patterns()
         self.compiled_patterns = self._compile_patterns()
         self._last_raw_score = None  # Store raw score for motif dict creation
-        # Detector execution audit - tracks detection pipeline
         self.audit = {
             'invoked': False,
             'windows_scanned': 0,
@@ -70,11 +50,7 @@ class BaseMotifDetector(ABC):
     
     @abstractmethod
     def get_patterns(self) -> Dict[str, List[Tuple]]:
-        """
-        Return patterns specific to this motif class.
-        
-        # Pattern Structure:
-        """
+        """Return patterns specific to this motif class."""
     
     @abstractmethod  
     def get_motif_class_name(self) -> str:
@@ -83,23 +59,11 @@ class BaseMotifDetector(ABC):
     
     @abstractmethod
     def calculate_score(self, sequence: str, pattern_info: Tuple) -> float:
-        """
-        Calculate motif-specific confidence score.
-        
-        Args:
-            sequence: DNA sequence string (uppercase)
-            pattern_info: Pattern tuple with metadata
-            
-        Returns:
-            Score value between 0.0 and 1.0
-        """
+        """Calculate motif-specific confidence score."""
         pass
     
     def _compile_patterns(self) -> Dict[str, List[Tuple]]:
-        """
-        Compile all regex patterns once for performance.
-        Uses re.IGNORECASE | re.ASCII for optimal DNA sequence matching.
-        """
+        """Compile all regex patterns once for performance."""
         compiled_patterns = {}
         
         for pattern_group, patterns in self.patterns.items():
@@ -117,26 +81,7 @@ class BaseMotifDetector(ABC):
         return compiled_patterns
     
     def detect_motifs(self, sequence: str, sequence_name: str = "sequence") -> List[Dict[str, Any]]:
-        """
-        Main detection method - scans sequence for all compiled patterns.
-        
-        # Detection Process:
-        # | Step | Action                              |
-        # |------|-------------------------------------|
-        # | 1    | Normalize sequence to uppercase     |
-        # | 2    | Iterate through compiled patterns   |
-        # | 3    | Find all regex matches              |
-        # | 4    | Calculate motif-specific scores     |
-        # | 5    | Apply quality thresholds            |
-        # | 6    | Return list of motif dictionaries   |
-        
-        Args:
-            sequence: DNA sequence string
-            sequence_name: Identifier for the sequence
-            
-        Returns:
-            List of motif dictionaries with standardized fields
-        """
+        """Scan sequence for all compiled patterns and return motif list."""
         self.audit['invoked'] = True
         self.audit['windows_scanned'] = 1
         self.audit['candidates_seen'] = 0
@@ -254,7 +199,6 @@ class BaseMotifDetector(ABC):
         """Get detector execution audit information"""
         return self.audit.copy()
     
-    # Shared utility methods
     def _calc_gc(self, seq: str) -> float:
         """Calculate GC content using shared utility"""
         return calc_gc_content(seq)

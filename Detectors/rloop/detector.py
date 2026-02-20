@@ -1,44 +1,28 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ R-Loop Detector - QmRLFS algorithm (Jenjaroenpun 2016)                       │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-│ Hyperscan + Seed-accelerated REZ detection (high performance)                │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
-# ═══════════════════════════════════════════════════════════════════════════════
+"""R-Loop detector using QmRLFS algorithm (Jenjaroenpun 2016)."""
 # IMPORTS
-# ═══════════════════════════════════════════════════════════════════════════════
 import re
 from typing import List, Dict, Any, Tuple, Optional
 from ..base.base_detector import BaseMotifDetector
 from Utilities.detectors_utils import revcomp, calc_gc_content
 from Utilities.core.motif_normalizer import normalize_class_subclass
 
-# Optional Hyperscan support for high-performance pattern matching
 try:
     import hyperscan
     HS_AVAILABLE = True
 except Exception:
     HS_AVAILABLE = False
 
-# Optional NumPy support for faster array operations
 try:
     import numpy as np
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS - QmRLFS Literature Parameters
-# ═══════════════════════════════════════════════════════════════════════════════
 MIN_PERC_G_RIZ = 50; NUM_LINKER = 50; WINDOW_STEP = 100
 MAX_LENGTH_REZ = 2000; MIN_PERC_G_REZ = 40; QUALITY_THRESHOLD = 0.4
-# ═══════════════════════════════════════════════════════════════════════════════
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # NORMALIZATION PARAMETERS (Tunable)
-# ═══════════════════════════════════════════════════════════════════════════════
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
 # │ Parameter    │ Value       │ Scientific Basis                       │
 # ├──────────────┼─────────────┼────────────────────────────────────────┤
@@ -52,7 +36,6 @@ RLOOP_RAW_SCORE_MIN = 0.4; RLOOP_RAW_SCORE_MAX = 0.95
 RLOOP_NORMALIZED_MIN = 1.0; RLOOP_NORMALIZED_MAX = 3.0
 RLOOP_NORMALIZATION_METHOD = 'linear'
 RLOOP_SCORE_REFERENCE = 'Aguilera et al. 2012, Jenjaroenpun et al. 2016'
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
 class RLoopDetector(BaseMotifDetector):
@@ -77,9 +60,7 @@ class RLoopDetector(BaseMotifDetector):
         if HS_AVAILABLE:
             self._compile_hyperscan_patterns()
 
-    # --------------------------------------------------
     # Required abstract methods
-    # --------------------------------------------------
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """
@@ -121,14 +102,11 @@ class RLoopDetector(BaseMotifDetector):
                                   pattern_info: Tuple = None) -> bool:
         return score >= self.QUALITY_THRESHOLD
 
-    # --------------------------------------------------
 
     def get_motif_class_name(self) -> str:
         return "R-Loop"
 
-    # --------------------------------------------------
     # Hyperscan Compilation
-    # --------------------------------------------------
 
     def _compile_hyperscan_patterns(self):
         try:
@@ -149,9 +127,7 @@ class RLoopDetector(BaseMotifDetector):
         except Exception:
             self.hs_db = None
 
-    # --------------------------------------------------
     # RIZ Detection
-    # --------------------------------------------------
 
     def _riz_search(self, seq: str, model: str) -> List[Dict[str, Any]]:
 
@@ -197,10 +173,6 @@ class RLoopDetector(BaseMotifDetector):
 
         return results
 
-    # --------------------------------------------------
-    # 🚀 Seed-Accelerated REZ Detection
-    # Uses prefix-sum GC array (O(n))
-    # --------------------------------------------------
 
     def _find_rez(self,
                   seq: str,
@@ -211,14 +183,10 @@ class RLoopDetector(BaseMotifDetector):
         if search_start >= seq_len:
             return None
 
-        # Prefix G count for O(1) GC window computation
-        # Use NumPy vectorization if available for ~2-3x speedup
         if NUMPY_AVAILABLE and seq_len > 1000:
-            # Convert sequence to numpy array and compute cumulative sum
             seq_array = np.array([1 if c == 'G' else 0 for c in seq], dtype=np.int32)
             prefix_g = np.concatenate(([0], np.cumsum(seq_array)))
         else:
-            # Fallback to original loop-based implementation
             prefix_g = [0] * (seq_len + 1)
             for i in range(seq_len):
                 prefix_g[i + 1] = prefix_g[i] + (1 if seq[i] == 'G' else 0)
@@ -230,7 +198,6 @@ class RLoopDetector(BaseMotifDetector):
 
         for start in range(search_start, max_end, self.WINDOW_STEP):
 
-            # quick seed prefilter (skip low G density regions)
             window_seed_end = min(start + 100, seq_len)
             seed_g = prefix_g[window_seed_end] - prefix_g[start]
             seed_len = window_seed_end - start
@@ -263,12 +230,10 @@ class RLoopDetector(BaseMotifDetector):
 
         return best
 
-    # --------------------------------------------------
 
     def _percent_g(self, seq: str) -> float:
         return round((seq.count("G") / float(len(seq))) * 100.0, 2) if seq else 0.0
 
-    # --------------------------------------------------
 
     def annotate_sequence(self,
                           sequence: str,
@@ -314,7 +279,6 @@ class RLoopDetector(BaseMotifDetector):
 
         return results
 
-    # --------------------------------------------------
 
     def detect_motifs(self,
                       sequence: str,
@@ -351,17 +315,14 @@ class RLoopDetector(BaseMotifDetector):
                     ann.get('rez_perc_g', 0) / 100.0
                 )
 
-                # Calculate comprehensive features
                 motif_seq = sequence[start:end]
                 gc_content = round(calc_gc_content(motif_seq), 2)
                 
-                # Calculate linker length (between RIZ and REZ)
                 riz_len = ann.get('riz_length', 0)
                 rez_len = ann.get('rez_length', 0)
                 total_len = end - start
                 linker_len = max(0, total_len - riz_len - rez_len)
                 
-                # Calculate GC skew
                 g_count = motif_seq.count('G')
                 c_count = motif_seq.count('C')
                 gc_skew = round((g_count - c_count) / (g_count + c_count), 3) if (g_count + c_count) > 0 else 0.0
@@ -382,8 +343,8 @@ class RLoopDetector(BaseMotifDetector):
                     'End': end,
                     'Length': end - start,
                     'Sequence': motif_seq,
-                    'Raw_Score': round(min(score, 1.0), 3),  # Detector-specific scale
-                    'Score': self._normalize_score(min(score, 1.0)),  # Universal 1-3 scale
+                    'Raw_Score': round(min(score, 1.0), 3),
+                    'Score': self._normalize_score(min(score, 1.0)),
                     'Strand': strand,
                     'Method': 'QmRLFS_detection',
                     'Pattern_ID': f'RLOOP_{ann["model"]}_{i+1}',
@@ -395,8 +356,8 @@ class RLoopDetector(BaseMotifDetector):
                     'Linker_Length': linker_len,
                     'GC_Content': gc_content,
                     'GC_Skew': gc_skew,
-                    'Arm_Length': 'N/A',  # Not applicable for R-loops
-                    'Loop_Length': linker_len if linker_len > 0 else 0,  # Linker acts as loop between RIZ/REZ, 0 if no linker
+                    'Arm_Length': 'N/A',
+                    'Loop_Length': linker_len if linker_len > 0 else 0,
                     'Type_Of_Repeat': 'RNA-DNA hybrid (R-loop)',
                     'Criterion': self._get_rloop_criterion(ann),
                     'Disease_Relevance': self._get_rloop_disease_relevance(gc_content, total_len, ann),
@@ -428,26 +389,20 @@ class RLoopDetector(BaseMotifDetector):
         """Annotate disease relevance for R-loops"""
         disease_notes = []
         
-        # R-loops are associated with multiple diseases
         riz_perc_g = ann.get('riz_perc_g', 0)
         
-        # High G-content R-loops - genomic instability
         if gc_content > 70:
             disease_notes.append('High GC-content - genomic instability, DNA damage hotspot')
         
-        # Long R-loops - replication stress
         if length > 500:
             disease_notes.append('Long R-loop (>500bp) - replication-transcription conflicts')
         
-        # Strong RIZ signal - transcription-associated
         if riz_perc_g > 65:
             disease_notes.append('Strong RIZ signal - transcription-associated R-loop')
         
-        # General R-loop associations
         if not disease_notes:
             disease_notes.append('R-loop formation - potential role in gene regulation, DNA damage, genome instability')
         
-        # Specific disease associations
         disease_notes.append('Associated with: neurodegeneration (ALS, Fragile X), cancer, repeat expansion diseases')
         
         return '; '.join(disease_notes)

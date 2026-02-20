@@ -1,34 +1,9 @@
 """
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ Motif Detection Engine - Adaptive Analysis Orchestrator                      │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-└──────────────────────────────────────────────────────────────────────────────┘
+Motif Detection Engine: adaptive orchestrator that selects analysis strategy by sequence length.
 
-DESCRIPTION:
-    High-level orchestrator that selects the optimal analysis strategy based on
-    sequence length and routes execution to the appropriate backend.
-
-    Adaptive strategy:
-
-        sequence_length < 100 000 bp
-            → numba-only (direct analysis, no chunking)
-
-        100 000 ≤ sequence_length < 5 000 000 bp
-            → numba + 2-worker chunk processing
-              (StreamlitSafeExecutor with ProcessPoolExecutor)
-
-        sequence_length ≥ 5 000 000 bp
-            → disk-backed chunk streaming mode
-              (sequential, one chunk at a time, constant RAM)
-
-    Visualisation always uses a VisualizationAccumulator populated while
-    streaming results – the full motif table is never loaded into RAM for
-    plotting.
-
-MEMORY GUARANTEES:
-    - Peak RAM proportional to chunk_size, not total genome size
-    - Compatible with Streamlit Community Cloud (≤ 1 GB RAM)
+    sequence_length < 100_000 bp  → numba_only (direct analysis)
+    100_000 ≤ length < 5_000_000 → chunk_workers (2-worker ProcessPool)
+    length ≥ 5_000_000 bp         → disk_streaming (sequential, constant RAM)
 """
 
 from __future__ import annotations
@@ -38,7 +13,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-# Adaptive strategy thresholds (base pairs)
 _THRESHOLD_DIRECT: int = 100_000
 _THRESHOLD_CHUNK: int = 5_000_000
 
@@ -75,21 +49,12 @@ class MotifDetectionEngine:
         overlap: int = 2_000,
         max_workers: Optional[int] = None,
     ):
-        """
-        Args:
-            sequence_storage: ``UniversalSequenceStorage`` instance.
-            chunk_size:       Chunk size in bp (default 50 000).
-            overlap:          Overlap between chunks in bp (default 2 000).
-            max_workers:      Override max parallel workers (default auto).
-        """
         self.sequence_storage = sequence_storage
         self.chunk_size = chunk_size
         self.overlap = overlap
         self.max_workers = max_workers
 
-    # ------------------------------------------------------------------
     # PUBLIC API
-    # ------------------------------------------------------------------
 
     def analyze(
         self,
@@ -97,19 +62,7 @@ class MotifDetectionEngine:
         progress_callback: Optional[Callable[[float], None]] = None,
         enabled_classes: Optional[List[str]] = None,
     ) -> Tuple[Any, Any]:
-        """
-        Analyse a stored sequence with the adaptive strategy.
-
-        Args:
-            seq_id:            Sequence ID from ``UniversalSequenceStorage``.
-            progress_callback: Optional ``callback(progress_pct: float)``.
-            enabled_classes:   Motif classes to analyse (``None`` = all).
-
-        Returns:
-            Tuple of:
-                - ``UniversalResultsStorage`` – results on disk
-                - ``VisualizationAccumulator`` – pre-aggregated vis data
-        """
+        """Analyse a stored sequence. Returns (UniversalResultsStorage, VisualizationAccumulator)."""
         from Utilities.streamlit_safe_executor import StreamlitSafeExecutor
         from Utilities.visualization_accumulator import VisualizationAccumulator
 
@@ -135,7 +88,6 @@ class MotifDetectionEngine:
             enabled_classes=enabled_classes,
         )
 
-        # Build VisualizationAccumulator by streaming the final results
         accumulator = VisualizationAccumulator(seq_length=seq_length)
         for motif in results_storage.iter_results():
             accumulator.update([motif])
@@ -146,19 +98,11 @@ class MotifDetectionEngine:
         )
         return results_storage, accumulator
 
-    # ------------------------------------------------------------------
     # STRATEGY SELECTION
-    # ------------------------------------------------------------------
 
     @staticmethod
     def _select_strategy(seq_length: int) -> str:
-        """
-        Choose execution strategy based on sequence length.
-
-        Returns:
-            One of ``'numba_only'``, ``'chunk_workers'``, or
-            ``'disk_streaming'``.
-        """
+        """Select 'numba_only', 'chunk_workers', or 'disk_streaming' by length."""
         if seq_length < _THRESHOLD_DIRECT:
             return "numba_only"
         if seq_length < _THRESHOLD_CHUNK:

@@ -1,42 +1,27 @@
-"""
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ G-Quadruplex Detector - Ultra-fast seeded G4 detection                       │
-├──────────────────────────────────────────────────────────────────────────────┤
-│ Author: Dr. Venkata Rajesh Yella | License: MIT | Version: 2024.1            │
-│ References: Huppert 2005, Bedrat 2016                                        │
-└──────────────────────────────────────────────────────────────────────────────┘
-"""
-# ═══════════════════════════════════════════════════════════════════════════════
+"""G-Quadruplex DNA detector using seeded G4Hunter scoring."""
 # IMPORTS
-# ═══════════════════════════════════════════════════════════════════════════════
 import re
 from typing import Dict, List, Tuple, Any
 from ..base.base_detector import BaseMotifDetector
 from Utilities.core.motif_normalizer import normalize_class_subclass
 from Utilities.detectors_utils import calc_gc_content
 
-# Try to import Numba for JIT compilation (2-5x speedup)
 try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
     NUMBA_AVAILABLE = False
-    # Create a no-op decorator if Numba is not available
     def jit(*args, **kwargs):
         def decorator(func):
             return func
         return decorator
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
-# ═══════════════════════════════════════════════════════════════════════════════
 WINDOW_SIZE_DEFAULT = 25
 MIN_REGION_LEN = 8
 CLASS_PRIORITY = ["telomeric_g4", "stacked_canonical_g4s", "stacked_g4s_linker", "canonical_g4", "extended_loop_g4", "higher_order_g4", "g_triplex", "weak_pqs"]
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # NORMALIZATION PARAMETERS (Tunable)
-# ═══════════════════════════════════════════════════════════════════════════════
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
 # │ Parameter    │ Value       │ Scientific Basis                       │
 # ├──────────────┼─────────────┼────────────────────────────────────────┤
@@ -50,18 +35,12 @@ G4_RAW_SCORE_MIN = 0.5; G4_RAW_SCORE_MAX = 1.0
 G4_NORMALIZED_MIN = 1.0; G4_NORMALIZED_MAX = 3.0
 G4_NORMALIZATION_METHOD = 'g4hunter'  # G4Hunter abs-value based scoring
 G4_SCORE_REFERENCE = 'Bedrat et al. 2016 (Bioinformatics)'
-# ═══════════════════════════════════════════════════════════════════════════════
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
 # JIT-COMPILED SCORING FUNCTIONS FOR PERFORMANCE
-# ═══════════════════════════════════════════════════════════════════════════════
 @jit(nopython=True, cache=True)
 def _compute_max_window_sum_jit(vals, ws, L):
-    """JIT-compiled sliding window maximum sum computation.
-    
-    This provides 2-5x speedup for G4 scoring when Numba is available.
-    """
+    """Sliding window maximum sum (JIT-compiled)."""
     if ws <= 0 or L < ws:
         return 0
     
@@ -76,7 +55,6 @@ def _compute_max_window_sum_jit(vals, ws, L):
             max_sum = cur
     
     return max_sum
-# ═══════════════════════════════════════════════════════════════════════════════
 
 class GQuadruplexDetector(BaseMotifDetector):
     """Ultra-fast seeded G4 detector with priority logic retained."""
@@ -148,11 +126,9 @@ class GQuadruplexDetector(BaseMotifDetector):
                 auto_correct=True
             )
 
-            # Extract motif sequence and analyze structural features
             motif_seq = sequence[ann['start']:ann['end']]
             structural_features = self._extract_g4_features(motif_seq, ann['class_name'])
             
-            # Store raw score and calculate normalized score
             raw_score = ann['score']
             normalized_score = self._normalize_score(raw_score)
             
@@ -165,14 +141,13 @@ class GQuadruplexDetector(BaseMotifDetector):
                 'End': ann['end'],
                 'Length': ann['end'] - ann['start'],
                 'Sequence': motif_seq,
-                'Raw_Score': round(raw_score, 4),      # Detector-specific scale
-                'Score': normalized_score,              # Universal 1-3 scale
+                'Raw_Score': round(raw_score, 4),
+                'Score': normalized_score,
                 'Strand': '+',
                 'Method': 'Seeded_G4Hunter',
                 'Pattern_ID': ann['pattern_id']
             }
             
-            # Add comprehensive structural features
             motif.update(structural_features)
 
             motifs.append(motif)
@@ -180,13 +155,11 @@ class GQuadruplexDetector(BaseMotifDetector):
         return motifs
     
     def _extract_g4_features(self, sequence: str, class_name: str) -> Dict[str, Any]:
-        """Extract comprehensive G4 structural features including tracts, loops, GC content, etc."""
+        """Extract G4 structural features (tracts, loops, GC content)."""
         features = {}
         
-        # Calculate GC content (exclude N/ambiguous bases from denominator)
         features['GC_Content'] = round(calc_gc_content(sequence), 2)
         
-        # Find G-tracts (runs of 2+ consecutive Gs)
         g_tracts = [m.group() for m in re.finditer(r'G{2,}', sequence)]
         features['Num_Tracts'] = len(g_tracts)
         
@@ -201,7 +174,6 @@ class GQuadruplexDetector(BaseMotifDetector):
             features['Max_Tract_Length'] = 0
             features['Avg_Tract_Length'] = 0.0
         
-        # Extract loop regions (sequences between G-tracts)
         loops = []
         if len(g_tracts) > 1:
             parts = re.split(r'G{2,}', sequence)
@@ -222,17 +194,13 @@ class GQuadruplexDetector(BaseMotifDetector):
             features['Loop_Length'] = 0.0  # Unified field for consistency
             features['Num_Loops'] = 0
         
-        # Add Arm_Length (maps to average tract length for G4s)
         features['Arm_Length'] = features['Avg_Tract_Length'] if g_tracts else 'N/A'
         
-        # Determine motif type and add criterion
         features['Type_Of_Repeat'] = self._classify_g4_type(class_name, len(g_tracts), features)
         features['Criterion'] = self._get_g4_criterion(class_name, features)
         
-        # Add disease relevance for telomeric G4s and specific patterns
         features['Disease_Relevance'] = self._get_g4_disease_relevance(class_name, sequence, features)
         
-        # Regions involved in motif formation
         features['Regions_Involved'] = self._describe_g4_regions(g_tracts, loops)
         
         return features
@@ -279,27 +247,21 @@ class GQuadruplexDetector(BaseMotifDetector):
         """Annotate disease relevance for G4 motifs"""
         disease_notes = []
         
-        # Telomeric G4s - aging and cancer
         if class_name == 'telomeric_g4':
             disease_notes.append('Telomeric instability (aging, cancer, ALT mechanism)')
         
-        # C9orf72 ALS/FTD repeat expansion (GGGGCC)n
         if 'GGGGCC' in sequence or 'GGCCCC' in sequence:
             disease_notes.append('C9orf72 expansion (ALS/FTD, n>30 pathogenic)')
         
-        # Fragile X-associated CGG repeats
         if re.search(r'(CGG){5,}', sequence):
             disease_notes.append('CGG repeat expansion (Fragile X, n>200 pathogenic)')
         
-        # Myotonic dystrophy type 1 CTG expansion (RC: CAG -> forms G4 on C-rich strand)
         if re.search(r'(CAG){5,}', sequence):
             disease_notes.append('CAG/CTG expansion RC (Myotonic dystrophy, Huntington disease)')
         
-        # Promoter G4s - oncogene regulation
         if features.get('Num_Tracts', 0) >= 4 and features.get('GC_Content', 0) > 70:
             disease_notes.append('Promoter-like G4 (potential oncogene regulation: MYC, BCL2, KRAS, VEGF)')
         
-        # Long G4 arrays - genomic instability
         if class_name == 'higher_order_g4' or features.get('Length', 0) > 100:
             disease_notes.append('Genomic instability hotspot (DNA breakage, replication stress)')
         
@@ -373,15 +335,12 @@ class GQuadruplexDetector(BaseMotifDetector):
         region = seq[s:e]
         L = len(region)
 
-        # G-only scoring (C ignored completely)
         if NUMBA_AVAILABLE and L > 50:
-            # Use JIT-compiled version for better performance (2-5x speedup)
             import numpy as np
             vals = np.array([1 if ch == 'G' else 0 for ch in region], dtype=np.int32)
             ws = min(window_size, L)
             max_sum = _compute_max_window_sum_jit(vals, ws, L)
         else:
-            # Fallback to original implementation for small sequences
             vals = [1 if ch == 'G' else 0 for ch in region]
             ws = min(window_size, L)
             max_sum = 0
