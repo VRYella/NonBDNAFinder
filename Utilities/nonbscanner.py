@@ -297,24 +297,20 @@ class NonBScanner:
             # Sort by score (desc), then length (desc) to keep best motifs
             group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
             non_overlapping = []
-            # Two parallel lists, both sorted by start position (non-overlapping intervals
-            # also have their ends sorted in the same order).  Only the immediate left and
-            # right neighbours of the bisect insertion point can overlap the candidate.
-            accepted_starts: List[int] = []
-            accepted_ends: List[int] = []
+            # Maintain parallel sorted lists of accepted starts/ends for O(log n) overlap check.
+            # Accepted intervals are non-overlapping, so both lists are monotonically sorted.
+            acc_starts: List[int] = []
+            acc_ends: List[int] = []
             for motif in group_motifs:
                 start, end = motif.get('Start', 0), motif.get('End', 0)
-                i = bisect.bisect_left(accepted_starts, start)
-                # right neighbour starts >= current start: overlaps if its start < current end
-                # left  neighbour starts <  current start: overlaps if its end   > current start
-                overlaps = (
-                    (i < len(accepted_starts) and accepted_starts[i] < end) or
-                    (i > 0 and accepted_ends[i - 1] > start)
-                )
+                idx = bisect.bisect_left(acc_starts, end)
+                overlaps = (idx > 0 and acc_ends[idx - 1] > start) or \
+                           (idx < len(acc_starts) and acc_starts[idx] < end)
                 if not overlaps:
                     non_overlapping.append(motif)
-                    accepted_starts.insert(i, start)
-                    accepted_ends.insert(i, end)
+                    ins = bisect.bisect_left(acc_starts, start)
+                    acc_starts.insert(ins, start)
+                    acc_ends.insert(ins, end)
             filtered_motifs.extend(non_overlapping)
         return filtered_motifs
     

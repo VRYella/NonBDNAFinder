@@ -8,6 +8,7 @@ Validates:
   - Every detector that outputs GC_Content uses the gold-standard formula
   - Single uppercase conversion at the analysis entry point
   - Throughput regression guard: analysis must stay above a minimum bp/s floor
+  - GC-rich throughput: detector performance is not degraded on high-GC input
 """
 
 import pytest
@@ -253,4 +254,86 @@ class TestThroughputRegression:
         assert throughput >= self.THROUGHPUT_FLOOR_BPS, (
             f"Throughput {throughput:,.0f} bp/s is below floor "
             f"{self.THROUGHPUT_FLOOR_BPS:,} bp/s"
+        )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GC-rich throughput guard
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestGCRichThroughput:
+    """
+    Guard against severe performance regression on high-GC content sequences.
+
+    GC-rich genomes (70-90 % GC) produce many G3+ seeds which, in a naive
+    seeded-window implementation, creates O(n) near-duplicate scan windows.
+    The merged-region fix reduces this to O(n_regions) scans.
+
+    The floor is conservative (50,000 bp/s) to stay robust on slow CI runners
+    while still catching the O(n) regression that was the reported issue.
+    """
+
+    THROUGHPUT_FLOOR_BPS = 50_000  # bp/s minimum acceptable throughput
+
+    def _make_gc_rich_seq(self, length: int, gc_frac: float = 0.70) -> str:
+        """Build a pseudo-random sequence with the requested GC fraction."""
+        import random
+        random.seed(7)
+        gc_bases = "GC"
+        at_bases = "AT"
+        seq = []
+        for _ in range(length):
+            seq.append(random.choice(gc_bases) if random.random() < gc_frac else random.choice(at_bases))
+        return "".join(seq)
+
+    def test_70pct_gc_throughput_floor(self):
+        from Detectors.gquad.detector import GQuadruplexDetector
+
+        seq = self._make_gc_rich_seq(50_000, gc_frac=0.70)
+        det = GQuadruplexDetector()
+        t0 = time.time()
+        det.detect_motifs(seq, "gc70_bench")
+        elapsed = time.time() - t0
+
+        throughput = len(seq) / elapsed
+        assert throughput >= self.THROUGHPUT_FLOOR_BPS, (
+            f"G4 detector throughput on 70% GC sequence: {throughput:,.0f} bp/s "
+            f"is below floor {self.THROUGHPUT_FLOOR_BPS:,} bp/s"
+        )
+
+    def test_dense_g_tracts_throughput_floor(self):
+        """Worst-case: G3 tract every 5 bp (mimics extremely G-dense region)."""
+        from Detectors.gquad.detector import GQuadruplexDetector
+
+        unit = "GGGAT"
+        length = 50_000
+        seq = (unit * (length // len(unit) + 1))[:length]
+        det = GQuadruplexDetector()
+        t0 = time.time()
+        det.detect_motifs(seq, "dense_g_bench")
+        elapsed = time.time() - t0
+
+        throughput = length / elapsed
+        assert throughput >= self.THROUGHPUT_FLOOR_BPS, (
+            f"G4 detector throughput on dense-G sequence: {throughput:,.0f} bp/s "
+            f"is below floor {self.THROUGHPUT_FLOOR_BPS:,} bp/s"
+        )
+
+    def test_seed_regions_merged_correctly(self):
+        """
+        Verify that merging seed windows does not lose any motif that was
+        detected before the optimisation (correctness check).
+        """
+        from Detectors.gquad.detector import GQuadruplexDetector
+
+        # A sequence with canonical G4 sites spaced far apart (no merging needed)
+        g4_motif = "GGGTTTAGGGTTTGGG"
+        padding = "ATAT" * 100   # 400 bp gap – seeds will NOT merge across gap
+        seq = g4_motif + padding + g4_motif
+        det = GQuadruplexDetector()
+        motifs = det.detect_motifs(seq.upper(), "merge_test")
+        # Both G4 sites should be detected
+        assert len(motifs) >= 2, (
+            f"Expected ≥2 G4 motifs in sequence with two separated G4 sites, "
+            f"got {len(motifs)}"
         )

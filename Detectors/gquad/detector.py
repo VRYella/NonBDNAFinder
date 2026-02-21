@@ -1,5 +1,6 @@
 """G-Quadruplex DNA detector using seeded G4Hunter scoring."""
 # IMPORTS
+import bisect
 import re
 from typing import Dict, List, Tuple, Any
 from ..base.base_detector import BaseMotifDetector
@@ -328,7 +329,16 @@ class GQuadruplexDetector(BaseMotifDetector):
     # -------------------------
 
     def _seed_and_scan(self, seq: str) -> List[Dict[str, Any]]:
-        """Seed on G3+ tracts, then local regex refinement."""
+        """Seed on G3+ tracts, then local regex refinement.
+
+        For GC-rich sequences many seed positions are densely packed, creating
+        thousands of near-duplicate overlapping 250 bp windows with the old
+        per-seed approach.  We merge adjacent seeds whose windows would overlap
+        into a single contiguous scan region so that each genomic position is
+        covered by exactly one region regardless of seed density.  This reduces
+        the work from O(n_seeds × pattern_count) to O(n_regions × pattern_count)
+        where n_regions ≪ n_seeds for GC-rich sequences.
+        """
         candidates = []
         seed_positions = [m.start() for m in re.finditer(r'G{3,}', seq)]
 
@@ -336,27 +346,34 @@ class GQuadruplexDetector(BaseMotifDetector):
             return []
 
         patterns = self.get_patterns()
-        scanned_windows = set()
 
-        for seed in seed_positions:
-            window_start = max(0, seed - 50)
-            window_end = min(len(seq), seed + 200)
-            window_key = (window_start, window_end)
+        # Merge overlapping seed windows into contiguous scan regions.
+        LOOK_BEHIND = 50
+        LOOK_AHEAD = 200
+        n = len(seq)
+        scan_regions: List[Tuple[int, int]] = []
+        cur_start = max(0, seed_positions[0] - LOOK_BEHIND)
+        cur_end = min(n, seed_positions[0] + LOOK_AHEAD)
+        for seed in seed_positions[1:]:
+            new_start = max(0, seed - LOOK_BEHIND)
+            new_end = min(n, seed + LOOK_AHEAD)
+            if new_start <= cur_end:          # windows overlap – extend current region
+                cur_end = max(cur_end, new_end)
+            else:                             # gap between windows – start new region
+                scan_regions.append((cur_start, cur_end))
+                cur_start, cur_end = new_start, new_end
+        scan_regions.append((cur_start, cur_end))
 
-            if window_key in scanned_windows:
-                continue
-            scanned_windows.add(window_key)
-
-            window_seq = seq[window_start:window_end]
-
+        for region_start, region_end in scan_regions:
+            region_seq = seq[region_start:region_end]
             for class_name, pattern_list in patterns.items():
                 for pat in pattern_list:
                     regex = pat[0]
                     pattern_id = pat[1] if len(pat) > 1 else f"{class_name}_pat"
 
-                    for m in re.finditer(regex, window_seq):
-                        s = window_start + m.start()
-                        e = window_start + m.end()
+                    for m in re.finditer(regex, region_seq):
+                        s = region_start + m.start()
+                        e = region_start + m.end()
                         if (e - s) >= MIN_REGION_LEN:
                             candidates.append({
                                 'class_name': class_name,
@@ -426,15 +443,26 @@ class GQuadruplexDetector(BaseMotifDetector):
             )
         )
 
-        accepted = []
-        occupied = []
+        accepted: List[Dict[str, Any]] = []
+        # Maintain sorted lists of accepted interval starts and ends for
+        # O(log n) overlap checking.  Accepted intervals are non-overlapping so
+        # acc_ends[i] corresponds to acc_starts[i] and the lists are both sorted.
+        acc_starts: List[int] = []
+        acc_ends: List[int] = []
 
         for cand in scored_sorted:
             s, e = cand['start'], cand['end']
-            conflict = any(not (e <= os or s >= oe) for (os, oe) in occupied)
+            # Binary-search for the first accepted start >= e.
+            # Only the interval immediately to the left (idx-1) could extend
+            # past s, and the interval at idx could start inside [s, e].
+            idx = bisect.bisect_left(acc_starts, e)
+            conflict = (idx > 0 and acc_ends[idx - 1] > s) or \
+                       (idx < len(acc_starts) and acc_starts[idx] < e)
             if not conflict:
                 accepted.append(cand)
-                occupied.append((s, e))
+                ins = bisect.bisect_left(acc_starts, s)
+                acc_starts.insert(ins, s)
+                acc_ends.insert(ins, e)
 
         accepted.sort(key=lambda x: x['start'])
         return accepted

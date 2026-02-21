@@ -1,5 +1,6 @@
 """i-Motif DNA detector: canonical C-rich structures and HUR AC-motifs."""
 # IMPORTS
+import bisect
 import re
 from typing import Dict, List, Tuple, Any
 from ..base.base_detector import BaseMotifDetector
@@ -114,10 +115,20 @@ class IMotifDetector(BaseMotifDetector):
     def _resolve_overlaps_greedy(self, scored: List[Dict[str, Any]], merge_gap: int = 0) -> List[Dict[str, Any]]:
         if not scored: return []
         scored_sorted = sorted(scored, key=lambda x: (-x['score'], _class_prio_idx(x.get('class_name','')), -(x['end']-x['start'])))
-        accepted = []; occupied = []
+        accepted: List[Dict[str, Any]] = []
+        # Maintain sorted accepted-interval lists for O(log n) overlap checking.
+        acc_starts: List[int] = []
+        acc_ends: List[int] = []
         for cand in scored_sorted:
-            s, e = cand['start'], cand['end']; conflict = any(not (e <= as_ - merge_gap or s >= ae + merge_gap) for (as_, ae) in occupied)
-            if not conflict: accepted.append(cand); occupied.append((s, e))
+            s, e = cand['start'], cand['end']
+            idx = bisect.bisect_left(acc_starts, e + merge_gap)
+            conflict = (idx > 0 and acc_ends[idx - 1] + merge_gap > s) or \
+                       (idx < len(acc_starts) and acc_starts[idx] - merge_gap < e)
+            if not conflict:
+                accepted.append(cand)
+                ins = bisect.bisect_left(acc_starts, s)
+                acc_starts.insert(ins, s)
+                acc_ends.insert(ins, e)
         accepted.sort(key=lambda x: x['start']); return accepted
 
     def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
