@@ -44,37 +44,37 @@ Candidatus Carsonella ruddii,Triplex,Triplex,18
 Cellulomonas shaoxiangyii,A-philic_DNA,A-philic DNA,1524
 Cellulomonas shaoxiangyii,Cruciform,Cruciform forming IRs,4947
 Cellulomonas shaoxiangyii,Curved_DNA,Local Curvature,1
-Cellulomonas shaoxiangyii,G-Quadruplex,Bulged G4,1779
-Cellulomonas shaoxiangyii,G-Quadruplex,Canonical intramolecular G4,82
-Cellulomonas shaoxiangyii,G-Quadruplex,Extended-loop canonical,782
+Cellulomonas shaoxiangyii,G-Quadruplex,Bulged G4,1814
+Cellulomonas shaoxiangyii,G-Quadruplex,Canonical intramolecular G4,102
+Cellulomonas shaoxiangyii,G-Quadruplex,Extended-loop canonical,803
 Cellulomonas shaoxiangyii,G-Quadruplex,Higher-order G4 array/G4-wire,20
-Cellulomonas shaoxiangyii,G-Quadruplex,Intramolecular G-triplex,984
+Cellulomonas shaoxiangyii,G-Quadruplex,Intramolecular G-triplex,987
 Cellulomonas shaoxiangyii,G-Quadruplex,Stacked G4,16
-Cellulomonas shaoxiangyii,G-Quadruplex,Two-tetrad weak PQS,20509
+Cellulomonas shaoxiangyii,G-Quadruplex,Two-tetrad weak PQS,20456
 Cellulomonas shaoxiangyii,Hybrid,A-philic_DNA_Cruciform_Overlap,11
-Cellulomonas shaoxiangyii,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,131
+Cellulomonas shaoxiangyii,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,137
 Cellulomonas shaoxiangyii,Hybrid,A-philic_DNA_R-Loop_Overlap,12
 Cellulomonas shaoxiangyii,Hybrid,A-philic_DNA_i-Motif_Overlap,8
 Cellulomonas shaoxiangyii,Hybrid,Cruciform_A-philic_DNA_Overlap,16
-Cellulomonas shaoxiangyii,Hybrid,Cruciform_G-Quadruplex_Overlap,366
+Cellulomonas shaoxiangyii,Hybrid,Cruciform_G-Quadruplex_Overlap,374
 Cellulomonas shaoxiangyii,Hybrid,Cruciform_R-Loop_Overlap,24
 Cellulomonas shaoxiangyii,Hybrid,Cruciform_Slipped_DNA_Overlap,2
 Cellulomonas shaoxiangyii,Hybrid,Cruciform_Z-DNA_Overlap,112
 Cellulomonas shaoxiangyii,Hybrid,Cruciform_i-Motif_Overlap,13
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,98
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Cruciform_Overlap,288
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_R-Loop_Overlap,182
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,40
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Z-DNA_Overlap,86
-Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_i-Motif_Overlap,12
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,97
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Cruciform_Overlap,290
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_R-Loop_Overlap,179
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,41
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_Z-DNA_Overlap,85
+Cellulomonas shaoxiangyii,Hybrid,G-Quadruplex_i-Motif_Overlap,13
 Cellulomonas shaoxiangyii,Hybrid,R-Loop_A-philic_DNA_Overlap,27
 Cellulomonas shaoxiangyii,Hybrid,R-Loop_Cruciform_Overlap,28
-Cellulomonas shaoxiangyii,Hybrid,R-Loop_G-Quadruplex_Overlap,78
+Cellulomonas shaoxiangyii,Hybrid,R-Loop_G-Quadruplex_Overlap,77
 Cellulomonas shaoxiangyii,Hybrid,R-Loop_Slipped_DNA_Overlap,4
 Cellulomonas shaoxiangyii,Hybrid,R-Loop_Z-DNA_Overlap,5
 Cellulomonas shaoxiangyii,Hybrid,R-Loop_i-Motif_Overlap,8
 Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_Cruciform_Overlap,11
-Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,45
+Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,41
 Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_R-Loop_Overlap,5
 Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_Triplex_Overlap,1
 Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_Z-DNA_Overlap,2
@@ -82,16 +82,16 @@ Cellulomonas shaoxiangyii,Hybrid,Slipped_DNA_i-Motif_Overlap,11
 Cellulomonas shaoxiangyii,Hybrid,Triplex_G-Quadruplex_Overlap,1
 Cellulomonas shaoxiangyii,Hybrid,Triplex_Slipped_DNA_Overlap,1
 Cellulomonas shaoxiangyii,Hybrid,Z-DNA_Cruciform_Overlap,118
-Cellulomonas shaoxiangyii,Hybrid,Z-DNA_G-Quadruplex_Overlap,78
+Cellulomonas shaoxiangyii,Hybrid,Z-DNA_G-Quadruplex_Overlap,75
 Cellulomonas shaoxiangyii,Hybrid,Z-DNA_R-Loop_Overlap,8
 Cellulomonas shaoxiangyii,Hybrid,i-Motif_A-philic_DNA_Overlap,9
 Cellulomonas shaoxiangyii,Hybrid,i-Motif_Cruciform_Overlap,10
-Cellulomonas shaoxiangyii,Hybrid,i-Motif_G-Quadruplex_Overlap,9
+Cellulomonas shaoxiangyii,Hybrid,i-Motif_G-Quadruplex_Overlap,10
 Cellulomonas shaoxiangyii,Hybrid,i-Motif_R-Loop_Overlap,2
 Cellulomonas shaoxiangyii,Hybrid,i-Motif_Slipped_DNA_Overlap,6
 Cellulomonas shaoxiangyii,Hybrid,i-Motif_Triplex_Overlap,1
-Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,3230
-Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,1302
+Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,3236
+Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,1300
 Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_5_classes,260
 Cellulomonas shaoxiangyii,Non-B_DNA_Clusters,Mixed_Cluster_6_classes,32
 Cellulomonas shaoxiangyii,R-Loop,R-loop formation sites,1618
@@ -105,15 +105,15 @@ Cellulomonas shaoxiangyii,i-Motif,Canonical i-motif,484
 Miltoncostaea marina,A-philic_DNA,A-philic DNA,1954
 Miltoncostaea marina,Cruciform,Cruciform forming IRs,5207
 Miltoncostaea marina,Curved_DNA,Global Curvature,2
-Miltoncostaea marina,G-Quadruplex,Bulged G4,2194
-Miltoncostaea marina,G-Quadruplex,Canonical intramolecular G4,73
-Miltoncostaea marina,G-Quadruplex,Extended-loop canonical,621
-Miltoncostaea marina,G-Quadruplex,Higher-order G4 array/G4-wire,16
-Miltoncostaea marina,G-Quadruplex,Intramolecular G-triplex,936
-Miltoncostaea marina,G-Quadruplex,Stacked G4,4
-Miltoncostaea marina,G-Quadruplex,Two-tetrad weak PQS,21239
+Miltoncostaea marina,G-Quadruplex,Bulged G4,2271
+Miltoncostaea marina,G-Quadruplex,Canonical intramolecular G4,90
+Miltoncostaea marina,G-Quadruplex,Extended-loop canonical,625
+Miltoncostaea marina,G-Quadruplex,Higher-order G4 array/G4-wire,15
+Miltoncostaea marina,G-Quadruplex,Intramolecular G-triplex,941
+Miltoncostaea marina,G-Quadruplex,Stacked G4,5
+Miltoncostaea marina,G-Quadruplex,Two-tetrad weak PQS,21157
 Miltoncostaea marina,Hybrid,A-philic_DNA_Cruciform_Overlap,17
-Miltoncostaea marina,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,183
+Miltoncostaea marina,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,189
 Miltoncostaea marina,Hybrid,A-philic_DNA_R-Loop_Overlap,19
 Miltoncostaea marina,Hybrid,A-philic_DNA_Slipped_DNA_Overlap,2
 Miltoncostaea marina,Hybrid,A-philic_DNA_i-Motif_Overlap,9
@@ -123,37 +123,37 @@ Miltoncostaea marina,Hybrid,Cruciform_R-Loop_Overlap,31
 Miltoncostaea marina,Hybrid,Cruciform_Slipped_DNA_Overlap,2
 Miltoncostaea marina,Hybrid,Cruciform_Z-DNA_Overlap,172
 Miltoncostaea marina,Hybrid,Cruciform_i-Motif_Overlap,11
-Miltoncostaea marina,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,190
-Miltoncostaea marina,Hybrid,G-Quadruplex_Cruciform_Overlap,444
-Miltoncostaea marina,Hybrid,G-Quadruplex_R-Loop_Overlap,168
-Miltoncostaea marina,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,15
-Miltoncostaea marina,Hybrid,G-Quadruplex_Z-DNA_Overlap,126
+Miltoncostaea marina,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,188
+Miltoncostaea marina,Hybrid,G-Quadruplex_Cruciform_Overlap,453
+Miltoncostaea marina,Hybrid,G-Quadruplex_R-Loop_Overlap,170
+Miltoncostaea marina,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,19
+Miltoncostaea marina,Hybrid,G-Quadruplex_Z-DNA_Overlap,133
 Miltoncostaea marina,Hybrid,G-Quadruplex_i-Motif_Overlap,12
 Miltoncostaea marina,Hybrid,R-Loop_A-philic_DNA_Overlap,22
 Miltoncostaea marina,Hybrid,R-Loop_Cruciform_Overlap,23
-Miltoncostaea marina,Hybrid,R-Loop_G-Quadruplex_Overlap,73
+Miltoncostaea marina,Hybrid,R-Loop_G-Quadruplex_Overlap,74
 Miltoncostaea marina,Hybrid,R-Loop_Slipped_DNA_Overlap,2
 Miltoncostaea marina,Hybrid,R-Loop_Z-DNA_Overlap,7
 Miltoncostaea marina,Hybrid,R-Loop_i-Motif_Overlap,4
 Miltoncostaea marina,Hybrid,Slipped_DNA_A-philic_DNA_Overlap,2
 Miltoncostaea marina,Hybrid,Slipped_DNA_Cruciform_Overlap,8
-Miltoncostaea marina,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,20
+Miltoncostaea marina,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,19
 Miltoncostaea marina,Hybrid,Slipped_DNA_R-Loop_Overlap,1
 Miltoncostaea marina,Hybrid,Slipped_DNA_Z-DNA_Overlap,1
 Miltoncostaea marina,Hybrid,Slipped_DNA_i-Motif_Overlap,4
 Miltoncostaea marina,Hybrid,Triplex_Slipped_DNA_Overlap,1
 Miltoncostaea marina,Hybrid,Z-DNA_Cruciform_Overlap,158
-Miltoncostaea marina,Hybrid,Z-DNA_G-Quadruplex_Overlap,120
+Miltoncostaea marina,Hybrid,Z-DNA_G-Quadruplex_Overlap,124
 Miltoncostaea marina,Hybrid,Z-DNA_R-Loop_Overlap,7
 Miltoncostaea marina,Hybrid,Z-DNA_Slipped_DNA_Overlap,3
 Miltoncostaea marina,Hybrid,i-Motif_A-philic_DNA_Overlap,17
 Miltoncostaea marina,Hybrid,i-Motif_Cruciform_Overlap,13
-Miltoncostaea marina,Hybrid,i-Motif_G-Quadruplex_Overlap,14
+Miltoncostaea marina,Hybrid,i-Motif_G-Quadruplex_Overlap,17
 Miltoncostaea marina,Hybrid,i-Motif_R-Loop_Overlap,3
 Miltoncostaea marina,Hybrid,i-Motif_Slipped_DNA_Overlap,6
-Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,3337
-Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,1377
-Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_5_classes,308
+Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,3314
+Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,1373
+Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_5_classes,309
 Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_6_classes,30
 Miltoncostaea marina,Non-B_DNA_Clusters,Mixed_Cluster_7_classes,1
 Miltoncostaea marina,R-Loop,R-loop formation sites,1393
@@ -172,14 +172,12 @@ Streptococcus pneumoniae,Curved_DNA,Local Curvature,1027
 Streptococcus pneumoniae,G-Quadruplex,Bulged G4,2
 Streptococcus pneumoniae,G-Quadruplex,Extended-loop canonical,3
 Streptococcus pneumoniae,G-Quadruplex,Intramolecular G-triplex,14
-Streptococcus pneumoniae,G-Quadruplex,Two-tetrad weak PQS,992
+Streptococcus pneumoniae,G-Quadruplex,Two-tetrad weak PQS,995
 Streptococcus pneumoniae,Hybrid,Cruciform_Curved_DNA_Overlap,3
 Streptococcus pneumoniae,Hybrid,Cruciform_G-Quadruplex_Overlap,1
 Streptococcus pneumoniae,Hybrid,Cruciform_R-Loop_Overlap,1
 Streptococcus pneumoniae,Hybrid,Curved_DNA_Cruciform_Overlap,8
 Streptococcus pneumoniae,Hybrid,Curved_DNA_Slipped_DNA_Overlap,1
-Streptococcus pneumoniae,Hybrid,G-Quadruplex_Cruciform_Overlap,1
-Streptococcus pneumoniae,Hybrid,G-Quadruplex_Curved_DNA_Overlap,1
 Streptococcus pneumoniae,Hybrid,R-Loop_G-Quadruplex_Overlap,1
 Streptococcus pneumoniae,Hybrid,Slipped_DNA_Cruciform_Overlap,1
 Streptococcus pneumoniae,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,1
@@ -198,8 +196,8 @@ ecoli,Curved_DNA,Local Curvature,1171
 ecoli,G-Quadruplex,Bulged G4,126
 ecoli,G-Quadruplex,Canonical intramolecular G4,10
 ecoli,G-Quadruplex,Extended-loop canonical,23
-ecoli,G-Quadruplex,Intramolecular G-triplex,143
-ecoli,G-Quadruplex,Two-tetrad weak PQS,5816
+ecoli,G-Quadruplex,Intramolecular G-triplex,144
+ecoli,G-Quadruplex,Two-tetrad weak PQS,5823
 ecoli,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,2
 ecoli,Hybrid,A-philic_DNA_R-Loop_Overlap,3
 ecoli,Hybrid,Cruciform_Curved_DNA_Overlap,21
@@ -210,11 +208,11 @@ ecoli,Hybrid,Curved_DNA_G-Quadruplex_Overlap,3
 ecoli,Hybrid,Curved_DNA_R-Loop_Overlap,1
 ecoli,Hybrid,G-Quadruplex_Cruciform_Overlap,12
 ecoli,Hybrid,G-Quadruplex_Curved_DNA_Overlap,5
-ecoli,Hybrid,G-Quadruplex_R-Loop_Overlap,7
+ecoli,Hybrid,G-Quadruplex_R-Loop_Overlap,8
 ecoli,Hybrid,G-Quadruplex_Z-DNA_Overlap,6
 ecoli,Hybrid,R-Loop_A-philic_DNA_Overlap,3
 ecoli,Hybrid,R-Loop_Cruciform_Overlap,9
-ecoli,Hybrid,R-Loop_G-Quadruplex_Overlap,9
+ecoli,Hybrid,R-Loop_G-Quadruplex_Overlap,8
 ecoli,Hybrid,Z-DNA_Cruciform_Overlap,1
 ecoli,Hybrid,Z-DNA_G-Quadruplex_Overlap,4
 ecoli,Hybrid,i-Motif_A-philic_DNA_Overlap,1
@@ -237,8 +235,8 @@ hpylori,Curved_DNA,Local Curvature,2162
 hpylori,G-Quadruplex,Bulged G4,22
 hpylori,G-Quadruplex,Canonical intramolecular G4,6
 hpylori,G-Quadruplex,Extended-loop canonical,54
-hpylori,G-Quadruplex,Intramolecular G-triplex,106
-hpylori,G-Quadruplex,Two-tetrad weak PQS,915
+hpylori,G-Quadruplex,Intramolecular G-triplex,108
+hpylori,G-Quadruplex,Two-tetrad weak PQS,912
 hpylori,Hybrid,A-philic_DNA_Curved_DNA_Overlap,1
 hpylori,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,5
 hpylori,Hybrid,A-philic_DNA_R-Loop_Overlap,7
@@ -246,13 +244,13 @@ hpylori,Hybrid,A-philic_DNA_i-Motif_Overlap,1
 hpylori,Hybrid,Cruciform_Curved_DNA_Overlap,4
 hpylori,Hybrid,Cruciform_G-Quadruplex_Overlap,2
 hpylori,Hybrid,Curved_DNA_Cruciform_Overlap,8
-hpylori,Hybrid,Curved_DNA_G-Quadruplex_Overlap,3
+hpylori,Hybrid,Curved_DNA_G-Quadruplex_Overlap,4
 hpylori,Hybrid,Curved_DNA_Slipped_DNA_Overlap,1
 hpylori,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,3
 hpylori,Hybrid,G-Quadruplex_Cruciform_Overlap,2
 hpylori,Hybrid,G-Quadruplex_Curved_DNA_Overlap,5
 hpylori,Hybrid,G-Quadruplex_R-Loop_Overlap,6
-hpylori,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,5
+hpylori,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,4
 hpylori,Hybrid,G-Quadruplex_Z-DNA_Overlap,1
 hpylori,Hybrid,G-Quadruplex_i-Motif_Overlap,1
 hpylori,Hybrid,R-Loop_A-philic_DNA_Overlap,4
@@ -267,7 +265,7 @@ hpylori,Hybrid,Z-DNA_G-Quadruplex_Overlap,1
 hpylori,Hybrid,i-Motif_Curved_DNA_Overlap,1
 hpylori,Hybrid,i-Motif_R-Loop_Overlap,1
 hpylori,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,158
-hpylori,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,45
+hpylori,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,46
 hpylori,Non-B_DNA_Clusters,Mixed_Cluster_5_classes,7
 hpylori,R-Loop,R-loop formation sites,772
 hpylori,Slipped_DNA,Direct Repeat,64
@@ -282,47 +280,47 @@ mtb,A-philic_DNA,A-philic DNA,799
 mtb,Cruciform,Cruciform forming IRs,2325
 mtb,Curved_DNA,Global Curvature,43
 mtb,Curved_DNA,Local Curvature,23
-mtb,G-Quadruplex,Bulged G4,1282
-mtb,G-Quadruplex,Canonical intramolecular G4,54
-mtb,G-Quadruplex,Extended-loop canonical,319
+mtb,G-Quadruplex,Bulged G4,1315
+mtb,G-Quadruplex,Canonical intramolecular G4,62
+mtb,G-Quadruplex,Extended-loop canonical,321
 mtb,G-Quadruplex,Higher-order G4 array/G4-wire,4
-mtb,G-Quadruplex,Intramolecular G-triplex,581
+mtb,G-Quadruplex,Intramolecular G-triplex,586
 mtb,G-Quadruplex,Stacked G4,2
-mtb,G-Quadruplex,Two-tetrad weak PQS,18338
-mtb,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,49
+mtb,G-Quadruplex,Two-tetrad weak PQS,18282
+mtb,Hybrid,A-philic_DNA_G-Quadruplex_Overlap,56
 mtb,Hybrid,A-philic_DNA_R-Loop_Overlap,13
 mtb,Hybrid,A-philic_DNA_i-Motif_Overlap,2
 mtb,Hybrid,Cruciform_A-philic_DNA_Overlap,2
-mtb,Hybrid,Cruciform_G-Quadruplex_Overlap,158
+mtb,Hybrid,Cruciform_G-Quadruplex_Overlap,159
 mtb,Hybrid,Cruciform_R-Loop_Overlap,8
 mtb,Hybrid,Cruciform_Z-DNA_Overlap,14
 mtb,Hybrid,Cruciform_i-Motif_Overlap,1
 mtb,Hybrid,Curved_DNA_G-Quadruplex_Overlap,2
-mtb,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,55
-mtb,Hybrid,G-Quadruplex_Cruciform_Overlap,144
+mtb,Hybrid,G-Quadruplex_A-philic_DNA_Overlap,54
+mtb,Hybrid,G-Quadruplex_Cruciform_Overlap,141
 mtb,Hybrid,G-Quadruplex_Curved_DNA_Overlap,2
-mtb,Hybrid,G-Quadruplex_R-Loop_Overlap,123
-mtb,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,13
+mtb,Hybrid,G-Quadruplex_R-Loop_Overlap,129
+mtb,Hybrid,G-Quadruplex_Slipped_DNA_Overlap,12
 mtb,Hybrid,G-Quadruplex_Z-DNA_Overlap,17
-mtb,Hybrid,G-Quadruplex_i-Motif_Overlap,4
+mtb,Hybrid,G-Quadruplex_i-Motif_Overlap,5
 mtb,Hybrid,R-Loop_A-philic_DNA_Overlap,16
 mtb,Hybrid,R-Loop_Cruciform_Overlap,6
-mtb,Hybrid,R-Loop_G-Quadruplex_Overlap,72
+mtb,Hybrid,R-Loop_G-Quadruplex_Overlap,71
 mtb,Hybrid,R-Loop_Slipped_DNA_Overlap,2
 mtb,Hybrid,R-Loop_Z-DNA_Overlap,2
 mtb,Hybrid,R-Loop_i-Motif_Overlap,1
 mtb,Hybrid,Slipped_DNA_Cruciform_Overlap,5
-mtb,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,23
+mtb,Hybrid,Slipped_DNA_G-Quadruplex_Overlap,25
 mtb,Hybrid,Slipped_DNA_R-Loop_Overlap,6
 mtb,Hybrid,Slipped_DNA_i-Motif_Overlap,1
 mtb,Hybrid,Z-DNA_Cruciform_Overlap,11
-mtb,Hybrid,Z-DNA_G-Quadruplex_Overlap,25
+mtb,Hybrid,Z-DNA_G-Quadruplex_Overlap,29
 mtb,Hybrid,Z-DNA_R-Loop_Overlap,1
 mtb,Hybrid,i-Motif_A-philic_DNA_Overlap,3
-mtb,Hybrid,i-Motif_G-Quadruplex_Overlap,8
+mtb,Hybrid,i-Motif_G-Quadruplex_Overlap,7
 mtb,Hybrid,i-Motif_R-Loop_Overlap,3
 mtb,Hybrid,i-Motif_Slipped_DNA_Overlap,4
-mtb,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,1223
+mtb,Non-B_DNA_Clusters,Mixed_Cluster_3_classes,1225
 mtb,Non-B_DNA_Clusters,Mixed_Cluster_4_classes,313
 mtb,Non-B_DNA_Clusters,Mixed_Cluster_5_classes,28
 mtb,Non-B_DNA_Clusters,Mixed_Cluster_6_classes,3

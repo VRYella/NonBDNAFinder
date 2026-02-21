@@ -1,0 +1,113 @@
+Organism,Hybrid_Pair,Count
+Buchnera aphidicola,Cruciform × Curved_DNA,90
+Buchnera aphidicola,Curved_DNA × Triplex,52
+Buchnera aphidicola,Curved_DNA × Slipped_DNA,16
+Buchnera aphidicola,Cruciform × Slipped_DNA,6
+Buchnera aphidicola,Cruciform × Triplex,3
+Buchnera aphidicola,Slipped_DNA × Triplex,3
+Candidatus Carsonella ruddii,Cruciform × Curved_DNA,45
+Candidatus Carsonella ruddii,Curved_DNA × Triplex,10
+Candidatus Carsonella ruddii,Curved_DNA × Slipped_DNA,3
+Candidatus Carsonella ruddii,Cruciform × Slipped_DNA,1
+Cellulomonas shaoxiangyii,Cruciform × G-Quadruplex,654
+Cellulomonas shaoxiangyii,G-Quadruplex × R-Loop,260
+Cellulomonas shaoxiangyii,Cruciform × Z-DNA,230
+Cellulomonas shaoxiangyii,A-philic_DNA × G-Quadruplex,229
+Cellulomonas shaoxiangyii,G-Quadruplex × Z-DNA,164
+Cellulomonas shaoxiangyii,G-Quadruplex × Slipped_DNA,85
+Cellulomonas shaoxiangyii,Cruciform × R-Loop,52
+Cellulomonas shaoxiangyii,A-philic_DNA × R-Loop,39
+Cellulomonas shaoxiangyii,A-philic_DNA × Cruciform,27
+Cellulomonas shaoxiangyii,Cruciform × i-Motif,23
+Cellulomonas shaoxiangyii,G-Quadruplex × i-Motif,21
+Cellulomonas shaoxiangyii,A-philic_DNA × i-Motif,17
+Cellulomonas shaoxiangyii,Slipped_DNA × i-Motif,17
+Cellulomonas shaoxiangyii,Cruciform × Slipped_DNA,13
+Cellulomonas shaoxiangyii,R-Loop × Z-DNA,13
+Cellulomonas shaoxiangyii,R-Loop × i-Motif,10
+Cellulomonas shaoxiangyii,R-Loop × Slipped_DNA,9
+Cellulomonas shaoxiangyii,Slipped_DNA × Triplex,2
+Cellulomonas shaoxiangyii,Slipped_DNA × Z-DNA,2
+Cellulomonas shaoxiangyii,G-Quadruplex × Triplex,1
+Cellulomonas shaoxiangyii,Triplex × i-Motif,1
+Miltoncostaea marina,Cruciform × G-Quadruplex,937
+Miltoncostaea marina,A-philic_DNA × G-Quadruplex,373
+Miltoncostaea marina,Cruciform × Z-DNA,330
+Miltoncostaea marina,G-Quadruplex × Z-DNA,246
+Miltoncostaea marina,G-Quadruplex × R-Loop,241
+Miltoncostaea marina,Cruciform × R-Loop,54
+Miltoncostaea marina,A-philic_DNA × R-Loop,41
+Miltoncostaea marina,G-Quadruplex × Slipped_DNA,35
+Miltoncostaea marina,A-philic_DNA × Cruciform,34
+Miltoncostaea marina,A-philic_DNA × i-Motif,26
+Miltoncostaea marina,G-Quadruplex × i-Motif,26
+Miltoncostaea marina,Cruciform × i-Motif,24
+Miltoncostaea marina,R-Loop × Z-DNA,14
+Miltoncostaea marina,Cruciform × Slipped_DNA,10
+Miltoncostaea marina,Slipped_DNA × i-Motif,10
+Miltoncostaea marina,R-Loop × i-Motif,7
+Miltoncostaea marina,A-philic_DNA × Slipped_DNA,4
+Miltoncostaea marina,Slipped_DNA × Z-DNA,4
+Miltoncostaea marina,R-Loop × Slipped_DNA,3
+Miltoncostaea marina,Slipped_DNA × Triplex,1
+Streptococcus pneumoniae,Cruciform × Curved_DNA,11
+Streptococcus pneumoniae,Cruciform × G-Quadruplex,2
+Streptococcus pneumoniae,Cruciform × R-Loop,1
+Streptococcus pneumoniae,Cruciform × Slipped_DNA,1
+Streptococcus pneumoniae,Curved_DNA × G-Quadruplex,1
+Streptococcus pneumoniae,Curved_DNA × Slipped_DNA,1
+Streptococcus pneumoniae,G-Quadruplex × R-Loop,1
+Streptococcus pneumoniae,G-Quadruplex × Slipped_DNA,1
+ecoli,Cruciform × Curved_DNA,31
+ecoli,Cruciform × G-Quadruplex,30
+ecoli,Cruciform × R-Loop,16
+ecoli,G-Quadruplex × R-Loop,16
+ecoli,G-Quadruplex × Z-DNA,10
+ecoli,Curved_DNA × G-Quadruplex,8
+ecoli,A-philic_DNA × R-Loop,6
+ecoli,R-Loop × i-Motif,3
+ecoli,A-philic_DNA × G-Quadruplex,2
+ecoli,A-philic_DNA × i-Motif,1
+ecoli,Cruciform × Z-DNA,1
+ecoli,Curved_DNA × R-Loop,1
+hpylori,Cruciform × Curved_DNA,12
+hpylori,A-philic_DNA × R-Loop,11
+hpylori,G-Quadruplex × R-Loop,11
+hpylori,A-philic_DNA × G-Quadruplex,8
+hpylori,Curved_DNA × G-Quadruplex,8
+hpylori,G-Quadruplex × Slipped_DNA,6
+hpylori,Cruciform × G-Quadruplex,4
+hpylori,Curved_DNA × R-Loop,3
+hpylori,R-Loop × Slipped_DNA,3
+hpylori,R-Loop × i-Motif,3
+hpylori,Curved_DNA × Triplex,2
+hpylori,G-Quadruplex × Z-DNA,2
+hpylori,A-philic_DNA × Curved_DNA,1
+hpylori,A-philic_DNA × i-Motif,1
+hpylori,Curved_DNA × Slipped_DNA,1
+hpylori,Curved_DNA × i-Motif,1
+hpylori,G-Quadruplex × i-Motif,1
+hpylori,Slipped_DNA × Triplex,1
+mtb,Cruciform × G-Quadruplex,302
+mtb,G-Quadruplex × R-Loop,195
+mtb,A-philic_DNA × G-Quadruplex,104
+mtb,G-Quadruplex × Z-DNA,42
+mtb,G-Quadruplex × Slipped_DNA,36
+mtb,A-philic_DNA × R-Loop,29
+mtb,Cruciform × Z-DNA,25
+mtb,Cruciform × R-Loop,14
+mtb,G-Quadruplex × i-Motif,12
+mtb,R-Loop × Slipped_DNA,8
+mtb,A-philic_DNA × i-Motif,5
+mtb,Cruciform × Slipped_DNA,5
+mtb,Slipped_DNA × i-Motif,5
+mtb,Curved_DNA × G-Quadruplex,4
+mtb,R-Loop × i-Motif,4
+mtb,R-Loop × Z-DNA,3
+mtb,A-philic_DNA × Cruciform,2
+mtb,Cruciform × i-Motif,1
+saureus,Cruciform × Curved_DNA,19
+saureus,Cruciform × Slipped_DNA,3
+saureus,Cruciform × G-Quadruplex,1
+saureus,Curved_DNA × Triplex,1
+saureus,G-Quadruplex × Slipped_DNA,1
