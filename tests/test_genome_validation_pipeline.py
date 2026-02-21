@@ -1008,3 +1008,62 @@ class TestConcordanceSummary:
         )
         text = Path(path).read_text()
         assert "micro" in text.lower()
+
+    @staticmethod
+    def _make_overview_for_guard(non_b_classes):
+        return pd.DataFrame([{
+            "Organism": f"Org_{i}", "Genome_Size_bp": i * 500_000,
+            "GC_pct": 40.0, "Total_Motifs": 100, "Core_Motifs": 90,
+            "Coverage_pct": 10.0, "Density_per_kb": 2.0,
+            "Hybrid_Count": 5, "Cluster_Count": 3,
+            "Classes_Detected": 6, "Mean_Score": 1.8, "Runtime_s": 1.0,
+            **{f"n_{c.replace('-','_').replace(' ','_')}": 10 for c in non_b_classes},
+        } for i in range(1, 4)])
+
+    def test_report_always_contains_macro_average_f1_label(self, tmp_path):
+        """'Macro-average F1' must appear in Section 3.7 even when conc_df is None."""
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report, NON_B_CLASSES
+        overview = self._make_overview_for_guard(NON_B_CLASSES)
+        subclass_df = pd.DataFrame([
+            {"Organism": "Org_1", "Class": c, "Subclass": f"{c}_sub", "Count": 10}
+            for c in NON_B_CLASSES[:4]
+        ])
+        gc_map = {"Org_1": 40.0, "Org_2": 50.0, "Org_3": 60.0}
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+        )
+        text = Path(path).read_text()
+        assert "Macro-average F1" in text
+
+    def test_report_always_contains_micro_average_f1_label(self, tmp_path):
+        """'Micro-average F1' must appear in Section 3.7 even when conc_df is None."""
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report, NON_B_CLASSES
+        overview = self._make_overview_for_guard(NON_B_CLASSES)
+        subclass_df = pd.DataFrame([
+            {"Organism": "Org_1", "Class": c, "Subclass": f"{c}_sub", "Count": 10}
+            for c in NON_B_CLASSES[:4]
+        ])
+        gc_map = {"Org_1": 40.0, "Org_2": 50.0, "Org_3": 60.0}
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+        )
+        text = Path(path).read_text()
+        assert "Micro-average F1" in text
+
+    def test_report_zero_metrics_when_conc_df_none(self, tmp_path):
+        """When conc_df is None, Section 3.7 metrics should be rendered as 0.000."""
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report, NON_B_CLASSES
+        overview = self._make_overview_for_guard(NON_B_CLASSES)
+        subclass_df = pd.DataFrame([
+            {"Organism": "Org_1", "Class": c, "Subclass": f"{c}_sub", "Count": 10}
+            for c in NON_B_CLASSES[:4]
+        ])
+        gc_map = {"Org_1": 40.0, "Org_2": 50.0, "Org_3": 60.0}
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+        )
+        text = Path(path).read_text()
+        assert "Macro-average F1: 0.000" in text
+        assert "Micro-average F1: 0.000" in text
+        assert "Overall concordance: 0.000" in text
+        assert "Mean Jaccard: 0.000" in text
