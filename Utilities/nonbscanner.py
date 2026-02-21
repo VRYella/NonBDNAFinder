@@ -282,7 +282,12 @@ class NonBScanner:
         return all_motifs
     
     def _remove_overlaps(self, motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Optimized overlap removal using sorted intervals for O(n log n) complexity."""
+        """O(n log n) overlap removal using binary search on sorted non-overlapping intervals.
+
+        The overlap check is O(log n) per candidate via bisect; list.insert() shifts
+        are O(n) but are C-level memcpy — the same cost as the previous bisect.insort()
+        call on the single-tuple list.  The former O(n) Python comparison loop is gone.
+        """
         if not motifs: return motifs
         groups = defaultdict(list)
         for motif in motifs: groups[f"{motif.get('Class', '')}-{motif.get('Subclass', '')}"].append(motif)
