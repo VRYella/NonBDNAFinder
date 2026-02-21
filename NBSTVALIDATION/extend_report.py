@@ -1347,10 +1347,18 @@ def generate_comprehensive_report(
             )
             a("")
     else:
+        summary = _concordance_summary(None)
         a(
             "*NBST concordance data not available. Run `run_genome_validation.py` "
             "first to produce `tables/nbst_motif_concordance.csv`, then re-run "
-            "`extend_report.py`.*"
+            "`extend_report.py`. Metrics below are placeholder zero values.*"
+        )
+        a("")
+        a(
+            f"Macro-average F1: {summary['macro_f1']:.3f}  \n"
+            f"Micro-average F1: {summary['micro_f1']:.3f}  \n"
+            f"Overall concordance: {summary['overall_concordance']:.3f}  \n"
+            f"Mean Jaccard: {summary['mean_jaccard']:.3f}"
         )
         a("")
 
