@@ -117,6 +117,17 @@ def _genome_size(fasta_path: str) -> int:
     return sum(len(s) for s in seqs.values())
 
 
+def _gc_percent(sequences: Dict[str, str]) -> float:
+    """GC content (%) computed from a dict of {seq_name: sequence}."""
+    total = 0
+    gc = 0
+    for seq in sequences.values():
+        seq_upper = seq.upper()
+        total += len(seq_upper)
+        gc += seq_upper.count("G") + seq_upper.count("C")
+    return round(gc / total * 100, 2) if total > 0 else 0.0
+
+
 def _covered_bases(motifs: List[dict], genome_len: int) -> int:
     """Union of base positions covered by all motifs (1-based inclusive coords)."""
     if not motifs or genome_len == 0:
@@ -148,6 +159,7 @@ def analyse_genome(
     t0 = time.time()
     sequences = read_fasta_file(fasta_path)       # {seq_name: sequence_str}
     genome_len = sum(len(s) for s in sequences.values())
+    gc_pct = _gc_percent(sequences)
     # Use chunked analysis (50 kbp chunks, 2 kbp overlap) for O(n) scaling
     all_motifs: List[dict] = []
     for seq_name, seq in sequences.items():
@@ -180,6 +192,7 @@ def analyse_genome(
     summary = {
         "Organism":         name,
         "Genome_Size_bp":   genome_len,
+        "GC_pct":           gc_pct,
         "Total_Motifs":     len(all_motifs),
         "Core_Motifs":      len(core_motifs),
         "Coverage_pct":     round(coverage_pct, 3),
@@ -777,9 +790,9 @@ def generate_report(
     a("### 3.1 Genome-Level Overview")
     a("")
     display_cols = [
-        "Organism", "Genome_Size_bp", "Core_Motifs",
+        "Organism", "Genome_Size_bp", "GC_pct", "Core_Motifs",
         "Coverage_pct", "Density_per_kb",
-        "Hybrid_Count", "Cluster_Count", "Classes_Detected",
+        "Hybrid_Count", "Cluster_Count", "Classes_Detected", "Runtime_s",
     ]
     a(_fmt_table(df[[c for c in display_cols if c in df.columns]]))
     a("")
