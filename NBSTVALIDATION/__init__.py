@@ -6,6 +6,7 @@ from NBSTVALIDATION.run_genome_validation import (
     generate_all_figures,
     generate_report,
     run_validation,
+    nbst_concordance_validation,
 )
 
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "generate_all_figures",
     "generate_report",
     "run_validation",
+    "nbst_concordance_validation",
 ]

@@ -89,12 +89,16 @@ NBST_TYPE_TO_NBF_CLASS: Dict[str, str] = {
     "G_Quadruplex_Motif":  "G-Quadruplex",
     "Z_DNA_Motif":         "Z-DNA",
     "Mirror_Repeat":       "Triplex",
+    "Inverted_Repeat":     "Cruciform",
     "Short_Tandem_Repeat": "Slipped_DNA",
     "Direct_Repeat":       "Slipped_DNA",
     "A_Phased_Repeat":     "Curved_DNA",
 }
 
 # NBST data files relative to the data/ sub-folder
+# Keys are filenames; values are the corresponding NBF class to compare against.
+# 699a2b3fb6cbe_IR.tsv contains Inverted Repeat (IR) calls from the same
+# benchmark genome (693fc40d26a53.fasta) submitted as a separate nBMST job.
 NBST_DATA_FILES: Dict[str, str] = {
     "693fc40d26a53_GQ.tsv":         "G-Quadruplex",
     "693fc40d26a53_Z.tsv":          "Z-DNA",
@@ -102,6 +106,7 @@ NBST_DATA_FILES: Dict[str, str] = {
     "693fc40d26a53_Slipped_STR.tsv": "Slipped_DNA",
     "693fc40d26a53_slipped_DR.tsv":  "Slipped_DNA",
     "693fc40d26a53_curved.tsv":      "Curved_DNA",
+    "699a2b3fb6cbe_IR.tsv":          "Cruciform",
 }
 
 NBST_FASTA = "693fc40d26a53.fasta"

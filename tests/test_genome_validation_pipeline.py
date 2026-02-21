@@ -40,6 +40,10 @@ from NBSTVALIDATION.run_genome_validation import (
     NON_B_CLASSES,
     HYBRID_CLASS,
     CLUSTER_CLASS,
+    _jaccard_interval,
+    _match_motif_lists,
+    NBST_DATA_FILES,
+    NBST_TYPE_TO_NBF_CLASS,
 )
 
 
@@ -458,4 +462,180 @@ class TestRemoveOverlapsPerformance:
         assert elapsed < 1.0, (
             f"_remove_overlaps took {elapsed:.2f}s for 5_000 motifs — "
             "quadratic scaling may have been reintroduced"
+        )
+
+
+# ===========================================================================
+# 7. _jaccard_interval  –  interval similarity engine
+# ===========================================================================
+
+class TestJaccardInterval:
+    """Unit tests for the interval-level Jaccard similarity computation."""
+
+    def test_identical_intervals(self):
+        assert _jaccard_interval(1, 100, 1, 100) == 1.0
+
+    def test_no_overlap(self):
+        assert _jaccard_interval(1, 50, 60, 100) == 0.0
+
+    def test_adjacent_no_overlap(self):
+        # [1,50] and [51,100]: no shared base (1-based inclusive)
+        assert _jaccard_interval(1, 50, 51, 100) == 0.0
+
+    def test_partial_overlap(self):
+        # [1,100] ∩ [50,150] = positions 50..100 = 51 positions;
+        # union = positions 1..150 = 150 positions → J = 51/150
+        j = _jaccard_interval(1, 100, 50, 150)
+        assert round(j, 4) == round(51 / 150, 4)
+
+    def test_containment(self):
+        # [1,100] fully contains [40,60]; overlap = [40,60] = 21 positions;
+        # union = [1,100] = 100 positions → J = 21/100
+        j = _jaccard_interval(1, 100, 40, 60)
+        assert round(j, 4) == round(21 / 100, 4)
+
+    def test_symmetry(self):
+        j1 = _jaccard_interval(10, 80, 50, 120)
+        j2 = _jaccard_interval(50, 120, 10, 80)
+        assert abs(j1 - j2) < 1e-9
+
+    def test_single_base_overlap(self):
+        # [1,10] and [10,20]: overlap = 1 bp, union = 20 bp
+        j = _jaccard_interval(1, 10, 10, 20)
+        assert round(j, 4) == round(1 / 20, 4)
+
+    def test_returns_float(self):
+        assert isinstance(_jaccard_interval(1, 50, 1, 50), float)
+
+    def test_above_50pct_threshold(self):
+        # [1,100] and [1,60]: overlap=60, union=100 → Jaccard=0.60 ≥ 0.50
+        assert _jaccard_interval(1, 100, 1, 60) >= 0.5
+
+    def test_below_50pct_threshold(self):
+        # [1,100] and [80,200]: overlap=21, union=200 → Jaccard<0.50
+        assert _jaccard_interval(1, 100, 80, 200) < 0.5
+
+
+# ===========================================================================
+# 8. _match_motif_lists  –  TP/FP/FN concordance engine
+# ===========================================================================
+
+class TestMatchMotifLists:
+    """Unit tests for the greedy interval-to-interval matching function."""
+
+    @staticmethod
+    def _motif(start: int, end: int, cls: str = "G-Quadruplex") -> dict:
+        return {"Start": start, "End": end, "Class": cls}
+
+    @staticmethod
+    def _nbst_df(intervals: list) -> pd.DataFrame:
+        return pd.DataFrame(intervals, columns=["Start", "Stop"])
+
+    def test_perfect_match(self):
+        nbf   = [self._motif(1, 100)]
+        nbst  = self._nbst_df([(1, 100)])
+        tp, fp, fn, jaccards = _match_motif_lists(nbf, nbst)
+        assert tp == 1 and fp == 0 and fn == 0
+        assert jaccards[0] == 1.0
+
+    def test_no_overlap_all_fp_fn(self):
+        nbf  = [self._motif(1, 50)]
+        nbst = self._nbst_df([(200, 300)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst)
+        assert tp == 0 and fp == 1 and fn == 1
+
+    def test_empty_nbf_all_fn(self):
+        nbst = self._nbst_df([(1, 100), (200, 300)])
+        tp, fp, fn, jaccards = _match_motif_lists([], nbst)
+        assert tp == 0 and fp == 0 and fn == 2
+        assert jaccards == []
+
+    def test_empty_nbst_all_fp(self):
+        nbf  = [self._motif(1, 100), self._motif(200, 300)]
+        nbst = self._nbst_df([])
+        tp, fp, fn, jaccards = _match_motif_lists(nbf, nbst)
+        assert tp == 0 and fp == 2 and fn == 0
+        assert jaccards == []
+
+    def test_partial_recall(self):
+        # 2 NBF motifs, 3 NBST — 2 match, 1 NBST unmatched
+        nbf  = [self._motif(1, 100), self._motif(200, 300)]
+        nbst = self._nbst_df([(1, 100), (200, 300), (500, 600)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst)
+        assert tp == 2 and fp == 0 and fn == 1
+
+    def test_each_nbst_matched_at_most_once(self):
+        # Two NBF motifs that both overlap the same NBST motif
+        nbf  = [self._motif(1, 100), self._motif(10, 90)]
+        nbst = self._nbst_df([(1, 100)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst)
+        # Only one TP; the second NBF motif cannot claim the same NBST motif
+        assert tp == 1
+
+    def test_jaccard_threshold_respected(self):
+        # NBF [1,100] vs NBST [90,200]: overlap=11, union=200 → J≈0.055 < 0.5
+        nbf  = [self._motif(1, 100)]
+        nbst = self._nbst_df([(90, 200)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst, jaccard_threshold=0.5)
+        assert tp == 0 and fp == 1 and fn == 1
+
+    def test_tp_fp_fn_sum_equals_total(self):
+        nbf  = [self._motif(i * 200, i * 200 + 100) for i in range(5)]
+        nbst = self._nbst_df([(i * 200, i * 200 + 100) for i in range(3)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst)
+        assert tp + fp == len(nbf)
+        assert tp + fn == len(nbst)
+
+    def test_precision_recall_from_results(self):
+        # 3 NBF, 3 NBST, 2 match → precision = 2/3, recall = 2/3
+        nbf  = [self._motif(1, 50), self._motif(100, 150), self._motif(500, 600)]
+        nbst = self._nbst_df([(1, 50), (100, 150), (900, 1000)])
+        tp, fp, fn, _ = _match_motif_lists(nbf, nbst)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        assert round(precision, 4) == round(2 / 3, 4)
+        assert round(recall,    4) == round(2 / 3, 4)
+
+
+# ===========================================================================
+# 9. NBST_DATA_FILES  –  benchmark configuration
+# ===========================================================================
+
+class TestNBSTDataFilesConfig:
+    """Validate the static benchmark configuration table."""
+
+    def test_all_six_motif_classes_covered(self):
+        """The six motif classes from the problem statement must be present."""
+        expected_classes = {
+            "G-Quadruplex",   # GQ
+            "Z-DNA",          # Z
+            "Triplex",        # MR (mirror repeats = triplex-forming)
+            "Slipped_DNA",    # STR + DR
+            "Curved_DNA",     # A-phased repeats
+            "Cruciform",      # IR (inverted repeats)
+        }
+        found_classes = set(NBST_DATA_FILES.values())
+        assert expected_classes.issubset(found_classes), (
+            f"Missing classes: {expected_classes - found_classes}"
+        )
+
+    def test_ir_file_mapped_to_cruciform(self):
+        assert "699a2b3fb6cbe_IR.tsv" in NBST_DATA_FILES
+        assert NBST_DATA_FILES["699a2b3fb6cbe_IR.tsv"] == "Cruciform"
+
+    def test_inverted_repeat_in_type_map(self):
+        assert "Inverted_Repeat" in NBST_TYPE_TO_NBF_CLASS
+        assert NBST_TYPE_TO_NBF_CLASS["Inverted_Repeat"] == "Cruciform"
+
+    def test_mirror_repeat_maps_to_triplex(self):
+        assert NBST_TYPE_TO_NBF_CLASS["Mirror_Repeat"] == "Triplex"
+
+    def test_gq_file_mapped_to_gquadruplex(self):
+        assert "693fc40d26a53_GQ.tsv" in NBST_DATA_FILES
+        assert NBST_DATA_FILES["693fc40d26a53_GQ.tsv"] == "G-Quadruplex"
+
+    def test_slipped_dna_has_two_files(self):
+        slipped_files = [f for f, c in NBST_DATA_FILES.items() if c == "Slipped_DNA"]
+        assert len(slipped_files) == 2, (
+            "Both STR and DR files must map to Slipped_DNA"
         )
