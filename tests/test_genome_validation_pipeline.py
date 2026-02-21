@@ -842,3 +842,169 @@ class TestExtendReportConcordance:
         )
         text = Path(path).read_text()
         assert "Table 6" in text
+
+
+# ===========================================================================
+# 11. _concordance_summary  –  aggregate accuracy metrics (PR #82 extension)
+# ===========================================================================
+
+class TestConcordanceSummary:
+    """Unit tests for _concordance_summary() macro/micro F1 helper."""
+
+    @staticmethod
+    def _make_conc_df() -> pd.DataFrame:
+        """Six-class concordance DataFrame with F1 computed from TP/FP/FN."""
+        records = [
+            {"TP": 40, "FP": 5,  "FN": 10, "Mean_Jaccard": 0.801},
+            {"TP": 25, "FP": 3,  "FN": 5,  "Mean_Jaccard": 0.820},
+            {"TP": 12, "FP": 6,  "FN": 8,  "Mean_Jaccard": 0.640},
+            {"TP": 30, "FP": 8,  "FN": 10, "Mean_Jaccard": 0.770},
+            {"TP": 22, "FP": 8,  "FN": 13, "Mean_Jaccard": 0.690},
+            {"TP": 18, "FP": 4,  "FN": 7,  "Mean_Jaccard": 0.750},
+        ]
+        rows = []
+        for r in records:
+            tp, fp, fn = r["TP"], r["FP"], r["FN"]
+            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            f1 = (2 * precision * recall / (precision + recall)
+                  if (precision + recall) > 0 else 0.0)
+            rows.append({**r, "F1": round(f1, 4)})
+        return pd.DataFrame(rows)
+
+    def test_returns_dict_with_required_keys(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        result = _concordance_summary(self._make_conc_df())
+        assert isinstance(result, dict)
+        for key in ("macro_f1", "micro_f1", "overall_concordance", "mean_jaccard"):
+            assert key in result, f"Key '{key}' missing from _concordance_summary output"
+
+    def test_macro_f1_is_mean_of_class_f1s(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        df = self._make_conc_df()
+        result = _concordance_summary(df)
+        expected = round(float(df["F1"].mean()), 4)
+        assert result["macro_f1"] == expected
+
+    def test_micro_f1_uses_pooled_tp_fp_fn(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        df = self._make_conc_df()
+        result = _concordance_summary(df)
+        total_tp = df["TP"].sum()
+        total_fp = df["FP"].sum()
+        total_fn = df["FN"].sum()
+        micro_p = total_tp / (total_tp + total_fp)
+        micro_r = total_tp / (total_tp + total_fn)
+        expected = round(2 * micro_p * micro_r / (micro_p + micro_r), 4)
+        assert result["micro_f1"] == expected
+
+    def test_overall_concordance_is_jaccard_set_level(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        df = self._make_conc_df()
+        result = _concordance_summary(df)
+        total_tp = df["TP"].sum()
+        total_fp = df["FP"].sum()
+        total_fn = df["FN"].sum()
+        expected = round(total_tp / (total_tp + total_fp + total_fn), 4)
+        assert result["overall_concordance"] == expected
+
+    def test_mean_jaccard_is_mean_of_column(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        df = self._make_conc_df()
+        result = _concordance_summary(df)
+        expected = round(float(df["Mean_Jaccard"].mean()), 4)
+        assert result["mean_jaccard"] == expected
+
+    def test_empty_df_returns_all_zeros(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        result = _concordance_summary(pd.DataFrame())
+        assert result == {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "overall_concordance": 0.0,
+            "mean_jaccard": 0.0,
+        }
+
+    def test_none_returns_all_zeros(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        result = _concordance_summary(None)
+        assert result["macro_f1"] == 0.0
+        assert result["micro_f1"] == 0.0
+        assert result["overall_concordance"] == 0.0
+        assert result["mean_jaccard"] == 0.0
+
+    def test_macro_f1_between_0_and_1(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        result = _concordance_summary(self._make_conc_df())
+        assert 0.0 <= result["macro_f1"] <= 1.0
+
+    def test_micro_f1_between_0_and_1(self):
+        from NBSTVALIDATION.extend_report import _concordance_summary
+        result = _concordance_summary(self._make_conc_df())
+        assert 0.0 <= result["micro_f1"] <= 1.0
+
+    def test_report_includes_macro_f1(self, tmp_path):
+        """Macro F1 label must appear in the concordance section of the report."""
+        from NBSTVALIDATION.extend_report import (
+            generate_comprehensive_report,
+            NON_B_CLASSES,
+        )
+        overview = pd.DataFrame([{
+            "Organism": f"Org_{i}", "Genome_Size_bp": i * 500_000,
+            "GC_pct": 40.0, "Total_Motifs": 100, "Core_Motifs": 90,
+            "Coverage_pct": 10.0, "Density_per_kb": 2.0,
+            "Hybrid_Count": 5, "Cluster_Count": 3,
+            "Classes_Detected": 6, "Mean_Score": 1.8, "Runtime_s": 1.0,
+            **{f"n_{c.replace('-','_').replace(' ','_')}": 10 for c in NON_B_CLASSES},
+        } for i in range(1, 4)])
+        subclass_df = pd.DataFrame([
+            {"Organism": "Org_1", "Class": c, "Subclass": f"{c}_sub", "Count": 10}
+            for c in NON_B_CLASSES[:4]
+        ])
+        gc_map = {"Org_1": 40.0, "Org_2": 50.0, "Org_3": 60.0}
+        conc_df = pd.DataFrame([{
+            "NBST_File": "GQ", "NBF_Class": "G-Quadruplex",
+            "NBST_n": 50, "NBF_n": 45,
+            "TP": 40, "FP": 5, "FN": 10,
+            "Precision": 0.889, "Recall": 0.800, "F1": 0.842,
+            "Concordance": 0.727, "Mean_Jaccard": 0.801, "Median_Jaccard": 0.810,
+        }])
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+            conc_df=conc_df,
+        )
+        text = Path(path).read_text()
+        assert "macro" in text.lower()
+
+    def test_report_includes_micro_f1(self, tmp_path):
+        """Micro F1 label must appear in the concordance section of the report."""
+        from NBSTVALIDATION.extend_report import (
+            generate_comprehensive_report,
+            NON_B_CLASSES,
+        )
+        overview = pd.DataFrame([{
+            "Organism": f"Org_{i}", "Genome_Size_bp": i * 500_000,
+            "GC_pct": 40.0, "Total_Motifs": 100, "Core_Motifs": 90,
+            "Coverage_pct": 10.0, "Density_per_kb": 2.0,
+            "Hybrid_Count": 5, "Cluster_Count": 3,
+            "Classes_Detected": 6, "Mean_Score": 1.8, "Runtime_s": 1.0,
+            **{f"n_{c.replace('-','_').replace(' ','_')}": 10 for c in NON_B_CLASSES},
+        } for i in range(1, 4)])
+        subclass_df = pd.DataFrame([
+            {"Organism": "Org_1", "Class": c, "Subclass": f"{c}_sub", "Count": 10}
+            for c in NON_B_CLASSES[:4]
+        ])
+        gc_map = {"Org_1": 40.0, "Org_2": 50.0, "Org_3": 60.0}
+        conc_df = pd.DataFrame([{
+            "NBST_File": "GQ", "NBF_Class": "G-Quadruplex",
+            "NBST_n": 50, "NBF_n": 45,
+            "TP": 40, "FP": 5, "FN": 10,
+            "Precision": 0.889, "Recall": 0.800, "F1": 0.842,
+            "Concordance": 0.727, "Mean_Jaccard": 0.801, "Median_Jaccard": 0.810,
+        }])
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+            conc_df=conc_df,
+        )
+        text = Path(path).read_text()
+        assert "micro" in text.lower()
