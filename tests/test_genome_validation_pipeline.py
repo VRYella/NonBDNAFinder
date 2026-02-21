@@ -639,3 +639,206 @@ class TestNBSTDataFilesConfig:
         assert len(slipped_files) == 2, (
             "Both STR and DR files must map to Slipped_DNA"
         )
+
+
+# ===========================================================================
+# 10. extend_report.py — concordance integration (PR #82 extension)
+# ===========================================================================
+
+class TestExtendReportConcordance:
+    """
+    Verify that extend_report.py correctly integrates NBST concordance data
+    (as produced by run_genome_validation.py's nbst_concordance_validation()
+    after the PR #82 Cruciform/IR addition) into its figures and report.
+    """
+
+    from NBSTVALIDATION.extend_report import (
+        fig_concordance_validation,
+        generate_new_figures,
+        generate_comprehensive_report,
+    )
+
+    @staticmethod
+    def _make_overview(n: int = 3) -> pd.DataFrame:
+        rows = []
+        for i in range(1, n + 1):
+            row: dict = {
+                "Organism": f"Organism_{i}",
+                "Genome_Size_bp": i * 500_000,
+                "GC_pct": 30.0 + i * 10,
+                "Total_Motifs": i * 200,
+                "Core_Motifs": i * 180,
+                "Coverage_pct": float(i * 10),
+                "Density_per_kb": float(i * 2),
+                "Hybrid_Count": i * 5,
+                "Cluster_Count": i * 3,
+                "Classes_Detected": min(i + 3, 9),
+                "Mean_Score": 1.8,
+                "Runtime_s": float(i),
+            }
+            for cls in NON_B_CLASSES:
+                col = f"n_{cls.replace('-', '_').replace(' ', '_')}"
+                row[col] = i * 10
+            rows.append(row)
+        return pd.DataFrame(rows)
+
+    @staticmethod
+    def _make_subclass_df(overview: pd.DataFrame) -> pd.DataFrame:
+        rows = []
+        for org in overview["Organism"]:
+            for cls in NON_B_CLASSES[:4]:
+                rows.append({
+                    "Organism": org,
+                    "Class": cls,
+                    "Subclass": f"{cls}_sub",
+                    "Count": 10,
+                })
+        return pd.DataFrame(rows)
+
+    @staticmethod
+    def _make_conc_df() -> pd.DataFrame:
+        """Synthetic concordance DataFrame with all 6 NBST classes (incl. Cruciform)."""
+        return pd.DataFrame([
+            {"NBST_File": "GQ",          "NBF_Class": "G-Quadruplex",
+             "NBST_n": 50,  "NBF_n": 45,
+             "TP": 40, "FP": 5,  "FN": 10,
+             "Precision": 0.889, "Recall": 0.800, "F1": 0.842,
+             "Concordance": 0.727, "Mean_Jaccard": 0.801, "Median_Jaccard": 0.810},
+            {"NBST_File": "Z",           "NBF_Class": "Z-DNA",
+             "NBST_n": 30,  "NBF_n": 28,
+             "TP": 25, "FP": 3,  "FN": 5,
+             "Precision": 0.893, "Recall": 0.833, "F1": 0.862,
+             "Concordance": 0.758, "Mean_Jaccard": 0.820, "Median_Jaccard": 0.830},
+            {"NBST_File": "MR",          "NBF_Class": "Triplex",
+             "NBST_n": 20,  "NBF_n": 18,
+             "TP": 12, "FP": 6,  "FN": 8,
+             "Precision": 0.667, "Recall": 0.600, "F1": 0.632,
+             "Concordance": 0.462, "Mean_Jaccard": 0.640, "Median_Jaccard": 0.650},
+            {"NBST_File": "Slipped_STR", "NBF_Class": "Slipped_DNA",
+             "NBST_n": 40,  "NBF_n": 38,
+             "TP": 30, "FP": 8,  "FN": 10,
+             "Precision": 0.789, "Recall": 0.750, "F1": 0.769,
+             "Concordance": 0.625, "Mean_Jaccard": 0.770, "Median_Jaccard": 0.780},
+            {"NBST_File": "curved",      "NBF_Class": "Curved_DNA",
+             "NBST_n": 35,  "NBF_n": 30,
+             "TP": 22, "FP": 8,  "FN": 13,
+             "Precision": 0.733, "Recall": 0.629, "F1": 0.677,
+             "Concordance": 0.512, "Mean_Jaccard": 0.690, "Median_Jaccard": 0.700},
+            {"NBST_File": "699a2b3fb6cbe_IR", "NBF_Class": "Cruciform",
+             "NBST_n": 25,  "NBF_n": 22,
+             "TP": 18, "FP": 4,  "FN": 7,
+             "Precision": 0.818, "Recall": 0.720, "F1": 0.766,
+             "Concordance": 0.621, "Mean_Jaccard": 0.750, "Median_Jaccard": 0.760},
+        ])
+
+    # ---- fig_concordance_validation ----------------------------------------
+
+    def test_fig_concordance_creates_png(self, tmp_path):
+        from NBSTVALIDATION.extend_report import fig_concordance_validation
+        conc_df = self._make_conc_df()
+        path = fig_concordance_validation(conc_df, str(tmp_path))
+        assert os.path.isfile(path)
+        assert path.endswith(".png")
+        assert os.path.getsize(path) > 0
+
+    def test_fig_concordance_named_fig12(self, tmp_path):
+        from NBSTVALIDATION.extend_report import fig_concordance_validation
+        conc_df = self._make_conc_df()
+        path = fig_concordance_validation(conc_df, str(tmp_path))
+        assert "fig12" in os.path.basename(path)
+
+    def test_fig_concordance_empty_df_still_creates_png(self, tmp_path):
+        """Must not crash when no concordance data is available."""
+        from NBSTVALIDATION.extend_report import fig_concordance_validation
+        path = fig_concordance_validation(pd.DataFrame(), str(tmp_path))
+        assert os.path.isfile(path)
+        assert os.path.getsize(path) > 0
+
+    # ---- generate_new_figures with concordance data ------------------------
+
+    def test_generate_new_figures_without_conc_gives_5_paths(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_new_figures
+        overview   = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        paths = generate_new_figures(overview, subclass_df, gc_map, str(tmp_path))
+        assert len(paths) == 5
+
+    def test_generate_new_figures_with_conc_gives_6_paths(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_new_figures
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        conc_df = self._make_conc_df()
+        paths = generate_new_figures(
+            overview, subclass_df, gc_map, str(tmp_path), conc_df=conc_df
+        )
+        assert len(paths) == 6
+
+    def test_generate_new_figures_concordance_is_last(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_new_figures
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        conc_df = self._make_conc_df()
+        paths = generate_new_figures(
+            overview, subclass_df, gc_map, str(tmp_path), conc_df=conc_df
+        )
+        assert "fig12" in os.path.basename(paths[-1])
+
+    # ---- generate_comprehensive_report with concordance --------------------
+
+    def test_report_concordance_section_present(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        conc_df = self._make_conc_df()
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+            conc_df=conc_df,
+        )
+        text = Path(path).read_text()
+        assert "3.7" in text
+        assert "Concordance" in text or "concordance" in text
+
+    def test_report_cruciform_concordance_mentioned(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        conc_df = self._make_conc_df()
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+            conc_df=conc_df,
+        )
+        text = Path(path).read_text()
+        assert "cruciform" in text.lower()
+
+    def test_report_without_conc_has_fallback_text(self, tmp_path):
+        """Report must still generate cleanly without concordance data."""
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+        )
+        assert os.path.isfile(path)
+        text = Path(path).read_text()
+        assert os.path.basename(path) == "COMPREHENSIVE_EXTENDED_REPORT.md"
+        # Fallback placeholder text should be present
+        assert "not available" in text.lower() or "run_genome_validation" in text
+
+    def test_report_table6_present_with_conc(self, tmp_path):
+        from NBSTVALIDATION.extend_report import generate_comprehensive_report
+        overview    = self._make_overview()
+        subclass_df = self._make_subclass_df(overview)
+        gc_map = {r["Organism"]: r["GC_pct"] for _, r in overview.iterrows()}
+        conc_df = self._make_conc_df()
+        path = generate_comprehensive_report(
+            overview, subclass_df, gc_map, {}, [], str(tmp_path),
+            conc_df=conc_df,
+        )
+        text = Path(path).read_text()
+        assert "Table 6" in text
