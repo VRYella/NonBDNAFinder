@@ -292,19 +292,20 @@ class NonBScanner:
             # Sort by score (desc), then length (desc) to keep best motifs
             group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
             non_overlapping = []
-            # Track accepted intervals as sorted list of (start, end) tuples
-            accepted_intervals = []
+            # Maintain parallel sorted lists of accepted starts/ends for O(log n) overlap check.
+            # Accepted intervals are non-overlapping, so both lists are monotonically sorted.
+            acc_starts: List[int] = []
+            acc_ends: List[int] = []
             for motif in group_motifs:
                 start, end = motif.get('Start', 0), motif.get('End', 0)
-                # Check if this interval overlaps with any accepted interval
-                overlaps = False
-                for acc_start, acc_end in accepted_intervals:
-                    if not (end <= acc_start or start >= acc_end):  # Intervals overlap
-                        overlaps = True; break
+                idx = bisect.bisect_left(acc_starts, end)
+                overlaps = (idx > 0 and acc_ends[idx - 1] > start) or \
+                           (idx < len(acc_starts) and acc_starts[idx] < end)
                 if not overlaps:
                     non_overlapping.append(motif)
-                    # Insert in sorted order - O(n) but simpler and correct
-                    bisect.insort(accepted_intervals, (start, end))
+                    ins = bisect.bisect_left(acc_starts, start)
+                    acc_starts.insert(ins, start)
+                    acc_ends.insert(ins, end)
             filtered_motifs.extend(non_overlapping)
         return filtered_motifs
     
