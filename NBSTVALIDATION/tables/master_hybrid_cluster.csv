@@ -1,10 +1,10 @@
-Organism,Genome_Size_bp,Total_Motifs,Hybrid_Count,Cluster_Count,Coverage_pct,Density_per_kb
-Candidatus Carsonella ruddii,174014,2165,59,27,12.42,11.947
-Buchnera aphidicola,452078,5757,170,174,12.27,11.974
-hpylori,1674010,5622,79,210,6.089,3.186
-Streptococcus pneumoniae,2110968,3759,19,30,3.777,1.757
-saureus,2821361,3771,25,29,2.887,1.317
-Miltoncostaea marina,3370274,49485,2420,5053,73.781,12.465
-Cellulomonas shaoxiangyii,3909366,48522,1869,4824,71.733,10.7
-mtb,4411532,30829,796,1567,44.085,6.453
-ecoli,4641652,11881,125,245,6.355,2.48
+Organism,Genome_Size_bp,GC_pct,Total_Motifs,Hybrid_Count,Cluster_Count,Mean_Cluster_Classes,Coverage_pct,Density_per_kb,Runtime_s
+Candidatus Carsonella ruddii,174014,17.63,2165,59,27,3.11,12.42,11.947,4.36
+Buchnera aphidicola,452078,18.28,5757,170,174,3.1,12.27,11.974,11.51
+hpylori,1674010,38.79,5622,79,211,3.28,6.094,3.185,24.61
+Streptococcus pneumoniae,2110968,39.73,3760,17,30,3.17,3.783,1.759,25.42
+saureus,2821361,32.87,3771,25,29,3.24,2.887,1.317,36.83
+Miltoncostaea marina,3370274,76.16,49513,2453,5027,3.41,73.872,12.472,76.39
+Cellulomonas shaoxiangyii,3909366,75.3,48558,1875,4828,3.4,71.801,10.706,81.6
+mtb,4411532,65.61,30837,810,1569,3.24,44.164,6.451,65.62
+ecoli,4641652,50.79,11889,125,245,3.26,6.374,2.482,53.45
