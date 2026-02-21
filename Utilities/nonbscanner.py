@@ -282,7 +282,12 @@ class NonBScanner:
         return all_motifs
     
     def _remove_overlaps(self, motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Optimized overlap removal using sorted intervals for O(n log n) complexity."""
+        """O(n log n) overlap removal using binary search on sorted non-overlapping intervals.
+
+        The overlap check is O(log n) per candidate via bisect; list.insert() shifts
+        are O(n) but are C-level memcpy — the same cost as the previous bisect.insort()
+        call on the single-tuple list.  The former O(n) Python comparison loop is gone.
+        """
         if not motifs: return motifs
         groups = defaultdict(list)
         for motif in motifs: groups[f"{motif.get('Class', '')}-{motif.get('Subclass', '')}"].append(motif)
@@ -292,19 +297,24 @@ class NonBScanner:
             # Sort by score (desc), then length (desc) to keep best motifs
             group_motifs.sort(key=lambda x: (-x.get('Score', 0), -x.get('Length', 0)))
             non_overlapping = []
-            # Track accepted intervals as sorted list of (start, end) tuples
-            accepted_intervals = []
+            # Two parallel lists, both sorted by start position (non-overlapping intervals
+            # also have their ends sorted in the same order).  Only the immediate left and
+            # right neighbours of the bisect insertion point can overlap the candidate.
+            accepted_starts: List[int] = []
+            accepted_ends: List[int] = []
             for motif in group_motifs:
                 start, end = motif.get('Start', 0), motif.get('End', 0)
-                # Check if this interval overlaps with any accepted interval
-                overlaps = False
-                for acc_start, acc_end in accepted_intervals:
-                    if not (end <= acc_start or start >= acc_end):  # Intervals overlap
-                        overlaps = True; break
+                i = bisect.bisect_left(accepted_starts, start)
+                # right neighbour starts >= current start: overlaps if its start < current end
+                # left  neighbour starts <  current start: overlaps if its end   > current start
+                overlaps = (
+                    (i < len(accepted_starts) and accepted_starts[i] < end) or
+                    (i > 0 and accepted_ends[i - 1] > start)
+                )
                 if not overlaps:
                     non_overlapping.append(motif)
-                    # Insert in sorted order - O(n) but simpler and correct
-                    bisect.insort(accepted_intervals, (start, end))
+                    accepted_starts.insert(i, start)
+                    accepted_ends.insert(i, end)
             filtered_motifs.extend(non_overlapping)
         return filtered_motifs
     
