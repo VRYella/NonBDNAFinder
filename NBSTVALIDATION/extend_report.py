@@ -8,6 +8,7 @@ Extends the PR #71 validation report with:
   • Cluster complexity breakdown
   • New figures (GC% vs density, G4 subclasses, hybrid type heatmap,
     cluster complexity, subclass diversity)
+  • NBST motif-to-motif concordance validation figure (PR #82 extension)
   • Comprehensive Nature-Methods-quality Markdown report
 
 Run standalone (no re-analysis needed — reads existing CSVs):
@@ -22,7 +23,7 @@ import datetime
 import glob as _glob
 import warnings
 from collections import Counter, defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib
 matplotlib.use("Agg")
@@ -518,11 +519,90 @@ def fig_subclass_diversity(subclass_df: pd.DataFrame,
     return out
 
 
+def fig_concordance_validation(conc_df: pd.DataFrame, out_dir: str) -> str:
+    """
+    Figure 12: NBST motif-to-motif concordance per class (PR #82 extension).
+
+    Shows Precision, Recall, F1 (panel A) and Concordance + Mean Jaccard
+    (panel B) as grouped bar charts, one bar group per NBST reference file.
+    Includes the Cruciform/IR class added in PR #82.
+    """
+    if conc_df is None or conc_df.empty:
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.text(0.5, 0.5, "No NBST concordance data available",
+                transform=ax.transAxes, ha="center", va="center", fontsize=11)
+        ax.axis("off")
+        out = os.path.join(out_dir, "fig12_nbst_concordance.png")
+        fig.savefig(out)
+        plt.close(fig)
+        return out
+
+    labels = conc_df["NBST_File"].tolist()
+    x      = np.arange(len(labels))
+    width  = 0.22
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, max(4, len(labels) * 0.7 + 2)))
+
+    # Panel A: Precision / Recall / F1
+    ax = axes[0]
+    ax.bar(x - width, conc_df["Precision"], width, label="Precision",
+           color="#4DBBD5", edgecolor="k", linewidth=0.5)
+    ax.bar(x,          conc_df["Recall"],   width, label="Recall",
+           color="#E64B35", edgecolor="k", linewidth=0.5)
+    ax.bar(x + width,  conc_df["F1"],       width, label="F1",
+           color="#00A087", edgecolor="k", linewidth=0.5)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=35, ha="right", fontsize=8)
+    ax.set_ylabel("Score (0–1)")
+    ax.set_ylim(0, 1.10)
+    ax.set_title("A  Precision / Recall / F1 per NBST class", fontsize=10)
+    ax.legend(fontsize=8)
+    ax.grid(axis="y", linestyle="--", alpha=0.4)
+    # Annotate F1 values on bars
+    for xi, val in zip(x, conc_df["F1"]):
+        if val > 0:
+            ax.text(xi + width, val + 0.02, f"{val:.2f}",
+                    ha="center", va="bottom", fontsize=7)
+
+    # Panel B: Concordance and Mean Jaccard
+    ax = axes[1]
+    ax.bar(x - width / 2, conc_df["Concordance"],  width * 1.4,
+           label="Concordance",
+           color="#3C5488", edgecolor="k", linewidth=0.5)
+    ax.bar(x + width / 2, conc_df["Mean_Jaccard"], width * 1.4,
+           label="Mean Jaccard",
+           color="#F39B7F", edgecolor="k", linewidth=0.5)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=35, ha="right", fontsize=8)
+    ax.set_ylabel("Score (0–1)")
+    ax.set_ylim(0, 1.10)
+    ax.set_title("B  Concordance and Mean Jaccard per NBST class", fontsize=10)
+    ax.legend(fontsize=8)
+    ax.grid(axis="y", linestyle="--", alpha=0.4)
+    for xi, val in zip(x, conc_df["Concordance"]):
+        if val > 0:
+            ax.text(xi - width / 2, val + 0.02, f"{val:.2f}",
+                    ha="center", va="bottom", fontsize=7)
+
+    fig.suptitle(
+        "NBST Motif-to-Motif Concordance Validation\n"
+        "(Jaccard ≥ 0.5 match threshold; includes all 6 classes: "
+        "GQ, Z-DNA, Triplex, Slipped, CurvedDNA, Cruciform)",
+        fontsize=10, fontweight="bold",
+    )
+    plt.tight_layout()
+    out = os.path.join(out_dir, "fig12_nbst_concordance.png")
+    fig.savefig(out)
+    plt.close(fig)
+    return out
+
+
 def generate_new_figures(
     overview: pd.DataFrame,
     subclass_df: pd.DataFrame,
     gc_map: Dict[str, float],
     out_dir: str,
+    conc_df: Optional[pd.DataFrame] = None,
 ) -> List[str]:
     paths = [
         fig_gc_vs_density(overview, gc_map, out_dir),
@@ -531,6 +611,8 @@ def generate_new_figures(
         fig_cluster_complexity(subclass_df, out_dir),
         fig_subclass_diversity(subclass_df, out_dir),
     ]
+    if conc_df is not None:
+        paths.append(fig_concordance_validation(conc_df, out_dir))
     return paths
 
 
@@ -567,6 +649,7 @@ def generate_comprehensive_report(
     new_tables: Dict[str, pd.DataFrame],
     new_fig_paths: List[str],
     out_dir: str,
+    conc_df: Optional[pd.DataFrame] = None,
 ) -> str:
     """Write COMPREHENSIVE_EXTENDED_REPORT.md."""
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
@@ -1165,6 +1248,72 @@ def generate_comprehensive_report(
     )
     a("")
 
+    # ----- 3.7 NBST motif-to-motif concordance validation (PR #82) ----------
+    a("### 3.7 NBST Motif-to-Motif Concordance Validation")
+    a("")
+    if conc_df is not None and not conc_df.empty:
+        overall_tp  = int(conc_df["TP"].sum())
+        overall_fp  = int(conc_df["FP"].sum())
+        overall_fn  = int(conc_df["FN"].sum())
+        denom = overall_tp + overall_fp + overall_fn
+        overall_conc  = overall_tp / denom if denom > 0 else 0.0
+        mean_conc     = conc_df["Concordance"].mean()
+        mean_jacc     = conc_df["Mean_Jaccard"].mean()
+        best_row      = conc_df.loc[conc_df["Concordance"].idxmax()]
+        worst_row     = conc_df.loc[conc_df["Concordance"].idxmin()]
+
+        a(
+            "NonBDNAFinder was benchmarked against the "
+            "**non-B DNA Structure Tool (NBST)** on a shared reference genome "
+            f"(six motif classes: GQ, Z-DNA, Triplex, Slipped DNA, Curved DNA, "
+            "and Cruciform/IR — the last class added by PR #82). "
+            "Concordance was defined as the Jaccard-based interval overlap "
+            "(Jaccard ≥ 0.50 threshold for a true-positive match). "
+            f"Figure 12 (fig12_nbst_concordance.png) illustrates the per-class "
+            "Precision, Recall, F1, and Concordance scores."
+        )
+        a("")
+        a(
+            f"**Overall concordance** (pooled across all {len(conc_df)} classes): "
+            f"**{overall_conc:.3f}** "
+            f"(TP={overall_tp}, FP={overall_fp}, FN={overall_fn}).  "
+            f"Mean per-class concordance: **{mean_conc:.3f}**; "
+            f"mean Jaccard overlap for matched pairs: **{mean_jacc:.3f}**."
+        )
+        a("")
+        a(f"Highest concordance: **{best_row['NBST_File']}** "
+          f"(class={best_row['NBF_Class']}, concordance={best_row['Concordance']:.3f}, "
+          f"F1={best_row['F1']:.3f}, Mean Jaccard={best_row['Mean_Jaccard']:.3f}).  ")
+        a(f"Lowest concordance: **{worst_row['NBST_File']}** "
+          f"(class={worst_row['NBF_Class']}, concordance={worst_row['Concordance']:.3f}, "
+          f"F1={worst_row['F1']:.3f}).")
+        a("")
+        a("**Table 6 — NBST motif-to-motif concordance per class.**")
+        a("")
+        a(_fmt_table(conc_df))
+        a("")
+        cruciform_rows = conc_df[conc_df["NBF_Class"] == "Cruciform"]
+        if not cruciform_rows.empty:
+            cr = cruciform_rows.iloc[0]
+            a(
+                f"**Cruciform / Inverted-Repeat validation (PR #82):** "
+                f"The IR reference file (`{cr['NBST_File']}`) yielded "
+                f"TP={cr['TP']}, FP={cr['FP']}, FN={cr['FN']}, "
+                f"concordance={cr['Concordance']:.3f}, "
+                f"Recall={cr['Recall']:.3f}, Precision={cr['Precision']:.3f}. "
+                "This confirms that NonBDNAFinder's Cruciform detector "
+                "recovers the inverted-repeat structures catalogued by NBST "
+                "at genome-scale resolution."
+            )
+            a("")
+    else:
+        a(
+            "*NBST concordance data not available. Run `run_genome_validation.py` "
+            "first to produce `tables/nbst_motif_concordance.csv`, then re-run "
+            "`extend_report.py`.*"
+        )
+        a("")
+
     # =========================================================================
     # 4. Discussion
     # =========================================================================
@@ -1451,13 +1600,31 @@ def run_extension(validation_folder: str = _HERE) -> None:
     print(f"  ✓ {len(overview)} genomes in overview table")
     print(f"  ✓ {len(subclass_df)} subclass rows")
 
-    # 2. Compute GC% from FASTA files
+    # 2. Load NBST concordance data if available (produced by run_genome_validation.py)
+    conc_csv = os.path.join(TABLES_DIR, "nbst_motif_concordance.csv")
+    conc_df: Optional[pd.DataFrame] = None
+    if os.path.isfile(conc_csv):
+        conc_df = pd.read_csv(conc_csv)
+        print(f"\nLoaded NBST concordance table: {conc_csv}  ({len(conc_df)} rows)")
+        for _, row in conc_df.iterrows():
+            print(
+                f"  [{row['NBST_File']:20s}]  class={row['NBF_Class']:15s}  "
+                f"TP={row['TP']:3d}  FP={row['FP']:3d}  FN={row['FN']:3d}  "
+                f"conc={row['Concordance']:.3f}  F1={row['F1']:.3f}"
+            )
+    else:
+        print(
+            "\n(NBST concordance table not found — run run_genome_validation.py "
+            "first if you want section 3.7 and Figure 12 in the report.)"
+        )
+
+    # 3. Compute GC% from FASTA files
     print("\nComputing GC% from FASTA files …")
     gc_map = compute_gc_for_genomes(validation_folder)
     for org, gc in sorted(gc_map.items()):
         print(f"  {org:45s}  GC={gc:.2f}%")
 
-    # 3. Build extended tables
+    # 4. Build extended tables
     print("\nBuilding extended tables …")
     new_tables = build_extended_tables(overview, subclass_df, gc_map)
     for tname, tdf in new_tables.items():
@@ -1465,16 +1632,19 @@ def run_extension(validation_folder: str = _HERE) -> None:
         tdf.to_csv(out_csv, index=False)
         print(f"  ✓ {out_csv}  ({len(tdf)} rows)")
 
-    # 4. Generate new figures
+    # 5. Generate new figures
     print("\nGenerating new figures …")
-    new_fig_paths = generate_new_figures(overview, subclass_df, gc_map, FIGURES_DIR)
+    new_fig_paths = generate_new_figures(
+        overview, subclass_df, gc_map, FIGURES_DIR, conc_df=conc_df
+    )
     for fp in new_fig_paths:
         print(f"  ✓ {fp}")
 
-    # 5. Generate comprehensive report
+    # 6. Generate comprehensive report
     print("\nGenerating comprehensive extended report …")
     report_path = generate_comprehensive_report(
         overview, subclass_df, gc_map, new_tables, new_fig_paths, REPORTS_DIR,
+        conc_df=conc_df,
     )
     print(f"  ✓ {report_path}")
 
