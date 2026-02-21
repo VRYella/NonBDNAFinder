@@ -597,6 +597,44 @@ def fig_concordance_validation(conc_df: pd.DataFrame, out_dir: str) -> str:
     return out
 
 
+def _concordance_summary(conc_df: Optional[pd.DataFrame]) -> Dict[str, float]:
+    """
+    Compute aggregate accuracy statistics from a concordance DataFrame.
+
+    Returns a dict with:
+      macro_f1            – mean F1 across all classes (macro average)
+      micro_f1            – F1 computed from pooled TP, FP, FN (micro average)
+      overall_concordance – pooled TP / (TP + FP + FN)
+      mean_jaccard        – mean of per-class Mean_Jaccard values
+    """
+    if conc_df is None or conc_df.empty:
+        return {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "overall_concordance": 0.0,
+            "mean_jaccard": 0.0,
+        }
+    macro_f1 = float(conc_df["F1"].mean())
+    total_tp = int(conc_df["TP"].sum())
+    total_fp = int(conc_df["FP"].sum())
+    total_fn = int(conc_df["FN"].sum())
+    micro_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
+    micro_recall    = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
+    micro_f1 = (
+        2 * micro_precision * micro_recall / (micro_precision + micro_recall)
+        if (micro_precision + micro_recall) > 0 else 0.0
+    )
+    denom = total_tp + total_fp + total_fn
+    overall_concordance = total_tp / denom if denom > 0 else 0.0
+    mean_jaccard = float(conc_df["Mean_Jaccard"].mean())
+    return {
+        "macro_f1": round(macro_f1, 4),
+        "micro_f1": round(micro_f1, 4),
+        "overall_concordance": round(overall_concordance, 4),
+        "mean_jaccard": round(mean_jaccard, 4),
+    }
+
+
 def generate_new_figures(
     overview: pd.DataFrame,
     subclass_df: pd.DataFrame,
@@ -1252,13 +1290,11 @@ def generate_comprehensive_report(
     a("### 3.7 NBST Motif-to-Motif Concordance Validation")
     a("")
     if conc_df is not None and not conc_df.empty:
-        overall_tp  = int(conc_df["TP"].sum())
-        overall_fp  = int(conc_df["FP"].sum())
-        overall_fn  = int(conc_df["FN"].sum())
-        denom = overall_tp + overall_fp + overall_fn
-        overall_conc  = overall_tp / denom if denom > 0 else 0.0
+        summary       = _concordance_summary(conc_df)
+        overall_tp    = int(conc_df["TP"].sum())
+        overall_fp    = int(conc_df["FP"].sum())
+        overall_fn    = int(conc_df["FN"].sum())
         mean_conc     = conc_df["Concordance"].mean()
-        mean_jacc     = conc_df["Mean_Jaccard"].mean()
         best_row      = conc_df.loc[conc_df["Concordance"].idxmax()]
         worst_row     = conc_df.loc[conc_df["Concordance"].idxmin()]
 
@@ -1275,10 +1311,14 @@ def generate_comprehensive_report(
         a("")
         a(
             f"**Overall concordance** (pooled across all {len(conc_df)} classes): "
-            f"**{overall_conc:.3f}** "
+            f"**{summary['overall_concordance']:.3f}** "
             f"(TP={overall_tp}, FP={overall_fp}, FN={overall_fn}).  "
             f"Mean per-class concordance: **{mean_conc:.3f}**; "
-            f"mean Jaccard overlap for matched pairs: **{mean_jacc:.3f}**."
+            f"mean Jaccard overlap for matched pairs: **{summary['mean_jaccard']:.3f}**.  "
+            f"**Macro-average F1: {summary['macro_f1']:.3f}** "
+            f"(mean of per-class F1 scores); "
+            f"**micro-average F1: {summary['micro_f1']:.3f}** "
+            f"(F1 from pooled TP/FP/FN across all classes)."
         )
         a("")
         a(f"Highest concordance: **{best_row['NBST_File']}** "
