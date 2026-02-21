@@ -55,7 +55,7 @@ for _d in (TABLES_DIR, FIGURES_DIR, REPORTS_DIR):
 # ---------------------------------------------------------------------------
 # NonBDNAFinder imports
 # ---------------------------------------------------------------------------
-from Utilities.nonbscanner import analyze_file
+from Utilities.nonbscanner import analyze_sequence as _nbf_analyze_sequence
 from Utilities.utilities  import read_fasta_file
 
 # ---------------------------------------------------------------------------
@@ -146,14 +146,15 @@ def analyse_genome(
       motif_df      – DataFrame of all detected motifs (annotated with genome)
     """
     t0 = time.time()
-    genome_len = _genome_size(fasta_path)
-    results   = analyze_file(fasta_path)          # {seq_name: [motif_dicts]}
-    elapsed   = time.time() - t0
-
-    # Flatten motifs from all sequences in the file
+    sequences = read_fasta_file(fasta_path)       # {seq_name: sequence_str}
+    genome_len = sum(len(s) for s in sequences.values())
+    # Use chunked analysis (50 kbp chunks, 2 kbp overlap) for O(n) scaling
     all_motifs: List[dict] = []
-    for seq_motifs in results.values():
-        all_motifs.extend(seq_motifs)
+    for seq_name, seq in sequences.items():
+        motifs = _nbf_analyze_sequence(seq, seq_name, use_chunking=True,
+                                           use_parallel_chunks=False)
+        all_motifs.extend(motifs)
+    elapsed = time.time() - t0
 
     # ---- class-level counts ------------------------------------------------
     class_counts: Dict[str, int] = Counter(

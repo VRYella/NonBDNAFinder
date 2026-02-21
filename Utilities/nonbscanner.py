@@ -524,16 +524,24 @@ def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         is_duplicate = False
         best_match_idx = -1
         best_match_score = -1
+        motif_start = motif.get('Start', 0)
         
-        # Check overlap with already-added motifs
-        for i, existing in enumerate(deduplicated):
+        # Check overlap with already-added motifs.
+        # Duplicates can only arise within the chunk-overlap window (DEFAULT_CHUNK_OVERLAP).
+        # Iterate in reverse so we check the most recent (closest) motifs first and
+        # break early once we've moved farther back than the overlap window.
+        for i in range(len(deduplicated) - 1, -1, -1):
+            existing = deduplicated[i]
+            # Early-exit: existing motif starts more than overlap-window before current
+            if existing.get('Start', 0) < motif_start - DEFAULT_CHUNK_OVERLAP:
+                break
             # Must be same motif type
             if (motif.get('Class') != existing.get('Class') or
                 motif.get('Subclass') != existing.get('Subclass')):
                 continue
             
             # Calculate overlap
-            start1, end1 = motif.get('Start', 0), motif.get('End', 0)
+            start1, end1 = motif_start, motif.get('End', 0)
             start2, end2 = existing.get('Start', 0), existing.get('End', 0)
             
             overlap_start = max(start1, start2)
