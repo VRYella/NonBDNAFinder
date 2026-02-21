@@ -303,9 +303,11 @@ class NonBScanner:
             acc_ends: List[int] = []
             for motif in group_motifs:
                 start, end = motif.get('Start', 0), motif.get('End', 0)
-                idx = bisect.bisect_left(acc_starts, end)
-                overlaps = (idx > 0 and acc_ends[idx - 1] > start) or \
-                           (idx < len(acc_starts) and acc_starts[idx] < end)
+                # Bisect by start (not end) to find the correct neighbor interval.
+                # Use >= / <= for 1-based inclusive coordinates.
+                idx = bisect.bisect_left(acc_starts, start)
+                overlaps = (idx > 0 and acc_ends[idx - 1] >= start) or \
+                           (idx < len(acc_starts) and acc_starts[idx] <= end)
                 if not overlaps:
                     non_overlapping.append(motif)
                     ins = bisect.bisect_left(acc_starts, start)
@@ -316,8 +318,8 @@ class NonBScanner:
     
     def _calculate_overlap(self, motif1: Dict[str, Any], motif2: Dict[str, Any]) -> float:
         start1, end1 = motif1.get('Start', 0), motif1.get('End', 0); start2, end2 = motif2.get('Start', 0), motif2.get('End', 0)
-        if end1 <= start2 or end2 <= start1: return 0.0
-        overlap_length = min(end1, end2) - max(start1, start2); min_length = min(end1 - start1, end2 - start2)
+        if end1 < start2 or end2 < start1: return 0.0
+        overlap_length = min(end1, end2) - max(start1, start2) + 1; min_length = min(end1 - start1 + 1, end2 - start2 + 1)
         return overlap_length / min_length if min_length > 0 else 0.0
     
     def _detect_hybrid_motifs(self, motifs: List[Dict[str, Any]], sequence: str) -> List[Dict[str, Any]]:
@@ -332,18 +334,18 @@ class NonBScanner:
             # Binary search for potential overlaps instead of linear scan
             for j in range(i + 1, n):
                 start2, end2, class2, score2, _ = motif_data[j]
-                if start2 >= end1: break  # No more overlaps possible
+                if start2 > end1: break  # No more overlaps possible (1-based inclusive)
                 if class1 == class2: continue
-                # Inline overlap calculation (avoid function call overhead)
-                if end1 <= start2 or end2 <= start1: continue
-                overlap_len = min(end1, end2) - max(start1, start2); min_len = min(end1 - start1, end2 - start2)
+                # Inline overlap calculation for 1-based inclusive coordinates
+                if end1 < start2 or end2 < start1: continue
+                overlap_len = min(end1, end2) - max(start1, start2) + 1; min_len = min(end1 - start1 + 1, end2 - start2 + 1)
                 overlap = overlap_len / min_len if min_len > 0 else 0.0
                 if HYBRID_MIN_OVERLAP < overlap < HYBRID_MAX_OVERLAP:
                     start, end = min(start1, start2), max(end1, end2); hybrid_key = (start, end, frozenset([class1, class2]))
                     if hybrid_key in seen_hybrids: continue
                     seen_hybrids.add(hybrid_key); avg_score = (score1 + score2) / 2
                     seq_text = sequence[start-1:end] if 0 <= start - 1 < seq_len and 0 < end <= seq_len else 'HYBRID_REGION'
-                    hybrid_motifs.append({'ID': f"{seq_name}_HYBRID_{start}", 'Sequence_Name': seq_name, 'Class': 'Hybrid', 'Subclass': f"{class1}_{class2}_Overlap", 'Start': start, 'End': end, 'Length': end - start, 'Sequence': seq_text, 'Score': round(avg_score, 3), 'Strand': '+', 'Method': 'Hybrid_Detection', 'Component_Classes': [class1, class2]})
+                    hybrid_motifs.append({'ID': f"{seq_name}_HYBRID_{start}", 'Sequence_Name': seq_name, 'Class': 'Hybrid', 'Subclass': f"{class1}_{class2}_Overlap", 'Start': start, 'End': end, 'Length': end - start + 1, 'Sequence': seq_text, 'Score': round(avg_score, 3), 'Strand': '+', 'Method': 'Hybrid_Detection', 'Component_Classes': [class1, class2]})
         return hybrid_motifs
     
     def _detect_clusters(self, motifs: List[Dict[str, Any]], sequence: str) -> List[Dict[str, Any]]:
@@ -366,7 +368,7 @@ class NonBScanner:
                     actual_start = min(p[0] for p in window_motifs_data); actual_end = max(p[1] for p in window_motifs_data)
                     detected_window_starts.add(window_start); avg_score = sum(p[3] for p in window_motifs_data) / len(window_motifs_data)
                     seq_text = sequence[actual_start-1:actual_end] if 0 <= actual_start - 1 < seq_len and 0 < actual_end <= seq_len else 'CLUSTER_REGION'
-                    cluster_motifs.append({'ID': f"{seq_name}_CLUSTER_{actual_start}", 'Sequence_Name': seq_name, 'Class': 'Non-B_DNA_Clusters', 'Subclass': f'Mixed_Cluster_{len(classes)}_classes', 'Start': actual_start, 'End': actual_end, 'Length': actual_end - actual_start, 'Sequence': seq_text, 'Score': round(avg_score, 3), 'Strand': '+', 'Method': 'Cluster_Detection', 'Motif_Count': len(window_motifs_data), 'Class_Diversity': len(classes), 'Component_Classes': list(classes)})
+                    cluster_motifs.append({'ID': f"{seq_name}_CLUSTER_{actual_start}", 'Sequence_Name': seq_name, 'Class': 'Non-B_DNA_Clusters', 'Subclass': f'Mixed_Cluster_{len(classes)}_classes', 'Start': actual_start, 'End': actual_end, 'Length': actual_end - actual_start + 1, 'Sequence': seq_text, 'Score': round(avg_score, 3), 'Strand': '+', 'Method': 'Cluster_Detection', 'Motif_Count': len(window_motifs_data), 'Class_Diversity': len(classes), 'Component_Classes': list(classes)})
         return cluster_motifs
     
     def get_detector_info(self) -> Dict[str, Any]:
@@ -546,17 +548,17 @@ def _deduplicate_motifs(motifs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 motif.get('Subclass') != existing.get('Subclass')):
                 continue
             
-            # Calculate overlap
+            # Calculate overlap using 1-based inclusive coordinates
             start1, end1 = motif_start, motif.get('End', 0)
             start2, end2 = existing.get('Start', 0), existing.get('End', 0)
             
             overlap_start = max(start1, start2)
             overlap_end = min(end1, end2)
-            overlap_len = max(0, overlap_end - overlap_start)
+            overlap_len = max(0, overlap_end - overlap_start + 1)
             
-            # Calculate overlap percentage relative to shorter motif
-            len1 = end1 - start1
-            len2 = end2 - start2
+            # Calculate overlap percentage relative to shorter motif (1-based inclusive)
+            len1 = end1 - start1 + 1
+            len2 = end2 - start2 + 1
             min_len = min(len1, len2)
             
             if min_len > 0:
