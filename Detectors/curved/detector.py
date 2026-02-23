@@ -213,7 +213,7 @@ class CurvedDNADetector(BaseMotifDetector):
         return results
 
     def _analyze_at_window(self, window_seq: str) -> Tuple[int,int,int]:
-        """Analyze A/T window returning (maxATlen, maxATend_index_in_window, maxTlen). Tracks Alen, Tlen, ATlen, TAlen per C code logic."""
+        """Analyze A/T window returning (maxATlen, maxATend_index_in_window, maxTlen). Tracks Alen, Tlen, ATlen, TAlen using a sliding algorithm."""
         Alen = 0
         Tlen = 0
         ATlen = 0
@@ -229,7 +229,7 @@ class CurvedDNADetector(BaseMotifDetector):
             if ch == 'A':
                 Tlen = 0
                 TAlen = 0
-                # if previous base was T, reset A-run counters per C code
+                # if previous base was T, reset A-run counters
                 if prev == 'T':
                     Alen = 1
                     ATlen = 1
