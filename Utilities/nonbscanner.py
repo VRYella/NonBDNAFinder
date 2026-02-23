@@ -183,6 +183,9 @@ class NonBScanner:
             sequence = sequence.upper().strip()
             is_valid, msg = validate_sequence(sequence)
             if not is_valid:
+                if "too short" in msg.lower():
+                    logger.warning(f"Skipping sequence '{sequence_name}': {msg}")
+                    return []
                 raise ValueError(f"Invalid sequence: {msg}")
         
         # Auto-enable parallel detectors for large sequences if not specified
