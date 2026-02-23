@@ -1,7 +1,0 @@
-Class,Count,Description
-R-Loop,40,G-rich regions prone to R-loop formation
-Triplex,7,Purine/pyrimidine tracts that can form triple helices
-i-Motif,10,C-rich sequences complementary to G-quadruplexes
-A-philic_DNA,9,AT-rich regions with DNA bending properties
-Hybrid,7,Overlapping regions with multiple structure potential
-Non-B_DNA_Clusters,31,Dense clusters of multiple Non-B DNA types
