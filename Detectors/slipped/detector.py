@@ -19,11 +19,10 @@ except ImportError:
 
 # TUNABLE PARAMETERS (Literature-grounded)
 MIN_TRACT_LENGTH = 20; MIN_PURITY = 0.90; MAX_UNIT_SIZE = 100
-STR_CORE_UNITS = (1, 4); STR_RELAXED_UNITS = (1, 6)
+STR_CORE_UNITS = (1, 4); STR_RELAXED_UNITS = (1, 9)
 MIN_COPIES_STR_CORE = 6; MIN_COPIES_STR_RELAXED = 4
-MIN_COPIES_DR = 2; DR_UNIT_MIN = 7; DR_UNIT_MAX = 50
-ENTROPY_MIN = 0.5
-STR_DIRECT_THRESHOLD = 7  # Unit size threshold: <7 = STR, >=7 = Direct Repeat
+MIN_COPIES_DR = 2; DR_UNIT_MIN = 10; DR_UNIT_MAX = 50
+STR_DIRECT_THRESHOLD = 10  # Unit size threshold: <=9 = STR, >=10 = Direct Repeat
 SCORING_MODE = "CORE"  # "CORE" or "LENIENT"
 
 # NORMALIZATION PARAMETERS (Tunable)
@@ -45,21 +44,6 @@ _TR_PATTERN_CACHE: Dict[tuple, Any] = {}
 
 
 # JIT-COMPILED HELPER FUNCTIONS FOR PERFORMANCE
-@jit(nopython=True, cache=True)
-def _calculate_entropy_jit(a_count, c_count, g_count, t_count, seq_len):
-    """JIT-compiled Shannon entropy calculation."""
-    if seq_len == 0:
-        return 0.0
-    
-    entropy = 0.0
-    for count in [a_count, c_count, g_count, t_count]:
-        if count > 0:
-            prob = count / seq_len
-            entropy -= prob * math.log2(prob)
-    
-    return entropy
-
-
 @jit(nopython=True, cache=True)
 def _compute_slippage_base_score_jit(tract_length, copy_number, k, purity, gc_fraction):
     """JIT-compiled slippage base score calculation."""
@@ -86,7 +70,7 @@ def _compute_slippage_base_score_jit(tract_length, copy_number, k, purity, gc_fr
 
 
 class SlippedDNADetector(BaseMotifDetector):
-    """Unified detector for slippage-prone DNA: STRs (k=1-6) and direct repeats (k≥7). Requires ≥20 bp tracts with ≥90% purity."""
+    """Unified detector for slippage-prone DNA: STRs (k=1-9) and direct repeats (k≥10). Requires ≥20 bp tracts with ≥90% purity."""
     
     # Override normalization parameters
     RAW_SCORE_MIN = SLIPPED_RAW_SCORE_MIN
@@ -149,30 +133,6 @@ class SlippedDNADetector(BaseMotifDetector):
         
         return matches / seq_len
     
-    @staticmethod
-    def calculate_entropy(sequence: str) -> float:
-        """Return Shannon entropy of DNA sequence (0-2 bits)."""
-        if not sequence:
-            return 0.0
-        
-        a_count = sequence.count('A')
-        c_count = sequence.count('C')
-        g_count = sequence.count('G')
-        t_count = sequence.count('T')
-        seq_len = a_count + c_count + g_count + t_count
-        
-        if seq_len == 0:
-            return 0.0
-        
-        if NUMBA_AVAILABLE:
-            return _calculate_entropy_jit(a_count, c_count, g_count, t_count, seq_len)
-        else:
-            from math import log2
-            freq = {'A': a_count, 'C': c_count, 'G': g_count, 'T': t_count}
-            entropy = -sum((count / seq_len) * log2(count / seq_len) 
-                           for count in freq.values() if count > 0)
-            return entropy
-
     def compute_slippage_energy_score(self, sequence: str, unit: str, 
                                       copy_number: float, purity: float) -> float:
         """Compute mechanistic slippage energy score (1-3 scale)."""
@@ -246,7 +206,7 @@ class SlippedDNADetector(BaseMotifDetector):
         return candidates
     
     def apply_stringent_criteria(self, candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Apply hard gates (tract length, purity, entropy, copy count)."""
+        """Apply hard gates (tract length, purity, copy count)."""
         filtered = []
         
         for cand in candidates:
@@ -261,10 +221,6 @@ class SlippedDNADetector(BaseMotifDetector):
             if purity < self.MIN_PURITY:
                 continue
             
-            entropy = self.calculate_entropy(sequence)
-            if entropy < ENTROPY_MIN:
-                continue
-            
             k = len(primitive_unit)
             primitive_copies = len(sequence) / k if k > 0 else 0
             
@@ -274,14 +230,13 @@ class SlippedDNADetector(BaseMotifDetector):
                 if k > 4 and primitive_copies < self.MIN_COPIES_DR:
                     continue
             else:
-                if k <= 6 and primitive_copies < self.MIN_COPIES_STR_RELAXED:
+                if k <= 9 and primitive_copies < self.MIN_COPIES_STR_RELAXED:
                     continue
-                if k > 6 and primitive_copies < self.MIN_COPIES_DR:
+                if k > 9 and primitive_copies < self.MIN_COPIES_DR:
                     continue
             
             cand['primitive_unit'] = primitive_unit
             cand['purity'] = purity
-            cand['entropy'] = entropy
             cand['primitive_copies'] = primitive_copies
             filtered.append(cand)
         
@@ -354,7 +309,7 @@ class SlippedDNADetector(BaseMotifDetector):
             copy_number = ann.get('primitive_copies', ann.get('copies', 0))
             
             unit_size = len(ann['primitive_unit'])
-            canonical_subclass = 'STR' if unit_size < self.STR_DIRECT_THRESHOLD else 'Direct Repeat'
+            canonical_subclass = 'STR' if unit_size <= 9 else 'Direct Repeat'
             
             canonical_class, canonical_subclass = normalize_class_subclass(
                 self.get_motif_class_name(),
@@ -365,11 +320,9 @@ class SlippedDNADetector(BaseMotifDetector):
             
             gc_content = round(calc_gc_content(ann['sequence']), 2)
             
-            entropy = ann.get('entropy', 0)  # Entropy calculated in apply_stringent_criteria
-            
             disease_relevance = self._get_disease_relevance(ann['primitive_unit'], copy_number, unit_size)
             
-            criterion = self._get_slipped_criterion(unit_size, copy_number, ann['purity'], ann.get('entropy', 0))
+            criterion = self._get_slipped_criterion(unit_size, copy_number, ann['purity'])
             
             regions_involved = self._describe_slipped_regions(ann['primitive_unit'], copy_number, ann['length'])
             
@@ -386,7 +339,6 @@ class SlippedDNADetector(BaseMotifDetector):
                 'Unit_Size': len(ann['primitive_unit']),
                 'Copy_Number': round(copy_number, 2),
                 'Purity': round(ann['purity'], 3),
-                'Entropy': round(entropy, 3),
                 'GC_Content': gc_content,
                 'Slippage_Score': round(ann['slippage_score'], 3),
                 'Raw_Score': round(ann['slippage_score'], 3),
@@ -476,18 +428,17 @@ class SlippedDNADetector(BaseMotifDetector):
         
         return '; '.join(disease_notes) if disease_notes else 'None annotated'
     
-    def _get_slipped_criterion(self, unit_size: int, copy_number: float, purity: float, entropy: float) -> str:
+    def _get_slipped_criterion(self, unit_size: int, copy_number: float, purity: float) -> str:
         """Explain the classification criterion"""
         criteria = []
         
-        if unit_size < self.STR_DIRECT_THRESHOLD:
-            criteria.append(f'STR: unit size {unit_size}bp < {self.STR_DIRECT_THRESHOLD}bp threshold')
+        if unit_size <= 9:
+            criteria.append(f'STR: unit size {unit_size}bp ≤{self.STR_DIRECT_THRESHOLD - 1}bp threshold')
         else:
-            criteria.append(f'Direct Repeat: unit size {unit_size}bp ≥ {self.STR_DIRECT_THRESHOLD}bp threshold')
+            criteria.append(f'Direct Repeat: unit size {unit_size}bp ≥{self.STR_DIRECT_THRESHOLD}bp threshold')
         
         criteria.append(f'tract ≥{self.MIN_TRACT_LENGTH}bp')
         criteria.append(f'purity {purity:.1%} ≥{self.MIN_PURITY:.0%}')
-        criteria.append(f'entropy {entropy:.2f} ≥{ENTROPY_MIN:.1f}')
         
         if self.SCORING_MODE == "CORE":
             if unit_size <= 4:
@@ -495,7 +446,7 @@ class SlippedDNADetector(BaseMotifDetector):
             else:
                 criteria.append(f'copies {copy_number:.1f} ≥{self.MIN_COPIES_DR} (CORE mode)')
         else:
-            if unit_size <= 6:
+            if unit_size <= 9:
                 criteria.append(f'copies {copy_number:.1f} ≥{self.MIN_COPIES_STR_RELAXED} (LENIENT mode)')
             else:
                 criteria.append(f'copies {copy_number:.1f} ≥{self.MIN_COPIES_DR} (LENIENT mode)')
