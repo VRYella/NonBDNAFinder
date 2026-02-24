@@ -24,6 +24,10 @@ class IMotifDetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str: return "i-Motif"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """i-Motif structures stable up to ~60 bp (Gehring 1993, Zeraati 2018)."""
+        return 60
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid i-motif raw score."""
         return 0.4
@@ -167,7 +171,7 @@ class IMotifDetector(BaseMotifDetector):
             gc_total = self._calc_gc(motif_seq); gc_stems = self._calc_gc(''.join(c_tracts)) if c_tracts else 0
             motif = {'ID': f"{sequence_name}_IMOT_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                      'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': end_pos - start_pos,
-                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self.normalize_score(score), 'Strand': '+', 'Method': 'i-Motif_detection',
+                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self.normalize_score(score, end_pos - start_pos, canonical_subclass), 'Strand': '+', 'Method': 'i-Motif_detection',
                      'Pattern_ID': f'IMOT_{i+1}', 'Stems': c_tracts, 'Loops': loops, 'Num_Stems': len(c_tracts),
                      'Num_Loops': len(loops), 'Stem_Lengths': [len(s) for s in c_tracts], 'Loop_Lengths': [len(l) for l in loops],
                      'GC_Content': round(gc_total, 2), 'GC_Total': round(gc_total, 2), 'GC_Stems': round(gc_stems, 2),

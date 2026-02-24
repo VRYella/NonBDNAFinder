@@ -85,6 +85,10 @@ class RLoopDetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "R-Loop"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """R-loops extend up to ~2000 bp (Aguilera 2012, Jenjaroenpun 2016)."""
+        return 2000
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid R-loop raw score (quality threshold)."""
         return self.QUALITY_THRESHOLD
@@ -335,7 +339,7 @@ class RLoopDetector(BaseMotifDetector):
                     'Length': end - start,
                     'Sequence': motif_seq,
                     'Raw_Score': round(min(score, 1.0), 3),
-                    'Score': self.normalize_score(min(score, 1.0)),
+                    'Score': self.normalize_score(min(score, 1.0), end - start, canonical_subclass),
                     'Strand': strand,
                     'Method': 'QmRLFS_detection',
                     'Pattern_ID': f'RLOOP_{ann["model"]}_{i+1}',

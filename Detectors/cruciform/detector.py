@@ -30,6 +30,10 @@ class CruciformDetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "Cruciform"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """Cruciform structures stable up to ~200 bp (Lilley 2000)."""
+        return 200
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid cruciform raw score (score threshold)."""
         return self.SCORE_THRESHOLD
@@ -273,7 +277,7 @@ class CruciformDetector(BaseMotifDetector):
                 'Length': end_pos - start_pos,
                 'Sequence': full_seq,
                 'Raw_Score': round(repeat['score'], 3),
-                'Score': self.normalize_score(repeat['score']),
+                'Score': self.normalize_score(repeat['score'], end_pos - start_pos, canonical_subclass),
                 'Strand': '+',
                 'Method': 'Cruciform_detection',
                 'Pattern_ID': f'CRU_{i+1}',

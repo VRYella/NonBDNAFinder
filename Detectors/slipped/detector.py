@@ -67,6 +67,13 @@ class SlippedDNADetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "Slipped_DNA"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """STR expansions stable up to ~1000 bp; direct repeats up to ~500 bp
+        (Schlötterer 2000, Pearson 2005). Disease expansions may reach higher values."""
+        if subclass is not None and 'STR' in str(subclass):
+            return 1000
+        return 500
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid slippage score (already on 1–3 scale)."""
         return 1.0
@@ -329,7 +336,7 @@ class SlippedDNADetector(BaseMotifDetector):
                 'GC_Content': gc_content,
                 'Slippage_Score': round(ann['slippage_score'], 3),
                 'Raw_Score': round(ann['slippage_score'], 3),
-                'Score': self.normalize_score(ann['slippage_score']),
+                'Score': self.normalize_score(ann['slippage_score'], ann['length'], canonical_subclass),
                 'Strand': '+',
                 'Method': 'Slipped_DNA_detection',
                 'Pattern_ID': f'SLIPPED_{i+1}',
