@@ -9,7 +9,7 @@ from Utilities.core.motif_normalizer import normalize_class_subclass
 
 # TUNABLE PARAMETERS
 MIN_AT_TRACT = 3; MAX_AT_WINDOW = None; PHASING_CENTER_SPACING = 11.0
-PHASING_TOL_LOW = 9.9; PHASING_TOL_HIGH = 11.1; MIN_APR_TRACTS = 3; LOCAL_LONG_TRACT = 7; SCORE_THRESHOLD = 0.1
+PHASING_TOL_LOW = 9.9; PHASING_TOL_HIGH = 11.1; MIN_APR_TRACTS = 3; LOCAL_LONG_TRACT = 8; SCORE_THRESHOLD = 0.1
 
 # NORMALIZATION PARAMETERS (Tunable)
 # ┌──────────────┬─────────────┬────────────────────────────────────────┐
