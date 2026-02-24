@@ -26,37 +26,33 @@ logger = logging.getLogger(__name__)
 # TUNABLE PARAMETERS
 MIN_EGZ_REPEATS = 3; EGZ_BASE_SCORE = 0.85; EGZ_MIN_SCORE_THRESHOLD = 0.80; MIN_Z_SCORE = 50.0
 
-# NORMALIZATION PARAMETERS (Tunable)
-# ┌──────────────┬─────────────┬────────────────────────────────────────┐
-# │ Parameter    │ Value       │ Scientific Basis                       │
-# ├──────────────┼─────────────┼────────────────────────────────────────┤
-# │ RAW_MIN      │ 50.0        │ Ho 1986 - single Z-DNA 10-mer minimum  │
-# │ RAW_MAX      │ 2000.0      │ Ho 1986 - cumulative max for long runs │
-# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
-# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
-# │ METHOD       │ 'log'       │ Log-linear scaling for cumulative sums │
-# └──────────────┴─────────────┴────────────────────────────────────────┘
-ZDNA_RAW_SCORE_MIN = 50.0; ZDNA_RAW_SCORE_MAX = 2000.0
-ZDNA_NORMALIZED_MIN = 1.0; ZDNA_NORMALIZED_MAX = 3.0
-ZDNA_NORMALIZATION_METHOD = 'log'  # Log scaling for cumulative scores
-ZDNA_SCORE_REFERENCE = 'Ho et al. 1986 (EMBO J) - Z-DNA propensity'
-
 
 class ZDNADetector(BaseMotifDetector):
     """Z-DNA detector: 10-mer scoring (Ho 1986) + eGZ-motifs (Herbert 1997)."""
 
-    # Override normalization parameters
-    RAW_SCORE_MIN = ZDNA_RAW_SCORE_MIN
-    RAW_SCORE_MAX = ZDNA_RAW_SCORE_MAX
-    NORMALIZED_MIN = ZDNA_NORMALIZED_MIN
-    NORMALIZED_MAX = ZDNA_NORMALIZED_MAX
-    NORMALIZATION_METHOD = ZDNA_NORMALIZATION_METHOD
-    SCORE_REFERENCE = ZDNA_SCORE_REFERENCE
+    SCORE_REFERENCE = 'Ho et al. 1986 (EMBO J) - Z-DNA propensity'
 
     MIN_EGZ_REPEATS = MIN_EGZ_REPEATS; EGZ_BASE_SCORE = EGZ_BASE_SCORE; EGZ_MIN_SCORE_THRESHOLD = EGZ_MIN_SCORE_THRESHOLD
     MIN_Z_SCORE = MIN_Z_SCORE
 
     def get_motif_class_name(self) -> str: return "Z-DNA"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid Z-DNA cumulative raw score (Ho 1986 10-mer threshold)."""
+        return self.MIN_Z_SCORE
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible Z-DNA cumulative raw score.
+
+        Per-base max contribution = max(TENMER_SCORE) / 10.
+        For a region of length L: max = (max_tenmer_score / 10) * L.
+        Fallback uses a typical Z-DNA region length of 20 bp (two CpG dinucleotides × 10-mer).
+        """
+        max_tenmer = max(TENMER_SCORE.values())
+        if sequence_length is None:
+            # Fallback: typical short Z-DNA region (20 bp covers two overlapping 10-mers)
+            sequence_length = 20
+        return (max_tenmer / 10.0) * sequence_length
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """Return patterns for Z-DNA detection."""
@@ -117,7 +113,7 @@ class ZDNADetector(BaseMotifDetector):
                     repeat_unit = region.get('repeat_unit', '')
                     repeat_count = region.get('repeat_count', 0)
                     raw_score = region['sum_score']
-                    normalized_score = self._normalize_score(raw_score)
+                    normalized_score = self.normalize_score(raw_score, region['length'])
                     
                     motifs.append({
                         'ID': f"{sequence_name}_{region['pattern_id']}_{start_pos+1}", 'Sequence_Name': sequence_name,
@@ -147,7 +143,7 @@ class ZDNADetector(BaseMotifDetector):
                     
                     zdna_type = self._classify_zdna_type(motif_seq, alternating_cg, alternating_at)
                     raw_score = region['sum_score']
-                    normalized_score = self._normalize_score(raw_score)
+                    normalized_score = self.normalize_score(raw_score, region['length'])
                     
                     motifs.append({
                         'ID': f"{sequence_name}_ZDNA_{start_pos+1}", 'Sequence_Name': sequence_name,

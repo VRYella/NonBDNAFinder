@@ -16,22 +16,10 @@ from Utilities.detectors_utils import (
 # TUNABLE PARAMETERS
 DEFAULT_MIN_SCORE_THRESHOLD = 0.5
 
-# NORMALIZATION PARAMETERS (Default - Override in subclasses)
-# Universal normalization scale: 1.0 (weak) → 3.0 (strong)
-# Subclasses should override these with class-specific values
-DEFAULT_RAW_SCORE_MIN = 0.0; DEFAULT_RAW_SCORE_MAX = 1.0
-DEFAULT_NORMALIZED_MIN = 1.0; DEFAULT_NORMALIZED_MAX = 3.0
-DEFAULT_NORMALIZATION_METHOD = 'linear'  # Options: 'linear', 'log', 'g4hunter', 'zdna_cumulative'
-
 
 class BaseMotifDetector(ABC):
     """Abstract base class for all Non-B DNA motif detectors."""
-    
-    RAW_SCORE_MIN = DEFAULT_RAW_SCORE_MIN
-    RAW_SCORE_MAX = DEFAULT_RAW_SCORE_MAX
-    NORMALIZED_MIN = DEFAULT_NORMALIZED_MIN
-    NORMALIZED_MAX = DEFAULT_NORMALIZED_MAX
-    NORMALIZATION_METHOD = DEFAULT_NORMALIZATION_METHOD
+
     SCORE_REFERENCE = 'Override in subclass'
     
     def __init__(self):
@@ -112,7 +100,8 @@ class BaseMotifDetector(ABC):
                             'End': end,
                             'Length': len(motif_seq),
                             'Sequence': motif_seq,
-                            'Score': round(score, 3),
+                            'Raw_Score': round(score, 6),
+                            'Score': self.normalize_score(score, len(motif_seq)),
                             'Strand': '+',
                             'Method': f'{self.get_motif_class_name()}_detection',
                             'Pattern_ID': pattern_id
@@ -129,11 +118,21 @@ class BaseMotifDetector(ABC):
             min_threshold = pattern_info[6]
             return score >= min_threshold
         return score >= DEFAULT_MIN_SCORE_THRESHOLD
-    
-    def _normalize_score(self, raw_score: float) -> float:
+
+    def theoretical_min_score(self) -> float:
+        """Return minimum biologically valid raw score. Override in subclass."""
+        raise NotImplementedError
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Return highest possible raw score under model. Override in subclass."""
+        raise NotImplementedError
+
+    def normalize_score(self, raw_score: float, sequence_length: int = None) -> float:
         """
-        Convert raw detector-specific score to universal 1-3 scale.
-        
+        Convert raw detector-specific score to universal 1–3 scale.
+
+        Normalized Score = 1 + 2 × (RawScore − RawMin) / (RawMax − RawMin)
+
         Universal Score Interpretation:
         ┌────────────┬──────────────────┬─────────────────────────────────────┐
         │ Score      │ Interpretation   │ Biological Meaning                  │
@@ -142,48 +141,24 @@ class BaseMotifDetector(ABC):
         │ 1.7 - 2.3  │ Moderate         │ Reasonable confidence, likely valid │
         │ 2.3 - 3.0  │ Strong/High      │ High confidence, well-characterized │
         └────────────┴──────────────────┴─────────────────────────────────────┘
-        
+
         Args:
             raw_score: Raw detector-specific score
-            
+            sequence_length: Optional motif length for length-aware bounds
+
         Returns:
             Normalized score in range [1.0, 3.0]
         """
-        if self.NORMALIZATION_METHOD == 'linear':
-            # Linear interpolation: raw ∈ [RAW_MIN, RAW_MAX] → norm ∈ [1, 3]
-            clamped = max(self.RAW_SCORE_MIN, min(raw_score, self.RAW_SCORE_MAX))
-            if self.RAW_SCORE_MAX == self.RAW_SCORE_MIN:
-                return self.NORMALIZED_MIN
-            normalized = self.NORMALIZED_MIN + (clamped - self.RAW_SCORE_MIN) * \
-                        (self.NORMALIZED_MAX - self.NORMALIZED_MIN) / \
-                        (self.RAW_SCORE_MAX - self.RAW_SCORE_MIN)
-            return round(normalized, 2)
-        
-        elif self.NORMALIZATION_METHOD == 'log':
-            # Log scaling for cumulative scores (e.g., Z-DNA)
-            import math
-            log_raw = math.log10(max(1, raw_score))
-            log_min = math.log10(max(1, self.RAW_SCORE_MIN))
-            log_max = math.log10(self.RAW_SCORE_MAX)
-            if log_max == log_min:
-                return self.NORMALIZED_MIN
-            normalized = self.NORMALIZED_MIN + (log_raw - log_min) * \
-                        (self.NORMALIZED_MAX - self.NORMALIZED_MIN) / (log_max - log_min)
-            return round(max(self.NORMALIZED_MIN, min(normalized, self.NORMALIZED_MAX)), 2)
-        
-        elif self.NORMALIZATION_METHOD == 'g4hunter':
-            # G4Hunter special normalization (absolute values)
-            effective_score = abs(raw_score)
-            if effective_score < 0.5:
-                return 1.0
-            elif effective_score >= 1.0:
-                return min(3.0, 2.0 + (effective_score - 0.5) * 2.0)
-            else:
-                return round(1.0 + (effective_score - 0.5) * 2.0, 2)
-        
-        else:
-            # Fallback: no transformation
-            return round(raw_score, 2)
+        min_s = self.theoretical_min_score()
+        max_s = self.theoretical_max_score(sequence_length)
+
+        if max_s == min_s:
+            return 1.0
+
+        scaled = (raw_score - min_s) / (max_s - min_s)
+        scaled = max(0.0, min(1.0, scaled))
+
+        return round(1.0 + 2.0 * scaled, 3)
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get detector statistics"""
