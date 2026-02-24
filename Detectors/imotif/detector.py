@@ -15,35 +15,25 @@ MIN_REGION_LEN = 10; CLASS_PRIORITIES = {'canonical_imotif': 1, 'hur_ac_motif': 
 VALIDATED_SEQS = [("IM_VAL_001", "CCCCTCCCCTCCCCTCCCC", "Validated i-motif 1", "Gehring 1993"),
                   ("IM_VAL_002", "CCCCACCCCACCCCACCCC", "Validated i-motif 2", "Leroy 1995")]
 
-# NORMALIZATION PARAMETERS (Tunable)
-# ┌──────────────┬─────────────┬────────────────────────────────────────┐
-# │ Parameter    │ Value       │ Scientific Basis                       │
-# ├──────────────┼─────────────┼────────────────────────────────────────┤
-# │ RAW_MIN      │ 0.4         │ Minimal i-motif stability              │
-# │ RAW_MAX      │ 0.98        │ High C-tract density                   │
-# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
-# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
-# │ METHOD       │ 'linear'    │ Linear interpolation                   │
-# └──────────────┴─────────────┴────────────────────────────────────────┘
-IMOTIF_RAW_SCORE_MIN = 0.4; IMOTIF_RAW_SCORE_MAX = 0.98
-IMOTIF_NORMALIZED_MIN = 1.0; IMOTIF_NORMALIZED_MAX = 3.0
-IMOTIF_NORMALIZATION_METHOD = 'linear'
-IMOTIF_SCORE_REFERENCE = 'Gehring et al. 1993, Zeraati et al. 2018'
-
 def _class_prio_idx(class_name: str) -> int: return CLASS_PRIORITIES.get(class_name, 999)
 
 class IMotifDetector(BaseMotifDetector):
     """i-Motif DNA detector: canonical C-rich structures and HUR AC-motifs."""
 
-    # Override normalization parameters
-    RAW_SCORE_MIN = IMOTIF_RAW_SCORE_MIN
-    RAW_SCORE_MAX = IMOTIF_RAW_SCORE_MAX
-    NORMALIZED_MIN = IMOTIF_NORMALIZED_MIN
-    NORMALIZED_MAX = IMOTIF_NORMALIZED_MAX
-    NORMALIZATION_METHOD = IMOTIF_NORMALIZATION_METHOD
-    SCORE_REFERENCE = IMOTIF_SCORE_REFERENCE
+    SCORE_REFERENCE = 'Gehring et al. 1993, Zeraati et al. 2018'
 
     def get_motif_class_name(self) -> str: return "i-Motif"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid i-motif raw score."""
+        return 0.4
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible i-motif raw score.
+
+        C-rich density + tract bonus, capped at 1.0.
+        """
+        return 1.0
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         """Return i-motif patterns: canonical 4×C-tracts and HUR AC-motifs."""
@@ -177,7 +167,7 @@ class IMotifDetector(BaseMotifDetector):
             gc_total = self._calc_gc(motif_seq); gc_stems = self._calc_gc(''.join(c_tracts)) if c_tracts else 0
             motif = {'ID': f"{sequence_name}_IMOT_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                      'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': end_pos - start_pos,
-                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self._normalize_score(score), 'Strand': '+', 'Method': 'i-Motif_detection',
+                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self.normalize_score(score), 'Strand': '+', 'Method': 'i-Motif_detection',
                      'Pattern_ID': f'IMOT_{i+1}', 'Stems': c_tracts, 'Loops': loops, 'Num_Stems': len(c_tracts),
                      'Num_Loops': len(loops), 'Stem_Lengths': [len(s) for s in c_tracts], 'Loop_Lengths': [len(l) for l in loops],
                      'GC_Content': round(gc_total, 2), 'GC_Total': round(gc_total, 2), 'GC_Stems': round(gc_stems, 2),

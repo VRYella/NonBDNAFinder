@@ -17,32 +17,11 @@ SEED_SIZE = 6; DELTA_G_THRESHOLD = -5.0  # kcal/mol stability cutoff
 NN_ENERGY = {"AA": -1.0, "AC": -1.44, "AG": -1.28, "AT": -0.88, "CA": -1.45, "CC": -1.84, "CG": -2.17, "CT": -1.28,
              "GA": -1.30, "GC": -2.24, "GG": -1.84, "GT": -1.44, "TA": -0.58, "TC": -1.30, "TG": -1.45, "TT": -1.0}
 
-# NORMALIZATION PARAMETERS (Tunable)
-# ┌──────────────┬─────────────┬────────────────────────────────────────┐
-# │ Parameter    │ Value       │ Scientific Basis                       │
-# ├──────────────┼─────────────┼────────────────────────────────────────┤
-# │ RAW_MIN      │ 0.5         │ Minimum palindrome stability           │
-# │ RAW_MAX      │ 0.95        │ Strong inverted repeat                 │
-# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
-# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
-# │ METHOD       │ 'linear'    │ Linear interpolation                   │
-# └──────────────┴─────────────┴────────────────────────────────────────┘
-CRUCIFORM_RAW_SCORE_MIN = 0.5; CRUCIFORM_RAW_SCORE_MAX = 0.95
-CRUCIFORM_NORMALIZED_MIN = 1.0; CRUCIFORM_NORMALIZED_MAX = 3.0
-CRUCIFORM_NORMALIZATION_METHOD = 'linear'
-CRUCIFORM_SCORE_REFERENCE = 'Lilley et al. 2000, Sinden et al. 1994'
-
 
 class CruciformDetector(BaseMotifDetector):
     """Cruciform (thermodynamic inverted repeat) DNA detector using seed-and-extend indexing."""
 
-    # Override normalization parameters
-    RAW_SCORE_MIN = CRUCIFORM_RAW_SCORE_MIN
-    RAW_SCORE_MAX = CRUCIFORM_RAW_SCORE_MAX
-    NORMALIZED_MIN = CRUCIFORM_NORMALIZED_MIN
-    NORMALIZED_MAX = CRUCIFORM_NORMALIZED_MAX
-    NORMALIZATION_METHOD = CRUCIFORM_NORMALIZATION_METHOD
-    SCORE_REFERENCE = CRUCIFORM_SCORE_REFERENCE
+    SCORE_REFERENCE = 'Lilley et al. 2000, Sinden et al. 1994'
 
     MIN_ARM = MIN_ARM; MAX_ARM = MAX_ARM; MAX_LOOP = MAX_LOOP; MAX_MISMATCHES = MAX_MISMATCHES
     MAX_SEQUENCE_LENGTH = MAX_SEQUENCE_LENGTH; SCORE_THRESHOLD = SCORE_THRESHOLD
@@ -50,6 +29,22 @@ class CruciformDetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str:
         return "Cruciform"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid cruciform raw score (score threshold)."""
+        return self.SCORE_THRESHOLD
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible cruciform raw score.
+
+        Score = min(1.0, -ΔG / 20). For a GC-rich stem of MAX_ARM,
+        using most negative NN energy (GC = -2.24 kcal/mol) and minimal loop penalty.
+        """
+        min_nn = min(self.NN_ENERGY.values())  # most negative (e.g., -2.24)
+        max_stem_dG = (self.MAX_ARM - 1) * min_nn
+        loop_penalty = self._loop_penalty(1)
+        max_neg_dG = max_stem_dG + loop_penalty
+        return min(1.0, -max_neg_dG / 20.0)
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         return self._load_patterns(CRUCIFORM_PATTERNS, lambda: {
@@ -278,7 +273,7 @@ class CruciformDetector(BaseMotifDetector):
                 'Length': end_pos - start_pos,
                 'Sequence': full_seq,
                 'Raw_Score': round(repeat['score'], 3),
-                'Score': self._normalize_score(repeat['score']),
+                'Score': self.normalize_score(repeat['score']),
                 'Strand': '+',
                 'Method': 'Cruciform_detection',
                 'Pattern_ID': f'CRU_{i+1}',

@@ -40,21 +40,6 @@ CLASS_PRIORITY = [
     "weak_pqs"           # lowest stability
 ]
 
-# NORMALIZATION PARAMETERS (Tunable)
-# ┌──────────────┬─────────────┬────────────────────────────────────────┐
-# │ Parameter    │ Value       │ Scientific Basis                       │
-# ├──────────────┼─────────────┼────────────────────────────────────────┤
-# │ RAW_MIN      │ 0.5         │ Bedrat 2016 - minimal G4 stability     │
-# │ RAW_MAX      │ 1.0         │ Bedrat 2016 - maximal G4Hunter score   │
-# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
-# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
-# │ METHOD       │ 'g4hunter'  │ G4Hunter-specific normalization        │
-# └──────────────┴─────────────┴────────────────────────────────────────┘
-G4_RAW_SCORE_MIN = 0.5; G4_RAW_SCORE_MAX = 1.0
-G4_NORMALIZED_MIN = 1.0; G4_NORMALIZED_MAX = 3.0
-G4_NORMALIZATION_METHOD = 'g4hunter'  # G4Hunter abs-value based scoring
-G4_SCORE_REFERENCE = 'Bedrat et al. 2016 (Bioinformatics)'
-
 
 # JIT-COMPILED SCORING FUNCTIONS FOR PERFORMANCE
 @jit(nopython=True, cache=True)
@@ -62,29 +47,24 @@ def _compute_max_window_sum_jit(vals, ws, L):
     """Sliding window maximum sum (JIT-compiled)."""
     if ws <= 0 or L < ws:
         return 0
-    
+
     cur = 0
     for i in range(ws):
         cur += vals[i]
-    
+
     max_sum = cur
     for i in range(1, L - ws + 1):
         cur += vals[i + ws - 1] - vals[i - 1]
         if cur > max_sum:
             max_sum = cur
-    
+
     return max_sum
+
 
 class GQuadruplexDetector(BaseMotifDetector):
     """Ultra-fast seeded G4 detector with priority logic retained."""
 
-    # Override normalization parameters
-    RAW_SCORE_MIN = G4_RAW_SCORE_MIN
-    RAW_SCORE_MAX = G4_RAW_SCORE_MAX
-    NORMALIZED_MIN = G4_NORMALIZED_MIN
-    NORMALIZED_MAX = G4_NORMALIZED_MAX
-    NORMALIZATION_METHOD = G4_NORMALIZATION_METHOD
-    SCORE_REFERENCE = G4_SCORE_REFERENCE
+    SCORE_REFERENCE = 'Bedrat et al. 2016 (Bioinformatics)'
 
     # -------------------------
     # Core Interface
@@ -92,6 +72,18 @@ class GQuadruplexDetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str:
         return "G-Quadruplex"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid G4Hunter raw score."""
+        return 0.5
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible G4Hunter raw score.
+
+        Standard G4Hunter: each G = +4, window = 25.
+        Max window average = 25*4/25 = 4.0 (all-G window).
+        """
+        return 4.0
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         return {
@@ -172,7 +164,7 @@ class GQuadruplexDetector(BaseMotifDetector):
             structural_features = self._extract_g4_features(motif_seq, ann['class_name'])
             
             raw_score = ann['score']
-            normalized_score = self._normalize_score(raw_score)
+            normalized_score = self.normalize_score(raw_score)
             
             motif = {
                 'ID': f"{sequence_name}_{ann['pattern_id']}_{ann['start']+1}",

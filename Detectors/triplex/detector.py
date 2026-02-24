@@ -54,19 +54,7 @@ STICKY_PATHOGENIC_SCALE = 0.01      # Score increment per copy in pathogenic ran
 MIN_STICKY_COPIES = 4  # Minimum 4 copies for Sticky DNA
 MIN_STICKY_LENGTH = 12  # Minimum tract length (4 copies * 3 bp)
 
-# NORMALIZATION PARAMETERS (Tunable)
-# ┌──────────────┬─────────────┬────────────────────────────────────────┐
-# │ Parameter    │ Value       │ Scientific Basis                       │
-# ├──────────────┼─────────────┼────────────────────────────────────────┤
-# │ RAW_MIN      │ 0.5         │ Minimal triplex potential              │
-# │ RAW_MAX      │ 0.95        │ Strong H-DNA formation                 │
-# │ NORM_MIN     │ 1.0         │ Universal low confidence threshold     │
-# │ NORM_MAX     │ 3.0         │ Universal high confidence threshold    │
-# │ METHOD       │ 'linear'    │ Linear interpolation                   │
-# └──────────────┴─────────────┴────────────────────────────────────────┘
-TRIPLEX_RAW_SCORE_MIN = 0.5; TRIPLEX_RAW_SCORE_MAX = 0.95
-TRIPLEX_NORMALIZED_MIN = 1.0; TRIPLEX_NORMALIZED_MAX = 3.0
-TRIPLEX_NORMALIZATION_METHOD = 'linear'
+# NORMALIZATION PARAMETERS - Triplex scores are already on 1–3 scale
 TRIPLEX_SCORE_REFERENCE = 'Frank-Kamenetskii et al. 1995'
 
 
@@ -119,11 +107,6 @@ def _score_mirror_triplex_jit(arm_len, loop_len, purity, interruptions,
 class TriplexDetector(BaseMotifDetector):
 
     # Override normalization parameters
-    RAW_SCORE_MIN = TRIPLEX_RAW_SCORE_MIN
-    RAW_SCORE_MAX = TRIPLEX_RAW_SCORE_MAX
-    NORMALIZED_MIN = TRIPLEX_NORMALIZED_MIN
-    NORMALIZED_MAX = TRIPLEX_NORMALIZED_MAX
-    NORMALIZATION_METHOD = TRIPLEX_NORMALIZATION_METHOD
     SCORE_REFERENCE = TRIPLEX_SCORE_REFERENCE
 
     MIN_ARM = MIN_ARM
@@ -147,6 +130,14 @@ class TriplexDetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str:
         return "Triplex"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid triplex score (already on 1–3 scale)."""
+        return 1.0
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible triplex score (already on 1–3 scale, capped at 3.0)."""
+        return 3.0
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         return {
@@ -477,7 +468,7 @@ class TriplexDetector(BaseMotifDetector):
                 "Length": annotation["length"],
                 "Sequence": motif_seq,
                 "Raw_Score": annotation.get("score", 1.0),
-                "Score": self._normalize_score(annotation.get("score", 1.0)),
+                "Score": self.normalize_score(annotation.get("score", 1.0)),
                 "Strand": "+",
                 "Method": method,
                 "Pattern_ID": annotation["pattern_id"],

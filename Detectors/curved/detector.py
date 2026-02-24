@@ -12,21 +12,10 @@ MIN_AT_TRACT = 3; MAX_AT_WINDOW = None; PHASING_CENTER_SPACING = 11.0
 PHASING_TOL_LOW = 9.9; PHASING_TOL_HIGH = 11.1; MIN_APR_TRACTS = 3
 LOCAL_LONG_TRACT = 8; SCORE_THRESHOLD = 0.1
 
-# NORMALIZATION PARAMETERS
-CURVED_RAW_SCORE_MIN = 0.1; CURVED_RAW_SCORE_MAX = 0.95
-CURVED_NORMALIZED_MIN = 1.0; CURVED_NORMALIZED_MAX = 3.0
-CURVED_NORMALIZATION_METHOD = 'linear'
-CURVED_SCORE_REFERENCE = 'Koo et al. 1986, Olson et al. 1998'
-
 
 class CurvedDNADetector(BaseMotifDetector):
 
-    RAW_SCORE_MIN = CURVED_RAW_SCORE_MIN
-    RAW_SCORE_MAX = CURVED_RAW_SCORE_MAX
-    NORMALIZED_MIN = CURVED_NORMALIZED_MIN
-    NORMALIZED_MAX = CURVED_NORMALIZED_MAX
-    NORMALIZATION_METHOD = CURVED_NORMALIZATION_METHOD
-    SCORE_REFERENCE = CURVED_SCORE_REFERENCE
+    SCORE_REFERENCE = 'Koo et al. 1986, Olson et al. 1998'
 
     MIN_AT_TRACT = MIN_AT_TRACT; MAX_AT_WINDOW = MAX_AT_WINDOW
     PHASING_CENTER_SPACING = PHASING_CENTER_SPACING
@@ -37,6 +26,17 @@ class CurvedDNADetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str:
         return "Curved_DNA"
+
+    def theoretical_min_score(self) -> float:
+        """Minimum biologically valid curved DNA raw score (score threshold)."""
+        return self.SCORE_THRESHOLD
+
+    def theoretical_max_score(self, sequence_length: int = None) -> float:
+        """Highest possible curved DNA raw score.
+
+        Score = ln / (ln + 7) → 1.0 as length → ∞.
+        """
+        return 1.0
 
     def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
         ln = len(sequence)
@@ -220,7 +220,7 @@ class CurvedDNADetector(BaseMotifDetector):
                 continue
 
             raw_score = apr['score']
-            normalized_score = self._normalize_score(raw_score)
+            normalized_score = self.normalize_score(raw_score)
             motif_seq = sequence[start_pos:end_pos]
 
             motifs.append({
@@ -232,6 +232,7 @@ class CurvedDNADetector(BaseMotifDetector):
                 'End': end_pos,
                 'Length': end_pos - start_pos,
                 'Sequence': motif_seq,
+                'Raw_Score': round(raw_score, 6),
                 'Score': normalized_score,
                 'Strand': '+',
                 'Method': f'{self.get_motif_class_name()}_detection',
