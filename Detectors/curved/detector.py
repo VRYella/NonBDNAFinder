@@ -40,7 +40,7 @@ class CurvedDNADetector(BaseMotifDetector):
 
     def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
         ln = len(sequence)
-        return float(ln) / (ln + 6.0)
+        return float(ln) / (ln + 7.0)
 
     def passes_quality_threshold(self, sequence: str, score: float,
                                  pattern_info: Tuple = None) -> bool:
@@ -48,9 +48,9 @@ class CurvedDNADetector(BaseMotifDetector):
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         patterns = {'local_curved': [
-            (r'A{7,}', 'CRV_002', 'Long A-tract', 'Local Curvature', 7,
+            (r'A{8,}', 'CRV_002', 'Long A-tract', 'Local Curvature', 8,
              'curvature_score', 0.95, 'A-tract curvature', 'Olson 1998'),
-            (r'T{7,}', 'CRV_003', 'Long T-tract', 'Local Curvature', 7,
+            (r'T{8,}', 'CRV_003', 'Long T-tract', 'Local Curvature', 8,
              'curvature_score', 0.95, 'T-tract curvature', 'Olson 1998'),
         ]}
         return patterns
@@ -172,7 +172,7 @@ class CurvedDNADetector(BaseMotifDetector):
 
         for m in re.finditer(r'A{' + str(min_len) + r',}', seq):
             ln = m.end() - m.start()
-            score = float(ln) / (ln + 6.0)
+            score = float(ln) / (ln + 7.0)
             results.append({
                 'start': m.start(), 'end': m.end(),
                 'base': 'A', 'len': ln,
@@ -182,7 +182,7 @@ class CurvedDNADetector(BaseMotifDetector):
 
         for m in re.finditer(r'T{' + str(min_len) + r',}', seq):
             ln = m.end() - m.start()
-            score = float(ln) / (ln + 6.0)
+            score = float(ln) / (ln + 7.0)
             results.append({
                 'start': m.start(), 'end': m.end(),
                 'base': 'T', 'len': ln,
