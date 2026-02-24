@@ -160,9 +160,18 @@ def render():
                 slen = lengths[i]
                 cls_cnt = Counter(m.get('Class', 'Unknown') for m in motifs)
                 for cname, cnt in cls_cnt.items():
-                    gd = (sum(m.get('Length', 0) for m in motifs if m.get('Class') == cname) / slen * 100) if slen > 0 else 0
+                    # Set-based coverage per class (no double counting intra-class overlaps)
+                    cls_pos = set()
+                    for m in motifs:
+                        if m.get('Class') == cname:
+                            s = m.get('Start', 0) - 1
+                            e = m.get('End', 0)
+                            if e > s:
+                                cls_pos.update(range(s, e))
+                    cls_covered = len(cls_pos)
+                    gd = (cls_covered / slen * 100) if slen > 0 else 0
                     mkb = (cnt / slen * 1000) if slen > 0 else 0; avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Class') == cname])
-                    dist_data.append({'Sequence Name': name, 'Motif Class': cname.replace('_', ' '), 'Count': cnt, 'Genomic Density (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Total Coverage (bp)': sum(m.get('Length', 0) for m in motifs if m.get('Class') == cname)})
+                    dist_data.append({'Sequence Name': name, 'Motif Class': cname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': cls_covered})
             dist_df = pd.DataFrame(dist_data)
             sub_data = []
             for i in range(seq_count):
@@ -172,9 +181,18 @@ def render():
                 sub_cnt = Counter(m.get('Subclass', 'Unknown') for m in motifs)
                 for sname, cnt in sub_cnt.items():
                     pcls = next((m.get('Class') for m in motifs if m.get('Subclass') == sname), 'Unknown')
-                    gd = (sum(m.get('Length', 0) for m in motifs if m.get('Subclass') == sname) / slen * 100) if slen > 0 else 0
+                    # Set-based coverage per subclass
+                    sub_pos = set()
+                    for m in motifs:
+                        if m.get('Subclass') == sname:
+                            s = m.get('Start', 0) - 1
+                            e = m.get('End', 0)
+                            if e > s:
+                                sub_pos.update(range(s, e))
+                    sub_covered = len(sub_pos)
+                    gd = (sub_covered / slen * 100) if slen > 0 else 0
                     mkb = (cnt / slen * 1000) if slen > 0 else 0; avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Subclass') == sname])
-                    sub_data.append({'Sequence Name': name, 'Motif Class': pcls.replace('_', ' '), 'Motif Subclass': sname.replace('_', ' '), 'Count': cnt, 'Genomic Density (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Total Coverage (bp)': sum(m.get('Length', 0) for m in motifs if m.get('Subclass') == sname)})
+                    sub_data.append({'Sequence Name': name, 'Motif Class': pcls.replace('_', ' '), 'Motif Subclass': sname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': sub_covered})
             sub_df = pd.DataFrame(sub_data)
             if not dist_df.empty:
                 st.markdown("#### Class-Level Distribution Statistics"); st.dataframe(dist_df.head(10), use_container_width=True, height=300); st.caption(f"Showing first 10 of {len(dist_df)} records")
