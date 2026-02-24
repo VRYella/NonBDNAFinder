@@ -45,6 +45,33 @@ CLUSTER_CLASSES = ['Hybrid', 'Non-B_DNA_Clusters']
 
 def _render_section_divider(label): st.markdown(f"<div style='display:flex;align-items:center;gap:8px;padding:2px 0;margin-top:6px;'><span style='font-size:0.8rem;color:#64748b;font-weight:600;'>{label}</span><div style='flex:1;height:1px;background:linear-gradient(90deg,#a855f7 0%,transparent 100%);'></div></div>", unsafe_allow_html=True)
 
+def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
+    """Render a structured metric panel as an HTML table with Metric | Value | Definition columns.
+
+    Args:
+        header: Section header string (e.g. "🟦 I. Genome Overview").
+        rows: List of (metric_name, value_str, definition_str) tuples.
+        note: Optional italicised footnote shown below the table.
+    """
+    th_style = "background:#f1f5f9;color:#334155;font-size:0.75rem;font-weight:700;padding:5px 10px;text-align:left;border-bottom:2px solid #e2e8f0;"
+    td_style = "font-size:0.78rem;color:#1e293b;padding:5px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;"
+    val_style = "font-size:0.78rem;font-weight:600;color:#7c3aed;padding:5px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;"
+    def_style = "font-size:0.75rem;color:#64748b;padding:5px 10px;border-bottom:1px solid #f1f5f9;font-style:italic;vertical-align:top;"
+    rows_html = "".join(
+        f"<tr><td style='{td_style}'>{m}</td><td style='{val_style}'>{v}</td><td style='{def_style}'>{d}</td></tr>"
+        for m, v, d in rows
+    )
+    note_html = f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>{note}</p>" if note else ""
+    st.markdown(
+        f"<div style='margin-top:10px;'>"
+        f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>{header}</div>"
+        f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
+        f"<thead><tr><th style='{th_style}'>Metric</th><th style='{th_style}'>Value</th><th style='{th_style}'>Definition</th></tr></thead>"
+        f"<tbody>{rows_html}</tbody></table>"
+        f"{note_html}</div>",
+        unsafe_allow_html=True,
+    )
+
 def _render_analysis_summary_box(cov, den, cnt, slen): st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px;padding:5px 10px;background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);border-radius:6px;border:1px solid #e9d5ff;margin-bottom:8px;justify-content:space-around;align-items:center;'><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cov:.2f}%</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Coverage</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{den:.2f}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs/kb</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cnt:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#a855f7,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{slen:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>bp</span></div></div>", unsafe_allow_html=True)
 
 def _calculate_overlaps(motifs, by='Class'):
@@ -293,78 +320,141 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     try:
         gstats = compute_comprehensive_genome_stats(motifs, slen)
-        with st.expander("📊 Comprehensive Genome Statistics", expanded=False):
-            st.markdown("<div style='color:#64748b;font-size:0.78rem;margin-bottom:6px;'>Overall genome coverage excludes Hybrid and Cluster regions (reported individually below).</div>", unsafe_allow_html=True)
-            # ── Section I-III: Basic & Coverage ──────────────────────────────
-            _render_section_divider("I–III. Genome-Level & Structural Coverage")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Genome Length (bp)", f"{gstats['genome_length']:,}")
-            c2.metric("Motifs (n, excl. Hybrid/Cluster)", f"{gstats['n_motifs']:,}")
-            c3.metric("Motif Classes (C)", f"{gstats['n_classes']}")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Motif Density (motifs/kb)", f"{gstats['density_per_kb']:.4f}")
-            c2.metric("Total Covered Bases (bp)", f"{gstats['total_covered_bases']:,}")
-            c3.metric("Coverage Fraction", f"{gstats['coverage_fraction']:.6f}")
-            c1, c2 = st.columns(2)
-            c1.metric("Coverage (%)", f"{gstats['coverage_pct']:.4f}%")
-            c2.metric("n (incl. Hybrid/Cluster)", f"{gstats['n_motifs_all']:,}")
-            # ── Section IV: Occupancy ─────────────────────────────────────────
-            _render_section_divider("IV. Occupancy Metrics")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Raw Occupancy (bp)", f"{gstats['raw_occupancy_bp']:,}")
-            c2.metric("Normalized Occupancy (SLI)", f"{gstats['normalized_occupancy']:.6f}")
-            c3.metric("Mean Overlap Depth", f"{gstats['mean_overlap_depth']:.4f}")
-            # ── Section V: Class Coverage ─────────────────────────────────────
+        with st.expander("🧬 GENOME STRUCTURAL LANDSCAPE REPORT", expanded=False):
+            st.markdown(
+                "<div style='color:#64748b;font-size:0.78rem;margin-bottom:8px;'>"
+                "Overall genome coverage excludes Hybrid and Cluster regions (reported individually below)."
+                "</div>",
+                unsafe_allow_html=True,
+            )
+            # ── Section I: Genome Overview ────────────────────────────────────
+            _render_metric_panel(
+                "🟦 I. Genome Overview",
+                [
+                    ("Genome Length", f"{gstats['genome_length']:,} bp", "Total sequence length analyzed"),
+                    ("Motifs (excl. Hybrid/Cluster)", f"{gstats['n_motifs']:,}", "Individual structural motifs detected"),
+                    ("Motifs (incl. Hybrid/Cluster)", f"{gstats['n_motifs_all']:,}", "Total including merged structural regions"),
+                    ("Motif Classes (C)", f"{gstats['n_classes']}", "Distinct structural motif types"),
+                    ("Motif Density", f"{gstats['density_per_kb']:.4f} / kb", "Motifs per kilobase"),
+                ],
+            )
+            # ── Section II: Structural Coverage ──────────────────────────────
+            _render_metric_panel(
+                "🟩 II. Structural Coverage",
+                [
+                    ("Total Covered Bases", f"{gstats['total_covered_bases']:,} bp", "Unique genomic bases overlapping motifs"),
+                    ("Coverage Fraction", f"{gstats['coverage_fraction']:.6f}", "Covered bases / genome length"),
+                    ("Coverage (%)", f"{gstats['coverage_pct']:.4f}%", "% of genome structurally annotated"),
+                ],
+                note="🔎 Coverage reflects structural footprint, excluding Hybrid/Cluster merged regions.",
+            )
+            # ── Section III: Occupancy Metrics ────────────────────────────────
+            _render_metric_panel(
+                "🟨 III. Occupancy Metrics",
+                [
+                    ("Raw Occupancy", f"{gstats['raw_occupancy_bp']:,} bp", "Total motif bases including overlaps"),
+                    ("Normalized Occupancy (SLI)", f"{gstats['normalized_occupancy']:.6f}", "Structural Load Index (overlap-adjusted)"),
+                    ("Mean Overlap Depth", f"{gstats['mean_overlap_depth']:.4f}", "Average motif stacking depth"),
+                ],
+                note="📌 SLI measures genome-wide structural burden.",
+            )
+            # ── Section IV: Class-Specific Coverage ──────────────────────────
             if gstats['class_covered_bases']:
-                _render_section_divider("V. Class-Specific Coverage")
-                cls_rows = [
-                    {'Class': cls,
-                     'Covered Bases (bp)': gstats['class_covered_bases'].get(cls, 0),
-                     'Coverage (%)': gstats['class_coverage_pct'].get(cls, 0),
-                     'Contribution to Total Coverage': gstats['class_contribution'].get(cls, 0)}
-                    for cls in sorted(gstats['class_covered_bases'])
-                ]
-                st.dataframe(pd.DataFrame(cls_rows), use_container_width=True, hide_index=True)
-            # ── Section VI: Structural Load ───────────────────────────────────
-            _render_section_divider("VI. Structural Load Metrics")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("SLI (Structural Load Index)", f"{gstats['sli']:.6f}")
-            c2.metric("Structural Intensity", f"{gstats['structural_intensity']:.6f}")
-            c3.metric("Weighted Structural Coverage", f"{gstats['weighted_structural_coverage']:.6f}")
-            # ── Section VII: Distribution ──────────────────────────────────────
-            _render_section_divider("VII. Motif Distribution Metrics")
-            c1, c2 = st.columns(2)
-            c1.metric("Mean Inter-Motif Distance (bp)", f"{gstats['mean_inter_motif_distance']:.2f}")
-            c2.metric("CV (Spatial Clustering)", f"{gstats['cv_spatial_clustering']:.4f}")
-            # ── Section VIII: Cluster/Hotspot ──────────────────────────────────
-            _render_section_divider("VIII. Cluster / Hotspot Metrics")
-            c1, c2, c3 = st.columns(3)
-            c1.metric(f"Max Local Density (W={gstats['window_size']:,}bp)", f"{gstats['max_local_density']:.6f}")
-            c2.metric("Max Class Diversity (window)", f"{gstats['max_class_diversity_window']}")
-            c3.metric("Max Cluster Score", f"{gstats['max_cluster_score']:.6f}")
-            # ── Section IX: Hybrid/Cluster Individual ─────────────────────────
-            _render_section_divider("IX. Hybrid & Cluster (Individual Metrics)")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Hybrid Regions", f"{gstats['hybrid_count']:,}")
-            c2.metric("Hybrid Covered Bases (bp)", f"{gstats['hybrid_covered_bases']:,}")
-            c3.metric("Hybrid Coverage (%)", f"{gstats['hybrid_coverage_pct']:.4f}%")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Hybrid Density (regions/bp)", f"{gstats['hybrid_density']:.8f}")
-            c2.metric("Cluster Regions", f"{gstats['cluster_count']:,}")
-            c3.metric("Cluster Covered Bases (bp)", f"{gstats['cluster_covered_bases']:,}")
-            c1, c2 = st.columns(2)
-            c1.metric("Cluster Coverage (%)", f"{gstats['cluster_coverage_pct']:.4f}%")
-            c2.metric("Mean Overlap Fraction (adjacent motifs)", f"{gstats['mean_overlap_fraction']:.4f}")
-            # ── Section X: Diversity ───────────────────────────────────────────
-            _render_section_divider("X. Structural Diversity")
-            c1, c2 = st.columns(2)
-            c1.metric("Simpson Diversity Index (D)", f"{gstats['simpson_diversity_index']:.4f}")
-            c2.metric("Effective Class Number (Neff)", f"{gstats['effective_class_number']:.4f}")
-            # ── Section XI: Comparative ────────────────────────────────────────
-            _render_section_divider("XI. Genome-Scale Comparative Metrics")
-            c1, c2 = st.columns(2)
-            c1.metric("Structural Complexity Index (SCI)", f"{gstats['sci']:.4f}")
-            c2.metric("Structural Dominance Ratio", f"{gstats['dominance_ratio']:.4f}")
+                td_s = "font-size:0.76rem;color:#1e293b;padding:5px 8px;border-bottom:1px solid #f1f5f9;"
+                th_s = "background:#f1f5f9;color:#334155;font-size:0.74rem;font-weight:700;padding:5px 8px;text-align:left;border-bottom:2px solid #e2e8f0;"
+                cls_html = "".join(
+                    f"<tr>"
+                    f"<td style='{td_s}'>{cls}</td>"
+                    f"<td style='{td_s}'>{gstats['class_covered_bases'].get(cls, 0):,}</td>"
+                    f"<td style='{td_s}'>{gstats['class_coverage_pct'].get(cls, 0):.4f}%</td>"
+                    f"<td style='{td_s}'>{gstats['class_contribution'].get(cls, 0):.2f}%</td>"
+                    f"</tr>"
+                    for cls in sorted(
+                        gstats['class_covered_bases'],
+                        key=lambda c: gstats['class_covered_bases'].get(c, 0),
+                        reverse=True,
+                    )
+                )
+                st.markdown(
+                    f"<div style='margin-top:10px;'>"
+                    f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>🟧 IV. Class-Specific Coverage</div>"
+                    f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
+                    f"<thead><tr>"
+                    f"<th style='{th_s}'>Class</th>"
+                    f"<th style='{th_s}'>Covered (bp)</th>"
+                    f"<th style='{th_s}'>Coverage (%)</th>"
+                    f"<th style='{th_s}'>Contribution</th>"
+                    f"</tr></thead>"
+                    f"<tbody>{cls_html}</tbody></table>"
+                    f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>"
+                    f"📊 Contribution indicates proportional share of total structural coverage.</p>"
+                    f"</div>",
+                    unsafe_allow_html=True,
+                )
+            # ── Section V: Structural Load Metrics ───────────────────────────
+            _render_metric_panel(
+                "🟥 V. Structural Load Metrics",
+                [
+                    ("SLI", f"{gstats['sli']:.6f}", "Normalized genome structural burden"),
+                    ("Structural Intensity", f"{gstats['structural_intensity']:.6f}", "Weighted motif stacking strength"),
+                    ("Weighted Structural Coverage", f"{gstats['weighted_structural_coverage']:.6f}", "Overlap-weighted coverage fraction"),
+                ],
+            )
+            # ── Section VI: Spatial Distribution ─────────────────────────────
+            _render_metric_panel(
+                "🟪 VI. Spatial Distribution",
+                [
+                    ("Mean Inter-Motif Distance", f"{gstats['mean_inter_motif_distance']:.2f} bp", "Average spacing between motifs"),
+                    ("CV (Clustering Coefficient)", f"{gstats['cv_spatial_clustering']:.4f}", "Spatial clustering variability"),
+                ],
+                note="CV > 1 indicates clustered distribution.",
+            )
+            # ── Section VII: Hotspot / Cluster Metrics ────────────────────────
+            _render_metric_panel(
+                "🟫 VII. Hotspot / Cluster Metrics",
+                [
+                    (f"Max Local Density (W={gstats['window_size']:,} bp)", f"{gstats['max_local_density']:.6f}", "Highest motif density window"),
+                    ("Max Class Diversity", f"{gstats['max_class_diversity_window']}", "Distinct classes in single window"),
+                    ("Max Cluster Score", f"{gstats['max_cluster_score']:.6f}", "Peak structural aggregation score"),
+                ],
+            )
+            # ── Section VIII: Hybrid & Cluster (Reported Separately) ─────────
+            hc_td = "font-size:0.76rem;color:#1e293b;padding:5px 8px;border-bottom:1px solid #f1f5f9;"
+            hc_th = "background:#f1f5f9;color:#334155;font-size:0.74rem;font-weight:700;padding:5px 8px;text-align:left;border-bottom:2px solid #e2e8f0;"
+            hc_html = (
+                f"<tr><td style='{hc_td}'>Hybrid Regions</td><td style='{hc_td}'>{gstats['hybrid_count']:,}</td></tr>"
+                f"<tr><td style='{hc_td}'>Hybrid Coverage</td><td style='{hc_td}'>{gstats['hybrid_coverage_pct']:.4f}%</td></tr>"
+                f"<tr><td style='{hc_td}'>Cluster Regions</td><td style='{hc_td}'>{gstats['cluster_count']:,}</td></tr>"
+                f"<tr><td style='{hc_td}'>Cluster Coverage</td><td style='{hc_td}'>{gstats['cluster_coverage_pct']:.4f}%</td></tr>"
+                f"<tr><td style='{hc_td}'>Mean Overlap Fraction</td><td style='{hc_td}'>{gstats['mean_overlap_fraction']:.4f}</td></tr>"
+            )
+            st.markdown(
+                f"<div style='margin-top:10px;'>"
+                f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>🔶 VIII. Hybrid &amp; Cluster Regions (Reported Separately)</div>"
+                f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
+                f"<thead><tr><th style='{hc_th}'>Metric</th><th style='{hc_th}'>Value</th></tr></thead>"
+                f"<tbody>{hc_html}</tbody></table>"
+                f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>"
+                f"⚠ Hybrid/Cluster regions are excluded from primary genome coverage metrics.</p>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+            # ── Section IX: Structural Diversity ─────────────────────────────
+            _render_metric_panel(
+                "🟦 IX. Structural Diversity",
+                [
+                    ("Simpson Diversity Index (D)", f"{gstats['simpson_diversity_index']:.4f}", "Probability two motifs differ in class"),
+                    ("Effective Class Number (Neff)", f"{gstats['effective_class_number']:.4f}", "Functional structural diversity"),
+                ],
+            )
+            # ── Section X: Genome-Scale Comparative Indices ───────────────────
+            _render_metric_panel(
+                "🟩 X. Genome-Scale Comparative Indices",
+                [
+                    ("SCI (Structural Complexity Index)", f"{gstats['sci']:.4f}", "Composite structural diversity × density"),
+                    ("Structural Dominance Ratio", f"{gstats['dominance_ratio']:.4f}", "Dominance of most abundant class"),
+                ],
+            )
     except Exception as _gse:
         logger.warning(f"Comprehensive genome stats error: {_gse}")
 
