@@ -33,6 +33,8 @@ from UI.css import load_css, get_page_colors
 from UI.formatters import format_time_scientific, format_time_human, format_time
 from UI.headers import render_section_heading
 from UI.performance_stats import PerformanceTracker, format_performance_summary, format_motif_distribution
+import io as _io
+
 from Utilities.utilities import (
     parse_fasta_chunked,
     get_file_preview,
@@ -43,6 +45,21 @@ from Utilities.utilities import (
     calculate_genomic_density,
     calculate_positional_density,
     _NON_IUPAC_RE,
+    plot_motif_distribution,
+    plot_linear_motif_track,
+    plot_linear_subclass_track,
+    plot_density_comparison,
+    plot_motif_length_kde,
+    plot_score_violin,
+    plot_nested_pie_chart,
+    plot_structural_heatmap,
+    plot_motif_network,
+    plot_motif_cooccurrence_matrix,
+    plot_chromosome_density,
+    plot_motif_clustering_distance,
+    plot_spacer_loop_variation,
+    plot_cluster_size_distribution,
+    plot_structural_competition_upset,
 )
 from Utilities.nonbscanner import analyze_sequence
 from Utilities.job_manager import save_job_results, generate_job_id
@@ -85,6 +102,21 @@ SUBMOTIF_ABBREVIATIONS = {
     'Dynamic overlaps': 'Hybrid', 'Dynamic clusters': 'Cluster',
 }
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _fig_to_bytes(fig) -> bytes:
+    """Convert a matplotlib Figure to PNG bytes and close it.
+
+    Used during visualization pre-generation to store rendered figures as
+    compact bytes in session state so the Results tab can display them
+    instantly without re-rendering.
+    """
+    import matplotlib.pyplot as _plt
+    buf = _io.BytesIO()
+    fig.savefig(buf, format='png', dpi=80, bbox_inches='tight')
+    _plt.close(fig)
+    buf.seek(0)
+    return buf.getvalue()
 
 
 def get_abbreviated_label(subclass: str) -> str:
@@ -1983,6 +2015,57 @@ def render():
                     except Exception as e:
                         # Log error but continue processing
                         pass
+
+                    # ----------------------------------------------------------
+                    # Pre-generate all matplotlib figures so that:
+                    #   1. viz_total_time accurately includes rendering time.
+                    #   2. The Results tab renders instantly from cached bytes.
+                    # ----------------------------------------------------------
+                    fig_bytes = {}
+                    _has_clusters = any(m.get('Class') == 'Non-B_DNA_Clusters' for m in filtered_motifs)
+                    _has_hybrids  = any(m.get('Class') == 'Hybrid' for m in filtered_motifs)
+                    _sm = [m for m in filtered_motifs if m.get('Class') not in ['Hybrid', 'Non-B_DNA_Clusters']]
+
+                    _plot_tasks = [
+                        ('class_track',       lambda: plot_linear_motif_track(filtered_motifs, sequence_length, title="Class Track")),
+                    ]
+                    if _sm:
+                        _plot_tasks.append(('subclass_track', lambda: plot_linear_subclass_track(_sm, sequence_length, title="Subclass Track")))
+                    _plot_tasks += [
+                        ('class_dist',        lambda: plot_motif_distribution(filtered_motifs, by='Class', title="Class Distribution")),
+                        ('subclass_dist',     lambda: plot_motif_distribution(filtered_motifs, by='Subclass', title="Subclass Distribution")),
+                        ('length_kde',        lambda: plot_motif_length_kde(filtered_motifs, by_class=True, title="Length Distribution")),
+                        ('score_violin',      lambda: plot_score_violin(filtered_motifs, by_class=True, title="Score Distribution")),
+                        ('nested_pie',        lambda: plot_nested_pie_chart(filtered_motifs, title="Class → Subclass")),
+                        ('struct_heatmap',    lambda: plot_structural_heatmap(filtered_motifs, sequence_length, title="Structural Potential Heatmap")),
+                        ('motif_network',     lambda: plot_motif_network(filtered_motifs, title="Motif Co-occurrence Network")),
+                        ('cooccurrence_mat',  lambda: plot_motif_cooccurrence_matrix(filtered_motifs, title="Co-occurrence Matrix")),
+                        ('chrom_density',     lambda: plot_chromosome_density(filtered_motifs, title="Motif Density by Class")),
+                        ('cluster_dist_fig',  lambda: plot_motif_clustering_distance(filtered_motifs, title="Inter-Motif Distance")),
+                        ('spacer_loop',       lambda: plot_spacer_loop_variation(filtered_motifs, title="Structural Features Distribution")),
+                        ('upset_fig',         lambda: plot_structural_competition_upset(filtered_motifs, title="Structural Competition")),
+                    ]
+
+                    # Density comparison uses already-computed density dicts
+                    _gd = st.session_state.cached_visualizations[viz_cache_key].get('densities', {}).get('class_genomic')
+                    _pd = st.session_state.cached_visualizations[viz_cache_key].get('densities', {}).get('class_positional')
+                    if _gd and _pd:
+                        _plot_tasks.append(('density_comparison', lambda: plot_density_comparison(_gd, _pd, title="Density Analysis")))
+
+                    if _has_clusters or _has_hybrids:
+                        _chm = [m for m in filtered_motifs if m.get('Class') in ['Hybrid', 'Non-B_DNA_Clusters']]
+                        _plot_tasks.append(('cluster_track', lambda: plot_linear_motif_track(_chm, sequence_length, title="Hybrid & Cluster Track")))
+                    if _has_clusters:
+                        _plot_tasks.append(('cluster_size', lambda: plot_cluster_size_distribution(filtered_motifs, title="Cluster Statistics")))
+
+                    for fig_key, fig_fn in _plot_tasks:
+                        try:
+                            fig_bytes[fig_key] = _fig_to_bytes(fig_fn())
+                            total_viz_count += 1
+                        except Exception:
+                            pass
+
+                    st.session_state.cached_visualizations[viz_cache_key]['figures'] = fig_bytes
                 
                 viz_total_time = time.time() - viz_start_time
                 
