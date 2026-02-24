@@ -34,6 +34,7 @@ import logging
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+from Utilities.config.colors import UNIFIED_MOTIF_COLORS
 
 logger = logging.getLogger(__name__)
 
@@ -231,9 +232,11 @@ class MultiFastaVisualizer:
         df = pd.DataFrame(data)
         pivot_df = df.pivot_table(index='FASTA_ID', columns='Class', values='Count', fill_value=0)
         
-        # Plot stacked bar chart
+        # Plot stacked bar chart using unified motif class colors
         fig, ax = plt.subplots(figsize=figsize)
-        pivot_df.plot(kind='bar', stacked=True, ax=ax, colormap='tab10')
+        all_classes = pivot_df.columns.tolist()
+        colors = [UNIFIED_MOTIF_COLORS.get(cls, '#808080') for cls in all_classes]
+        pivot_df.plot(kind='bar', stacked=True, ax=ax, color=colors)
         
         ax.set_xlabel('Sequence', fontsize=12, fontweight='bold')
         ax.set_ylabel('Motif Count', fontsize=12, fontweight='bold')
@@ -375,8 +378,9 @@ class MultiFastaVisualizer:
                         if window > 1:
                             counts = np.convolve(counts, np.ones(window)/window, mode='same')
                     
-                    ax.plot(positions, counts, linewidth=2)
-                    ax.fill_between(positions, counts, alpha=0.3)
+                    color = UNIFIED_MOTIF_COLORS.get(cls, '#808080')
+                    ax.plot(positions, counts, linewidth=2, color=color)
+                    ax.fill_between(positions, counts, alpha=0.3, color=color)
                     
                     ax.set_ylabel('Count', fontsize=10, fontweight='bold')
                     ax.set_title(f'{cls.replace("_", " ")}', fontsize=11, fontweight='bold')
