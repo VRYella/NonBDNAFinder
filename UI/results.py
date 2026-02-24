@@ -24,7 +24,7 @@ from UI.storage_helpers import (
 )
 from Utilities.utilities import (
     get_basic_stats, export_results_to_dataframe, optimize_dataframe_memory, 
-    calculate_genomic_density, calculate_positional_density, 
+    calculate_genomic_density, calculate_positional_density, calculate_motif_statistics,
     plot_motif_distribution, plot_nested_pie_chart, plot_linear_motif_track, 
     plot_linear_subclass_track, plot_density_comparison, plot_cluster_size_distribution, 
     plot_motif_cooccurrence_matrix, plot_motif_length_kde, plot_score_distribution,
@@ -177,14 +177,18 @@ def render():
         with st.expander("📋 Sequence Statistics", expanded=True):
             seq_stats = []
             for stat in summary_stats['sequence_stats']:
+                fasta_id = stat['FASTA_ID']
                 total = stat['Total_Motifs']
-                seq_len = sequence_lengths[stat['FASTA_ID']]
+                seq_len = sequence_lengths[fasta_id]
                 density = (total / seq_len * 1000) if seq_len > 0 else 0
+                seq_motif_stats = calculate_motif_statistics(annotations_by_sequence[fasta_id], seq_len)
+                coverage_pct = seq_motif_stats.get('Coverage%', 0)
                 seq_stats.append({
-                    'Sequence': stat['FASTA_ID'],
+                    'Sequence': fasta_id,
                     'Length (bp)': f"{seq_len:,}",
                     'Total Motifs': total,
-                    'Motifs/kb': f"{density:.2f}"
+                    'Motifs/kb': f"{density:.2f}",
+                    'Coverage%': f"{coverage_pct:.2f}"
                 })
             st.dataframe(pd.DataFrame(seq_stats), use_container_width=True)
         
