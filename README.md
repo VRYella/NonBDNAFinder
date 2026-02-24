@@ -14,7 +14,7 @@ NBDFinder implements nine specialised structural detectors that run independentl
 
 ### Detector Descriptions
 
-**Curved DNA** — Global intrinsic curvature is detected by A/T-tract phasing analysis: runs of ≥ 3 consecutive adenines (A-tracts) or thymines (T-tracts) are identified and their inter-tract centre-to-centre spacing is evaluated against the 10.5 bp helical repeat (tolerance 9.9–11.1 bp; minimum 3 in-phase tracts). Local curvature is additionally reported for long uninterrupted A-tracts or T-tracts (≥ 7 nt). Scoring follows Koo *et al.* (1986) and Olson *et al.* (1998); normalised linearly to the 1–3 scale.
+**Curved DNA** — Global intrinsic curvature is detected by A/T-tract phasing analysis: runs of ≥ 3 consecutive adenines (A-tracts) or thymines (T-tracts) are identified and their inter-tract centre-to-centre spacing is evaluated against the 10.5 bp helical repeat (tolerance 9.9–11.1 bp; minimum 3 in-phase tracts). Local curvature is additionally reported for long uninterrupted A-tracts or T-tracts (≥ 8 nt). Scoring follows Koo *et al.* (1986) and Olson *et al.* (1998); normalised linearly to the 1–3 scale.
 
 **Slipped DNA** — Short tandem repeats (STRs) are detected using a k-mer index approach: mono- through hexanucleotide units (1–6 nt) with ≥ 4–6 copies are identified and scored by a mechanistic slippage model (Shannon entropy × copy number × GC content; Schlötterer *et al.* 2000; Weber *et al.* 1989). Longer direct repeats (unit 7–50 nt, ≥ 2 copies) are detected separately by the same engine. Subclasses reported: *STR* and *Direct Repeat*.
 
