@@ -66,7 +66,7 @@ MOTIF_CLASSIFICATION: Dict[int, Dict[str, any]] = {
             'Extended-loop canonical',
             'Higher-order G4 array/G4-wire',
             'Intramolecular G-triplex',
-            'Two-tetrad weak PQS',
+            'Three-tetrad weak PQS',
             'Bulged G4'
         ]
     },
@@ -224,7 +224,8 @@ SUBCLASS_ALIASES: Dict[str, str] = {
     'extended-loop canonical': 'Extended-loop canonical',
     'higher-order g4 array/g4-wire': 'Higher-order G4 array/G4-wire',
     'intramolecular g-triplex': 'Intramolecular G-triplex',
-    'two-tetrad weak pqs': 'Two-tetrad weak PQS',
+    'two-tetrad weak pqs': 'Three-tetrad weak PQS',
+    'three-tetrad weak pqs': 'Three-tetrad weak PQS',
     'bulged g4': 'Bulged G4',
     
     # i-Motif subclasses

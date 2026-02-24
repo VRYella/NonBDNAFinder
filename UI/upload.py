@@ -79,7 +79,7 @@ SUBMOTIF_ABBREVIATIONS = {
     'R-loop formation sites': 'R-loop', 'Triplex': 'Triplex', 'Sticky DNA': 'Sticky DNA',
     'Telomeric G4': 'Telo G4', 'Stacked G4': 'Stacked G4',
     'Canonical intramolecular G4': 'Intra G4', 'Extended-loop canonical': 'Ext. Loop G4',
-    'Higher-order G4 array/G4-wire': 'G4 Array', 'Intramolecular G-triplex': 'G-triplex', 'Two-tetrad weak PQS': 'Weak PQS', 'Bulged G4': 'Bulged G4',
+    'Higher-order G4 array/G4-wire': 'G4 Array', 'Intramolecular G-triplex': 'G-triplex', 'Three-tetrad weak PQS': 'Weak PQS', 'Bulged G4': 'Bulged G4',
     'Canonical i-motif': 'i-Motif', 'Relaxed i-motif': 'Relaxed iM', 'AC-motif': 'AC Motif',
     'Z-DNA': 'Z-DNA', 'eGZ': 'eGZ', 'A-philic DNA': 'A-DNA',
     'Dynamic overlaps': 'Hybrid', 'Dynamic clusters': 'Cluster',

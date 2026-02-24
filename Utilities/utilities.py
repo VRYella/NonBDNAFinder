@@ -1207,7 +1207,7 @@ class PatternRegistry:
             (r'G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}', 'G4_TRX', 'Intramolecular G-triplex', 'Intramolecular G-triplex', 12, 'g_triplex_score', 0.45, 'G-triplex structures', 'Lim & Phan, JACS 2013'),
         ],
         'weak_pqs': [
-            (r'G{2,}[ATGC]{1,7}G{2,}[ATGC]{1,7}G{2,}[ATGC]{1,7}G{2,}', 'G4_WEAK', 'Two-tetrad weak PQS', 'Two-tetrad weak PQS', 11, 'g4hunter_score', 0.25, 'QGRS Mapper weak PQS', 'Kikin et al., NAR 2006'),
+            (r'G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}', 'G4_WEAK', 'Three-tetrad weak PQS', 'Three-tetrad weak PQS', 11, 'g4hunter_score', 0.25, 'QGRS Mapper weak PQS', 'Kikin et al., NAR 2006'),
         ],
         'bulged_g4': [
             (r'(?:G{2,}[ATGC]G{1,}[ATGC]{1,7}){3}G{2,}[ATGC]G{1,}', 'G4_BUL', 'Bulged G4 (interrupted G-tract)', 'Bulged G4', 15, 'g4hunter_score', 0.70, 'G4 with internal G-tract bulge', 'Mukundan & Bhattacharyya, JACS 2011'),
