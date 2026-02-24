@@ -30,7 +30,7 @@ from Utilities.utilities import (
     plot_motif_cooccurrence_matrix, plot_motif_length_kde, plot_score_distribution,
     plot_score_violin, plot_structural_heatmap, plot_motif_network,
     plot_chromosome_density, plot_spacer_loop_variation, plot_motif_clustering_distance,
-    plot_structural_competition_upset
+    plot_structural_competition_upset, compute_comprehensive_genome_stats
 )
 from Utilities.visualization import NATURE_MOTIF_COLORS
 from Utilities.multifasta_engine import MultiFastaEngine
@@ -284,6 +284,86 @@ def render():
     
     has_clusters = any(m.get('Class') == 'Non-B_DNA_Clusters' for m in motifs); has_hybrids = any(m.get('Class') == 'Hybrid' for m in motifs)
     
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # COMPREHENSIVE GENOME STATISTICS
+    # ═══════════════════════════════════════════════════════════════════════════════
+    try:
+        gstats = compute_comprehensive_genome_stats(motifs, slen)
+        with st.expander("📊 Comprehensive Genome Statistics", expanded=False):
+            st.markdown("<div style='color:#64748b;font-size:0.78rem;margin-bottom:6px;'>Overall genome coverage excludes Hybrid and Cluster regions (reported individually below).</div>", unsafe_allow_html=True)
+            # ── Section I-III: Basic & Coverage ──────────────────────────────
+            _render_section_divider("I–III. Genome-Level & Structural Coverage")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Genome Length (bp)", f"{gstats['genome_length']:,}")
+            c2.metric("Motifs (n, excl. Hybrid/Cluster)", f"{gstats['n_motifs']:,}")
+            c3.metric("Motif Classes (C)", f"{gstats['n_classes']}")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Motif Density (motifs/kb)", f"{gstats['density_per_kb']:.4f}")
+            c2.metric("Total Covered Bases (bp)", f"{gstats['total_covered_bases']:,}")
+            c3.metric("Coverage Fraction", f"{gstats['coverage_fraction']:.6f}")
+            c1, c2 = st.columns(2)
+            c1.metric("Coverage (%)", f"{gstats['coverage_pct']:.4f}%")
+            c2.metric("n (incl. Hybrid/Cluster)", f"{gstats['n_motifs_all']:,}")
+            # ── Section IV: Occupancy ─────────────────────────────────────────
+            _render_section_divider("IV. Occupancy Metrics")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Raw Occupancy (bp)", f"{gstats['raw_occupancy_bp']:,}")
+            c2.metric("Normalized Occupancy (SLI)", f"{gstats['normalized_occupancy']:.6f}")
+            c3.metric("Mean Overlap Depth", f"{gstats['mean_overlap_depth']:.4f}")
+            # ── Section V: Class Coverage ─────────────────────────────────────
+            if gstats['class_covered_bases']:
+                _render_section_divider("V. Class-Specific Coverage")
+                cls_rows = [
+                    {'Class': cls,
+                     'Covered Bases (bp)': gstats['class_covered_bases'].get(cls, 0),
+                     'Coverage (%)': gstats['class_coverage_pct'].get(cls, 0),
+                     'Contribution to Total Coverage': gstats['class_contribution'].get(cls, 0)}
+                    for cls in sorted(gstats['class_covered_bases'])
+                ]
+                st.dataframe(pd.DataFrame(cls_rows), use_container_width=True, hide_index=True)
+            # ── Section VI: Structural Load ───────────────────────────────────
+            _render_section_divider("VI. Structural Load Metrics")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("SLI (Structural Load Index)", f"{gstats['sli']:.6f}")
+            c2.metric("Structural Intensity", f"{gstats['structural_intensity']:.6f}")
+            c3.metric("Weighted Structural Coverage", f"{gstats['weighted_structural_coverage']:.6f}")
+            # ── Section VII: Distribution ──────────────────────────────────────
+            _render_section_divider("VII. Motif Distribution Metrics")
+            c1, c2 = st.columns(2)
+            c1.metric("Mean Inter-Motif Distance (bp)", f"{gstats['mean_inter_motif_distance']:.2f}")
+            c2.metric("CV (Spatial Clustering)", f"{gstats['cv_spatial_clustering']:.4f}")
+            # ── Section VIII: Cluster/Hotspot ──────────────────────────────────
+            _render_section_divider("VIII. Cluster / Hotspot Metrics")
+            c1, c2, c3 = st.columns(3)
+            c1.metric(f"Max Local Density (W={gstats['window_size']:,}bp)", f"{gstats['max_local_density']:.6f}")
+            c2.metric("Max Class Diversity (window)", f"{gstats['max_class_diversity_window']}")
+            c3.metric("Max Cluster Score", f"{gstats['max_cluster_score']:.6f}")
+            # ── Section IX: Hybrid/Cluster Individual ─────────────────────────
+            _render_section_divider("IX. Hybrid & Cluster (Individual Metrics)")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Hybrid Regions", f"{gstats['hybrid_count']:,}")
+            c2.metric("Hybrid Covered Bases (bp)", f"{gstats['hybrid_covered_bases']:,}")
+            c3.metric("Hybrid Coverage (%)", f"{gstats['hybrid_coverage_pct']:.4f}%")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Hybrid Density (regions/bp)", f"{gstats['hybrid_density']:.8f}")
+            c2.metric("Cluster Regions", f"{gstats['cluster_count']:,}")
+            c3.metric("Cluster Covered Bases (bp)", f"{gstats['cluster_covered_bases']:,}")
+            c1, c2 = st.columns(2)
+            c1.metric("Cluster Coverage (%)", f"{gstats['cluster_coverage_pct']:.4f}%")
+            c2.metric("Mean Overlap Fraction (adjacent motifs)", f"{gstats['mean_overlap_fraction']:.4f}")
+            # ── Section X: Diversity ───────────────────────────────────────────
+            _render_section_divider("X. Structural Diversity")
+            c1, c2 = st.columns(2)
+            c1.metric("Simpson Diversity Index (D)", f"{gstats['simpson_diversity_index']:.4f}")
+            c2.metric("Effective Class Number (Neff)", f"{gstats['effective_class_number']:.4f}")
+            # ── Section XI: Comparative ────────────────────────────────────────
+            _render_section_divider("XI. Genome-Scale Comparative Metrics")
+            c1, c2 = st.columns(2)
+            c1.metric("Structural Complexity Index (SCI)", f"{gstats['sci']:.4f}")
+            c2.metric("Structural Dominance Ratio", f"{gstats['dominance_ratio']:.4f}")
+    except Exception as _gse:
+        logger.warning(f"Comprehensive genome stats error: {_gse}")
+
     # ═══════════════════════════════════════════════════════════════════════════════
     # TWO-TAB VISUALIZATION LAYOUT (Nature Publication Standard)
     # ═══════════════════════════════════════════════════════════════════════════════
