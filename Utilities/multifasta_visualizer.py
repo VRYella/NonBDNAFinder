@@ -129,32 +129,42 @@ class MultiFastaVisualizer:
                 - 'Class': Dict[class_name, Dict[position, count]]
                 - 'Subclass': Dict[subclass_name, Dict[position, count]]
         """
-        result = {
-            'Overall': defaultdict(int),
-            'Class': defaultdict(lambda: defaultdict(int)),
-            'Subclass': defaultdict(lambda: defaultdict(int))
-        }
-        
+        # Use numpy arrays for O(motif_count) accumulation instead of the
+        # former per-position Python loop which was O(total_covered_bp).
+        overall_arr = np.zeros(seq_length, dtype=np.int32)
+        class_arrs: Dict[str, np.ndarray] = {}
+        subclass_arrs: Dict[str, np.ndarray] = {}
+
         for motif in self.all_motifs:
-            start = motif.get('Start', 0)
-            end = motif.get('End', 0)
-            motif_class = motif.get('Class', 'Unknown')
-            motif_subclass = motif.get('Subclass', 'Unknown')
-            
-            # Count each position covered by this motif
-            for pos in range(start, end + 1):
-                if 1 <= pos <= seq_length:
-                    result['Overall'][pos] += 1
-                    if by_class:
-                        result['Class'][motif_class][pos] += 1
-                    if by_subclass:
-                        result['Subclass'][motif_subclass][pos] += 1
-        
-        # Convert defaultdicts to regular dicts
-        result['Overall'] = dict(result['Overall'])
-        result['Class'] = {k: dict(v) for k, v in result['Class'].items()}
-        result['Subclass'] = {k: dict(v) for k, v in result['Subclass'].items()}
-        
+            start = max(0, motif.get('Start', 1) - 1)   # 0-based
+            end = min(motif.get('End', 0), seq_length)   # exclusive
+            if end <= start:
+                continue
+
+            overall_arr[start:end] += 1
+
+            if by_class:
+                cls = motif.get('Class', 'Unknown')
+                if cls not in class_arrs:
+                    class_arrs[cls] = np.zeros(seq_length, dtype=np.int32)
+                class_arrs[cls][start:end] += 1
+
+            if by_subclass:
+                subcls = motif.get('Subclass', 'Unknown')
+                if subcls not in subclass_arrs:
+                    subclass_arrs[subcls] = np.zeros(seq_length, dtype=np.int32)
+                subclass_arrs[subcls][start:end] += 1
+
+        # Convert numpy arrays to sparse {position: count} dicts (1-based positions)
+        def _arr_to_dict(arr: np.ndarray) -> Dict[int, int]:
+            nonzero = np.nonzero(arr)[0]
+            return {int(i) + 1: int(arr[i]) for i in nonzero}
+
+        result = {
+            'Overall': _arr_to_dict(overall_arr),
+            'Class': {cls: _arr_to_dict(arr) for cls, arr in class_arrs.items()},
+            'Subclass': {subcls: _arr_to_dict(arr) for subcls, arr in subclass_arrs.items()},
+        }
         return result
     
     def generate_unified_summary(self) -> Dict[str, Any]:

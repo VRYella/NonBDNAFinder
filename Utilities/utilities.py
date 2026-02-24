@@ -4394,6 +4394,34 @@ DEFAULT_FOLD_ENRICHMENT_WHEN_ZERO_BACKGROUND = 1.0  # When background is zero
 
 
 
+def _compute_coverage_bp(intervals: List[Tuple[int, int]]) -> int:
+    """
+    Compute total covered base pairs from (start, end) interval tuples using
+    sorted interval merging.  O(n log n) – replaces the former set-based
+    approach which was O(sum of motif lengths) and up to 200× slower for
+    large / long-motif datasets.
+
+    Args:
+        intervals: List of (start_0based, end_exclusive) tuples.
+
+    Returns:
+        Total number of covered base pairs (merged, non-redundant).
+    """
+    if not intervals:
+        return 0
+    sorted_iv = sorted(intervals)
+    covered = 0
+    cur_start, cur_end = sorted_iv[0]
+    for start, end in sorted_iv[1:]:
+        if start <= cur_end:
+            cur_end = max(cur_end, end)
+        else:
+            covered += cur_end - cur_start
+            cur_start, cur_end = start, end
+    covered += cur_end - cur_start
+    return covered
+
+
 def calculate_genomic_density(motifs: List[Dict[str, Any]], 
                                sequence_length: int,
                                by_class: bool = True,
@@ -4437,81 +4465,43 @@ def calculate_genomic_density(motifs: List[Dict[str, Any]],
     if not filtered_motifs:
         return {'Overall': 0.0}
     
-    if not by_class and not by_subclass:
-        # Overall density using set-based coverage (handles overlaps correctly)
-        covered_positions = set()
-        for motif in filtered_motifs:
-            start = motif.get('Start', 0) - 1  # Convert to 0-based
-            end = motif.get('End', 0)
-            covered_positions.update(range(start, end))
-        
-        overall_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
-        return {'Overall': round(overall_density, 4)}
-    
-    # Density per subclass using set-based coverage
-    if by_subclass:
-        density_by_subclass = {}
-        subclass_groups = defaultdict(list)
-        
-        for motif in filtered_motifs:
-            class_name = motif.get('Class', 'Unknown')
-            subclass_name = motif.get('Subclass', 'Unknown')
-            key = f"{class_name}:{subclass_name}"
-            subclass_groups[key].append(motif)
-        
-        # Calculate per-subclass density with overlap handling
-        for subclass_key, subclass_motifs in subclass_groups.items():
-            covered_positions = set()
-            for motif in subclass_motifs:
-                start = motif.get('Start', 0) - 1  # Convert to 0-based
-                end = motif.get('End', 0)
-                covered_positions.update(range(start, end))
-            
-            subclass_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
-            density_by_subclass[subclass_key] = round(subclass_density, 4)
-        
-        # Calculate overall density (all filtered motifs combined)
-        all_covered_positions = set()
-        for motif in filtered_motifs:
-            start = motif.get('Start', 0) - 1  # Convert to 0-based
-            end = motif.get('End', 0)
-            all_covered_positions.update(range(start, end))
-        
-        overall_density = min((len(all_covered_positions) / sequence_length) * 100, 100.0)
-        density_by_subclass['Overall'] = round(overall_density, 4)
-        
-        return density_by_subclass
-    
-    # Density per class using set-based coverage
-    density_by_class = {}
-    class_groups = defaultdict(list)
-    
-    for motif in filtered_motifs:
-        class_name = motif.get('Class', 'Unknown')
-        class_groups[class_name].append(motif)
-    
-    # Calculate per-class density with overlap handling
-    for class_name, class_motifs in class_groups.items():
-        covered_positions = set()
-        for motif in class_motifs:
-            start = motif.get('Start', 0) - 1  # Convert to 0-based
-            end = motif.get('End', 0)
-            covered_positions.update(range(start, end))
-        
-        class_density = min((len(covered_positions) / sequence_length) * 100, 100.0)
-        density_by_class[class_name] = round(class_density, 4)
-    
-    # Calculate overall density (all filtered motifs combined)
-    all_covered_positions = set()
+    # Build a single-pass interval list (0-based, exclusive end) and group keys
+    # simultaneously to avoid multiple iterations over filtered_motifs.
+    all_intervals: List[Tuple[int, int]] = []
+    group_intervals: Dict[str, List[Tuple[int, int]]] = defaultdict(list)
+
     for motif in filtered_motifs:
         start = motif.get('Start', 0) - 1  # Convert to 0-based
         end = motif.get('End', 0)
-        all_covered_positions.update(range(start, end))
-    
-    overall_density = min((len(all_covered_positions) / sequence_length) * 100, 100.0)
-    density_by_class['Overall'] = round(overall_density, 4)
-    
-    return density_by_class
+        if end <= start:
+            continue
+        all_intervals.append((start, end))
+
+        if by_subclass:
+            key = f"{motif.get('Class', 'Unknown')}:{motif.get('Subclass', 'Unknown')}"
+        else:
+            key = motif.get('Class', 'Unknown')
+        group_intervals[key].append((start, end))
+
+    # Overall coverage (shared across all branches)
+    overall_covered = _compute_coverage_bp(all_intervals)
+    overall_density = min((overall_covered / sequence_length) * 100, 100.0)
+
+    if not by_class and not by_subclass:
+        return {'Overall': round(overall_density, 4)}
+
+    # Per-group density using fast interval merging
+    result: Dict[str, float] = {}
+    for group_key, intervals in group_intervals.items():
+        covered_bp = _compute_coverage_bp(intervals)
+        density = min((covered_bp / sequence_length) * 100, 100.0)
+        result[group_key] = round(density, 4)
+
+    result['Overall'] = round(overall_density, 4)
+
+    if by_subclass:
+        return result  # keys are 'Class:Subclass'
+    return result  # keys are class names
 
 
 def calculate_positional_density(motifs: List[Dict[str, Any]], 
