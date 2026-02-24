@@ -38,6 +38,14 @@ class CurvedDNADetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "Curved_DNA"
 
+    def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
+        ln = len(sequence)
+        return float(ln) / (ln + 6.0)
+
+    def passes_quality_threshold(self, sequence: str, score: float,
+                                 pattern_info: Tuple = None) -> bool:
+        return score >= self.SCORE_THRESHOLD
+
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         patterns = {'local_curved': [
             (r'A{7,}', 'CRV_002', 'Long A-tract', 'Local Curvature', 7,
@@ -111,6 +119,7 @@ class CurvedDNADetector(BaseMotifDetector):
 
                     aprs.append({
                         'center_positions': centers,
+                        'tracts': run,
                         'n_tracts': run_len,
                         'spacings': spacings,
                         'mean_deviation': mean_dev,
@@ -139,6 +148,7 @@ class CurvedDNADetector(BaseMotifDetector):
 
             aprs.append({
                 'center_positions': centers,
+                'tracts': run,
                 'n_tracts': run_len,
                 'spacings': spacings,
                 'mean_deviation': mean_dev,
@@ -186,6 +196,55 @@ class CurvedDNADetector(BaseMotifDetector):
     # =========================
     # ANNOTATION
     # =========================
+
+    def detect_motifs(self, sequence: str,
+                      sequence_name: str = "sequence") -> List[Dict[str, Any]]:
+
+        sequence = sequence.upper().strip()
+        motifs = []
+
+        # Global Curvature: APR-based detection using true tract boundaries
+        aprs = self.find_aprs(sequence,
+                              min_tract=self.MIN_AT_TRACT,
+                              min_apr_tracts=self.MIN_APR_TRACTS)
+
+        for apr_idx, apr in enumerate(aprs):
+            tract_windows = apr.get('tracts', [])
+            if not tract_windows:
+                continue
+
+            start_pos = min(t['start'] for t in tract_windows)
+            end_pos = max(t['end'] for t in tract_windows)
+
+            if apr['score'] < self.SCORE_THRESHOLD:
+                continue
+
+            raw_score = apr['score']
+            normalized_score = self._normalize_score(raw_score)
+            motif_seq = sequence[start_pos:end_pos]
+
+            motifs.append({
+                'ID': f"{sequence_name}_CRV_001_{start_pos + 1}_{apr_idx}",
+                'Sequence_Name': sequence_name,
+                'Class': self.get_motif_class_name(),
+                'Subclass': 'Global Curvature',
+                'Start': start_pos + 1,
+                'End': end_pos,
+                'Length': end_pos - start_pos,
+                'Sequence': motif_seq,
+                'Score': normalized_score,
+                'Strand': '+',
+                'Method': f'{self.get_motif_class_name()}_detection',
+                'Pattern_ID': 'CRV_001',
+                'A_Tracts': tract_windows,
+                'N_Tracts': apr['n_tracts']
+            })
+
+        # Local Curvature: long single A/T tract detection via base class patterns
+        local_motifs = super().detect_motifs(sequence, sequence_name)
+        motifs.extend(local_motifs)
+
+        return motifs
 
     def annotate_sequence(self, sequence: str) -> Dict[str, Any]:
 
