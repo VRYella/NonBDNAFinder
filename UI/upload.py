@@ -1168,8 +1168,7 @@ def render():
                 st.session_state.selected_classes_used = []
                 st.session_state.selected_subclasses_used = []
                 # Free cached export bytes and per-sequence stats caches
-                for _k in ['_export_cache', '_export_cache_ver']:
-                    st.session_state.pop(_k, None)
+                st.cache_data.clear()
                 for _k in [k for k in list(st.session_state.keys()) if k.startswith('stats_cache_')]:
                     st.session_state.pop(_k, None)
                 st.rerun()
@@ -1265,9 +1264,8 @@ def render():
             # Sequence length limit has been removed - the system now uses automatic chunking
             # (see NonBFinder.py CHUNK_THRESHOLD=10,000 bp) to handle sequences of any size
             st.session_state.analysis_status = "Running"
-            # Free stale export cache before new results arrive
-            for _k in ['_export_cache', '_export_cache_ver']:
-                st.session_state.pop(_k, None)
+            # Clear stale cached export data so fresh results are generated
+            st.cache_data.clear()
             
             # Store analysis parameters in session state for use in download section
             st.session_state.overlap_option_used = overlap_option
