@@ -119,8 +119,8 @@ class GQuadruplexDetector(BaseMotifDetector):
                  'G4_TRX', 'Intramolecular G-triplex', 'Intramolecular G-triplex')
             ],
             'weak_pqs': [
-                (r'G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}[ACGT]{1,7}G{2,}',
-                 'G4_WEAK', 'Two-tetrad weak PQS', 'Two-tetrad weak PQS')
+                (r'G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}[ATGC]{1,7}G{3,}',
+                 'G4_WEAK', 'Three-tetrad weak PQS', 'Three-tetrad weak PQS')
             ],
             'bulged_g4': [
                 (r'(?:G{2,}[ACGT]G{1,}[ACGT]{1,7}){3}G{2,}[ACGT]G{1,}',
@@ -155,7 +155,7 @@ class GQuadruplexDetector(BaseMotifDetector):
             'extended_loop_g4': 'Extended-loop canonical',
             'higher_order_g4': 'Higher-order G4 array/G4-wire',
             'g_triplex': 'Intramolecular G-triplex',
-            'weak_pqs': 'Two-tetrad weak PQS',
+            'weak_pqs': 'Three-tetrad weak PQS',
             'bulged_g4': 'Bulged G4'
         }
 
@@ -283,7 +283,7 @@ class GQuadruplexDetector(BaseMotifDetector):
         elif class_name == 'g_triplex':
             return 'G-triplex: 3 G-tracts (≥3G each), loops 1-7bp'
         elif class_name == 'weak_pqs':
-            return 'Weak PQS: 4 G-tracts (≥2G each), may form two-tetrad structure'
+            return 'Weak PQS: 4 G-tracts (≥3G each), may form three-tetrad structure'
         else:
             return f'G4Hunter score-based: {features.get("Num_Tracts", 0)} G-tracts detected'
     
