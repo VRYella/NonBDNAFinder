@@ -57,6 +57,10 @@ class APhilicDetector(BaseMotifDetector):
         max_log2 = max(TENMER_LOG2.values())
         return (max_log2 / 10.0) * sequence_length
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """A-philic DNA stable up to ~300 bp (Vinogradov 2003)."""
+        return 300
+
     def get_patterns(self) -> Dict[str, List[Tuple]]:
         return {"a_philic_10mers": [(r"", "APH_10MER", "A-philic 10-mer table", "A-philic DNA", 10, "a_philic_10mer_score", 0.9, "A-philic 10mer motif", "user_table")]}
 
@@ -97,8 +101,8 @@ class APhilicDetector(BaseMotifDetector):
                     tenmer_list += '...'
                 
                 raw_score = region['sum_log2']
-                normalized_score = self.normalize_score(raw_score, region['length'])
                 canonical_class, canonical_subclass = normalize_class_subclass(self.get_motif_class_name(), 'A-philic DNA', strict=False, auto_correct=True)
+                normalized_score = self.normalize_score(raw_score, region['length'], canonical_subclass)
                 motifs.append({
                     'ID': f"{sequence_name}_APHIL_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                     'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': region['length'],

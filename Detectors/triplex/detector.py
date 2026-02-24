@@ -131,6 +131,10 @@ class TriplexDetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "Triplex"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """Triplex/H-DNA stable up to ~150 bp (Frank-Kamenetskii 1995)."""
+        return 150
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid triplex score (already on 1–3 scale)."""
         return 1.0
@@ -468,7 +472,7 @@ class TriplexDetector(BaseMotifDetector):
                 "Length": annotation["length"],
                 "Sequence": motif_seq,
                 "Raw_Score": annotation.get("score", 1.0),
-                "Score": self.normalize_score(annotation.get("score", 1.0)),
+                "Score": self.normalize_score(annotation.get("score", 1.0), annotation["length"], canonical_subclass),
                 "Strand": "+",
                 "Method": method,
                 "Pattern_ID": annotation["pattern_id"],

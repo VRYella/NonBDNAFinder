@@ -16,6 +16,29 @@ from Utilities.detectors_utils import (
 # TUNABLE PARAMETERS
 DEFAULT_MIN_SCORE_THRESHOLD = 0.5
 
+# Experimentally supported maximum stable lengths per motif class (bp)
+STRUCTURAL_LENGTH_CAPS = {
+    "A-philic_DNA": 300,
+    "Cruciform": 200,
+    "Curved_DNA_local": 50,
+    "Curved_DNA_global": 120,
+    "G-Quadruplex": 120,
+    "Z-DNA": 300,
+    "Slipped_DNA_STR": 1000,
+    "Slipped_DNA_Direct": 500,
+    "Triplex": 150,
+    "R-Loop": 2000,
+    "i-Motif": 60,
+}
+
+# Disease-specific cap overrides (copy-number expansions extend stable length)
+DISEASE_CAP_OVERRIDES = {
+    "Slipped_DNA": {
+        "Huntington": 1000,
+        "Myotonic_Dystrophy": 1500,
+    }
+}
+
 
 class BaseMotifDetector(ABC):
     """Abstract base class for all Non-B DNA motif detectors."""
@@ -101,7 +124,7 @@ class BaseMotifDetector(ABC):
                             'Length': len(motif_seq),
                             'Sequence': motif_seq,
                             'Raw_Score': round(score, 6),
-                            'Score': self.normalize_score(score, len(motif_seq)),
+                            'Score': self.normalize_score(score, len(motif_seq), subclass),
                             'Strand': '+',
                             'Method': f'{self.get_motif_class_name()}_detection',
                             'Pattern_ID': pattern_id
@@ -127,11 +150,29 @@ class BaseMotifDetector(ABC):
         """Return highest possible raw score under model. Override in subclass."""
         raise NotImplementedError
 
-    def normalize_score(self, raw_score: float, sequence_length: int = None) -> float:
+    def get_length_cap(self, subclass: str = None) -> int:
         """
-        Convert raw detector-specific score to universal 1–3 scale.
+        Return experimentally supported maximum stable length (bp)
+        for this motif class or subclass.
 
-        Normalized Score = 1 + 2 × (RawScore − RawMin) / (RawMax − RawMin)
+        Each detector overrides this to return the structural upper bound
+        beyond which the length component is capped at 1.0.
+        """
+        raise NotImplementedError
+
+    def normalize_score(self, raw_score: float, motif_length: int,
+                        subclass: str = None) -> float:
+        """
+        Convert raw detector-specific score to universal 1–3 scale using
+        length-aware, structure-bounded normalization.
+
+        Final Score = 1 + 2 × f_raw × f_length
+
+        Where:
+            f_raw    = (RawScore − RawMin) / (RawMax(L) − RawMin)
+            f_length = min(1, L / L_cap)
+
+        Score is clamped to [1.0, 3.0].
 
         Universal Score Interpretation:
         ┌────────────┬──────────────────┬─────────────────────────────────────┐
@@ -144,21 +185,30 @@ class BaseMotifDetector(ABC):
 
         Args:
             raw_score: Raw detector-specific score
-            sequence_length: Optional motif length for length-aware bounds
+            motif_length: Motif length in base pairs
+            subclass: Optional motif subclass for subclass-specific length caps
 
         Returns:
             Normalized score in range [1.0, 3.0]
         """
-        min_s = self.theoretical_min_score()
-        max_s = self.theoretical_max_score(sequence_length)
+        raw_min = self.theoretical_min_score()
+        raw_max = self.theoretical_max_score(motif_length)
 
-        if max_s == min_s:
-            return 1.0
+        if raw_max == raw_min:
+            raw_component = 0.0
+        else:
+            raw_component = (raw_score - raw_min) / (raw_max - raw_min)
 
-        scaled = (raw_score - min_s) / (max_s - min_s)
-        scaled = max(0.0, min(1.0, scaled))
+        raw_component = max(0.0, min(1.0, raw_component))
 
-        return round(1.0 + 2.0 * scaled, 3)
+        length_cap = self.get_length_cap(subclass)
+        length_component = min(1.0, motif_length / float(length_cap))
+
+        combined = raw_component * length_component
+
+        final_score = 1.0 + 2.0 * combined
+
+        return round(min(3.0, final_score), 3)
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get detector statistics"""

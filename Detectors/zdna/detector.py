@@ -37,6 +37,10 @@ class ZDNADetector(BaseMotifDetector):
 
     def get_motif_class_name(self) -> str: return "Z-DNA"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """Z-DNA structures stable up to ~300 bp (Ho 1986)."""
+        return 300
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid Z-DNA cumulative raw score (Ho 1986 10-mer threshold)."""
         return self.MIN_Z_SCORE
@@ -113,7 +117,7 @@ class ZDNADetector(BaseMotifDetector):
                     repeat_unit = region.get('repeat_unit', '')
                     repeat_count = region.get('repeat_count', 0)
                     raw_score = region['sum_score']
-                    normalized_score = self.normalize_score(raw_score, region['length'])
+                    normalized_score = self.normalize_score(raw_score, region['length'], canonical_subclass)
                     
                     motifs.append({
                         'ID': f"{sequence_name}_{region['pattern_id']}_{start_pos+1}", 'Sequence_Name': sequence_name,
@@ -143,7 +147,7 @@ class ZDNADetector(BaseMotifDetector):
                     
                     zdna_type = self._classify_zdna_type(motif_seq, alternating_cg, alternating_at)
                     raw_score = region['sum_score']
-                    normalized_score = self.normalize_score(raw_score, region['length'])
+                    normalized_score = self.normalize_score(raw_score, region['length'], canonical_subclass)
                     
                     motifs.append({
                         'ID': f"{sequence_name}_ZDNA_{start_pos+1}", 'Sequence_Name': sequence_name,

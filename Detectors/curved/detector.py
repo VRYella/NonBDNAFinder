@@ -27,6 +27,13 @@ class CurvedDNADetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "Curved_DNA"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """Local curvature (long A/T tract) stable up to ~50 bp;
+        global curvature (APR phasing) stable up to ~120 bp (Koo 1986)."""
+        if subclass == "Local Curvature":
+            return 50
+        return 120
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid curved DNA raw score (score threshold)."""
         return self.SCORE_THRESHOLD
@@ -220,7 +227,7 @@ class CurvedDNADetector(BaseMotifDetector):
                 continue
 
             raw_score = apr['score']
-            normalized_score = self.normalize_score(raw_score)
+            normalized_score = self.normalize_score(raw_score, end_pos - start_pos, 'Global Curvature')
             motif_seq = sequence[start_pos:end_pos]
 
             motifs.append({

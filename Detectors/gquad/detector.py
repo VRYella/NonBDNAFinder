@@ -73,6 +73,10 @@ class GQuadruplexDetector(BaseMotifDetector):
     def get_motif_class_name(self) -> str:
         return "G-Quadruplex"
 
+    def get_length_cap(self, subclass: str = None) -> int:
+        """G-Quadruplex structures stable up to ~120 bp (Bedrat 2016)."""
+        return 120
+
     def theoretical_min_score(self) -> float:
         """Minimum biologically valid G4Hunter raw score."""
         return 0.5
@@ -164,7 +168,7 @@ class GQuadruplexDetector(BaseMotifDetector):
             structural_features = self._extract_g4_features(motif_seq, ann['class_name'])
             
             raw_score = ann['score']
-            normalized_score = self.normalize_score(raw_score)
+            normalized_score = self.normalize_score(raw_score, ann['end'] - ann['start'], canonical_subclass)
             
             motif = {
                 'ID': f"{sequence_name}_{ann['pattern_id']}_{ann['start']+1}",
