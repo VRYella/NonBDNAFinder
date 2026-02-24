@@ -284,6 +284,24 @@ def show_technical_details():
         st.code(traceback.format_exc())
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXAMPLE DATA
+# Load from examples/ folder; fall back to inline strings if files are missing
+# ═══════════════════════════════════════════════════════════════════════════════
+_EXAMPLES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "examples")
+
+
+def _load_example_file(filename: str, fallback: str) -> str:
+    """Return file contents from examples/ dir, or fallback string if unavailable."""
+    path = os.path.join(_EXAMPLES_DIR, filename)
+    try:
+        with open(path, "r") as fh:
+            return fh.read()
+    except OSError:
+        logger.warning("Example file not found: %s — using inline fallback", path)
+        return fallback
+
+
 # Example FASTA data
 EXAMPLE_FASTA = """>Example Sequence
 ATCGATCGATCGAAAATTTTATTTAAATTTAAATTTGGGTTAGGGTTAGGGTTAGGGCCCCCTCCCCCTCCCCCTCCCC
@@ -679,15 +697,17 @@ def render():
                              help="Load example sequences for testing")
             if ex_type == "Single Example":
                 if st.button("Load Single Example", use_container_width=True):
-                    parsed_fasta = parse_fasta(EXAMPLE_FASTA)
+                    fasta_text = _load_example_file("example_single.fasta", EXAMPLE_FASTA)
+                    parsed_fasta = parse_fasta(fasta_text)
                     seqs = list(parsed_fasta.values())
                     names = list(parsed_fasta.keys())
                     st.success(UI_TEXT['upload_example_single_success'])
             else:
                 if st.button("Load Multi-FASTA Example", use_container_width=True):
+                    fasta_text = _load_example_file("example_multi.fasta", EXAMPLE_MULTI_FASTA)
                     seqs, names = [], []
                     cur_seq, cur_name = "", ""
-                    for line in EXAMPLE_MULTI_FASTA.splitlines():
+                    for line in fasta_text.splitlines():
                         if line.startswith(">"):
                             if cur_seq:
                                 seqs.append(cur_seq)

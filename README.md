@@ -52,6 +52,18 @@ Supported input formats include FASTA (single or multi-sequence), direct nucleot
 
 Core output columns are: `Sequence_Name`, `Class`, `Subclass`, `Start` (1-based inclusive), `End`, `Length`, `Strand`, `Score`, `Detection_Method`. Motif-specific metadata such as repeat unit, G-run count, and loop length are reported when applicable. Hybrid and cluster annotations include contributing motif classes, class diversity, and density score.
 
+## Example Datasets
+
+The `examples/` directory contains ready-to-use FASTA files for testing:
+
+| File | Description |
+|------|-------------|
+| `examples/example_single.fasta` | Single sequence with mixed non-B DNA motifs |
+| `examples/example_multi.fasta` | Multi-sequence FASTA covering all major motif classes |
+| `examples/example.fasta` | Original test sequences (G-runs, C-runs, CGCG repeats) |
+
+These files are available in the web interface under **Upload & Analyze → Example Data**, and can be used directly from the command line or Jupyter notebook.
+
 ## Installation
 
 ```bash
