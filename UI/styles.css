@@ -146,7 +146,7 @@ section[data-testid="stSidebar"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HEADING STYLING - PROFESSIONAL DARK TYPOGRAPHY
+   HEADING STYLING - BOLD, ENLARGED, AND VIBRANT
    ═══════════════════════════════════════════════════════════════ */
 
 /* All Headings - Base Styles */
@@ -156,41 +156,40 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.2 !important;
     margin-top: 0.25rem !important;
     margin-bottom: 0.4rem !important;
-    text-shadow: none !important;
 }
 
 /* H1 - Largest and Most Prominent */
 h1 {
-    font-size: 2.4rem !important;
+    font-size: 3rem !important;
     font-weight: 900 !important;
-    color: #0f172a !important;
-    -webkit-text-fill-color: #0f172a !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
+    color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* H2 - Section Headers */
 h2 {
-    font-size: 1.85rem !important;
+    font-size: 2.25rem !important;
     font-weight: 800 !important;
-    color: #0f172a !important;
-    border-left: 4px solid #1e3a8a;
-    padding-left: 0.8rem !important;
+    color: #2d3748 !important;
+    border-left: 6px solid #00C9FF;
+    padding-left: 1rem !important;
 }
 
 /* H3 - Subsection Headers */
 h3 {
-    font-size: 1.4rem !important;
-    font-weight: 700 !important;
-    color: #1e293b !important;
+    font-size: 1.75rem !important;
+    font-weight: 800 !important;
+    color: #2d3748 !important;
 }
 
 /* H4 - Smaller Headers */
 h4 {
-    font-size: 1.1rem !important;
+    font-size: 1.35rem !important;
     font-weight: 700 !important;
-    color: #1e293b !important;
+    color: #4a5568 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -781,260 +780,4 @@ h4 {
 /* Compact container spacing */
 .stContainer {
     padding: 0.3rem !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   GLOBAL TYPOGRAPHY - DARK PROFESSIONAL FONTS
-   ═══════════════════════════════════════════════════════════════ */
-
-body, .stApp, .stApp p, .stApp span, .stApp label, .stApp div {
-    color: #111827 !important;
-}
-
-/* Caption - darker than default */
-.stCaption, figcaption, .stMarkdown small {
-    color: #475569 !important;
-    font-size: 0.8rem !important;
-}
-
-/* Expander header - dark text */
-.stExpander summary,
-.stExpander [data-testid="stExpanderToggleIcon"],
-.stExpander p,
-details summary span,
-details summary p {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-}
-
-/* Metric labels and values - dark */
-[data-testid="stMetricLabel"] p,
-[data-testid="stMetricLabel"] label,
-[data-testid="stMetricValue"],
-[data-testid="stMetricDelta"] {
-    color: #111827 !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PROFESSIONAL SCIENTIFIC TABLES
-   ═══════════════════════════════════════════════════════════════ */
-
-/* DataFrame container */
-.stDataFrame {
-    border-radius: 6px !important;
-    overflow: hidden !important;
-    border: 1px solid #cbd5e1 !important;
-}
-
-/* Table header rows */
-.stDataFrame thead tr th,
-[data-testid="stDataFrameResizable"] thead tr th {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    font-size: 0.8rem !important;
-    padding: 8px 12px !important;
-    border-bottom: 2px solid #0f172a !important;
-    text-align: left !important;
-    letter-spacing: 0.01em !important;
-}
-
-/* Table body rows */
-.stDataFrame tbody tr td,
-[data-testid="stDataFrameResizable"] tbody tr td {
-    background-color: #ffffff !important;
-    color: #111827 !important;
-    font-size: 0.8rem !important;
-    padding: 7px 12px !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    vertical-align: middle !important;
-}
-
-/* Alternating row background */
-.stDataFrame tbody tr:nth-child(even) td,
-[data-testid="stDataFrameResizable"] tbody tr:nth-child(even) td {
-    background-color: #f8fafc !important;
-}
-
-/* Row hover */
-.stDataFrame tbody tr:hover td,
-[data-testid="stDataFrameResizable"] tbody tr:hover td {
-    background-color: #eff6ff !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PROFESSIONAL METRIC CARDS (MINIMAL)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Clean metric card - white background, dark text, subtle border */
-.metric-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 12px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    min-width: 90px;
-    flex: 1;
-}
-
-.metric-card__icon {
-    display: none !important;
-}
-
-.metric-card__value {
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    color: #0f172a !important;
-    text-align: center !important;
-    text-shadow: none !important;
-}
-
-.metric-card__label {
-    font-size: 0.62rem !important;
-    color: #475569 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    text-align: center !important;
-    margin-top: 2px !important;
-}
-
-/* Metrics strip - clean white background */
-.metrics-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    margin: 8px 0;
-    justify-content: space-between;
-}
-
-/* Success state for metrics strip */
-.metrics-strip--success {
-    background: #f0fdf4;
-    border: 1px solid #86efac;
-}
-
-/* Stats ribbon - clean light background */
-.stats-ribbon {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    padding: 8px 12px;
-    background: #f8fafc;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 10px;
-    justify-content: space-around;
-}
-
-.stats-ribbon__value {
-    font-size: 1rem !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    -webkit-text-fill-color: #0f172a !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-}
-
-.stats-ribbon__label {
-    font-size: 0.65rem !important;
-    color: #475569 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.03em !important;
-    margin-top: 1px !important;
-}
-
-/* Metrics ribbon - clean dark background */
-.metrics-ribbon {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 8px 14px;
-    background: #1e293b;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    justify-content: center;
-    align-items: center;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   EXECUTION OUTPUT / STATUS BOXES - BORDER-ACCENT STYLE
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Info box override */
-[data-testid="stAlert"][data-baseweb="notification"],
-.stAlert {
-    background-color: #f8fafc !important;
-    border-radius: 6px !important;
-}
-
-/* st.info - blue left border */
-div[data-testid="stAlert"][kind="info"],
-.stAlert.info {
-    background-color: #f0f7ff !important;
-    border-left: 4px solid #2563eb !important;
-    color: #1e3a8a !important;
-}
-
-/* st.warning - amber left border */
-div[data-testid="stAlert"][kind="warning"],
-.stAlert.warning {
-    background-color: #fffbeb !important;
-    border-left: 4px solid #d97706 !important;
-    color: #78350f !important;
-}
-
-/* st.error - red left border */
-div[data-testid="stAlert"][kind="error"],
-.stAlert.error {
-    background-color: #fff1f2 !important;
-    border-left: 4px solid #dc2626 !important;
-    color: #7f1d1d !important;
-}
-
-/* st.success - green left border */
-div[data-testid="stAlert"][kind="success"],
-.stAlert.success {
-    background-color: #f0fdf4 !important;
-    border-left: 4px solid #16a34a !important;
-    color: #14532d !important;
-}
-
-/* Ensure text in alerts is dark and readable */
-[data-testid="stAlert"] p,
-[data-testid="stAlert"] div,
-[data-testid="stAlert"] span {
-    color: inherit !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   SECTION DIVIDER - CLEAN DARK BORDER STYLE
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Section divider - clean subtle underline */
-.section-divider {
-    height: 1px !important;
-    background: #cbd5e1 !important;
-    margin-bottom: 10px !important;
-    border-radius: 0 !important;
-}
-
-/* Section bar title - dark text */
-.section-bar__title {
-    font-size: 0.9rem !important;
-    font-weight: 700 !important;
-    color: #0f172a !important;
-    letter-spacing: -0.01em !important;
-}
-
-.section-bar__emoji {
-    display: none !important;
 }
