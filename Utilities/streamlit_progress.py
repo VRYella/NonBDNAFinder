@@ -415,7 +415,7 @@ def display_results_streaming(motifs: List[Dict[str, Any]],
         return
     
     # Summary statistics
-    st.markdown("### Analysis Results")
+    st.markdown("### 📊 Analysis Results")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -433,11 +433,11 @@ def display_results_streaming(motifs: List[Dict[str, Any]],
     for motif in motifs:
         class_counts[motif.get('Class', 'Unknown')] += 1
     
-    st.markdown("#### Class Distribution")
+    st.markdown("#### 📈 Class Distribution")
     st.bar_chart(class_counts)
     
     # Results table (paginated for large datasets)
-    st.markdown("#### Detected Motifs")
+    st.markdown("#### 🧬 Detected Motifs")
     
     if len(motifs) > batch_size:
         st.info(f"ℹ️ Showing results in batches of {batch_size} for performance")
