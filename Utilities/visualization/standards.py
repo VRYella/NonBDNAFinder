@@ -314,13 +314,13 @@ class UILayout:
 # =============================================================================
 
 TRANSPARENCY_NOTE = """
-📊 **Scientific Transparency**: Only biologically interpretable, non-redundant 
+**Scientific Transparency**: Only biologically interpretable, non-redundant 
 metrics are displayed. Full results including raw thermodynamic values and all 
 intermediate calculations are available in CSV/Excel exports.
 """
 
 SUPPLEMENTARY_NOTE = """
-💡 **Supplementary Figures**: Additional visualizations (circos plots, radial 
+**Supplementary Figures**: Additional visualizations (circos plots, radial 
 tracks, cumulative distributions) are available on request for supplementary 
 materials.
 """

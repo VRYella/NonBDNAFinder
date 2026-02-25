@@ -109,7 +109,7 @@ def format_performance_summary(tracker: PerformanceTracker, format_time_func) ->
     summary = tracker.get_summary()
     
     lines = []
-    lines.append("# 📊 Performance Summary")
+    lines.append("# Performance Summary")
     lines.append("")
     
     # Overall statistics
