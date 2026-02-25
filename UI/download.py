@@ -44,71 +44,69 @@ def generate_statistics(all_motifs, names, lengths, seq_count):
     sub_df = pd.DataFrame()
     stats_excel = b""
 
-    if not all_motifs:
-        return dist_df, sub_df, stats_excel
+    if all_motifs:
+        # Group motifs by sequence name once (O(n+m)) to avoid repeated O(n*m) filters
+        name_to_length = dict(zip(names, lengths))
+        motifs_by_name: dict = {name: [] for name in names}
+        for m in all_motifs:
+            seq_name = m.get('Sequence_Name')
+            if seq_name in motifs_by_name:
+                motifs_by_name[seq_name].append(m)
 
-    # Group motifs by sequence name once (O(n+m)) to avoid repeated O(n*m) filters
-    name_to_length = dict(zip(names, lengths))
-    motifs_by_name: dict = {name: [] for name in names}
-    for m in all_motifs:
-        seq_name = m.get('Sequence_Name')
-        if seq_name in motifs_by_name:
-            motifs_by_name[seq_name].append(m)
-
-    try:
-        dist_data = []
-        for name in names:
-            slen = name_to_length.get(name, 0)
-            motifs = motifs_by_name[name]
-            cls_cnt = Counter(m.get('Class', 'Unknown') for m in motifs)
-            for cname, cnt in cls_cnt.items():
-                cls_pos = set()
-                for m in motifs:
-                    if m.get('Class') == cname:
-                        s = m.get('Start', 0) - 1
-                        e = m.get('End', 0)
-                        if e > s:
-                            cls_pos.update(range(s, e))
-                cls_covered = len(cls_pos)
-                gd = (cls_covered / slen * 100) if slen > 0 else 0
-                mkb = (cnt / slen * 1000) if slen > 0 else 0
-                avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Class') == cname])
-                dist_data.append({'Sequence Name': name, 'Motif Class': cname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': cls_covered})
-        dist_df = pd.DataFrame(dist_data)
-
-        sub_data = []
-        for name in names:
-            slen = name_to_length.get(name, 0)
-            motifs = motifs_by_name[name]
-            sub_cnt = Counter(m.get('Subclass', 'Unknown') for m in motifs)
-            for sname, cnt in sub_cnt.items():
-                pcls = next((m.get('Class') for m in motifs if m.get('Subclass') == sname), 'Unknown')
-                sub_pos = set()
-                for m in motifs:
-                    if m.get('Subclass') == sname:
-                        s = m.get('Start', 0) - 1
-                        e = m.get('End', 0)
-                        if e > s:
-                            sub_pos.update(range(s, e))
-                sub_covered = len(sub_pos)
-                gd = (sub_covered / slen * 100) if slen > 0 else 0
-                mkb = (cnt / slen * 1000) if slen > 0 else 0
-                avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Subclass') == sname])
-                sub_data.append({'Sequence Name': name, 'Motif Class': pcls.replace('_', ' '), 'Motif Subclass': sname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': sub_covered})
-        sub_df = pd.DataFrame(sub_data)
-    except Exception as exc:
-        _logger.error("Statistics computation failed: %s", exc)
-
-    if not dist_df.empty and not sub_df.empty:
         try:
-            out = io.BytesIO()
-            with pd.ExcelWriter(out, engine='openpyxl') as w:
-                dist_df.to_excel(w, sheet_name='Class Statistics', index=False)
-                sub_df.to_excel(w, sheet_name='Subclass Statistics', index=False)
-            out.seek(0)
-            stats_excel = out.getvalue()
+            dist_data = []
+            for name in names:
+                slen = name_to_length.get(name, 0)
+                motifs = motifs_by_name[name]
+                cls_cnt = Counter(m.get('Class', 'Unknown') for m in motifs)
+                for cname, cnt in cls_cnt.items():
+                    cls_pos = set()
+                    for m in motifs:
+                        if m.get('Class') == cname:
+                            s = m.get('Start', 0) - 1
+                            e = m.get('End', 0)
+                            if e > s:
+                                cls_pos.update(range(s, e))
+                    cls_covered = len(cls_pos)
+                    gd = (cls_covered / slen * 100) if slen > 0 else 0
+                    mkb = (cnt / slen * 1000) if slen > 0 else 0
+                    avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Class') == cname])
+                    dist_data.append({'Sequence Name': name, 'Motif Class': cname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': cls_covered})
+            dist_df = pd.DataFrame(dist_data)
+
+            sub_data = []
+            for name in names:
+                slen = name_to_length.get(name, 0)
+                motifs = motifs_by_name[name]
+                sub_cnt = Counter(m.get('Subclass', 'Unknown') for m in motifs)
+                for sname, cnt in sub_cnt.items():
+                    pcls = next((m.get('Class') for m in motifs if m.get('Subclass') == sname), 'Unknown')
+                    sub_pos = set()
+                    for m in motifs:
+                        if m.get('Subclass') == sname:
+                            s = m.get('Start', 0) - 1
+                            e = m.get('End', 0)
+                            if e > s:
+                                sub_pos.update(range(s, e))
+                    sub_covered = len(sub_pos)
+                    gd = (sub_covered / slen * 100) if slen > 0 else 0
+                    mkb = (cnt / slen * 1000) if slen > 0 else 0
+                    avl = np.mean([m.get('Length', 0) for m in motifs if m.get('Subclass') == sname])
+                    sub_data.append({'Sequence Name': name, 'Motif Class': pcls.replace('_', ' '), 'Motif Subclass': sname.replace('_', ' '), 'Count': cnt, 'Coverage (%)': f"{gd:.4f}", 'Motifs per kbp': f"{mkb:.2f}", 'Average Length (bp)': f"{avl:.1f}", 'Covered Bases (bp)': sub_covered})
+            sub_df = pd.DataFrame(sub_data)
         except Exception as exc:
-            _logger.error("Stats Excel generation failed: %s", exc)
+            _logger.error("Statistics computation failed: %s", exc)
+
+        if not dist_df.empty and not sub_df.empty:
+            try:
+                out = io.BytesIO()
+                with pd.ExcelWriter(out, engine='openpyxl') as w:
+                    dist_df.to_excel(w, sheet_name='Class Statistics', index=False)
+                    sub_df.to_excel(w, sheet_name='Subclass Statistics', index=False)
+                out.seek(0)
+                stats_excel = out.getvalue()
+            except Exception as exc:
+                _logger.error("Stats Excel generation failed: %s", exc)
 
     return dist_df, sub_df, stats_excel
 
