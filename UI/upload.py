@@ -743,36 +743,43 @@ def render():
                 else:
                     st.warning(UI_TEXT['upload_ncbi_empty_warning'])
 
-        # Persist sequences to session state if any found from input
+        # Persist sequences to session state if any found from input.
+        # Guard: never overwrite analysis results during Streamlit reruns
+        # (e.g. reruns triggered by download button clicks).  State is only
+        # mutated when no analysis has been completed yet.
+        _analysis_locked = st.session_state.get('analysis_done', False)
         if disk_seq_ids:
-            # Sequences were saved directly to disk during file upload parsing
-            st.session_state.seq_ids = disk_seq_ids
-            st.session_state.names = names
-            st.session_state.results_storage = {}
-            # Keep legacy fields empty for compatibility
-            st.session_state.seqs = []
-            st.session_state.results = []
+            if not _analysis_locked:
+                # Sequences were saved directly to disk during file upload parsing
+                st.session_state.seq_ids = disk_seq_ids
+                st.session_state.names = names
+                st.session_state.results_storage = {}
+                # Keep legacy fields empty for compatibility
+                st.session_state.seqs = []
+                st.session_state.results = []
         elif seqs:
             # Support both disk storage and legacy in-memory mode
             if st.session_state.get('use_disk_storage') and st.session_state.get('seq_storage'):
-                # Use disk-based storage
-                seq_ids = []
-                for seq, name in zip(seqs, names):
-                    seq_id = st.session_state.seq_storage.save_sequence(seq, name)
-                    seq_ids.append(seq_id)
-                
-                st.session_state.seq_ids = seq_ids
-                st.session_state.names = names
-                st.session_state.results_storage = {}
-                
-                # Keep legacy fields for compatibility but with empty lists
-                st.session_state.seqs = []
-                st.session_state.results = []
+                if not _analysis_locked:
+                    # Use disk-based storage
+                    seq_ids = []
+                    for seq, name in zip(seqs, names):
+                        seq_id = st.session_state.seq_storage.save_sequence(seq, name)
+                        seq_ids.append(seq_id)
+                    
+                    st.session_state.seq_ids = seq_ids
+                    st.session_state.names = names
+                    st.session_state.results_storage = {}
+                    
+                    # Keep legacy fields for compatibility but with empty lists
+                    st.session_state.seqs = []
+                    st.session_state.results = []
             else:
-                # Legacy in-memory mode
-                st.session_state.seqs = seqs
-                st.session_state.names = names
-                st.session_state.results = []
+                if not _analysis_locked:
+                    # Legacy in-memory mode
+                    st.session_state.seqs = seqs
+                    st.session_state.names = names
+                    st.session_state.results = []
 
         # Compact sequence validation summary (single strip, no individual cards)
         # Support both disk storage and legacy in-memory mode
