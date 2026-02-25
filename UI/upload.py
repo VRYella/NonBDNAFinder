@@ -280,7 +280,7 @@ def show_technical_details():
         except Exception:
             show_technical_details()  # Shows traceback of caught exception
     """
-    with st.expander("🔧 Technical Details (for debugging)"):
+    with st.expander("Technical Details (for debugging)"):
         st.code(traceback.format_exc())
 
 
@@ -854,23 +854,23 @@ def render():
             sum_n = sum(s.get('N', 0) for s in cached_stats)
             
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #059669 0%, #047857 100%); 
-                        border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);'>
-                <div style='font-weight: 600; font-size: 0.85rem; margin-bottom: 6px;'>
-                    ✓ Ready for Analysis
+            <div style='background: #f0fdf4; 
+                        border-radius: 6px; padding: 10px 14px; margin: 8px 0;
+                        border: 1px solid #86efac; border-left: 4px solid #16a34a;'>
+                <div style='font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: #14532d;'>
+                    &#10003; Ready for Analysis
                 </div>
-                <div style='display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.75rem;'>
-                    <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                <div style='display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.75rem; color: #1e293b;'>
+                    <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                         <strong>{num_sequences}</strong> sequences
                     </span>
-                    <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                    <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                         <strong>{total_bp:,}</strong> bp total
                     </span>
-                    <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                    <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                         GC: <strong>{avg_gc:.1f}%</strong>
                     </span>
-                    <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                    <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                         A:<strong>{sum_a:,}</strong> T:<strong>{sum_t:,}</strong> G:<strong>{sum_g:,}</strong> C:<strong>{sum_c:,}</strong>{f' N:<strong>{sum_n:,}</strong>' if sum_n > 0 else ''}
                     </span>
                 </div>
@@ -883,10 +883,10 @@ def render():
     # ============================================================
     with right_col:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); 
+        <div style='background: #f5f3ff; 
                     padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
-                    border-left: 3px solid #8b5cf6;'>
-            <h4 style='margin: 0; color: #5b21b6; font-size: 0.95rem; font-weight: 600;'>
+                    border-left: 3px solid #4338ca;'>
+            <h4 style='margin: 0; color: #3730a3; font-size: 0.95rem; font-weight: 600;'>
                 Detection Scope: Select Non-B DNA Motifs
             </h4>
         </div>
@@ -1142,7 +1142,7 @@ def render():
             # Primary action button with clear scientific terminology
             if has_valid_input_inner and not st.session_state.analysis_done:
                 run_button = st.button(
-                    "🧬 Run Non-B DNA Analysis",
+                    "Run Non-B DNA Analysis",
                     type="primary",
                     use_container_width=True,
                     key="run_motif_analysis_main",
@@ -1167,7 +1167,7 @@ def render():
                      style='background: #e5e7eb; color: #9ca3af; padding: 12px; 
                             border-radius: 8px; text-align: center; font-weight: 600;
                             font-size: 0.95rem; cursor: not-allowed;'>
-                    🧬 Run Non-B DNA Analysis
+                    Run Non-B DNA Analysis
                 </div>
                 <p style='text-align: center; color: #9ca3af; font-size: 0.75rem; margin-top: 4px;'>
                     Upload sequences and select submotifs to enable
@@ -1177,7 +1177,7 @@ def render():
 
         with col_reset_inner:
             # Reset button — clears all uploaded data, sequences, and results
-            if st.button("🔄 Reset", use_container_width=True, help="Clear all uploaded files, sequences, results, and analysis state to start over", key="reset_button_inner"):
+            if st.button("Reset", use_container_width=True, help="Clear all uploaded files, sequences, results, and analysis state to start over", key="reset_button_inner"):
                 # Clear analysis flags and computed results
                 st.session_state.analysis_done = False
                 st.session_state.results = []
@@ -1206,12 +1206,11 @@ def render():
         # Create a vibrant container for progress display below the buttons
         with st.container():
             st.markdown("""
-            <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
-                        padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem;
-                        border-left: 4px solid #0ea5e9;
-                        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
-                <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem;'>
-                    📊 Analysis Progress
+            <div style='background: #f0f7ff; 
+                        padding: 0.75rem 1rem; border-radius: 6px; margin-top: 1rem;
+                        border-left: 4px solid #2563eb;'>
+                <div style='color: #1e3a8a; font-weight: 600; font-size: 0.9rem;'>
+                    Analysis Progress
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1334,7 +1333,7 @@ def render():
             start_time = time.time()
             
             # Simple status message instead of toast
-            status_placeholder.info("🧬 Starting Non-B DNA Analysis...")
+            status_placeholder.info("Starting Non-B DNA Analysis...")
 
             
             # Define detector processes for display
@@ -1459,7 +1458,7 @@ def render():
                     # ============================================================
                     # PARALLEL PROCESSING MODE - Multi-FASTA Optimization
                     # ============================================================
-                    status_placeholder.info(f"🚀 Using parallel processing for {num_sequences} sequences")
+                    status_placeholder.info(f"Using parallel processing for {num_sequences} sequences")
                     
                     # Import helper functions
                     from Utilities.parallel_analysis_helper import (
@@ -1498,10 +1497,10 @@ def render():
                         progress = completed / total
                         with progress_placeholder.container():
                             pbar.progress(progress, text=f"Analyzed {completed}/{total} sequences")
-                        progress_status.info(f"⏳ Completed: {seq_name}")
+                        progress_status.info(f"Completed: {seq_name}")
                     
                     # Run parallel analysis
-                    with st.status("🧬 Running parallel sequence analysis...", expanded=True) as parallel_status:
+                    with st.status("Running parallel sequence analysis...", expanded=True) as parallel_status:
                         st.write(f"Analyzing {num_sequences} sequences in parallel...")
                         
                         parallel_results = analyze_sequences_parallel(
@@ -1512,7 +1511,7 @@ def render():
                             use_processes=False  # Use threads for I/O-bound operations
                         )
                         
-                        parallel_status.update(label="✅ Parallel analysis complete", state="complete")
+                        parallel_status.update(label="Parallel analysis complete", state="complete")
                     
                     progress_status.empty()
                     
@@ -1568,9 +1567,9 @@ def render():
                             total_bp_processed += seq_length
                             
                             # Brief status update without popup
-                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs")
+                            status_placeholder.success(f"{name}: {len(results):,} motifs")
                         else:
-                            st.error(f"❌ Failed: {result['name']} - {result.get('error')}")
+                            st.error(f"Failed: {result['name']} - {result.get('error')}")
                             all_results.append([])
                     
                     # Memory management
@@ -1592,7 +1591,7 @@ def render():
                         overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                         
                         # Use st.status() for real-time disappearing progress
-                        with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)", expanded=True) as status:
+                        with st.status(f"Analyzing sequence {i+1}/{num_sequences}: {name} ({seq_length:,} bp)", expanded=True) as status:
                             seq_start_time = time.time()
                             
                             # Step 1: Validation
@@ -1602,7 +1601,7 @@ def render():
                             if seq_length > CHUNK_ANALYSIS_THRESHOLD_BP:
                                 # Step 2: Chunking
                                 st.write(f"✓ Using chunk-based analysis (50KB chunks)")
-                                status_placeholder.info(f"📦 Chunking large sequence: {name}")
+                                status_placeholder.info(f"Chunking large sequence: {name}")
                                 
                                 # Create chunk progress callback with status updates
                                 chunk_progress = {'current': 0, 'total': 0}
@@ -1613,11 +1612,11 @@ def render():
                                     chunk_progress['current'] = int(progress_pct)
                                     # Update every 20% to avoid too many updates
                                     if progress_pct - last_update_pct >= 20:
-                                        st.write(f"  ⏳ Chunk progress: {progress_pct:.0f}%")
+                                        st.write(f"  Chunk progress: {progress_pct:.0f}%")
                                         last_update_pct = progress_pct
                                 
                                 # Step 3: Analysis
-                                st.write("⏳ Running detectors on chunks...")
+                                st.write("Running detectors on chunks...")
                                 chunk_start = time.time()
                                 
                                 # Analyze using ChunkAnalyzer
@@ -1647,15 +1646,15 @@ def render():
                                 st.write(f"✓ Chunk analysis complete: {total_motifs:,} total motifs found")
                             else:
                                 # Small sequence: use standard analysis
-                                st.write("⏳ Running detectors...")
+                                st.write("Running detectors...")
                                 
                                 # Get full sequence for standard analysis
                                 seq = st.session_state.seq_storage.get_sequence_chunk(seq_id, 0, seq_length)
                                 
                                 # Validate sequence before analysis
                                 if not seq or len(seq) == 0:
-                                    st.error(f"❌ Empty sequence detected")
-                                    status.update(label=f"❌ Failed: {name}", state="error")
+                                    st.error(f"Empty sequence detected")
+                                    status.update(label=f"Failed: {name}", state="error")
                                     continue
                                 
                                 # Use standard analysis
@@ -1684,7 +1683,7 @@ def render():
                             perf_tracker.add_sequence_result(name, seq_length, seq_elapsed, len(results))
                             
                             # Step 4: Filtering
-                            st.write("⏳ Applying filters...")
+                            st.write("Applying filters...")
                         
                             # Ensure all motifs have required fields - safe iteration with error handling
                             safe_results = []
@@ -1721,13 +1720,13 @@ def render():
                             st.write(f"✓ Filters applied: {len(results):,} motifs retained")
                             
                             # Final summary
-                            st.write(f"⏱️ Time: {format_time(seq_elapsed)} | ⚡ Throughput: {throughput:,.0f} bp/s")
+                            st.write(f"Time: {format_time(seq_elapsed)} | Throughput: {throughput:,.0f} bp/s")
                             
                             # Update status to complete
-                            status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
+                            status.update(label=f"Completed: {name} ({len(results):,} motifs)", state="complete")
                             
                             # Brief status update without popup
-                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs found")
+                            status_placeholder.success(f"{name}: {len(results):,} motifs found")
                         
                         all_results.append(results)
                         
@@ -1750,19 +1749,19 @@ def render():
                         overall_percentage = (total_bp_processed / total_bp_all_sequences * 100) if total_bp_all_sequences > 0 else 0
                         
                         # Use st.status() for real-time disappearing progress
-                        with st.status(f"🧬 Analyzing sequence {i+1}/{num_sequences}: {name} ({len(seq):,} bp)", expanded=True) as status:
+                        with st.status(f"Analyzing sequence {i+1}/{num_sequences}: {name} ({len(seq):,} bp)", expanded=True) as status:
                             seq_start_time = time.time()
                             
                             # Step 1: Validation
                             st.write("✓ Validating sequence...")
                             
                             if not seq or len(seq) == 0:
-                                st.error(f"❌ Empty sequence detected")
-                                status.update(label=f"❌ Failed: {name}", state="error")
+                                st.error(f"Empty sequence detected")
+                                status.update(label=f"Failed: {name}", state="error")
                                 continue
                             
                             # Step 2: Analysis
-                            st.write("⏳ Running detectors...")
+                            st.write("Running detectors...")
                             analysis_start = time.time()
                             
                             # Use standard consolidated NBDScanner analysis
@@ -1775,7 +1774,7 @@ def render():
                             st.write(f"✓ Analysis complete: {len(results):,} motifs found")
                             
                             # Step 3: Filtering
-                            st.write("⏳ Applying filters...")
+                            st.write("Applying filters...")
                             
                             # Ensure all motifs have required fields - safe iteration with error handling
                             safe_results = []
@@ -1819,13 +1818,13 @@ def render():
                             perf_tracker.add_sequence_result(name, len(seq), seq_elapsed, len(results))
                             
                             # Final summary
-                            st.write(f"⏱️ Time: {format_time(seq_elapsed)} | ⚡ Throughput: {throughput:,.0f} bp/s")
+                            st.write(f"Time: {format_time(seq_elapsed)} | Throughput: {throughput:,.0f} bp/s")
                             
                             # Update status to complete
-                            status.update(label=f"✅ Completed: {name} ({len(results):,} motifs)", state="complete")
+                            status.update(label=f"Completed: {name} ({len(results):,} motifs)", state="complete")
                             
                             # Brief status update without popup
-                            status_placeholder.success(f"✅ {name}: {len(results):,} motifs found")
+                            status_placeholder.success(f"{name}: {len(results):,} motifs found")
                         
                         all_results.append(results)
                     
@@ -1969,7 +1968,7 @@ def render():
                 
                 # Display summary statistics to user
                 if not st.session_state.summary_df.empty:
-                    st.subheader("📊 Analysis Summary Statistics")
+                    st.subheader("Analysis Summary Statistics")
                     st.dataframe(
                         st.session_state.summary_df,
                         use_container_width=True,
@@ -2144,32 +2143,26 @@ def render():
                 timer_placeholder.markdown(f"""
                 <div class='metrics-strip metrics-strip--success'>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>⏱️</span>
                         <span class='metric-card__value'>{format_time_scientific(total_time)}</span>
                         <span class='metric-card__label'>Analysis</span>
                     </div>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>🎨</span>
                         <span class='metric-card__value'>{format_time_scientific(viz_total_time)}</span>
                         <span class='metric-card__label'>Viz Time</span>
                     </div>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>🧬</span>
                         <span class='metric-card__value'>{total_bp_processed:,}</span>
                         <span class='metric-card__label'>Base Pairs</span>
                     </div>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>⚡</span>
                         <span class='metric-card__value'>{overall_speed:,.0f}</span>
                         <span class='metric-card__label'>bp/sec</span>
                     </div>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>🧪</span>
                         <span class='metric-card__value'>{sum(len(r) for r in all_results)}</span>
                         <span class='metric-card__label'>Motifs</span>
                     </div>
                     <div class='metric-card'>
-                        <span class='metric-card__icon'>⚠️</span>
                         <span class='metric-card__value'>{len(validation_issues)}</span>
                         <span class='metric-card__label'>Issues</span>
                     </div>
@@ -2183,16 +2176,16 @@ def render():
                 
                 # Build completion HTML with styled green box
                 # Using concatenation for better readability while keeping single-line HTML for Streamlit
-                box_style = "background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 12px; padding: 20px; margin: 15px 0; color: white; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);"
-                section_style = "background: rgba(255,255,255,0.15); border-radius: 8px; padding: 12px; margin: 10px 0;"
-                h3_style = "margin: 0 0 15px 0; color: white; font-size: 1.4rem;"
-                h4_style = "margin: 0 0 8px 0; color: white; font-size: 1.1rem;"
+                box_style = "background: #f0fdf4; border-radius: 8px; padding: 20px; margin: 15px 0; border: 1px solid #86efac; border-left: 4px solid #16a34a;"
+                section_style = "background: #ffffff; border-radius: 6px; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0;"
+                h3_style = "margin: 0 0 15px 0; color: #14532d; font-size: 1.2rem;"
+                h4_style = "margin: 0 0 8px 0; color: #1e293b; font-size: 1rem;"
                 ul_style = "margin: 0; padding-left: 20px; list-style-type: disc;"
                 footer_style = "margin-top: 15px; font-weight: 600; font-size: 1.1rem; text-align: center;"
                 
                 completion_html = (
                     f'<div style="{box_style}">'
-                    f'<h3 style="{h3_style}">✅ Analysis Complete! All processing stages finished successfully:</h3>'
+                    f'<h3 style="{h3_style}">Analysis Complete — All processing stages finished successfully:</h3>'
                     f'<div style="{section_style}">'
                     f'<h4 style="{h4_style}">Detection &amp; Analysis:</h4>'
                     f'<ul style="{ul_style}">'
@@ -2233,10 +2226,10 @@ def render():
                         motifs_by_class[motif_class] = motifs_by_class.get(motif_class, 0) + 1
                 
                 # Display performance summary
-                st.subheader("⚡ Performance Report")
+                st.subheader("Performance Report")
                 
                 # Create expandable section with detailed performance stats
-                with st.expander("📊 View Detailed Performance Statistics", expanded=False):
+                with st.expander("View Detailed Performance Statistics", expanded=False):
                     # Format and display comprehensive performance summary
                     perf_summary_text = format_performance_summary(perf_tracker, format_time_human)
                     st.markdown(perf_summary_text)
@@ -2282,7 +2275,7 @@ def render():
                 # Summary at the end (no popup)
                 status_placeholder.empty()  # Clear the status
                 st.success(
-                    f"🎉 Analysis complete! {sum(len(r) for r in all_results):,} motifs found in {format_time(total_time)}"
+                    f"Analysis complete! {sum(len(r) for r in all_results):,} motifs found in {format_time(total_time)}"
                 )
                 
                 st.session_state.analysis_status = "Complete"
@@ -2349,7 +2342,7 @@ def render():
                 logger.exception("Unexpected error during analysis")
                 
                 # Display error to user
-                st.error(f"❌ **Analysis failed:** {str(e)}")
+                st.error(f"**Analysis failed:** {str(e)}")
                 
                 # Show traceback in expander for debugging
                 show_technical_details()
