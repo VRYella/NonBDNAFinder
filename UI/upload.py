@@ -168,29 +168,30 @@ def render_sequence_stats_card(idx: int, name: str, length: int, gc_pct: float, 
     gc_balance = 'OK' if GC_BALANCE_MIN <= gc_pct <= GC_BALANCE_MAX else '!'
     
     return f"""
-    <div style='background: linear-gradient({gradient_colors}); 
-                border-radius: 8px; padding: 12px; margin: 8px 0; color: white;
-                box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);'>
-        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;'>
+    <div style='background: #ffffff; 
+                border-radius: 6px; padding: 12px; margin: 8px 0;
+                border: 1px solid #e2e8f0; border-left: 4px solid #1e3a8a;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);'>
+        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #0f172a;'>
             {idx}. {display_name}
         </div>
         <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; 
                     font-size: 0.8rem; margin-top: 8px;'>
-            <div style='background: rgba(255,255,255,0.15); padding: 6px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1rem;'>{length:,}</div>
-                <div style='opacity: 0.9; font-size: 0.7rem;'>Base Pairs</div>
+            <div style='background: #f8fafc; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e2e8f0;'>
+                <div style='font-weight: 700; font-size: 1rem; color: #0f172a;'>{length:,}</div>
+                <div style='color: #475569; font-size: 0.7rem;'>Base Pairs</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 6px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1rem;'>{gc_pct:.2f}%</div>
-                <div style='opacity: 0.9; font-size: 0.7rem;'>GC Content</div>
+            <div style='background: #f8fafc; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e2e8f0;'>
+                <div style='font-weight: 700; font-size: 1rem; color: #0f172a;'>{gc_pct:.2f}%</div>
+                <div style='color: #475569; font-size: 0.7rem;'>GC Content</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 6px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1rem;'>{at_pct:.2f}%</div>
-                <div style='opacity: 0.9; font-size: 0.7rem;'>AT Content</div>
+            <div style='background: #f8fafc; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e2e8f0;'>
+                <div style='font-weight: 700; font-size: 1rem; color: #0f172a;'>{at_pct:.2f}%</div>
+                <div style='color: #475569; font-size: 0.7rem;'>AT Content</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 6px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1rem;'>{gc_balance}</div>
-                <div style='opacity: 0.9; font-size: 0.7rem;'>GC Balance</div>
+            <div style='background: #f8fafc; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #e2e8f0;'>
+                <div style='font-weight: 700; font-size: 1rem; color: #0f172a;'>{gc_balance}</div>
+                <div style='color: #475569; font-size: 0.7rem;'>GC Balance</div>
             </div>
         </div>
     </div>
@@ -375,10 +376,10 @@ def render():
     # ============================================================
     with left_col:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+        <div style='background: #f0fdf4; 
                     padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
-                    border-left: 3px solid #10b981;'>
-            <h4 style='margin: 0; color: #065f46; font-size: 0.95rem; font-weight: 600;'>
+                    border-left: 3px solid #16a34a;'>
+            <h4 style='margin: 0; color: #14532d; font-size: 0.95rem; font-weight: 600;'>
                 Sequence Context
             </h4>
         </div>
@@ -547,27 +548,27 @@ def render():
                 
                     # Compact QC Summary Strip (replaces individual cards)
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                                border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);'>
-                        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;'>
+                    <div style='background: #f0fdf4; 
+                                border-radius: 6px; padding: 10px 14px; margin: 8px 0;
+                                border: 1px solid #86efac; border-left: 4px solid #16a34a;'>
+                        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #14532d;'>
                             {fasta_file.name}
                         </div>
-                        <div style='display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem;'>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                        <div style='display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; color: #1e293b;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 <strong>{preview_info['num_sequences']}</strong> sequences
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 <strong>{preview_info['total_bp']:,}</strong> bp
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 GC: <strong>{avg_gc:.1f}%</strong>
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 A:<strong>{sum_a:,}</strong> T:<strong>{sum_t:,}</strong> G:<strong>{sum_g:,}</strong> C:<strong>{sum_c:,}</strong>{f' N:<strong>{sum_n:,}</strong>' if sum_n > 0 else ''}
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
-                                ✓ Valid
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
+                                &#10003; Valid
                             </span>
                         </div>
                     </div>
@@ -662,27 +663,27 @@ def render():
                     avg_gc = (all_g + all_c) / total_atgc * 100 if total_atgc > 0 else 0.0
                     total_bp = sum(len(s) for s in seqs)
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                                border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);'>
-                        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;'>
+                    <div style='background: #f0fdf4; 
+                                border-radius: 6px; padding: 10px 14px; margin: 8px 0;
+                                border: 1px solid #86efac; border-left: 4px solid #16a34a;'>
+                        <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #14532d;'>
                             Pasted Input
                         </div>
-                        <div style='display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem;'>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                        <div style='display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.8rem; color: #1e293b;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 <strong>{len(seqs)}</strong> sequences
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 <strong>{total_bp:,}</strong> bp
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 GC: <strong>{avg_gc:.1f}%</strong>
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
                                 A:<strong>{all_a:,}</strong> T:<strong>{all_t:,}</strong> G:<strong>{all_g:,}</strong> C:<strong>{all_c:,}</strong>{f' N:<strong>{all_n:,}</strong>' if all_n > 0 else ''}
                             </span>
-                            <span style='background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 4px;'>
-                                ✓ Valid
+                            <span style='background: #dcfce7; padding: 4px 8px; border-radius: 4px;'>
+                                &#10003; Valid
                             </span>
                         </div>
                     </div>
@@ -1082,10 +1083,10 @@ def render():
 
         if enabled_classes:
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            <div style='background: #f5f3ff;
                         padding: 6px 10px; border-radius: 6px; margin-top: 8px;
                         border: 1px solid #c4b5fd; font-size: 0.78rem;'>
-                <span style='font-weight: 600; color: #6d28d9;'>
+                <span style='font-weight: 600; color: #3730a3;'>
                     {len(enabled_classes)} classes · {num_enabled}/{total_submotifs} submotifs
                 </span>
             </div>
@@ -1152,11 +1153,11 @@ def render():
                 # Show analysis complete status
                 st.markdown("""
                 <div role="status" aria-label="Analysis Complete"
-                     style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-                            color: white; padding: 12px; 
-                            border-radius: 8px; text-align: center; font-weight: 600;
-                            font-size: 0.95rem;'>
-                    ✓ Analysis Complete — View results in 'Results' tab
+                     style='background: #f0fdf4; 
+                            color: #14532d; padding: 12px; 
+                            border-radius: 6px; text-align: center; font-weight: 600;
+                            font-size: 0.95rem; border: 1px solid #86efac; border-left: 4px solid #16a34a;'>
+                    &#10003; Analysis Complete — View results in 'Results' tab
                 </div>
                 """, unsafe_allow_html=True)
                 run_button = False

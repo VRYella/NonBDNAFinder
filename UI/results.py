@@ -49,7 +49,7 @@ def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
     """Render a structured metric panel as an HTML table with Metric | Value | Definition columns.
 
     Args:
-        header: Section header string (e.g. "🟦 I. Genome Overview").
+        header: Section header string (e.g. "I. Genome Overview").
         rows: List of (metric_name, value_str, definition_str) tuples.
         note: Optional italicised footnote shown below the table.
     """
