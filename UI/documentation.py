@@ -31,6 +31,64 @@ _PROSE_STYLE = "font-family:Georgia,serif;line-height:1.75;color:#1e293b;font-si
 _H3_STYLE = "color:#1e40af;font-size:1rem;margin-top:1.4rem;margin-bottom:0.4rem;"
 _H4_STYLE = "color:#334155;font-size:0.93rem;margin-top:1.1rem;margin-bottom:0.3rem;"
 
+# ─── Flow diagram builder ──────────────────────────────────────────────────────
+
+_FLOW_COLORS = {
+    'input':   ('#dbeafe', '#2563eb', '#1e40af'),
+    'process': ('#f0f9ff', '#0284c7', '#0c4a6e'),
+    'filter':  ('#fefce8', '#ca8a04', '#78350f'),
+    'score':   ('#f0fdf4', '#16a34a', '#14532d'),
+    'output':  ('#faf5ff', '#7c3aed', '#4c1d95'),
+}
+
+
+def _build_flow_diagram(stages, caption=""):
+    """Build a horizontal scrollable pipeline flow diagram.
+
+    stages: list of dicts with keys:
+        'title'  – short label shown in the box
+        'desc'   – one-line description (optional)
+        'color'  – key in _FLOW_COLORS ('input', 'process', 'filter', 'score', 'output')
+    caption: optional italic caption rendered below the diagram
+    """
+    items = []
+    for i, s in enumerate(stages):
+        bg, bdr, txt = _FLOW_COLORS.get(s.get('color', 'process'), _FLOW_COLORS['process'])
+        desc_html = (
+            f"<div style='color:#475569;font-size:0.65rem;margin-top:0.15rem;"
+            f"line-height:1.3;'>{s['desc']}</div>"
+            if s.get('desc') else ""
+        )
+        items.append(
+            f"<div style='flex-shrink:0;background:{bg};border:2px solid {bdr};"
+            f"border-radius:8px;padding:0.45rem 0.8rem;min-width:130px;max-width:180px;"
+            f"text-align:center;'>"
+            f"<div style='color:{bdr};font-size:0.6rem;font-weight:700;'>STEP {i + 1}</div>"
+            f"<div style='color:{txt};font-size:0.75rem;font-weight:600;line-height:1.3;'>"
+            f"{s['title']}</div>"
+            f"{desc_html}</div>"
+        )
+        if i < len(stages) - 1:
+            items.append(
+                "<div style='flex-shrink:0;display:flex;align-items:center;"
+                "color:#94a3b8;font-size:1.2rem;padding:0 0.3rem;'>&#8594;</div>"
+            )
+    caption_html = (
+        f"<p style='text-align:center;color:#64748b;font-size:0.72rem;"
+        f"margin-top:0.3rem;font-style:italic;'>{caption}</p>"
+        if caption else ""
+    )
+    return (
+        "<div style='overflow-x:auto;margin-bottom:1rem;'>"
+        "<div style='display:inline-flex;align-items:stretch;gap:0;"
+        "padding:0.8rem 1rem;background:#f8fafc;border-radius:10px;"
+        "border:1px solid #e2e8f0;min-width:max-content;'>"
+        + "".join(items)
+        + "</div>"
+        + caption_html
+        + "</div>"
+    )
+
 
 def _build_motif_card(n, sub, col, desc):
     return (
@@ -188,6 +246,18 @@ def _tab_detection_algorithms():
 
     with subtabs[0]:
         _section_heading("2.3.1 Curved DNA")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'A/T-tract Enumeration', 'desc': 'Runs ≥3 bp, both strands', 'color': 'process'},
+                {'title': 'Center Detection', 'desc': 'A-runs exceed T-runs by ≥3 nt', 'color': 'process'},
+                {'title': 'Phasing Analysis', 'desc': 'Helical spacing 9.9–11.1 bp', 'color': 'filter'},
+                {'title': 'Local Tract Detection', 'desc': 'Isolated A/T-tracts ≥8 bp', 'color': 'process'},
+                {'title': 'Score Normalization', 'desc': '1.0–3.0 confidence scale', 'color': 'score'},
+                {'title': 'Curved DNA Hits', 'desc': 'APRs + local curvature motifs', 'color': 'output'},
+            ], caption="Figure: Curved DNA detection pipeline — two-stage A-tract phasing analysis."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Curvature-prone regions were identified by a two-stage A/T-tract analysis. In the first "
             "stage, all contiguous runs of A and T bases meeting a minimum length of 3 bp are enumerated. "
@@ -209,6 +279,18 @@ def _tab_detection_algorithms():
 
     with subtabs[1]:
         _section_heading("2.3.2 Slipped DNA and Tandem Repeats")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'STR Pattern Scan', 'desc': 'Units 1–6 nt, ≥4–6 copies', 'color': 'process'},
+                {'title': 'Direct Repeat Scan', 'desc': 'Units 7–50 nt, ≥2 copies', 'color': 'process'},
+                {'title': 'Low-complexity Filter', 'desc': 'Shannon entropy ≥0.5 bits', 'color': 'filter'},
+                {'title': 'Piecewise Scoring', 'desc': 'Length × copy × purity × GC', 'color': 'score'},
+                {'title': 'Score Normalization', 'desc': '1.0–3.0 confidence scale', 'color': 'score'},
+                {'title': 'Slipped DNA Hits', 'desc': 'STRs + direct repeats', 'color': 'output'},
+            ], caption="Figure: Slipped DNA detection pipeline — tandem repeat scan with entropy filtering."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Direct repeats and short tandem repeats (STRs) were identified as tandemly arrayed sequence "
             "units using Python regular expressions compiled with a per-unit-size pattern cache. STRs were "
@@ -225,6 +307,18 @@ def _tab_detection_algorithms():
 
     with subtabs[2]:
         _section_heading("2.3.3 Cruciform-Forming Inverted Repeats")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': '6-mer Seed Index', 'desc': 'All hexamer positions indexed', 'color': 'process'},
+                {'title': 'Rev. Complement Search', 'desc': 'Locate matching arm partner', 'color': 'process'},
+                {'title': 'Bidirectional Extension', 'desc': 'Arms 8–50 bp, spacer ≤12 bp', 'color': 'process'},
+                {'title': 'ΔG Stability Filter', 'desc': 'ΔG ≤ −5.0 kcal/mol (NN model)', 'color': 'filter'},
+                {'title': 'Score Normalization', 'desc': 'Arm × symmetry × GC → 1.0–3.0', 'color': 'score'},
+                {'title': 'Cruciform Hits', 'desc': 'Inverted repeats with ΔG filter', 'color': 'output'},
+            ], caption="Figure: Cruciform detection pipeline — seed-and-extend with thermodynamic validation."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Cruciform motifs were detected via a seed-and-extend algorithm applied to inverted repeat "
             "pairs. An initial 6-mer seed index is constructed over the sequence; for each seed hit, the "
@@ -239,6 +333,18 @@ def _tab_detection_algorithms():
 
     with subtabs[3]:
         _section_heading("2.3.4 Triplex and Sticky DNA")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'Mirror Repeat Scan', 'desc': 'Homopurine/homopyrimidine arms', 'color': 'process'},
+                {'title': 'Purity Filter', 'desc': 'Purine/pyrimidine fraction ≥90%', 'color': 'filter'},
+                {'title': 'H-DNA Scoring', 'desc': 'Arm + loop + purity weights', 'color': 'score'},
+                {'title': 'Sticky DNA Scan', 'desc': '(GAA)n/(TTC)n ≥20 copies', 'color': 'process'},
+                {'title': 'Score Normalization', 'desc': '1.0–3.0 confidence scale', 'color': 'score'},
+                {'title': 'Triplex Hits', 'desc': 'H-DNA + Sticky DNA candidates', 'color': 'output'},
+            ], caption="Figure: Triplex/Sticky DNA detection pipeline — mirror repeat scan with purity filtering."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Triplex-forming mirror repeats were detected as homopurine or homopyrimidine mirror "
             "sequences with arm lengths of 10–100 bp and spacer tolerance up to 8 bp, requiring a purine "
@@ -258,6 +364,18 @@ def _tab_detection_algorithms():
 
     with subtabs[4]:
         _section_heading("2.3.5 R-Loop–Forming Sequences")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'RIZ Detection', 'desc': 'G-cluster models, G-content ≥50%', 'color': 'process'},
+                {'title': 'Model 1: G{3+} Clusters', 'desc': 'Separated by ≤10 intervening bases', 'color': 'process'},
+                {'title': 'Model 2: G{4+} Tracts', 'desc': 'Dense guanine tracts', 'color': 'process'},
+                {'title': 'REZ Extension', 'desc': 'GC-rich zone ≤2000 bp, GC ≥40%', 'color': 'filter'},
+                {'title': 'Score Normalization', 'desc': 'GC × G-density → 1.0–3.0', 'color': 'score'},
+                {'title': 'R-Loop Hits', 'desc': 'RIZ + REZ combined intervals', 'color': 'output'},
+            ], caption="Figure: R-Loop detection pipeline — two-stage QmRLFS-adapted initiation/elongation model."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>R-loop prediction followed a two-stage framework adapted from the QmRLFS model "
             "(Jenjaroenpun et al. 2015, 2016). In the first stage, initiation zones (R-loop initiation "
@@ -272,6 +390,18 @@ def _tab_detection_algorithms():
 
     with subtabs[5]:
         _section_heading("2.3.6 Z-DNA and eGZ Motifs")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': '10-mer Table Matching', 'desc': 'Hyperscan / Python fallback', 'color': 'process'},
+                {'title': 'Per-base Score Accumulation', 'desc': 'Uniform contribution over 10 bp', 'color': 'process'},
+                {'title': 'Region Merging', 'desc': 'Adjacent/overlapping 10-mers merged', 'color': 'process'},
+                {'title': 'Threshold Filter', 'desc': 'Cumulative score ≥50.0', 'color': 'filter'},
+                {'title': 'eGZ Detection', 'desc': 'CGG/GGC/CCG/GCC repeats ≥4 copies', 'color': 'process'},
+                {'title': 'Z-DNA Hits', 'desc': 'Z-DNA + eGZ candidates', 'color': 'output'},
+            ], caption="Figure: Z-DNA/eGZ detection pipeline — 10-mer propensity table with log-linear normalization."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Z-DNA propensity was estimated using a precomputed 10-mer scoring table derived from the "
             "dinucleotide propensity matrix of Ho et al. (1986), which assigns higher scores to CG, GC, "
@@ -292,6 +422,18 @@ def _tab_detection_algorithms():
 
     with subtabs[6]:
         _section_heading("2.3.7 G-Quadruplex Family")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'G-seed Location', 'desc': 'All G{3+} positions indexed', 'color': 'process'},
+                {'title': 'Scan Region Merging', 'desc': 'Contiguous G-rich windows', 'color': 'process'},
+                {'title': '8-Subclass Matching', 'desc': 'Canonical, telomeric, bulged, etc.', 'color': 'process'},
+                {'title': 'G4Hunter Scoring', 'desc': 'Sliding window 25 nt, JIT-compiled', 'color': 'score'},
+                {'title': 'Overlap Resolution', 'desc': 'Priority: telomeric > higher-order…', 'color': 'filter'},
+                {'title': 'G4 Hits', 'desc': '8 subclass G-Quadruplex candidates', 'color': 'output'},
+            ], caption="Figure: G-Quadruplex detection pipeline — seeded scan with 8-subclass pattern matching and G4Hunter scoring."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>Canonical G4 motifs were identified using the pattern G{3+}N{1–7}G{3+}N{1–7}G{3+}N{1–7}"
             "G{3+}. Additional detectors captured telomeric repeats ((TTAGGG){4+}), extended-loop G4s "
@@ -313,6 +455,18 @@ def _tab_detection_algorithms():
 
     with subtabs[7]:
         _section_heading("2.3.8 i-Motif and AC-Motif Detection")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': 'C-tract Detection', 'desc': 'C{3+}N{1–7} × 4, loops 1–7 nt', 'color': 'process'},
+                {'title': 'AC-motif Scan', 'desc': 'Phased A/C tracts (Hur et al. 2021)', 'color': 'process'},
+                {'title': 'Subclass Assignment', 'desc': 'Short-loop vs long-loop variants', 'color': 'process'},
+                {'title': 'Overlap Resolution', 'desc': 'Canonical i-motif > AC-motif', 'color': 'filter'},
+                {'title': 'Score Normalization', 'desc': 'C-density × cytosine% × loop → 1.0–3.0', 'color': 'score'},
+                {'title': 'i-Motif Hits', 'desc': 'Canonical + AC-motif candidates', 'color': 'output'},
+            ], caption="Figure: i-Motif detection pipeline — C-tract and AC-motif scan with subclass assignment."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>i-motifs were defined as sequences containing four or more cytosine tracts, each consisting "
             "of at least 3 consecutive cytosines, separated by 1–7 nt loops, matching the pattern "
@@ -327,6 +481,18 @@ def _tab_detection_algorithms():
 
     with subtabs[8]:
         _section_heading("2.3.9 A-Philic DNA Propensity Modeling")
+        st.markdown(
+            _build_flow_diagram([
+                {'title': 'Input Sequence', 'desc': 'Canonical ATGC bases', 'color': 'input'},
+                {'title': '10-mer Table Matching', 'desc': 'A-form log₂ odds propensity table', 'color': 'process'},
+                {'title': 'Per-base Score Accumulation', 'desc': 'NumPy vectorization ≥1000 bp', 'color': 'process'},
+                {'title': 'Segment Merging', 'desc': 'Adjacent high-scoring regions joined', 'color': 'process'},
+                {'title': 'Threshold Filter', 'desc': 'Cumulative log₂ sum ≥0.5', 'color': 'filter'},
+                {'title': 'Score Normalization', 'desc': '1.0–3.0 confidence scale', 'color': 'score'},
+                {'title': 'A-philic DNA Hits', 'desc': 'A-form propensity regions', 'color': 'output'},
+            ], caption="Figure: A-philic DNA detection pipeline — 10-mer A-form propensity scoring with segment merging."),
+            unsafe_allow_html=True,
+        )
         _prose(
             "<p>A-philic DNA propensity was estimated using a precomputed 10-mer scoring table of log₂ "
             "enrichment values derived from A-form and B-form DNA crystal structures in the Nucleic Acid "
