@@ -21,7 +21,7 @@ def get_sequences_info() -> Tuple[List[str], List[int], int]:
     """
     if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
         # Disk storage mode
-        names = st.session_state.names
+        names = st.session_state.get("names", [])
         lengths = []
         for seq_id in st.session_state.seq_ids:
             metadata = st.session_state.seq_storage.get_metadata(seq_id)
@@ -29,9 +29,10 @@ def get_sequences_info() -> Tuple[List[str], List[int], int]:
         count = len(st.session_state.seq_ids)
     else:
         # Legacy mode
-        names = st.session_state.names
-        lengths = [len(seq) for seq in st.session_state.seqs]
-        count = len(st.session_state.seqs)
+        names = st.session_state.get("names", [])
+        seqs = st.session_state.get("seqs", [])
+        lengths = [len(seq) for seq in seqs]
+        count = len(seqs)
     
     return names, lengths, count
 
@@ -92,8 +93,9 @@ def get_results(seq_idx: int, limit: Optional[int] = None) -> List[Dict[str, Any
             return []
     else:
         # Legacy mode - already has bounds check
-        if seq_idx < len(st.session_state.results):
-            results = st.session_state.results[seq_idx]
+        results_list = st.session_state.get("results", [])
+        if seq_idx < len(results_list):
+            results = results_list[seq_idx]
             if limit is not None:
                 return results[:limit]
             return results
@@ -165,17 +167,19 @@ def get_results_summary(seq_idx: int) -> Dict[str, Any]:
 
 def has_results() -> bool:
     """
-    Check if any results are available.
-    
-    Returns:
-        True if results exist, False otherwise
+    Stable, single source-of-truth result check.
+
+    Results are considered available ONLY if:
+    - analysis_done flag is True
+    - results object exists in session_state
+
+    This prevents false negatives during Streamlit reruns
+    (e.g., after download button clicks).
     """
-    if st.session_state.get('use_disk_storage') and st.session_state.get('seq_ids'):
-        # Disk storage mode
-        return bool(st.session_state.results_storage)
-    else:
-        # Legacy mode
-        return bool(st.session_state.results and any(st.session_state.results))
+    return (
+        st.session_state.get("analysis_done", False)
+        and "results" in st.session_state
+    )
 
 
 def get_results_dataframe(seq_idx: int, limit: Optional[int] = None) -> pd.DataFrame:
