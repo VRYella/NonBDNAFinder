@@ -64,11 +64,11 @@ section[data-testid="stSidebar"] {
 /* Individual Tab Buttons - Vibrant but Readable */
 .stTabs [data-baseweb="tab"] {
     height: auto !important;
-    padding: 6px 8px !important;
+    padding: 8px 10px !important;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
     border: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 12px !important;
-    font-size: 0.78rem !important;
+    font-size: 0.92rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.01em !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -101,7 +101,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #00C9FF 0%, #00D4AA 50%, #00E676 100%) !important;
     color: #000000 !important;
     font-weight: 800 !important;
-    font-size: 0.78rem !important;
+    font-size: 0.92rem !important;
     transform: translateY(-1px) !important;
     box-shadow: 
         0 4px 15px rgba(0, 201, 255, 0.5),
@@ -122,7 +122,7 @@ section[data-testid="stSidebar"] {
 
 /* Tab Text Styling Override */
 .stTabs [data-baseweb="tab"] p {
-    font-size: 0.78rem !important;
+    font-size: 0.92rem !important;
     font-weight: 700 !important;
     margin: 0 !important;
     white-space: normal !important;
@@ -131,7 +131,7 @@ section[data-testid="stSidebar"] {
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] p {
-    font-size: 0.78rem !important;
+    font-size: 0.92rem !important;
 }
 
 /* Accessibility: Reduced Motion Support for Vestibular Disorders */
@@ -165,7 +165,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* H1 - Largest and Most Prominent */
 h1 {
-    font-size: 3rem !important;
+    font-size: 3.5rem !important;
     font-weight: 900 !important;
     color: #667eea;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -176,7 +176,7 @@ h1 {
 
 /* H2 - Section Headers */
 h2 {
-    font-size: 2.25rem !important;
+    font-size: 2.6rem !important;
     font-weight: 800 !important;
     color: #2d3748 !important;
     border-left: 6px solid #00C9FF;
@@ -185,14 +185,14 @@ h2 {
 
 /* H3 - Subsection Headers */
 h3 {
-    font-size: 1.75rem !important;
+    font-size: 2.0rem !important;
     font-weight: 800 !important;
     color: #2d3748 !important;
 }
 
 /* H4 - Smaller Headers */
 h4 {
-    font-size: 1.35rem !important;
+    font-size: 1.6rem !important;
     font-weight: 700 !important;
     color: #4a5568 !important;
 }
@@ -210,12 +210,18 @@ h4 {
 /* Reduce Streamlit Default Padding - Combined rules for clarity */
 .main .block-container {
     max-width: 100% !important;
-    padding: 1rem 1.5rem 0.5rem 1.5rem !important;
+    padding: 1.2rem 1.8rem 0.8rem 1.8rem !important;
 }
 
 /* Compact Element Spacing */
 .element-container {
     margin-bottom: 0.25rem !important;
+}
+
+/* Global body text size increase for all pages */
+p, span, label, li, td, th {
+    font-size: 1.0rem !important;
+    line-height: 1.6 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -721,7 +727,7 @@ h4 {
 
 /* Figure captions and labels */
 .stCaption, figcaption {
-    font-size: 0.8rem !important;
+    font-size: 0.9rem !important;
     color: #64748b !important;
     font-weight: 500 !important;
 }

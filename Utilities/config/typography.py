@@ -19,13 +19,13 @@ FONT_CONFIG = {
     # Font sizes (in rem units, where 1rem ≈ 16px in most browsers)
     # Enhanced sizes for modern, bold, research-quality appearance
     # UPDATED: Larger and bolder for more vibrant and impactful display
-    'h1_size': '3.0rem',      # Main page headers - bold, impactful, enlarged
-    'h2_size': '2.25rem',     # Section headers - clear hierarchy, prominent
-    'h3_size': '1.75rem',     # Subsection headers - organized structure, visible
-    'h4_size': '1.35rem',     # Small headers - subtle distinction, readable
-    'body_size': '1.0rem',    # Body text, paragraphs - optimal readability
-    'small_size': '0.9rem',   # Small text, notes - clear but compact
-    'caption_size': '0.8rem', # Captions, footnotes - supporting information
+    'h1_size': '3.5rem',      # Main page headers - bold, impactful, enlarged
+    'h2_size': '2.6rem',      # Section headers - clear hierarchy, prominent
+    'h3_size': '2.0rem',      # Subsection headers - organized structure, visible
+    'h4_size': '1.6rem',      # Small headers - subtle distinction, readable
+    'body_size': '1.15rem',   # Body text, paragraphs - optimal readability
+    'small_size': '1.05rem',  # Small text, notes - clear but compact
+    'caption_size': '0.95rem', # Captions, footnotes - supporting information
     
     # Font weights (100-900, where 400 is normal and 700 is bold)
     # UPDATED: Heavier weights for bold and vibrant appearance

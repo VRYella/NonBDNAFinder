@@ -23,7 +23,7 @@ PAGE_HEADING_COLORS = {
     'Downloads': {'primary': '#0ea5e9', 'pattern': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)'},
     'Documentation': {'primary': '#f59e0b', 'pattern': 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)'},
 }
-HEADING_PADDING = "0.25rem 1.2rem"; HEADING_FONT_SIZE = "1.15rem"; HEADING_BORDER_RADIUS = "6px"
+HEADING_PADDING = "0.5rem 1.2rem"; HEADING_FONT_SIZE = "1.4rem"; HEADING_BORDER_RADIUS = "6px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -63,7 +63,7 @@ def render_section_heading(title: str, page: str = None):
     st.markdown(f"""
     <div style="
         background: {background};
-        padding: 0.25rem 1.2rem;
+        padding: 0.5rem 1.2rem;
         border-radius: 6px;
         margin: 0.4rem 0 0.6rem 0;
         border: 1px solid {border_color};
@@ -73,7 +73,7 @@ def render_section_heading(title: str, page: str = None):
     ">
         <h2 style="
             margin: 0;
-            font-size: 1.15rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: {white};
             text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6);
