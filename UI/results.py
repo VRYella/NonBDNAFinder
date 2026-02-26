@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 CLUSTER_CLASSES = ['Hybrid', 'Non-B_DNA_Clusters']
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _render_section_divider(label): st.markdown(f"<div style='display:flex;align-items:center;gap:8px;padding:2px 0;margin-top:6px;'><span style='font-size:0.8rem;color:#64748b;font-weight:600;'>{label}</span><div style='flex:1;height:1px;background:linear-gradient(90deg,#a855f7 0%,transparent 100%);'></div></div>", unsafe_allow_html=True)
+def _render_section_divider(label): st.markdown(f"<div style='display:flex;align-items:center;gap:8px;padding:2px 0;margin-top:4px;'><span style='font-size:0.85rem;color:#1e293b;font-weight:700;'>{label}</span><div style='flex:1;height:1px;background:linear-gradient(90deg,#a855f7 0%,transparent 100%);'></div></div>", unsafe_allow_html=True)
 
 def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
     """Render a structured metric panel as an HTML table with Metric | Value | Definition columns.
@@ -64,7 +64,7 @@ def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
     note_html = f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>{note}</p>" if note else ""
     st.markdown(
         f"<div style='margin-top:10px;'>"
-        f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>{header}</div>"
+        f"<div style='font-size:0.85rem;font-weight:800;color:#1e293b;margin-bottom:4px;'>{header}</div>"
         f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
         f"<thead><tr><th style='{th_style}'>Metric</th><th style='{th_style}'>Value</th><th style='{th_style}'>Definition</th></tr></thead>"
         f"<tbody>{rows_html}</tbody></table>"
@@ -103,7 +103,7 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     
     if seq_count > 20:
-        st.info("📊 Aggregated visualization mode enabled (>20 sequences detected)")
+        st.info("Aggregated visualization mode enabled (>20 sequences detected)")
         
         # Collect annotations by sequence
         annotations_by_sequence = {}
@@ -165,7 +165,7 @@ def render():
             else:
                 st.info("No conservation data available.")
         else:
-            st.info("⚠️ Positional conservation analysis requires equal-length sequences.")
+            st.info("Positional conservation analysis requires equal-length sequences.")
         
         return
     
@@ -174,7 +174,7 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     if seq_count > 1:
         st.markdown("---")
-        st.markdown("### 📊 MultiFASTA Unified Analysis")
+        st.markdown("### MultiFASTA Unified Analysis")
         st.markdown("<div style='background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #f59e0b;'><p style='color:#92400e;margin:0;font-size:0.8rem;'><strong>Unified View:</strong> Comparing motif patterns across all sequences in your MultiFASTA input.</p></div>", unsafe_allow_html=True)
         
         # Check if all sequences have equal length
@@ -182,7 +182,7 @@ def render():
         
         # Show equal-length indicator
         if equal_length:
-            st.info(f"✨ All sequences have equal length ({lengths[0]:,} bp). Positional occurrence analysis is available below.")
+            st.info(f"All sequences have equal length ({lengths[0]:,} bp). Positional occurrence analysis is available below.")
         
         # Collect annotations by sequence
         from Utilities.multifasta_visualizer import MultiFastaVisualizer
@@ -260,10 +260,10 @@ def render():
                 except Exception as e:
                     st.error(f"Positional analysis error: {e}")
             else:
-                st.info("⚠️ Positional occurrence analysis is only available when all sequences have equal length. Your sequences have different lengths.")
+                st.info("Positional occurrence analysis is only available when all sequences have equal length. Your sequences have different lengths.")
         
         st.markdown("---")
-        st.markdown("### 📄 Individual Sequence Analysis")
+        st.markdown("### Individual Sequence Analysis")
         st.markdown("<div style='background:linear-gradient(135deg,#f3e8ff 0%,#e9d5ff 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;'><p style='color:#581c87;margin:0;font-size:0.8rem;'>Select a sequence below to view detailed per-sequence visualizations.</p></div>", unsafe_allow_html=True)
     
     seq_idx = 0
@@ -284,7 +284,7 @@ def render():
         # Load first 100,000 motifs for performance (sequential, not random sampling)
         motifs = get_results(seq_idx, limit=100_000)
         # Inform user about limited loading
-        st.info(f"📊 Displaying limited data: showing first 100,000 of {total_count:,} motifs for visualization performance. Statistics are computed from complete dataset.")
+        st.info(f"Displaying limited data: showing first 100,000 of {total_count:,} motifs for visualization performance. Statistics are computed from complete dataset.")
     
     slen = get_sequence_length(seq_idx)
     
@@ -320,16 +320,16 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     try:
         gstats = compute_comprehensive_genome_stats(motifs, slen)
-        with st.expander("🧬 GENOME STRUCTURAL LANDSCAPE REPORT", expanded=False):
+        with st.expander("GENOME STRUCTURAL LANDSCAPE REPORT", expanded=False):
             st.markdown(
-                "<div style='color:#64748b;font-size:0.78rem;margin-bottom:8px;'>"
+                "<div style='color:#334155;font-size:0.78rem;margin-bottom:8px;'>"
                 "Overall genome coverage excludes Hybrid and Cluster regions (reported individually below)."
                 "</div>",
                 unsafe_allow_html=True,
             )
             # ── Section I: Genome Overview ────────────────────────────────────
             _render_metric_panel(
-                "🟦 I. Genome Overview",
+                "I. Genome Overview",
                 [
                     ("Genome Length", f"{gstats['genome_length']:,} bp", "Total sequence length analyzed"),
                     ("Motifs (excl. Hybrid/Cluster)", f"{gstats['n_motifs']:,}", "Individual structural motifs detected"),
@@ -340,23 +340,23 @@ def render():
             )
             # ── Section II: Structural Coverage ──────────────────────────────
             _render_metric_panel(
-                "🟩 II. Structural Coverage",
+                "II. Structural Coverage",
                 [
                     ("Total Covered Bases", f"{gstats['total_covered_bases']:,} bp", "Unique genomic bases overlapping motifs"),
                     ("Coverage Fraction", f"{gstats['coverage_fraction']:.6f}", "Covered bases / genome length"),
                     ("Coverage (%)", f"{gstats['coverage_pct']:.4f}%", "% of genome structurally annotated"),
                 ],
-                note="🔎 Coverage reflects structural footprint, excluding Hybrid/Cluster merged regions.",
+                note="Coverage reflects structural footprint, excluding Hybrid/Cluster merged regions.",
             )
             # ── Section III: Occupancy Metrics ────────────────────────────────
             _render_metric_panel(
-                "🟨 III. Occupancy Metrics",
+                "III. Occupancy Metrics",
                 [
                     ("Raw Occupancy", f"{gstats['raw_occupancy_bp']:,} bp", "Total motif bases including overlaps"),
                     ("Normalized Occupancy (SLI)", f"{gstats['normalized_occupancy']:.6f}", "Structural Load Index (overlap-adjusted)"),
                     ("Mean Overlap Depth", f"{gstats['mean_overlap_depth']:.4f}", "Average motif stacking depth"),
                 ],
-                note="📌 SLI measures genome-wide structural burden.",
+                note="SLI measures genome-wide structural burden.",
             )
             # ── Section IV: Class-Specific Coverage ──────────────────────────
             if gstats['class_covered_bases']:
@@ -377,7 +377,7 @@ def render():
                 )
                 st.markdown(
                     f"<div style='margin-top:10px;'>"
-                    f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>🟧 IV. Class-Specific Coverage</div>"
+                    f"<div style='font-size:0.85rem;font-weight:800;color:#1e293b;margin-bottom:4px;'>IV. Class-Specific Coverage</div>"
                     f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
                     f"<thead><tr>"
                     f"<th style='{th_s}'>Class</th>"
@@ -386,14 +386,14 @@ def render():
                     f"<th style='{th_s}'>Contribution</th>"
                     f"</tr></thead>"
                     f"<tbody>{cls_html}</tbody></table>"
-                    f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>"
-                    f"📊 Contribution indicates proportional share of total structural coverage.</p>"
+                    f"<p style='font-size:0.73rem;color:#334155;margin:4px 0 0 2px;font-style:italic;'>"
+                    f"Contribution indicates proportional share of total structural coverage.</p>"
                     f"</div>",
                     unsafe_allow_html=True,
                 )
             # ── Section V: Structural Load Metrics ───────────────────────────
             _render_metric_panel(
-                "🟥 V. Structural Load Metrics",
+                "V. Structural Load Metrics",
                 [
                     ("SLI", f"{gstats['sli']:.6f}", "Normalized genome structural burden"),
                     ("Structural Intensity", f"{gstats['structural_intensity']:.6f}", "Weighted motif stacking strength"),
@@ -402,7 +402,7 @@ def render():
             )
             # ── Section VI: Spatial Distribution ─────────────────────────────
             _render_metric_panel(
-                "🟪 VI. Spatial Distribution",
+                "VI. Spatial Distribution",
                 [
                     ("Mean Inter-Motif Distance", f"{gstats['mean_inter_motif_distance']:.2f} bp", "Average spacing between motifs"),
                     ("CV (Clustering Coefficient)", f"{gstats['cv_spatial_clustering']:.4f}", "Spatial clustering variability"),
@@ -411,7 +411,7 @@ def render():
             )
             # ── Section VII: Hotspot / Cluster Metrics ────────────────────────
             _render_metric_panel(
-                "🟫 VII. Hotspot / Cluster Metrics",
+                "VII. Hotspot / Cluster Metrics",
                 [
                     (f"Max Local Density (W={gstats['window_size']:,} bp)", f"{gstats['max_local_density']:.6f}", "Highest motif density window"),
                     ("Max Class Diversity", f"{gstats['max_class_diversity_window']}", "Distinct classes in single window"),
@@ -430,18 +430,18 @@ def render():
             )
             st.markdown(
                 f"<div style='margin-top:10px;'>"
-                f"<div style='font-size:0.82rem;font-weight:700;color:#475569;margin-bottom:4px;'>🔶 VIII. Hybrid &amp; Cluster Regions (Reported Separately)</div>"
+                f"<div style='font-size:0.85rem;font-weight:800;color:#1e293b;margin-bottom:4px;'>VIII. Hybrid &amp; Cluster Regions (Reported Separately)</div>"
                 f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
                 f"<thead><tr><th style='{hc_th}'>Metric</th><th style='{hc_th}'>Value</th></tr></thead>"
                 f"<tbody>{hc_html}</tbody></table>"
-                f"<p style='font-size:0.73rem;color:#64748b;margin:4px 0 0 2px;font-style:italic;'>"
-                f"⚠ Hybrid/Cluster regions are excluded from primary genome coverage metrics.</p>"
+                f"<p style='font-size:0.73rem;color:#334155;margin:4px 0 0 2px;font-style:italic;'>"
+                f"Hybrid/Cluster regions are excluded from primary genome coverage metrics.</p>"
                 f"</div>",
                 unsafe_allow_html=True,
             )
             # ── Section IX: Structural Diversity ─────────────────────────────
             _render_metric_panel(
-                "🟦 IX. Structural Diversity",
+                "IX. Structural Diversity",
                 [
                     ("Simpson Diversity Index (D)", f"{gstats['simpson_diversity_index']:.4f}", "Probability two motifs differ in class"),
                     ("Effective Class Number (Neff)", f"{gstats['effective_class_number']:.4f}", "Functional structural diversity"),
@@ -449,7 +449,7 @@ def render():
             )
             # ── Section X: Genome-Scale Comparative Indices ───────────────────
             _render_metric_panel(
-                "🟩 X. Genome-Scale Comparative Indices",
+                "X. Genome-Scale Comparative Indices",
                 [
                     ("SCI (Structural Complexity Index)", f"{gstats['sci']:.4f}", "Composite structural diversity × density"),
                     ("Structural Dominance Ratio", f"{gstats['dominance_ratio']:.4f}", "Dominance of most abundant class"),
@@ -525,9 +525,6 @@ def render():
     with viz_tabs[1]:
         _render_section_divider("Structural Potential Heatmap")
         _show_fig('struct_heatmap', lambda: plot_structural_heatmap(motifs, slen, title="Structural Potential Heatmap"), "Heatmap error")
-        
-        _render_section_divider("Co-occurrence Network")
-        _show_fig('motif_network', lambda: plot_motif_network(motifs, title="Motif Co-occurrence Network"), "Network error")
         
         _render_section_divider("Co-occurrence Matrix")
         _show_fig('cooccurrence_mat', lambda: plot_motif_cooccurrence_matrix(motifs, title="Co-occurrence Matrix"), "Co-occurrence error")
