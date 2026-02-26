@@ -1969,7 +1969,7 @@ def render():
                 
                 # Display summary statistics to user
                 if not st.session_state.summary_df.empty:
-                    st.subheader("📊 Analysis Summary Statistics")
+                    st.subheader("Analysis Summary Statistics")
                     st.dataframe(
                         st.session_state.summary_df,
                         use_container_width=True,
@@ -2233,10 +2233,10 @@ def render():
                         motifs_by_class[motif_class] = motifs_by_class.get(motif_class, 0) + 1
                 
                 # Display performance summary
-                st.subheader("⚡ Performance Report")
+                st.subheader("Performance Report")
                 
                 # Create expandable section with detailed performance stats
-                with st.expander("📊 View Detailed Performance Statistics", expanded=False):
+                with st.expander("View Detailed Performance Statistics", expanded=False):
                     # Format and display comprehensive performance summary
                     perf_summary_text = format_performance_summary(perf_tracker, format_time_human)
                     st.markdown(perf_summary_text)

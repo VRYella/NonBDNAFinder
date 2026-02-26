@@ -210,12 +210,12 @@ h4 {
 /* Reduce Streamlit Default Padding - Combined rules for clarity */
 .main .block-container {
     max-width: 100% !important;
-    padding: 1.2rem 1.8rem 0.8rem 1.8rem !important;
+    padding: 0.8rem 1.6rem 0.5rem 1.6rem !important;
 }
 
 /* Compact Element Spacing */
 .element-container {
-    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.1rem !important;
 }
 
 /* Global body text size increase for all pages */
