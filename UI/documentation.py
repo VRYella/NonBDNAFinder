@@ -27,9 +27,9 @@ MOTIF_DESCRIPTIONS = {'Curved_DNA': "Intrinsic DNA curvature from phased A-tract
 
 _PIPELINE_IMAGE = os.path.join(os.path.dirname(__file__), "pipelines.png")
 
-_PROSE_STYLE = "font-family:Georgia,serif;line-height:1.8;color:#1e293b;font-size:1.0rem;"
-_H3_STYLE = "color:#1e40af;font-size:1.2rem;margin-top:1.4rem;margin-bottom:0.4rem;"
-_H4_STYLE = "color:#334155;font-size:1.05rem;margin-top:1.1rem;margin-bottom:0.3rem;"
+_PROSE_STYLE = "font-family:Georgia,serif;line-height:1.75;color:#1e293b;font-size:0.88rem;"
+_H3_STYLE = "color:#1e40af;font-size:1rem;margin-top:1.4rem;margin-bottom:0.4rem;"
+_H4_STYLE = "color:#334155;font-size:0.93rem;margin-top:1.1rem;margin-bottom:0.3rem;"
 
 # ─── Flow diagram builder ──────────────────────────────────────────────────────
 
@@ -55,16 +55,16 @@ def _build_flow_diagram(stages, caption=""):
     for i, s in enumerate(stages):
         bg, bdr, txt = _FLOW_COLORS.get(s.get('color', 'process'), _FLOW_COLORS['process'])
         desc_html = (
-            f"<div style='color:#475569;font-size:0.78rem;margin-top:0.15rem;"
+            f"<div style='color:#475569;font-size:0.65rem;margin-top:0.15rem;"
             f"line-height:1.3;'>{s['desc']}</div>"
             if s.get('desc') else ""
         )
         items.append(
             f"<div style='flex-shrink:0;background:{bg};border:2px solid {bdr};"
-            f"border-radius:8px;padding:0.6rem 0.9rem;min-width:140px;max-width:190px;"
+            f"border-radius:8px;padding:0.45rem 0.8rem;min-width:130px;max-width:180px;"
             f"text-align:center;'>"
-            f"<div style='color:{bdr};font-size:0.72rem;font-weight:700;'>STEP {i + 1}</div>"
-            f"<div style='color:{txt};font-size:0.85rem;font-weight:600;line-height:1.3;'>"
+            f"<div style='color:{bdr};font-size:0.6rem;font-weight:700;'>STEP {i + 1}</div>"
+            f"<div style='color:{txt};font-size:0.75rem;font-weight:600;line-height:1.3;'>"
             f"{s['title']}</div>"
             f"{desc_html}</div>"
         )
@@ -92,21 +92,21 @@ def _build_flow_diagram(stages, caption=""):
 
 def _build_motif_card(n, sub, col, desc):
     return (
-        f"<div style='background:white;padding:0.9rem;border-radius:8px;"
+        f"<div style='background:white;padding:0.7rem;border-radius:8px;"
         f"box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left:4px solid {col};'>"
-        f"<strong style='color:#1e293b;font-size:1.0rem;'>{n}</strong>"
-        f"<div style='color:{col};font-size:0.85rem;font-weight:600;margin:0.15rem 0;'>{sub}</div>"
-        f"<div style='color:#64748b;font-size:0.85rem;line-height:1.4;'>{desc}</div></div>"
+        f"<strong style='color:#1e293b;font-size:0.85rem;'>{n}</strong>"
+        f"<div style='color:{col};font-size:0.7rem;font-weight:600;margin:0.15rem 0;'>{sub}</div>"
+        f"<div style='color:#64748b;font-size:0.7rem;line-height:1.3;'>{desc}</div></div>"
     )
 
 
 def _build_reference_card(r):
     return (
-        f"<div style='padding:0.65rem 0;border-bottom:1px solid #e2e8f0;'>"
-        f"<div style='font-weight:600;color:#1e293b;font-size:0.95rem;margin-bottom:0.1rem;'>"
+        f"<div style='padding:0.55rem 0;border-bottom:1px solid #e2e8f0;'>"
+        f"<div style='font-weight:600;color:#1e293b;font-size:0.8rem;margin-bottom:0.1rem;'>"
         f"{r['authors']} ({r['year']})</div>"
-        f"<div style='color:#334155;font-size:0.9rem;font-style:italic;margin-bottom:0.1rem;'>{r['title']}</div>"
-        f"<div style='color:#64748b;font-size:0.85rem;'><strong>{r['journal']}</strong> {r['volume']} · "
+        f"<div style='color:#334155;font-size:0.75rem;font-style:italic;margin-bottom:0.1rem;'>{r['title']}</div>"
+        f"<div style='color:#64748b;font-size:0.7rem;'><strong>{r['journal']}</strong> {r['volume']} · "
         f"<a href=\"https://doi.org/{r['doi']}\" target=\"_blank\" style=\"color:#2563eb;\">DOI: {r['doi']}</a>"
         f"</div></div>"
     )
@@ -130,7 +130,7 @@ def _prose(html):
 
 def _tab_overview():
     st.markdown(
-        "<p style='color:#334155;font-size:1.05rem;line-height:1.7;margin-bottom:1rem;'>"
+        "<p style='color:#334155;font-size:0.9rem;line-height:1.6;margin-bottom:1rem;'>"
         "Comprehensive platform for <strong>genome-wide detection</strong> of Non-B DNA structures. "
         "Implements <strong>11 motif classes</strong> with <strong>24 subclasses</strong>, "
         "validated against G4Hunter, QmRLFS, and Z-Seeker.</p>",
@@ -138,10 +138,10 @@ def _tab_overview():
     )
     st.markdown(
         "<div style='display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;'>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>24,674 bp/s</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>200MB+ sequences</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>25+ visualizations</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>Nature-ready output</span>"
+        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.25rem 0.7rem;border-radius:16px;font-size:0.72rem;font-weight:600;'>24,674 bp/s</span>"
+        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.25rem 0.7rem;border-radius:16px;font-size:0.72rem;font-weight:600;'>200MB+ sequences</span>"
+        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.25rem 0.7rem;border-radius:16px;font-size:0.72rem;font-weight:600;'>25+ visualizations</span>"
+        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.25rem 0.7rem;border-radius:16px;font-size:0.72rem;font-weight:600;'>Nature-ready output</span>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -161,7 +161,7 @@ def _tab_architecture():
     if os.path.isfile(_PIPELINE_IMAGE):
         st.image(_PIPELINE_IMAGE, use_container_width=True)
         st.markdown(
-            "<p style='text-align:center;color:#64748b;font-size:0.88rem;margin-top:0.25rem;margin-bottom:1.2rem;'>"
+            "<p style='text-align:center;color:#64748b;font-size:0.75rem;margin-top:0.25rem;margin-bottom:1.2rem;'>"
             "<em>Figure 1. NonBDNAFinder analytical pipeline — from sequence ingestion through "
             "motif detection, scoring, hybrid annotation, and structured export.</em></p>",
             unsafe_allow_html=True,

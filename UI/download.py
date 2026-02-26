@@ -185,13 +185,13 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
 
 def render():
     load_css(TAB_THEMES.get('Download', 'clinical_teal')); render_section_heading("Download & Export Results", page="Downloads")
-    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:1.5rem;border-radius:12px;margin-top:0.8rem;border:1px solid #bae6fd;text-align:center;'><h3 style='color:#0284c7;margin:0 0 0.7rem 0;font-size:1.4rem;'>Export Formats Available</h3><p style='color:#6b7280;margin:0 0 0.7rem 0;font-size:1.0rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;'><span style='background:#0ea5e9;color:white;padding:0.45rem 0.9rem;border-radius:8px;font-weight:600;font-size:1.0rem;'>CSV</span><span style='background:#0ea5e9;color:white;padding:0.45rem 0.9rem;border-radius:8px;font-weight:600;font-size:1.0rem;'>Excel</span><span style='background:#0ea5e9;color:white;padding:0.45rem 0.9rem;border-radius:8px;font-weight:600;font-size:1.0rem;'>JSON</span><span style='background:#0ea5e9;color:white;padding:0.45rem 0.9rem;border-radius:8px;font-weight:600;font-size:1.0rem;'>BED</span><span style='background:#0ea5e9;color:white;padding:0.45rem 0.9rem;border-radius:8px;font-weight:600;font-size:1.0rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
+    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:1.2rem;border-radius:12px;margin-top:0.8rem;border:1px solid #bae6fd;text-align:center;'><h3 style='color:#0284c7;margin:0 0 0.6rem 0;'>Export Formats Available</h3><p style='color:#6b7280;margin:0 0 0.6rem 0;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;'><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;'>CSV</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;'>Excel</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;'>JSON</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;'>BED</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;'>PDF</span></div></div>", unsafe_allow_html=True); return
     
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
     seq_name = names[0] if names else "Unknown"; safe_fn = re.sub(r'[^\w\-]', '_', seq_name)[:FILENAME_MAX_LENGTH].strip('_')
     cls_used = st.session_state.get('selected_classes_used', []); sub_used = st.session_state.get('selected_subclasses_used', []); mode_used = st.session_state.get('analysis_mode_used', 'Motif Level')
-    if cls_used: st.markdown(f"<div style='background:linear-gradient(135deg,#fefce8 0%,#fef9c3 100%);padding:0.6rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid #ca8a04;'><p style='color:#713f12;margin:0;font-size:0.95rem;'><strong>Data Filter:</strong> Exports contain selected classes ({len(cls_used)}) and subclasses ({len(sub_used)}) from {mode_used} analysis</p></div>", unsafe_allow_html=True)
+    if cls_used: st.markdown(f"<div style='background:linear-gradient(135deg,#fefce8 0%,#fef9c3 100%);padding:0.4rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid #ca8a04;'><p style='color:#713f12;margin:0;font-size:0.8rem;'><strong>Data Filter:</strong> Exports contain selected classes ({len(cls_used)}) and subclasses ({len(sub_used)}) from {mode_used} analysis</p></div>", unsafe_allow_html=True)
     
     # Collect all motifs from all sequences
     all_motifs = []
@@ -222,7 +222,7 @@ def render():
     pdf_error = exports.get('pdf_error')
     export_times = exports.get('export_times', {})
 
-    st.markdown("### Export Options"); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:0.8rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.95rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
+    st.markdown("### Export Options"); st.markdown("<div style='background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.8rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
     st.markdown("#### Data Formats"); c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
         st.download_button("📄 CSV", data=csv_data or b"", file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs", disabled=(csv_data is None), key="dl_csv")
@@ -255,7 +255,7 @@ def render():
     # Use @st.cache_data-backed generator so that reruns triggered by download
     # button clicks never recompute statistics and never cause buttons to flicker.
     # ═══════════════════════════════════════════════════════════════════════════════
-    st.markdown("---"); st.markdown("### Statistical Analysis Tables"); st.markdown("<div style='background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);padding:0.8rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #22c55e;'><p style='color:#14532d;margin:0;font-size:0.95rem;'><strong>Advanced Analytics:</strong> Detailed distribution and density statistics</p></div>", unsafe_allow_html=True)
+    st.markdown("---"); st.markdown("### Statistical Analysis Tables"); st.markdown("<div style='background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #22c55e;'><p style='color:#14532d;margin:0;font-size:0.8rem;'><strong>Advanced Analytics:</strong> Detailed distribution and density statistics</p></div>", unsafe_allow_html=True)
     dist_df, sub_df, _stats_excel = generate_statistics(tuple(all_motifs), tuple(names), tuple(lengths), seq_count)
     st.markdown("#### Class-Level Distribution Statistics")
     if not dist_df.empty:
@@ -281,4 +281,4 @@ def render():
     # VISUALIZATION NOTES
     # ═══════════════════════════════════════════════════════════════════════════════
     st.markdown("---")
-    st.markdown("<div style='background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);padding:1.0rem;border-radius:10px;border-left:4px solid #a855f7;'><p style='color:#6b21a8;margin:0;font-size:0.95rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab follow Nature publication standards with uniform axis labels, clean aesthetics, and colorblind-friendly palettes. The PDF export includes all primary visualizations for publication use.</p></div>", unsafe_allow_html=True)
+    st.markdown("<div style='background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);padding:0.8rem;border-radius:10px;border-left:4px solid #a855f7;'><p style='color:#6b21a8;margin:0;font-size:0.8rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab follow Nature publication standards with uniform axis labels, clean aesthetics, and colorblind-friendly palettes. The PDF export includes all primary visualizations for publication use.</p></div>", unsafe_allow_html=True)
