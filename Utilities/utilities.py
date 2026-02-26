@@ -8930,11 +8930,8 @@ def plot_spacer_loop_variation(motifs: List[Dict[str, Any]],
             axes[0].grid(axis='x', alpha=0.3)
     else:
         # No numeric loop data - list all detected classes with N/A status
-        na_lines = '
-'.join(f'{c}: N/A' for c in all_detected_classes) if all_detected_classes else 'No motifs detected'
-        axes[0].text(0.5, 0.5, 'Loop Length: N/A for all classes
-
-' + na_lines,
+        na_lines = '\n'.join(f'{c}: N/A' for c in all_detected_classes) if all_detected_classes else 'No motifs detected'
+        axes[0].text(0.5, 0.5, 'Loop Length: N/A for all classes\n\n' + na_lines,
                     ha='center', va='center', transform=axes[0].transAxes, fontsize=9,
                     fontfamily='monospace')
         axes[0].set_title('Loop Length Distribution', fontsize=10, fontweight='bold')
@@ -8969,11 +8966,8 @@ def plot_spacer_loop_variation(motifs: List[Dict[str, Any]],
             axes[1].grid(axis='x', alpha=0.3)
     else:
         # No numeric arm data - list all detected classes with N/A status
-        na_lines = '
-'.join(f'{c}: N/A' for c in all_detected_classes) if all_detected_classes else 'No motifs detected'
-        axes[1].text(0.5, 0.5, 'Arm/Stem Length: N/A for all classes
-
-' + na_lines,
+        na_lines = '\n'.join(f'{c}: N/A' for c in all_detected_classes) if all_detected_classes else 'No motifs detected'
+        axes[1].text(0.5, 0.5, 'Arm/Stem Length: N/A for all classes\n\n' + na_lines,
                     ha='center', va='center', transform=axes[1].transAxes, fontsize=9,
                     fontfamily='monospace')
         axes[1].set_title('Arm/Stem Length Distribution', fontsize=10, fontweight='bold')
