@@ -10,13 +10,13 @@ NBDFinder is an open-source computational framework for genome-scale detection o
 
 ### Detection Overview
 
-NBDFinder implements nine specialised structural detectors that run independently (optionally in parallel) on the input sequence. Overlap resolution, hybrid annotation, and cluster detection are applied as post-processing steps, yielding **11 output classes** in total (9 structural + Hybrid + Non-B DNA Clusters) encompassing **23+ subclasses**. Every motif call carries genomic coordinates (1-based inclusive Start/End), strand, subclass label, length, and a normalised confidence score on a 1–3 scale.
+NBDFinder implements nine specialised structural detectors that run independently (optionally in parallel) on the input sequence. Overlap resolution, hybrid annotation, and cluster detection are applied as post-processing steps, yielding **11 output classes** in total (9 structural + Hybrid + Non-B DNA Clusters) encompassing **24 subclasses**. Every motif call carries genomic coordinates (1-based inclusive Start/End), strand, subclass label, length, and a normalised confidence score on a 1–3 scale.
 
 ### Detector Descriptions
 
 **Curved DNA** — Global intrinsic curvature is detected by A/T-tract phasing analysis: runs of ≥ 3 consecutive adenines (A-tracts) or thymines (T-tracts) are identified and their inter-tract centre-to-centre spacing is evaluated against the 10.5 bp helical repeat (tolerance 9.9–11.1 bp; minimum 3 in-phase tracts). Local curvature is additionally reported for long uninterrupted A-tracts or T-tracts (≥ 8 nt). Scoring follows Koo *et al.* (1986) and Olson *et al.* (1998); normalised linearly to the 1–3 scale.
 
-**Slipped DNA** — Short tandem repeats (STRs) are detected using a k-mer index approach: mono- through hexanucleotide units (1–6 nt) with ≥ 4–6 copies are identified and scored by a mechanistic slippage model (Shannon entropy × copy number × GC content; Schlötterer *et al.* 2000; Weber *et al.* 1989). Longer direct repeats (unit 7–50 nt, ≥ 2 copies) are detected separately by the same engine. Subclasses reported: *STR* and *Direct Repeat*.
+**Slipped DNA** — Short tandem repeats (STRs) are detected using a k-mer index approach: mono- through tetranucleotide units (1–4 nt) with ≥ 6 copies are identified and scored by a mechanistic slippage model (Shannon entropy × copy number × GC content; Schlötterer *et al.* 2000; Weber *et al.* 1989). Longer direct repeats (unit 10–50 nt, ≥ 2 copies) are detected separately by the same engine. Subclasses reported: *STR* and *Direct Repeat*.
 
 **Cruciform** — Inverted repeats (IRs) capable of cruciform extrusion are located by a seed-and-extend algorithm. A 6-mer seed dictionary indexes all reverse-complement seeds in the sequence; candidate IR pairs are extended up to arm lengths of 8–50 nt with zero mismatches. Thermodynamic stability is evaluated using the unified nearest-neighbor model (SantaLucia 1998): only stems with ΔG < −5.0 kcal/mol and a loop penalty-adjusted score above 0.2 are retained. Scoring reference: Lilley *et al.* (2000). Subclass reported: *Cruciform forming IRs*.
 
@@ -28,13 +28,13 @@ NBDFinder implements nine specialised structural detectors that run independentl
 
 **i-Motif** — Canonical i-motifs are detected as four C-rich tracts (C ≥ 3, inter-tract loops 1–7 nt) using a direct regex search; C-run density and tract regularity drive the score (Gehring *et al.* 1993; Zeraati *et al.* 2018). AC-motif variants following the HUR model (Hur *et al.* 2021) are detected as alternating A₃–C₃ or C₃–A₃ patterns with 4–6 nt spacers. Subclasses: *Canonical i-Motif*, *AC-motif (HUR)*.
 
-**Z-DNA** — Classical Z-DNA–prone regions are scored by the cumulative 10-mer propensity table of Ho *et al.* (1986 EMBO J): every overlapping 10-mer in the sequence is scored and adjacent high-scoring 10-mers are merged; minimum merged score 50. eGZ (extruded-guanine Z-DNA) motifs following Herbert (1997) are detected as runs of ≥ 3 trinucleotide repeats from the set {CGG, GGC, CCG, GCC}. Log-linear normalisation is applied to accommodate the wide dynamic range of cumulative Z-DNA scores. Optional Hyperscan acceleration is used when available. Subclasses: *Z-DNA*, *eGZ*.
+**Z-DNA** — Classical Z-DNA–prone regions are scored by the cumulative 10-mer propensity table of Ho *et al.* (1986 EMBO J): every overlapping 10-mer in the sequence is scored and adjacent high-scoring 10-mers are merged; minimum merged score 50. eGZ (extruded-guanine Z-DNA) motifs following Herbert (1997) are detected as runs of ≥ 4 trinucleotide repeats from the set {CGG, GGC, CCG, GCC}. Log-linear normalisation is applied to accommodate the wide dynamic range of cumulative Z-DNA scores. Optional Hyperscan acceleration is used when available. Subclasses: *Z-DNA*, *eGZ*.
 
 **A-philic DNA** — A-philic propensity regions are identified using the 10-mer scoring table derived from Gorin *et al.* (1995) and Vinogradov *et al.* (2003). All overlapping 10-mers with positive log₂ A-philic propensity scores are located; adjacent high-scoring 10-mers are merged into contiguous A-philic regions (minimum merged sum-log₂ score 0.5). Optional Hyperscan acceleration is used when available. Subclass: *A-philic DNA*.
 
 **Hybrid regions** — After all nine structural detectors have completed, motif pairs from distinct classes that share ≥ 50 % positional overlap (relative to the shorter motif) are consolidated into *Hybrid* annotations. Each hybrid record reports all contributing classes and class diversity.
 
-**Non-B DNA Clusters** — A density-based sliding-window scan (500 nt window, 50 nt step) identifies genomic positions where ≥ 3 structurally distinct non-B DNA motifs co-occur within a window. Cluster records report motif count, class diversity, and the window boundaries.
+**Non-B DNA Clusters** — A density-based scan anchored at each detected motif start identifies genomic positions where ≥ 4 structurally distinct non-B DNA motifs from ≥ 3 unique classes co-occur within a 300 nt window. Cluster records report motif count, class diversity, and the window boundaries.
 
 ### Sequence Requirements
 
@@ -50,7 +50,7 @@ Supported input formats include FASTA (single or multi-sequence), direct nucleot
 
 ## Output Schema
 
-Core output columns are: `Sequence_Name`, `Class`, `Subclass`, `Start` (1-based inclusive), `End`, `Length`, `Strand`, `Score`, `Detection_Method`. Motif-specific metadata such as repeat unit, G-run count, and loop length are reported when applicable. Hybrid and cluster annotations include contributing motif classes, class diversity, and density score.
+Core output columns are: `Sequence_Name`, `Class`, `Subclass`, `Start` (1-based inclusive), `End`, `Length`, `Strand`, `Score`, `Detection_Method`. Motif-specific metadata such as repeat unit, G-run count, and loop length are reported when applicable. Hybrid and cluster annotations include contributing motif classes, class diversity, and a composite score.
 
 ## Example Datasets
 
