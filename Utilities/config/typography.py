@@ -19,7 +19,7 @@ FONT_CONFIG = {
     # Font sizes (in rem units, where 1rem ≈ 16px in most browsers)
     # Enhanced sizes for modern, bold, research-quality appearance
     # UPDATED: Larger and bolder for more vibrant and impactful display
-    'h1_size': '5.5rem',      # Main page headers - bold, impactful, enlarged
+    'h1_size': '3.5rem',      # Main page headers - bold, impactful, enlarged
     'h2_size': '2.6rem',      # Section headers - clear hierarchy, prominent
     'h3_size': '2.0rem',      # Subsection headers - organized structure, visible
     'h4_size': '1.6rem',      # Small headers - subtle distinction, readable
