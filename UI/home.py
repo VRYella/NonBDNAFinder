@@ -19,7 +19,8 @@ from UI.headers import render_section_heading
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
-IMAGE_PATHS = ["nbdcircle.JPG", "archive/nbdcircle.JPG", "./nbdcircle.JPG"]
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMAGE_PATHS = [os.path.join(_PROJECT_ROOT, "nbdcircle.JPG"), "nbdcircle.JPG", "archive/nbdcircle.JPG", "./nbdcircle.JPG"]
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _build_motif_class_card(info):
