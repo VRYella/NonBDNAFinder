@@ -1,39 +1,57 @@
 """
 Typography configuration for NBDScanner.
 
-This module contains font settings for the application including:
-- Font families (primary and monospace)
-- Font sizes for different heading levels and body text
-- Font weights from light to extrabold
+Refined edition: Elegant, research-grade, publication-quality typography.
+Optimized for clarity, hierarchy, and long-form scientific readability.
 """
 
 # ==================== TYPOGRAPHY & FONTS ====================
-# Control all font settings for the application - MODERN & READABLE
-# Optimized for modern high-resolution displays with excellent readability
 FONT_CONFIG = {
-    # Primary font families (in order of preference)
-    # The browser will use the first available font in the list
+    # ==================== FONT FAMILIES ====================
+    # Clean, modern, highly legible for scientific interfaces
     'primary_font': "'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif",
-    'monospace_font': "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+    'monospace_font': "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Consolas', monospace",
     
-    # Font sizes (in rem units, where 1rem ≈ 16px in most browsers)
-    # Enhanced sizes for modern, bold, research-quality appearance
-    # UPDATED: Larger and bolder for more vibrant and impactful display
-    'h1_size': '2.5rem',      # Main page headers - bold, impactful, enlarged
-    'h2_size': '2.6rem',      # Section headers - clear hierarchy, prominent
-    'h3_size': '2.0rem',      # Subsection headers - organized structure, visible
-    'h4_size': '1.6rem',      # Small headers - subtle distinction, readable
-    'body_size': '1.15rem',   # Body text, paragraphs - optimal readability
-    'small_size': '1.05rem',  # Small text, notes - clear but compact
-    'caption_size': '0.95rem', # Captions, footnotes - supporting information
+    # ==================== FONT SIZES ====================
+    # Carefully balanced scale for analytical interfaces
+    # Designed for calm hierarchy — not marketing emphasis
     
-    # Font weights (100-900, where 400 is normal and 700 is bold)
-    # UPDATED: Heavier weights for bold and vibrant appearance
-    # Note: These are intentionally set higher than typical CSS defaults for emphasis
-    'light_weight': 300,       # Base weight (heavier than CSS light for better readability)
-    'normal_weight': 400,      # Enhanced normal (actually semibold for prominence)
-    'medium_weight': 500,      # Medium becomes bold for impact
-    'semibold_weight': 600,    # Semibold is extra bold for hierarchy
-    'bold_weight': 700,        # Bold is maximum weight for emphasis
-    'extrabold_weight': 800,   # Extra bold matches maximum (900 is CSS max)
+    'h1_size': '2.25rem',      # Page titles (~36px)
+    'h2_size': '1.875rem',     # Major section headers (~30px)
+    'h3_size': '1.5rem',       # Subsection headers (~24px)
+    'h4_size': '1.25rem',      # Minor headers (~20px)
+    'body_size': '1.0625rem',  # Body text (~17px) – optimal reading size
+    'small_size': '0.95rem',   # Secondary UI text
+    'caption_size': '0.875rem',# Figure captions, metadata
+    
+    # ==================== LINE HEIGHTS ====================
+    # Essential for scientific readability and density control
+    
+    'heading_line_height': 1.2,   # Tight but breathable
+    'body_line_height': 1.65,     # Ideal for long-form reading
+    'compact_line_height': 1.45,  # Tables / dense UI areas
+    
+    # ==================== LETTER SPACING ====================
+    # Subtle tightening improves authority and polish
+    
+    'heading_letter_spacing': '-0.01em',
+    'body_letter_spacing': '0em',
+    'caption_letter_spacing': '0.01em',
+    
+    # ==================== FONT WEIGHTS ====================
+    # True typographic hierarchy (not inflated)
+    
+    'light_weight': 300,       # Rarely used (large display only)
+    'normal_weight': 400,      # Standard body text
+    'medium_weight': 500,      # UI emphasis
+    'semibold_weight': 600,    # Section headers
+    'bold_weight': 700,        # Strong emphasis
+    'extrabold_weight': 800,   # Reserved for h1 only
+    
+    # ==================== MONOSPACE SETTINGS ====================
+    # For code, genomic sequences, and data blocks
+    
+    'mono_size': '0.95rem',
+    'mono_line_height': 1.6,
+    'mono_letter_spacing': '0.01em',
 }
