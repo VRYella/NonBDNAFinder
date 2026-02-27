@@ -84,7 +84,7 @@ NonBDNAFinder implements nine specialised structural detectors, each validated a
 | Triplex | 6-mer purity scanner; H-DNA scoring | Min arm 10 nt; ≥ 90 % pur/pyr purity |
 | Z-DNA | Cumulative 10-mer Ho *et al.* propensity | Min merged score 50 |
 | R-Loop | QmRLFS-finder (models 1 & 2) | G-content RIZ ≥ 50 %; score ≥ 0.4 |
-| G-Quadruplex | G4Hunter seeded algorithm | Window 25 nt; score ≥ 0.5; 8 subclasses |
+| G-Quadruplex | G4Hunter seeded algorithm | Window 25 nt; score ≥ 0.5; 7 subclasses |
 | i-Motif | Four C-tract regex + HUR AC-motif | C-tract ≥ 3; loops 1–7 nt |
 
 After per-class detection, two post-processing steps are applied:
@@ -290,7 +290,7 @@ The taxonomy-ordered class analysis reveals three distinct structural archetypes
 
 ### 3.3 Subclass-Level Analysis
 
-Within each class, NonBDNAFinder resolved **76 distinct subclasses** across the nine genomes (Table 4; Fig. 5). Subclass richness increased broadly with genome size, from 16 subclasses in *Ca. Carsonella* to 52 in *S. cerevisiae*, though the GC-rich bacteria approached eukaryotic subclass richness despite their smaller size (~44–48 subclasses each).
+Within each class, NonBDNAFinder resolved **81 distinct subclasses** across the nine genomes (Table 4; Fig. 5). Subclass richness increased broadly with genome size, from 18 subclasses in *Ca. Carsonella* to 54 in *S. cerevisiae*, though the GC-rich bacteria substantially exceeded eukaryotic subclass richness despite their smaller size (*M. marina*: 63 subclasses; *C. shaoxiangyii*: 60 subclasses).
 
 #### 3.3b  22-Canonical Subclass Framework
 
@@ -304,14 +304,14 @@ To enable standardised cross-genome comparison, 22 canonical subclasses were def
 | Cruciform forming IRs | Cruciform | Moderate | High |
 | Direct Repeat | Slipped_DNA | Moderate | Moderate |
 | STR | Slipped_DNA | Variable | Variable |
-| Sticky DNA | Slipped_DNA | Low | Moderate |
+| Sticky DNA | Triplex | Low | Moderate |
 | Triplex | Triplex | Low | High |
 | Z-DNA | Z-DNA | Absent | Very High |
 | eGZ | Z-DNA | Absent | High |
 | R-loop formation sites | R-Loop | Variable | Moderate |
 | Two-tetrad weak PQS | G-Quadruplex | Low | High |
-| Bulged G4 | G-Quadruplex | Absent | High |
-| Intramolecular G-triplex | G-Quadruplex | Absent | Moderate |
+| Bulged G4 | G-Quadruplex | Rare | High |
+| Intramolecular G-triplex | G-Quadruplex | Rare | Moderate |
 | Extended-loop canonical | G-Quadruplex | Absent | High |
 | Canonical intramolecular G4 | G-Quadruplex | Absent | Very High |
 | Higher-order G4 array/G4-wire | G-Quadruplex | Absent | Exclusive |
@@ -321,13 +321,13 @@ To enable standardised cross-genome comparison, 22 canonical subclasses were def
 | Mixed_Cluster_3_classes | Non-B_DNA_Clusters | Low | Very High |
 | Mixed_Cluster_4_classes | Non-B_DNA_Clusters | Absent | High |
 
-The 22-subclass framework reveals that GC-rich bacteria (*M. marina*, *C. shaoxiangyii*) are the only genomes harbouring all 22 subclasses simultaneously, while the AT-rich endosymbionts are restricted to 8–10 subclasses. The "GC threshold" for Z-DNA and higher-order G4 (G4-wire) formation appears to lie around 50 % GC, consistent with biophysical models of these structures.
+The 22-subclass framework reveals that no single genome harbours all 22 canonical subclasses simultaneously. *M. marina* comes closest with 21 of the 22, absent only Local Curvature; *C. shaoxiangyii* presents 19, additionally lacking Global Curvature and Sticky DNA. The AT-rich endosymbionts are restricted to 11 (*Ca. Carsonella*) and 13 (*B. aphidicola*) of these 22 canonical subclasses (out of 18 and 26 total detected subclasses respectively, which include diverse hybrid overlap subtypes). The "GC threshold" for Z-DNA and higher-order G4 (G4-wire) formation appears to lie around 50 % GC, consistent with biophysical models of these structures.
 
 #### Curved DNA Subclasses
 
 Two principal subtypes were resolved: **Global Curvature** (phased A-tract arrays spanning > 100 bp) and **Local Curvature** (concentrated A-tracts in < 50 bp windows).
 
-- In *B. aphidicola*: 1,541 Global vs. 1,130 Local (ratio 1.4:1), indicating macroscopic sequence-directed bending that may facilitate chromosomal compaction in this obligate endosymbiont.
+- In *B. aphidicola*: 265 Global vs. 2,406 Local (ratio 1:9.1), indicating that short, locally concentrated A-tract curvature strongly predominates in this obligate endosymbiont, consistent with dense tandem A-tract arrangements throughout its compact, AT-biased chromosome.
 - In *Ca. Carsonella* (174 kb): predominantly Local Curvature, consistent with the even more compact genome size placing structural constraints on multi-tract phased arrays.
 - In *S. cerevisiae*: Global Curvature was proportionally elevated, consistent with nucleosome positioning at phased A-tracts in eukaryotic chromatin.
 
@@ -343,50 +343,49 @@ A single subclass ("Cruciform-forming IRs") was reported. Cruciform count per Mb
 
 **STR** (short tandem repeat) and **Direct Repeat** subtypes were resolved:
 
-- In *S. cerevisiae*: 841 STR + 383 Direct Repeat, reflecting the repeat-rich eukaryotic genome
-- In all bacterial genomes: STR was the dominant subtype; Direct Repeat loci were rare
-- The endosymbionts showed the lowest STR counts (< 20 each), consistent with selection against tandem repeats in functionally condensed genomes
+- In *S. cerevisiae*: 632 STR + 592 Direct Repeat, reflecting the repeat-rich eukaryotic genome with near-equal contributions from both repeat classes
+- In all bacterial genomes: Direct Repeat was the dominant subtype; STR loci were markedly fewer in every bacterium examined (*Ca. Carsonella*: 11 DR vs. 1 STR; *B. aphidicola*: 79 DR vs. 25 STR; *H. pylori*: 54 DR vs. 15 STR; *C. shaoxiangyii*: 306 DR vs. 32 STR; *M. marina*: 115 DR vs. 20 STR)
+- The endosymbionts showed the lowest STR counts (*Ca. Carsonella*: 1 STR; *B. aphidicola*: 25 STR), consistent with selection against tandem repeats in functionally condensed genomes
 
 #### Triplex Subclasses
 
-**H-DNA** (homopurine/homopyrimidine mirror repeats) and **Sticky DNA** (GAA/TTC trinucleotide expansions) were resolved:
+**Triplex (H-DNA)** (homopurine/homopyrimidine mirror repeats) and **Sticky DNA** (GAA/TTC trinucleotide expansions) were resolved:
 
-- Sticky DNA was detected exclusively in *E. coli*, *S. cerevisiae*, *C. shaoxiangyii*, and *M. marina*, reflecting the minimum genome size (~1.5 Mb) and sequence complexity required for GAA/TTC expansions of ≥ 20 copies.
-- H-DNA dominated in all nine genomes where Triplex was detected.
+- Sticky DNA was detected in seven of the nine genomes: *B. aphidicola* (1), *E. coli* (3), *H. pylori* (6), *S. aureus* (5), *S. pneumoniae* (1), *M. marina* (1), and *S. cerevisiae* (189); it was absent only from *Ca. Carsonella* and *C. shaoxiangyii*. *S. cerevisiae* harboured by far the highest Sticky DNA count (189 loci), consistent with the eukaryotic abundance of expanded GAA/TTC trinucleotide repeat tracts.
+- Triplex (H-DNA) dominated in all nine genomes where the Triplex class was detected; the H-DNA subtype was the most prevalent Triplex variant in every genome.
 
 #### Z-DNA Subclasses
 
 **Classical Z-DNA** (Ho *et al.* propensity) and **eGZ** (extruded-guanine Z-DNA; trinucleotide CGG/GCC repeats ≥ 4 copies) were resolved:
 
-- eGZ was detected only in GC-rich bacteria and in *E. coli*; absent from all AT-rich genomes
+- eGZ was detected in *E. coli* (8), *H. pylori* (1), *S. cerevisiae* (1), *C. shaoxiangyii* (188), and *M. marina* (407); it was absent from both AT-rich endosymbionts, *S. aureus*, and *S. pneumoniae*
 - Classical Z-DNA dominated in all genomes where Z-DNA was detected
 
 #### R-Loop Subclasses
 
-**R-loop formation sites** (QmRLFS-finder, models 1 and 2) were the single reported subclass. The extraordinary R-loop enrichment in *H. pylori* (970/Mb) was driven by an abundance of G-cluster-rich regions adjacent to genes encoding outer membrane proteins — consistent with transcription-replication conflicts at these highly expressed loci.
+**R-loop formation sites** (QmRLFS-finder, models 1 and 2) were the single reported subclass. The extraordinary R-loop enrichment in *H. pylori* (773 loci; ~462/Mb) was driven by an abundance of G-cluster-rich regions adjacent to genes encoding outer membrane proteins — consistent with transcription-replication conflicts at these highly expressed loci.
 
 #### G-Quadruplex Subclasses
 
-Eight hierarchically prioritised G4 subclasses were resolved:
+Seven G4 subclasses were resolved:
 
 | Subclass | Trend with genome GC content |
 |---|---|
-| Two-tetrad weak PQS | Dominant in AT-moderate genomes (*E. coli*, *H. pylori*) |
-| Canonical intramolecular G4 | Increases with GC content |
-| Bulged G4 | Universal; detected in all nine genomes |
-| Extended-loop G4 | Moderate; present in most genomes |
-| G-triplex | Present in GC-moderate to GC-rich genomes |
-| Stacked G4 | Exclusive to high-GC bacteria and *S. cerevisiae* |
-| Telomeric G4 | Detected in *S. cerevisiae* and *E. coli* |
-| Higher-order G4 array / G4-wire | Exclusive to *C. shaoxiangyii* and *M. marina* |
+| Two-tetrad weak PQS | Universal (all nine genomes); proportionally dominant in AT-moderate genomes |
+| Bulged G4 | Detected in eight of nine genomes; absent only from *Ca. Carsonella* |
+| Intramolecular G-triplex | Detected in eight of nine genomes; absent only from *B. aphidicola* |
+| Extended-loop canonical | Moderate; present in six genomes (*S. pneumoniae*, *H. pylori*, *E. coli*, *M. marina*, *C. shaoxiangyii*, *S. cerevisiae*) |
+| Canonical intramolecular G4 | Increases with GC content; restricted to GC-moderate and GC-rich genomes |
+| Stacked G4 | Exclusive to *C. shaoxiangyii* and *M. marina* (≥ 75 % GC) |
+| Higher-order G4 array / G4-wire | Exclusive to *C. shaoxiangyii* and *M. marina* (≥ 75 % GC) |
 
 The exclusive detection of G4-wire (higher-order stacked quadruplex arrays) in the two high-GC bacteria signals a qualitative change in G4 landscape above ~75 % GC content — a structural threshold consistent with the cooperative G-run density required for multi-quadruplex assembly.
 
-The universal detection of Bulged G4 (canonical G4 with a single-base bulge) across all nine genomes, even the AT-rich endosymbionts, suggests that G4 tolerance of sequence imperfections allows structural formation across a broader sequence space than strict canonical G-run requirements would predict.
+The near-universal detection of Bulged G4 (canonical G4 with a single-base bulge) in eight of nine genomes — present even in the AT-rich *B. aphidicola* and absent only from *Ca. Carsonella* — suggests that G4 tolerance of sequence imperfections allows structural formation across a broader sequence space than strict canonical G-run requirements would predict.
 
 #### i-Motif Subclasses
 
-**Canonical i-Motif** and **Extended-loop canonical** subtypes were resolved. *C. shaoxiangyii* harboured the highest count of both subtypes, consistent with extensive C-rich tracts complementary to the abundant G4 arrays.
+**Canonical i-motif** and **AC-motif** subtypes were resolved. *C. shaoxiangyii* harboured the highest count of Canonical i-motif (484 loci), while the AC-motif subtype was most frequent in *H. pylori* (6 loci) and sparse in all other genomes; both subtypes were consistent with C-rich tracts being comparatively rare except in high-GC organisms.
 
 ---
 
@@ -649,9 +648,9 @@ This study presents the most comprehensive multi-class comparative non-B DNA str
 
 3. **Structural taxonomy ordering reveals clear progression:** From the simplest bent-DNA forms (Curved_DNA, A-philic_DNA) dominant in small AT-rich genomes, through intermediate classes (Cruciform, Slipped_DNA, Triplex, Z-DNA, R-Loop) with genome-specific enrichments, to G/C-quartet structures (G-Quadruplex, i-Motif) dominant in GC-rich genomes.
 
-4. **76 structural subclasses** were resolved, including qualitatively distinct features (G4-wire, 7-class clusters) exclusive to high-GC bacteria.
+4. **81 structural subclasses** were resolved, including qualitatively distinct features (G4-wire, 7-class clusters) exclusive to high-GC bacteria.
 
-5. **22-canonical-subclass framework** introduced, enabling standardised cross-genome comparison; all 22 subclasses co-occur only in GC-rich bacteria (≥75 % GC).
+5. **22-canonical-subclass framework** introduced, enabling standardised cross-genome comparison; *M. marina* harbours the broadest repertoire (21 of the 22 canonical subclasses), while the two AT-rich endosymbionts are restricted to 11–13 subclasses.
 
 5. **Hybrid and cluster hotspots** are structurally non-redundant: they reflect genuine multi-class co-localisation driven by sequence composition, with a positive genome-wide correlation (r = 0.72).
 
