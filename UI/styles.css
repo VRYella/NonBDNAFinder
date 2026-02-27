@@ -198,6 +198,19 @@ h4 {
     color: #4a5568 !important;
 }
 
+/* Section Heading Box - Large vibrant page title banners */
+.section-heading-box div {
+    font-size: 3.5rem !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border-left: none !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.01em !important;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    COMPACT SPACING FOR OVERALL LAYOUT
    ═══════════════════════════════════════════════════════════════ */
