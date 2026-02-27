@@ -48,3 +48,6 @@ test_nonbdna_visualization.pdf
 
 # Erroneous pip/package manager artifacts
 =*
+
+# Executed notebook versions (contain large embedded cell outputs)
+*_executed.ipynb
