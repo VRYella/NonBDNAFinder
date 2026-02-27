@@ -1,13 +1,11 @@
-/* styles.css - Elegant Scientific UI for NonBDNAFinder 2025.2 */
-/* Refined: Medium vibrancy, publication-grade, research instrument tone */
-
-/* NOTE: !important required to override Streamlit inline styles */
+/* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2025.2 */
+/* Elegant, medium vibrancy, journal-grade refinement */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
 
-    /* Medium Scientific Palette (Colorblind Safe & Balanced) */
+    /* Medium Scientific Palette */
     --sci-blue: #2563EB;
     --sci-orange: #D97706;
     --sci-green: #059669;
@@ -17,18 +15,16 @@
     --sci-dark: #0F172A;
     --sci-gray: #64748B;
 
-    /* Controlled Gradients */
     --gradient-primary: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10B981 100%);
     --gradient-soft: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
 
-    /* Depth */
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
     --shadow-lg: 0 10px 24px rgba(0,0,0,0.12);
 }
 
-/* Hide sidebar */
+/* Hide Sidebar */
 section[data-testid="stSidebar"] {
     display: none !important;
 }
@@ -79,8 +75,16 @@ p, span, label, li, td, th {
     color: #1E293B !important;
 }
 
+/* Section Heading Box */
+.section-heading-box div {
+    font-size: 2.4rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    text-shadow: none !important;
+}
+
 /* ═══════════════════════════════════════════════════
-   TABS – Elegant Medium Vibrancy
+   STREAMLIT TABS
    ═══════════════════════════════════════════════════ */
 
 .stTabs [data-baseweb="tab-list"] {
@@ -111,6 +115,14 @@ p, span, label, li, td, th {
     box-shadow: var(--shadow-md);
 }
 
+.stTabs [data-baseweb="tab-panel"] {
+    padding-top: 0.75rem !important;
+}
+
+.stTabs [data-baseweb="tab-highlight"] {
+    display: none !important;
+}
+
 /* ═══════════════════════════════════════════════════
    LAYOUT SPACING
    ═══════════════════════════════════════════════════ */
@@ -125,6 +137,78 @@ p, span, label, li, td, th {
 }
 
 /* ═══════════════════════════════════════════════════
+   MOTIF SELECTOR TABLE
+   ═══════════════════════════════════════════════════ */
+
+.motif-selector-table .stDataFrame {
+    max-height: 350px !important;
+    overflow-y: auto !important;
+}
+
+.motif-selector-table td,
+.motif-selector-table th {
+    padding: 4px 8px !important;
+    font-size: 0.85rem !important;
+}
+
+.motif-selector-table tr:nth-child(even) {
+    background-color: rgba(37, 99, 235, 0.05) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   SUBMOTIF GRID
+   ═══════════════════════════════════════════════════ */
+
+.submotif-grid .stCheckbox label {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+}
+
+.submotif-grid [data-testid="stCheckbox"] > label > span:first-child {
+    width: 15px !important;
+    height: 15px !important;
+    border-radius: 50% !important;
+    border: 2px solid #94A3B8 !important;
+    background: transparent !important;
+}
+
+.submotif-grid [data-testid="stCheckbox"]:has(input:checked) > label > span:first-child {
+    background: var(--sci-blue) !important;
+    border-color: var(--sci-blue) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   TOGGLE BAR
+   ═══════════════════════════════════════════════════ */
+
+.toggle-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #F8FAFC;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+}
+
+.toggle-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.toggle-chip--enabled {
+    background: var(--gradient-success);
+    color: white;
+}
+
+.toggle-chip--disabled {
+    background: #E2E8F0;
+    color: var(--sci-gray);
+}
+
+/* ═══════════════════════════════════════════════════
    METRICS STRIP
    ═══════════════════════════════════════════════════ */
 
@@ -136,7 +220,6 @@ p, span, label, li, td, th {
     background: var(--gradient-soft);
     border-radius: 12px;
     border: 1px solid #E2E8F0;
-    box-shadow: var(--shadow-sm);
 }
 
 .metric-card {
@@ -163,7 +246,22 @@ p, span, label, li, td, th {
 }
 
 /* ═══════════════════════════════════════════════════
-   PILL SELECTOR
+   PROGRESS PANEL
+   ═══════════════════════════════════════════════════ */
+
+.progress-panel {
+    padding: 12px;
+    border-radius: 12px;
+    margin: 8px 0;
+}
+
+.progress-panel--success {
+    background: var(--gradient-success);
+    color: white;
+}
+
+/* ═══════════════════════════════════════════════════
+   PILLS
    ═══════════════════════════════════════════════════ */
 
 [data-testid="stPills"] [role="group"] {
@@ -184,41 +282,6 @@ p, span, label, li, td, th {
 [data-testid="stPills"] button[aria-pressed="true"] {
     background: var(--gradient-primary) !important;
     color: white !important;
-    box-shadow: var(--shadow-sm);
-}
-
-/* ═══════════════════════════════════════════════════
-   BADGES
-   ═══════════════════════════════════════════════════ */
-
-.info-badge,
-.success-badge,
-.filter-badge,
-.transparency-badge {
-    font-size: 0.78rem;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-weight: 500;
-}
-
-.info-badge {
-    background: #E0F2FE;
-    color: #075985;
-}
-
-.success-badge {
-    background: #DCFCE7;
-    color: #14532D;
-}
-
-.filter-badge {
-    background: #EEF2FF;
-    color: #3730A3;
-}
-
-.transparency-badge {
-    background: #FEF3C7;
-    color: #92400E;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -252,7 +315,6 @@ p, span, label, li, td, th {
     box-shadow: var(--shadow-sm);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .metrics-strip {
         flex-direction: column;
