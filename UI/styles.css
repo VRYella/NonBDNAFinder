@@ -1,27 +1,26 @@
-/* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2025.2 */
-/* Elegant, medium vibrancy, journal-grade refinement */
+/* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2025.1 */
+/* Nature/Science/Cell grade layout — refined, medium vibrancy */
+
+/* ═══════════════════════════════════════════════════════════════
+   SCIENTIFIC TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-
-    /* Medium Scientific Palette */
-    --sci-blue: #2563EB;
-    --sci-orange: #D97706;
+    --sci-blue: #2563eb;
     --sci-green: #059669;
-    --sci-purple: #7C3AED;
-    --sci-rose: #BE185D;
-    --sci-cyan: #0891B2;
-    --sci-dark: #0F172A;
-    --sci-gray: #64748B;
+    --sci-purple: #7c3aed;
+    --sci-pink: #db2777;
+    --sci-gray: #64748b;
+    --sci-dark: #1e293b;
 
-    --gradient-primary: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
-    --gradient-success: linear-gradient(135deg, #059669 0%, #10B981 100%);
-    --gradient-soft: linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 100%);
+    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --gradient-soft: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
 
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 10px 24px rgba(0,0,0,0.12);
+    --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 6px 18px rgba(0,0,0,0.08);
 }
 
 /* Hide Sidebar */
@@ -29,147 +28,123 @@ section[data-testid="stSidebar"] {
     display: none !important;
 }
 
-/* ═══════════════════════════════════════════════════
-   TYPOGRAPHY SYSTEM
-   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   FULL-WIDTH PAGE BANNER (OPTION A)
+   ═══════════════════════════════════════════════════════════════ */
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif !important;
-    letter-spacing: -0.015em !important;
-    line-height: 1.25 !important;
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.75rem !important;
+.full-width-banner {
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    width: 100vw;
+
+    padding: 2.6rem 1.5rem;
+    text-align: center;
+
+    background: var(--gradient-success);
+    box-shadow: var(--shadow-md);
+    border-radius: 0;
 }
 
-h1 {
-    font-size: 2.4rem !important;
+.full-width-banner h1 {
+    margin: 0 !important;
+    font-size: 2.6rem !important;
     font-weight: 700 !important;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.2 !important;
 }
 
-h2 {
-    font-size: 1.8rem !important;
-    font-weight: 600 !important;
-    color: var(--sci-dark) !important;
-    border-left: 4px solid var(--sci-blue);
-    padding-left: 0.75rem !important;
-}
-
-h3 {
-    font-size: 1.4rem !important;
-    font-weight: 600 !important;
-    color: #1E293B !important;
-}
-
-h4 {
-    font-size: 1.15rem !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-}
-
-p, span, label, li, td, th {
-    font-size: 0.98rem !important;
-    line-height: 1.65 !important;
-    color: #1E293B !important;
-}
-
-/* Section Heading Box */
-.section-heading-box div {
-    font-size: 2.4rem !important;
-    font-weight: 700 !important;
-    color: white !important;
-    text-shadow: none !important;
-}
-
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    STREAMLIT TABS
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
 .stTabs [data-baseweb="tab-list"] {
     gap: 8px !important;
-    padding: 6px !important;
-    background: #F8FAFC !important;
+    padding: 8px !important;
+    background: var(--gradient-soft) !important;
     border-radius: 14px !important;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm) !important;
 }
 
 .stTabs [data-baseweb="tab"] {
-    padding: 8px 16px !important;
+    padding: 8px 12px !important;
     border-radius: 10px !important;
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
-    color: var(--sci-gray) !important;
     transition: all 0.2s ease !important;
+    color: var(--sci-dark) !important;
 }
 
 .stTabs [data-baseweb="tab"]:hover {
-    background: #E2E8F0 !important;
-    color: #1E293B !important;
+    background: #e2e8f0 !important;
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
     background: var(--gradient-primary) !important;
-    color: white !important;
-    box-shadow: var(--shadow-md);
+    color: #ffffff !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 
-.stTabs [data-baseweb="tab-panel"] {
-    padding-top: 0.75rem !important;
+/* ═══════════════════════════════════════════════════════════════
+   HEADINGS
+   ═══════════════════════════════════════════════════════════════ */
+
+h1, h2, h3, h4 {
+    font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.02em !important;
 }
 
-.stTabs [data-baseweb="tab-highlight"] {
-    display: none !important;
+h2 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    border-left: 4px solid var(--sci-blue);
+    padding-left: 0.75rem !important;
+    color: var(--sci-dark) !important;
 }
 
-/* ═══════════════════════════════════════════════════
+h3 {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+}
+
+h4 {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    color: var(--sci-gray) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    LAYOUT SPACING
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
 .main .block-container {
     max-width: 100% !important;
-    padding: 1rem 2rem 0.75rem 2rem !important;
+    padding: 1rem 2rem 0.5rem 2rem !important;
 }
 
 .element-container {
-    margin-bottom: 0.4rem !important;
+    margin-bottom: 0.3rem !important;
 }
 
-/* ═══════════════════════════════════════════════════
-   MOTIF SELECTOR TABLE
-   ═══════════════════════════════════════════════════ */
-
-.motif-selector-table .stDataFrame {
-    max-height: 350px !important;
-    overflow-y: auto !important;
+p, span, label, li, td, th {
+    font-size: 0.98rem !important;
+    line-height: 1.6 !important;
 }
 
-.motif-selector-table td,
-.motif-selector-table th {
-    padding: 4px 8px !important;
-    font-size: 0.85rem !important;
-}
-
-.motif-selector-table tr:nth-child(even) {
-    background-color: rgba(37, 99, 235, 0.05) !important;
-}
-
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    SUBMOTIF GRID
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
 .submotif-grid .stCheckbox label {
     font-size: 0.7rem !important;
-    line-height: 1.2 !important;
 }
 
 .submotif-grid [data-testid="stCheckbox"] > label > span:first-child {
     width: 15px !important;
     height: 15px !important;
     border-radius: 50% !important;
-    border: 2px solid #94A3B8 !important;
-    background: transparent !important;
+    border: 2px solid #94a3b8 !important;
 }
 
 .submotif-grid [data-testid="stCheckbox"]:has(input:checked) > label > span:first-child {
@@ -177,146 +152,84 @@ p, span, label, li, td, th {
     border-color: var(--sci-blue) !important;
 }
 
-/* ═══════════════════════════════════════════════════
-   TOGGLE BAR
-   ═══════════════════════════════════════════════════ */
-
-.toggle-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 6px 10px;
-    background: #F8FAFC;
-    border-radius: 10px;
-    border: 1px solid #E2E8F0;
-}
-
-.toggle-chip {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.82rem;
-    font-weight: 600;
-}
-
-.toggle-chip--enabled {
-    background: var(--gradient-success);
-    color: white;
-}
-
-.toggle-chip--disabled {
-    background: #E2E8F0;
-    color: var(--sci-gray);
-}
-
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    METRICS STRIP
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
 .metrics-strip {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
-    padding: 10px 14px;
+    padding: 10px;
+    border-radius: 10px;
     background: var(--gradient-soft);
-    border-radius: 12px;
-    border: 1px solid #E2E8F0;
+    box-shadow: var(--shadow-sm);
 }
 
 .metric-card {
     flex: 1;
-    min-width: 90px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    background: #ffffff;
     text-align: center;
-    box-shadow: var(--shadow-sm);
 }
 
 .metric-card__value {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--sci-purple);
 }
 
 .metric-card__label {
     font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--sci-gray);
 }
 
-/* ═══════════════════════════════════════════════════
-   PROGRESS PANEL
-   ═══════════════════════════════════════════════════ */
-
-.progress-panel {
-    padding: 12px;
-    border-radius: 12px;
-    margin: 8px 0;
-}
-
-.progress-panel--success {
-    background: var(--gradient-success);
-    color: white;
-}
-
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    PILLS
-   ═══════════════════════════════════════════════════ */
-
-[data-testid="stPills"] [role="group"] {
-    background: #F1F5F9 !important;
-    padding: 4px !important;
-    border-radius: 12px !important;
-    border: 1px solid #CBD5E1 !important;
-}
+   ═══════════════════════════════════════════════════════════════ */
 
 [data-testid="stPills"] button {
     border-radius: 10px !important;
-    padding: 8px 18px !important;
-    font-size: 0.88rem !important;
     font-weight: 600 !important;
-    color: var(--sci-gray) !important;
+    font-size: 0.85rem !important;
 }
 
 [data-testid="stPills"] button[aria-pressed="true"] {
     background: var(--gradient-primary) !important;
-    color: white !important;
+    color: #ffffff !important;
 }
 
-/* ═══════════════════════════════════════════════════
-   VISUALIZATION TYPOGRAPHY
-   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   VISUALIZATION FONTS
+   ═══════════════════════════════════════════════════════════════ */
 
-.stPlotlyChart, .stPyplot, [data-testid="stImage"] {
+.stPlotlyChart, .stPyplot {
     font-size: 11px !important;
 }
 
 .viz-title {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     font-weight: 600 !important;
-    color: #334155 !important;
+    color: var(--sci-dark) !important;
 }
 
-.stCaption {
-    font-size: 0.85rem !important;
-    color: #64748B !important;
-}
-
-/* ═══════════════════════════════════════════════════
-   THIN CARDS
-   ═══════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   THIN CARD SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
 
 .thin-card {
-    padding: 0.5rem 0.75rem !important;
-    border-radius: 8px !important;
-    border: 1px solid #E2E8F0 !important;
-    background: white;
-    box-shadow: var(--shadow-sm);
+    padding: 0.4rem 0.7rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
 }
 
-@media (max-width: 768px) {
-    .metrics-strip {
-        flex-direction: column;
-    }
+.info-box-thin {
+    padding: 0.4rem 0.7rem !important;
+    border-radius: 6px !important;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.stContainer {
+    padding: 0.4rem !important;
 }
