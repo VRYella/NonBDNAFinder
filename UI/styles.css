@@ -1,272 +1,797 @@
 /* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2025.1 */
-/* Nature/Science/Cell grade refinement – medium vibrancy, professional instrument UI */
+/* Designed to meet Nature/Science/Cell journal visualization standards */
+
+/* NOTE: !important declarations are required throughout this file to override
+   Streamlit's inline styles and default styling. While not ideal, this is necessary
+   for custom styling in Streamlit applications. */
 
 /* ═══════════════════════════════════════════════════════════════
-   SCIENTIFIC TYPOGRAPHY
+   SCIENTIFIC TYPOGRAPHY - Publication Grade
+   Reference: Nature Methods style guidelines
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    /* Colorblind-safe scientific palette (medium tones) */
-    --sci-blue: #2563eb;
-    --sci-orange: #d97706;
-    --sci-green: #059669;
-    --sci-purple: #7c3aed;
-    --sci-red: #be185d;
-    --sci-cyan: #0891b2;
-    --sci-dark: #0f172a;
+    /* Scientific color palette - colorblind-safe */
+    --sci-blue: #0072B2;
+    --sci-orange: #E69F00;
+    --sci-green: #009E73;
+    --sci-purple: #7C3AED;
+    --sci-red: #CC79A7;
+    --sci-cyan: #56B4E9;
+    --sci-dark: #1e293b;
     --sci-gray: #64748b;
-
-    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    
+    /* UI colors */
+    --gradient-primary: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --gradient-soft: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
-
-    --shadow-sm: 0 2px 6px rgba(0,0,0,0.05);
-    --shadow-md: 0 8px 20px rgba(0,0,0,0.08);
-    --shadow-lg: 0 15px 35px rgba(0,0,0,0.12);
+    --gradient-accent: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+    
+    /* Shadows for depth */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+    --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.15);
 }
 
-/* Hide sidebar */
+/* ═══════════════════════════════════════════════════════════════
+   HIDE SIDEBAR NAVIGATION
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Hide the auto-generated sidebar from multi-page apps */
 section[data-testid="stSidebar"] {
     display: none !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   FULL-WIDTH PAGE BANNER (OPTION A)
+   STREAMLIT TAB STYLING - VIBRANT AND READABLE
    ═══════════════════════════════════════════════════════════════ */
 
-.full-width-banner {
-    position: relative;
-    left: 50%;
-    margin-left: -50vw;
-    width: 100vw;
-    padding: 2.6rem 1.5rem;
-    text-align: center;
-    background: var(--gradient-success);
-    box-shadow: var(--shadow-md);
-}
-
-.full-width-banner h1 {
-    margin: 0 !important;
-    font-size: 2.6rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    letter-spacing: -0.02em !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   STREAMLIT TABS (Refined)
-   ═══════════════════════════════════════════════════════════════ */
-
+/* Tab Container - Ensure Tabs Are Fully Visible Without Clipping */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 8px !important;
-    padding: 8px !important;
-    background: var(--gradient-soft) !important;
-    border-radius: 14px !important;
-    box-shadow: var(--shadow-sm) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-evenly !important;
+    overflow: visible !important;
+    padding: 8px 6px !important;
+    background: linear-gradient(180deg, #fdf2f8 0%, #dcfce7 100%) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
+/* Individual Tab Buttons - Vibrant but Readable */
 .stTabs [data-baseweb="tab"] {
-    padding: 8px 14px !important;
-    border-radius: 10px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    color: var(--sci-dark) !important;
-    transition: all 0.2s ease !important;
+    height: auto !important;
+    padding: 8px 10px !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.5) 100%) !important;
+    border: 2px solid rgba(236, 72, 153, 0.25) !important;
+    border-radius: 12px !important;
+    font-size: 1.08rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    margin: 0 3px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-align: center !important;
+    word-break: break-word !important;
+    color: #1e293b !important;
+    text-shadow: none !important;
+    position: relative !important;
 }
 
+/* Tab Hover State - Vibrant Glowing Effect */
 .stTabs [data-baseweb="tab"]:hover {
-    background: #e2e8f0 !important;
+    background: linear-gradient(135deg, #fbcfe8 0%, #bbf7d0 100%) !important;
+    color: #1e293b !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 
+        0 4px 15px rgba(236, 72, 153, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(236, 72, 153, 0.4) !important;
+    text-shadow: none !important;
 }
 
+/* Active Tab - Vibrant Gradient Background */
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
-    background: var(--gradient-primary) !important;
-    color: white !important;
-    box-shadow: var(--shadow-sm) !important;
+    background: linear-gradient(135deg, #00C9FF 0%, #00D4AA 50%, #00E676 100%) !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    font-size: 1.08rem !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 
+        0 4px 15px rgba(0, 201, 255, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.6) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4) !important;
 }
 
+/* Tab Panel - Minimal Top Padding for Compactness */
+.stTabs [data-baseweb="tab-panel"] {
+    padding-top: 0.5rem !important;
+}
+
+/* Tab Underline - Remove Default */
 .stTabs [data-baseweb="tab-highlight"] {
     display: none !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   HEADINGS
-   ═══════════════════════════════════════════════════════════════ */
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif !important;
-    letter-spacing: -0.015em !important;
-    line-height: 1.25 !important;
-}
-
-h2 {
-    font-size: 1.9rem !important;
+/* Tab Text Styling Override */
+.stTabs [data-baseweb="tab"] p {
+    font-size: 1.08rem !important;
     font-weight: 700 !important;
-    border-left: 4px solid var(--sci-blue);
-    padding-left: 0.75rem !important;
+    margin: 0 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-align: center !important;
+    color: #1e293b !important;
 }
 
-h3 {
-    font-size: 1.4rem !important;
-    font-weight: 600 !important;
+.stTabs [data-baseweb="tab"][aria-selected="true"] p {
+    font-size: 1.08rem !important;
 }
 
-h4 {
-    font-size: 1.15rem !important;
-    font-weight: 600 !important;
-    color: var(--sci-gray) !important;
+/* Accessibility: Reduced Motion Support for Vestibular Disorders */
+@media (prefers-reduced-motion: reduce) {
+    .stTabs [data-baseweb="tab"] {
+        transition: background 0.1s ease, color 0.1s ease !important;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        transform: none !important;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        animation: none !important;
+        transform: none !important;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LAYOUT SPACING
+   HEADING STYLING - BOLD, ENLARGED, AND VIBRANT
    ═══════════════════════════════════════════════════════════════ */
 
+/* All Headings - Base Styles */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.2 !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.4rem !important;
+}
+
+/* H1 - Largest and Most Prominent */
+h1 {
+    font-size: 3.0rem !important;
+    font-weight: 800 !important;
+    color: #ec4899;
+    background: linear-gradient(135deg, #ec4899 0%, #22c55e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* H2 - Section Headers */
+h2 {
+    font-size: 2.6rem !important;
+    font-weight: 800 !important;
+    color: #2d3748 !important;
+    border-left: 6px solid #00C9FF;
+    padding-left: 1rem !important;
+}
+
+/* H3 - Subsection Headers */
+h3 {
+    font-size: 2.0rem !important;
+    font-weight: 800 !important;
+    color: #2d3748 !important;
+}
+
+/* H4 - Smaller Headers */
+h4 {
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    color: #4a5568 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT SPACING FOR OVERALL LAYOUT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Ensure tabs container is fully visible */
+.stTabs {
+    margin-top: 0.5rem !important;
+    overflow: visible !important;
+}
+
+/* Reduce Streamlit Default Padding - Combined rules for clarity */
 .main .block-container {
     max-width: 100% !important;
-    padding: 1rem 2rem 0.5rem 2rem !important;
+    padding: 0.8rem 1.6rem 0.5rem 1.6rem !important;
 }
 
+/* Compact Element Spacing */
 .element-container {
-    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.1rem !important;
 }
 
+/* Global body text size increase for all pages */
 p, span, label, li, td, th {
-    font-size: 0.98rem !important;
+    font-size: 1.0rem !important;
     line-height: 1.6 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
    DENSE MOTIF SELECTOR TABLE
+   NOTE: Uses Streamlit internal class names which may change between versions.
+   Tested with Streamlit >= 1.28.0. Update selectors if styling breaks after upgrade.
    ═══════════════════════════════════════════════════════════════ */
 
+/* Compact data editor for motif selector */
 .motif-selector-table .stDataFrame {
     max-height: 350px !important;
     overflow-y: auto !important;
 }
 
+/* Dense table styling */
 .motif-selector-table td,
 .motif-selector-table th {
     padding: 4px 8px !important;
     font-size: 0.85rem !important;
 }
 
+/* Highlight rows by motif class - alternating group colors */
 .motif-selector-table tr:nth-child(even) {
-    background-color: rgba(37, 99, 235, 0.05) !important;
+    background-color: rgba(59, 130, 246, 0.05) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SUBMOTIF SELECTOR GRID
+   COMPACT SUBMOTIF SELECTOR GRID
+   High-density 24-class visibility without scrolling
+   Radio-dot style checkbox with class color glow
    ═══════════════════════════════════════════════════════════════ */
+
+/* Compact checkbox styling for submotif selector grid */
+.submotif-grid .stCheckbox {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+}
 
 .submotif-grid .stCheckbox label {
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
+    line-height: 1.1 !important;
+    padding: 1px 0 !important;
 }
 
+.submotif-grid .stCheckbox label p {
+    margin-bottom: 0 !important;
+    font-size: 0.65rem !important;
+}
+
+/* High-density column spacing for submotif selector grid */
+.submotif-grid [data-testid="column"] {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+
+/* Reduce vertical gaps in submotif grid rows */
+.submotif-grid [data-testid="stHorizontalBlock"] {
+    gap: 0.15rem !important;
+    margin-bottom: 0.15rem !important;
+}
+
+/* Radio-dot checkbox styling - Convert square checkbox to circular dot */
+/* Target the checkbox indicator span element */
 .submotif-grid [data-testid="stCheckbox"] > label > span:first-child {
-    width: 15px !important;
-    height: 15px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
     border-radius: 50% !important;
     border: 2px solid #94a3b8 !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
+/* Hide the default SVG checkmark icon */
+.submotif-grid [data-testid="stCheckbox"] > label > span:first-child svg {
+    display: none !important;
+}
+
+/* Checked state - filled dot with glow effect */
+/* Using aria-checked attribute which Streamlit sets on checkboxes */
+.submotif-grid [data-testid="stCheckbox"] > label[data-baseweb="checkbox"] > span:first-child,
 .submotif-grid [data-testid="stCheckbox"]:has(input:checked) > label > span:first-child {
-    background: var(--sci-blue) !important;
-    border-color: var(--sci-blue) !important;
+    border-color: #3b82f6 !important;
+    background: #3b82f6 !important;
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.6) !important;
+}
+
+/* Hover state - subtle glow preview */
+.submotif-grid [data-testid="stCheckbox"] > label:hover > span:first-child {
+    border-color: #64748b !important;
+    transform: scale(1.05) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   METRICS STRIP
+   INLINE TOGGLE BAR - Analysis Options
    ═══════════════════════════════════════════════════════════════ */
 
-.metrics-strip {
+/* Toggle bar container */
+.toggle-bar {
     display: flex;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    background: var(--gradient-soft);
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
+    margin: 6px 0;
 }
 
-.metric-card {
-    flex: 1;
+/* Individual toggle chip */
+.toggle-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+/* Toggle chip - enabled state */
+.toggle-chip--enabled {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+/* Toggle chip - disabled state */
+.toggle-chip--disabled {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+/* Toggle chip hover */
+.toggle-chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Toggle icon */
+.toggle-chip__icon {
+    font-size: 0.8rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HORIZONTAL METRICS STRIP - Analysis Complete Dashboard
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Horizontal metrics container */
+.metrics-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     padding: 8px;
+    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    border-radius: 12px;
+    margin: 8px 0;
+    justify-content: space-between;
+    border: 1px solid #f9a8d4;
+}
+
+/* Individual metric card - compact horizontal */
+.metric-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
-    background: #ffffff;
+    min-width: 90px;
+    flex: 1;
+}
+
+/* Metric icon */
+.metric-card__icon {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+/* Metric value */
+.metric-card__value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #be185d;
     text-align: center;
 }
 
-.metric-card__value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--sci-purple);
+/* Metric label */
+.metric-card__label {
+    font-size: 0.6rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    margin-top: 1px;
 }
 
-.metric-card__label {
-    font-size: 0.7rem;
-    color: var(--sci-gray);
+/* Success state for metrics strip */
+.metrics-strip--success {
+    background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+    border: 2px solid #10b981;
+}
+
+/* Responsive: Stack on very small screens (mobile portrait) */
+@media (max-width: 480px) {
+    .metrics-strip {
+        flex-direction: column;
+    }
+    .metric-card {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PROGRESS PANEL
+   PROGRESS PANEL STYLING
    ═══════════════════════════════════════════════════════════════ */
 
+/* Progress panel base */
 .progress-panel {
-    padding: 12px;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 12px;
     margin: 8px 0;
 }
 
+/* Progress panel title */
+.progress-panel__title {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 5px !important;
+    color: #1e293b !important;
+}
+
+/* Progress panel subtitle */
+.progress-panel__subtitle {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+/* Success state */
 .progress-panel--success {
-    background: var(--gradient-success);
+    background: linear-gradient(135deg, #065f46 0%, #047857 100%);
     color: white;
+    border: 2px solid #10b981;
+}
+
+/* Stats grid - wide layout for dashboard */
+.stats-grid--wide {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* Stat card in grid */
+.stats-grid .stat-card {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px 8px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Stat card value */
+.stat-card__value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #be185d;
+}
+
+/* Stat card label */
+.stat-card__label {
+    font-size: 0.65rem;
+    color: #64748b;
+    margin-top: 2px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PILLS
+   ANALYSIS GRANULARITY - COMPACT COLORFUL PILL TOGGLE
    ═══════════════════════════════════════════════════════════════ */
 
+/* Style the Streamlit pills for granularity selector - elegant gradient pills */
+[data-testid="stPills"] [role="group"] {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+    padding: 4px !important;
+    border-radius: 12px !important;
+    gap: 4px !important;
+    border: 1px solid #cbd5e1 !important;
+    display: inline-flex !important;
+}
+
+/* Individual pill buttons - base state */
 [data-testid="stPills"] button {
+    background: transparent !important;
+    border: none !important;
     border-radius: 10px !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
+    padding: 8px 18px !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: -0.01em !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    color: #64748b !important;
 }
 
-[data-testid="stPills"] button[aria-pressed="true"] {
-    background: var(--gradient-primary) !important;
+/* Pill button hover state */
+[data-testid="stPills"] button:hover {
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #334155 !important;
+}
+
+/* Active/selected pill - vibrant gradient */
+[data-testid="stPills"] button[aria-pressed="true"],
+[data-testid="stPills"] button[data-active="true"],
+[data-testid="stPills"] button.st-emotion-cache-1f9gpgk {
+    background: linear-gradient(135deg, #ec4899 0%, #22c55e 100%) !important;
     color: white !important;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Active pill text styling */
+[data-testid="stPills"] button[aria-pressed="true"] p,
+[data-testid="stPills"] button[data-active="true"] p {
+    color: white !important;
+    font-weight: 700 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   VISUALIZATION FONTS
+   RESULTS PAGE - VISUAL COMPRESSION STYLES
    ═══════════════════════════════════════════════════════════════ */
 
-.stPlotlyChart, .stPyplot {
+/* Section bar - replaces ### headings */
+.section-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    margin-top: 10px;
+}
+
+.section-bar__emoji {
+    font-size: 1rem;
+}
+
+.section-bar__title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: -0.01em;
+}
+
+/* Thin divider under section bars */
+.section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, #f9a8d4 0%, #86efac 50%, transparent 100%);
+    margin-bottom: 10px;
+    border-radius: 1px;
+}
+
+/* Horizontal metrics ribbon - compact strip at top */
+.metrics-ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #f9a8d4;
+}
+
+.ribbon-item {
+    color: #1e293b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* Stats ribbon - horizontal metrics display */
+.stats-ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    border-radius: 10px;
+    border: 1px solid #f9a8d4;
+    margin-bottom: 10px;
+    justify-content: space-around;
+}
+
+.stats-ribbon__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px 12px;
+    min-width: 75px;
+}
+
+.stats-ribbon__value {
+    font-size: 1rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ec4899, #22c55e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stats-ribbon__label {
+    font-size: 0.65rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 1px;
+}
+
+/* Compact badges */
+.filter-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 3px solid #0ea5e9;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #0c4a6e;
+    margin-bottom: 6px;
+}
+
+.info-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #f0f9ff;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    color: #0369a1;
+    margin: 3px 0;
+}
+
+.success-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #f0fdf4;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    color: #166534;
+    margin: 3px 0;
+}
+
+.transparency-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #92400e;
+    margin: 6px 0;
+    border: 1px solid #fcd34d;
+}
+
+/* Responsive: Stack on small screens */
+@media (max-width: 768px) {
+    .metrics-ribbon {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .ribbon-item {
+        text-align: center;
+    }
+    
+    .stats-ribbon {
+        flex-direction: column;
+    }
+    
+    .stats-ribbon__item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UNIFORM VISUALIZATION FONT SIZES
+   Consistent font sizing across all figures and visualizations
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Matplotlib/Plotly figure containers */
+.stPlotlyChart, .stPyplot, [data-testid="stImage"] {
     font-size: 11px !important;
 }
 
+/* Figure captions and labels */
+.stCaption, figcaption {
+    font-size: 0.9rem !important;
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+/* Visualization title styling */
 .viz-title {
-    font-size: 1rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    color: #334155 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Chart axis labels */
+.chart-axis-label {
+    font-size: 10px !important;
     font-weight: 600 !important;
 }
 
+/* Legend text */
+.chart-legend-text {
+    font-size: 9px !important;
+    font-weight: 500 !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════
-   THIN CARD SYSTEM
+   THIN BOX STYLING FOR ALL CARDS AND CONTAINERS
+   Properly aligned text with thinner borders
    ═══════════════════════════════════════════════════════════════ */
 
+/* Generic thin card styling */
 .thin-card {
-    padding: 0.4rem 0.7rem !important;
+    padding: 0.3rem 0.6rem !important;
     border-radius: 6px !important;
-    border: 1px solid #e2e8f0 !important;
+    border-width: 1px !important;
 }
 
+/* Thin section header boxes */
+.section-header-thin {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 5px !important;
+    border-left-width: 2px !important;
+    margin-bottom: 0.3rem !important;
+}
+
+/* Thin info boxes */
 .info-box-thin {
-    padding: 0.4rem 0.7rem !important;
-    border-radius: 6px !important;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    padding: 0.3rem 0.5rem !important;
+    border-radius: 5px !important;
+    border-width: 1px !important;
+    line-height: 1.25 !important;
 }
 
+/* Properly aligned text in boxes */
+.aligned-text-box h4,
+.aligned-text-box h5,
+.aligned-text-box p {
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+/* Compact container spacing */
 .stContainer {
-    padding: 0.4rem !important;
+    padding: 0.3rem !important;
 }
