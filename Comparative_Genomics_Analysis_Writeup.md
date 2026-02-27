@@ -12,8 +12,11 @@
    - [3.1 Genome-Level Overview](#31-genome-level-overview-of-non-b-dna-structural-motifs)
    - [3.2 Class-Level Comparative Analysis (Taxonomy Order)](#32-class-level-comparative-analysis-taxonomy-order)
    - [3.3 Subclass-Level Analysis](#33-subclass-level-analysis)
+   - [3.3b 22-Canonical Subclass Framework](#33b-22-canonical-subclass-framework)
    - [3.4 Hybrid Region Analysis](#34-hybrid-region-analysis)
+   - [3.4b Hybrid Region Deep Analysis (Figure 6b)](#34b--hybrid-region-deep-analysis-figure-6b)
    - [3.5 Non-B DNA Cluster Regions](#35-non-b-dna-cluster-regions)
+   - [3.5b Cluster Region Deep Analysis (Figure 7b)](#35b--cluster-region-deep-analysis-figure-7b)
    - [3.6 Structural Complexity and Occupancy Metrics](#36-structural-complexity-and-occupancy-metrics)
    - [3.7 Structural Diversity Indices](#37-structural-diversity-indices)
    - [3.8 Summary of Results](#38-summary-of-results)
@@ -461,6 +464,15 @@ A scatter analysis of hybrid density vs. cluster density across all nine genomes
 
 ---
 
+### 3.5b  Cluster Region Deep Analysis (Figure 7b)
+
+Figure 7b extends the cluster region analysis. Panel 7bA plots GC% against cluster density (per Mb), revealing the same GC-driven enrichment as hybrid regions: GC-rich bacteria have 1,000–1,300 clusters/Mb vs. <100/Mb in AT-rich genomes (r ≈ 0.93, p < 0.001). The near-identical GC correlation for both hybrid and cluster densities strongly suggests that **GC content is the master regulator** of non-B DNA co-localisation complexity.
+
+Panel 7bB reveals cluster subtype complexity: 3-class clusters predominate in all genomes (>60% of all cluster regions), while 4-class clusters are substantially enriched in GC-rich bacteria (*M. marina*, *C. shaoxiangyii*: ~25–30% of clusters). 5-class and higher clusters are exclusive to these two high-GC bacteria, representing genuinely unprecedented structural hotspots with no equivalent in AT-moderate or AT-rich genomes.
+
+Panel 7bC plots mean cluster length vs. GC%, showing that GC-rich bacteria have significantly longer cluster regions (mean ~450–600 bp) compared to AT-moderate genomes (~250–350 bp), consistent with the higher density of individual motifs per genomic region driving extended contiguous cluster formation. This length-GC correlation (r ≈ 0.85, p < 0.01) indicates that not only do GC-rich genomes have more clusters, but each cluster region spans a larger genomic footprint.
+---
+
 ### 3.6 Structural Complexity and Occupancy Metrics
 
 Six derived metrics capture aspects of genome-wide structural complexity that are complementary to raw counts (Table 7; Fig. 8). Results are presented across the size-ordered genome panel.
@@ -568,15 +580,6 @@ Across nine genomes spanning 174 kb to 12.2 Mb (Table 1; Figs. 1–11), the foll
 
 6. **The eukaryote *S. cerevisiae* is unique** in combining the highest class diversity (Simpson D = 0.713), the most spatially clustered motif distribution (CV = 3.48), and the highest Max Local Density (0.076), consistent with chromatin-level focal regulation of non-canonical DNA.
 
----
-
-### 3.5b  Cluster Region Deep Analysis (Figure 7b)
-
-Figure 7b extends the cluster region analysis. Panel 7bA plots GC% against cluster density (per Mb), revealing the same GC-driven enrichment as hybrid regions: GC-rich bacteria have 1,000–1,300 clusters/Mb vs. <100/Mb in AT-rich genomes (r ≈ 0.93, p < 0.001). The near-identical GC correlation for both hybrid and cluster densities strongly suggests that **GC content is the master regulator** of non-B DNA co-localisation complexity.
-
-Panel 7bB reveals cluster subtype complexity: 3-class clusters predominate in all genomes (>60% of all cluster regions), while 4-class clusters are substantially enriched in GC-rich bacteria (*M. marina*, *C. shaoxiangyii*: ~25–30% of clusters). 5-class and higher clusters are exclusive to these two high-GC bacteria, representing genuinely unprecedented structural hotspots with no equivalent in AT-moderate or AT-rich genomes.
-
-Panel 7bC plots mean cluster length vs. GC%, showing that GC-rich bacteria have significantly longer cluster regions (mean ~450–600 bp) compared to AT-moderate genomes (~250–350 bp), consistent with the higher density of individual motifs per genomic region driving extended contiguous cluster formation. This length-GC correlation (r ≈ 0.85, p < 0.01) indicates that not only do GC-rich genomes have more clusters, but each cluster region spans a larger genomic footprint.
 
 ## 4. Discussion
 
