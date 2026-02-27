@@ -1,0 +1,93 @@
+﻿Source_File,File_Type,Class,Count
+Buchnera aphidicola_genome.fna,single,A-philic_DNA,1
+Buchnera aphidicola_genome.fna,single,Cruciform,583
+Buchnera aphidicola_genome.fna,single,Curved_DNA,2671
+Buchnera aphidicola_genome.fna,single,G-Quadruplex,16
+Buchnera aphidicola_genome.fna,single,Hybrid,156
+Buchnera aphidicola_genome.fna,single,Non-B_DNA_Clusters,176
+Buchnera aphidicola_genome.fna,single,R-Loop,1
+Buchnera aphidicola_genome.fna,single,Slipped_DNA,104
+Buchnera aphidicola_genome.fna,single,Triplex,127
+Candidatus Carsonella ruddii_genome.fna,single,Cruciform,270
+Candidatus Carsonella ruddii_genome.fna,single,Curved_DNA,1093
+Candidatus Carsonella ruddii_genome.fna,single,G-Quadruplex,10
+Candidatus Carsonella ruddii_genome.fna,single,Hybrid,61
+Candidatus Carsonella ruddii_genome.fna,single,Non-B_DNA_Clusters,26
+Candidatus Carsonella ruddii_genome.fna,single,R-Loop,2
+Candidatus Carsonella ruddii_genome.fna,single,Slipped_DNA,12
+Candidatus Carsonella ruddii_genome.fna,single,Triplex,18
+Cellulomonas shaoxiangyii_genome.fna,single,A-philic_DNA,1524
+Cellulomonas shaoxiangyii_genome.fna,single,Cruciform,4947
+Cellulomonas shaoxiangyii_genome.fna,single,G-Quadruplex,24198
+Cellulomonas shaoxiangyii_genome.fna,single,Hybrid,1971
+Cellulomonas shaoxiangyii_genome.fna,single,Non-B_DNA_Clusters,4543
+Cellulomonas shaoxiangyii_genome.fna,single,R-Loop,1621
+Cellulomonas shaoxiangyii_genome.fna,single,Slipped_DNA,338
+Cellulomonas shaoxiangyii_genome.fna,single,Triplex,4
+Cellulomonas shaoxiangyii_genome.fna,single,Z-DNA,8740
+Cellulomonas shaoxiangyii_genome.fna,single,i-Motif,485
+Escherichia coli_genome.fna,single,A-philic_DNA,67
+Escherichia coli_genome.fna,single,Cruciform,1830
+Escherichia coli_genome.fna,single,Curved_DNA,521
+Escherichia coli_genome.fna,single,G-Quadruplex,6126
+Escherichia coli_genome.fna,single,Hybrid,108
+Escherichia coli_genome.fna,single,Non-B_DNA_Clusters,144
+Escherichia coli_genome.fna,single,R-Loop,783
+Escherichia coli_genome.fna,single,Slipped_DNA,19
+Escherichia coli_genome.fna,single,Triplex,8
+Escherichia coli_genome.fna,single,Z-DNA,900
+Escherichia coli_genome.fna,single,i-Motif,26
+Helicobacter pylori_genome.fna,single,A-philic_DNA,55
+Helicobacter pylori_genome.fna,single,Cruciform,476
+Helicobacter pylori_genome.fna,single,Curved_DNA,1041
+Helicobacter pylori_genome.fna,single,G-Quadruplex,1102
+Helicobacter pylori_genome.fna,single,Hybrid,81
+Helicobacter pylori_genome.fna,single,Non-B_DNA_Clusters,109
+Helicobacter pylori_genome.fna,single,R-Loop,773
+Helicobacter pylori_genome.fna,single,Slipped_DNA,69
+Helicobacter pylori_genome.fna,single,Triplex,20
+Helicobacter pylori_genome.fna,single,Z-DNA,23
+Helicobacter pylori_genome.fna,single,i-Motif,22
+Miltoncostaea marina_genome.fna,single,A-philic_DNA,1954
+Miltoncostaea marina_genome.fna,single,Cruciform,5207
+Miltoncostaea marina_genome.fna,single,Curved_DNA,3
+Miltoncostaea marina_genome.fna,single,G-Quadruplex,25104
+Miltoncostaea marina_genome.fna,single,Hybrid,2563
+Miltoncostaea marina_genome.fna,single,Non-B_DNA_Clusters,4530
+Miltoncostaea marina_genome.fna,single,R-Loop,1375
+Miltoncostaea marina_genome.fna,single,Slipped_DNA,135
+Miltoncostaea marina_genome.fna,single,Triplex,3
+Miltoncostaea marina_genome.fna,single,Z-DNA,7835
+Miltoncostaea marina_genome.fna,single,i-Motif,400
+Saccharomyces cerevisiae_genome.fna,multi,A-philic_DNA,239
+Saccharomyces cerevisiae_genome.fna,multi,Cruciform,2632
+Saccharomyces cerevisiae_genome.fna,multi,Curved_DNA,8440
+Saccharomyces cerevisiae_genome.fna,multi,G-Quadruplex,5018
+Saccharomyces cerevisiae_genome.fna,multi,Hybrid,381
+Saccharomyces cerevisiae_genome.fna,multi,Non-B_DNA_Clusters,656
+Saccharomyces cerevisiae_genome.fna,multi,R-Loop,904
+Saccharomyces cerevisiae_genome.fna,multi,Slipped_DNA,1224
+Saccharomyces cerevisiae_genome.fna,multi,Triplex,629
+Saccharomyces cerevisiae_genome.fna,multi,Z-DNA,106
+Saccharomyces cerevisiae_genome.fna,multi,i-Motif,23
+Staphylococcus aureus_genome.fna,single,A-philic_DNA,68
+Staphylococcus aureus_genome.fna,single,Cruciform,879
+Staphylococcus aureus_genome.fna,single,Curved_DNA,697
+Staphylococcus aureus_genome.fna,single,G-Quadruplex,341
+Staphylococcus aureus_genome.fna,single,Hybrid,20
+Staphylococcus aureus_genome.fna,single,Non-B_DNA_Clusters,22
+Staphylococcus aureus_genome.fna,single,R-Loop,41
+Staphylococcus aureus_genome.fna,single,Slipped_DNA,48
+Staphylococcus aureus_genome.fna,single,Triplex,15
+Staphylococcus aureus_genome.fna,single,Z-DNA,7
+Streptococcus pneumoniae_genome.fna,single,A-philic_DNA,7
+Streptococcus pneumoniae_genome.fna,single,Cruciform,852
+Streptococcus pneumoniae_genome.fna,single,Curved_DNA,533
+Streptococcus pneumoniae_genome.fna,single,G-Quadruplex,1014
+Streptococcus pneumoniae_genome.fna,single,Hybrid,19
+Streptococcus pneumoniae_genome.fna,single,Non-B_DNA_Clusters,17
+Streptococcus pneumoniae_genome.fna,single,R-Loop,114
+Streptococcus pneumoniae_genome.fna,single,Slipped_DNA,35
+Streptococcus pneumoniae_genome.fna,single,Triplex,5
+Streptococcus pneumoniae_genome.fna,single,Z-DNA,10
+Streptococcus pneumoniae_genome.fna,single,i-Motif,1

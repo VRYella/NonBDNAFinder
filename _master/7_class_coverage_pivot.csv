@@ -1,0 +1,10 @@
+﻿Source_File,A-philic_DNA,Cruciform,Curved_DNA,G-Quadruplex,Hybrid,Non-B_DNA_Clusters,R-Loop,Slipped_DNA,Triplex,Z-DNA,i-Motif
+Buchnera aphidicola_genome.fna,0.002,3.028,5.73,0.074,0.868,8.305,0.003,0.573,0.713,0.0,0.0
+Candidatus Carsonella ruddii_genome.fna,0.0,3.517,6.111,0.103,0.895,3.568,0.016,0.198,0.244,0.0,0.0
+Cellulomonas shaoxiangyii_genome.fna,0.382,2.807,0.0,13.363,15.971,67.242,65.913,0.257,0.002,2.376,0.304
+Escherichia coli_genome.fna,0.013,0.92,0.191,2.642,0.355,0.798,1.929,0.025,0.003,0.196,0.013
+Helicobacter pylori_genome.fna,0.033,0.631,1.109,1.367,0.242,1.425,1.655,0.139,0.023,0.013,0.032
+Miltoncostaea marina_genome.fna,0.573,3.396,0.002,16.002,17.042,71.994,67.031,0.132,0.002,2.49,0.29
+Saccharomyces cerevisiae_genome.fna,0.019,0.486,0.88,0.832,0.103,0.983,0.252,0.292,0.102,0.009,0.004
+Staphylococcus aureus_genome.fna,0.022,0.74,0.549,0.244,0.027,0.141,0.021,0.067,0.011,0.003,0.0
+Streptococcus pneumoniae_genome.fna,0.003,0.936,0.521,0.957,0.041,0.195,0.085,0.143,0.005,0.005,0.001

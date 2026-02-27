@@ -1,0 +1,29 @@
+﻿Metric,Value
+Genome Length,"31,310,828 bp"
+Motifs (excl. Hybrid/Cluster),"126,524"
+Motifs (incl. Hybrid/Cluster),"142,107"
+Motif Classes,9
+Motif Density,4.0409 / kb
+Total Covered Bases,"3,608,376 bp"
+Coverage Fraction,0.115244
+Coverage (%),11.5244%
+Raw Occupancy,"7,395,304 bp"
+Normalized Occupancy (SLI),0.236190
+Mean Overlap Depth,2.0495
+SLI,0.236190
+Structural Intensity,0.522979
+Weighted Structural Coverage,0.174909
+Mean Inter-Motif Distance,-20.77 bp
+CV (Clustering Coefficient),13.0418
+"Max Local Density (W=1,000 bp)",0.116000
+Max Class Diversity,9
+Max Cluster Score,0.945000
+Hybrid Regions,"5,360"
+Hybrid Coverage,3.6051%
+Cluster Regions,"10,223"
+Cluster Coverage,10.9838%
+Mean Overlap Fraction,0.7061
+Simpson Diversity Index (D),0.6964
+Effective Class Number (Neff),3.2937
+SCI (Structural Complexity Index),0.3796
+Structural Dominance Ratio,0.4974
