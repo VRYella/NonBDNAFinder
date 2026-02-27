@@ -6,7 +6,7 @@ UI_TEXT = {
     'github_profile': 'VRYella',
     'github_repo': 'NonBFinder',
     'github_url': 'https://github.com/VRYella/NonBFinder',
-    'version': '2024.1',
+    'version': '2026.1',
 
     # ===== Page Titles =====
     'home_title': 'Non-B DNA Motif Detection System',
@@ -367,7 +367,7 @@ UI_TEXT = {
     'heading_export_config': 'Export Configuration',
     'heading_additional_exports': 'Additional Exports',
 
-    'heading_documentation': 'Scientific Documentation & References',
+    'heading_documentation': 'Documentation & References',
     'heading_motif_classes': 'Detected Motif Classes',
     'heading_references': 'References',
     'heading_config_details': 'Scoring Configuration',
