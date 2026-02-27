@@ -19,7 +19,7 @@ FONT_CONFIG = {
     # Font sizes (in rem units, where 1rem ≈ 16px in most browsers)
     # Enhanced sizes for modern, bold, research-quality appearance
     # UPDATED: Larger and bolder for more vibrant and impactful display
-    'h1_size': '3.5rem',      # Main page headers - bold, impactful, enlarged
+    'h1_size': '2.5rem',      # Main page headers - bold, impactful, enlarged
     'h2_size': '2.6rem',      # Section headers - clear hierarchy, prominent
     'h3_size': '2.0rem',      # Subsection headers - organized structure, visible
     'h4_size': '1.6rem',      # Small headers - subtle distinction, readable
@@ -30,10 +30,10 @@ FONT_CONFIG = {
     # Font weights (100-900, where 400 is normal and 700 is bold)
     # UPDATED: Heavier weights for bold and vibrant appearance
     # Note: These are intentionally set higher than typical CSS defaults for emphasis
-    'light_weight': 400,       # Base weight (heavier than CSS light for better readability)
-    'normal_weight': 600,      # Enhanced normal (actually semibold for prominence)
-    'medium_weight': 700,      # Medium becomes bold for impact
-    'semibold_weight': 800,    # Semibold is extra bold for hierarchy
-    'bold_weight': 900,        # Bold is maximum weight for emphasis
-    'extrabold_weight': 900,   # Extra bold matches maximum (900 is CSS max)
+    'light_weight': 300,       # Base weight (heavier than CSS light for better readability)
+    'normal_weight': 400,      # Enhanced normal (actually semibold for prominence)
+    'medium_weight': 500,      # Medium becomes bold for impact
+    'semibold_weight': 600,    # Semibold is extra bold for hierarchy
+    'bold_weight': 700,        # Bold is maximum weight for emphasis
+    'extrabold_weight': 800,   # Extra bold matches maximum (900 is CSS max)
 }
