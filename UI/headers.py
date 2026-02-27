@@ -23,7 +23,7 @@ PAGE_HEADING_COLORS = {
     'Downloads': {'primary': '#ea580c', 'pattern': 'linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%)'},
     'Documentation': {'primary': '#dc2626', 'pattern': 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)'},
 }
-HEADING_PADDING = "0.9rem 1.6rem"; HEADING_FONT_SIZE = "3.5rem"; HEADING_BORDER_RADIUS = "10px"
+HEADING_PADDING = "0.5rem 1.6rem"; HEADING_FONT_SIZE = "1.9rem"; HEADING_BORDER_RADIUS = "10px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -71,15 +71,16 @@ def render_section_heading(title: str, page: str = None):
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         width: 100%;
     ">
-        <div style="
+        <div title="{safe_title}" style="
             margin: 0;
-            font-size: 3.5rem;
+            font-size: {HEADING_FONT_SIZE};
             font-weight: 800;
             color: {white};
             text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6);
             letter-spacing: -0.01em;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         ">
             {safe_title}
         </div>
