@@ -17,13 +17,13 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#0091FF', 'pattern': 'linear-gradient(135deg, #0091FF 0%, #00B4FF 50%, #00D4FF 100%)'},
-    'Upload & Analyze': {'primary': '#10b981', 'pattern': 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)'},
-    'Results': {'primary': '#8b5cf6', 'pattern': 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)'},
-    'Downloads': {'primary': '#0ea5e9', 'pattern': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)'},
-    'Documentation': {'primary': '#f59e0b', 'pattern': 'linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)'},
+    'Home': {'primary': '#1a56db', 'pattern': 'linear-gradient(135deg, #1a56db 0%, #3b82f6 50%, #60a5fa 100%)'},
+    'Upload & Analyze': {'primary': '#059669', 'pattern': 'linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%)'},
+    'Results': {'primary': '#7c3aed', 'pattern': 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%)'},
+    'Downloads': {'primary': '#ea580c', 'pattern': 'linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%)'},
+    'Documentation': {'primary': '#dc2626', 'pattern': 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)'},
 }
-HEADING_PADDING = "0.7rem 1.4rem"; HEADING_FONT_SIZE = "2.2rem"; HEADING_BORDER_RADIUS = "6px"
+HEADING_PADDING = "0.9rem 1.6rem"; HEADING_FONT_SIZE = "3.5rem"; HEADING_BORDER_RADIUS = "10px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -61,19 +61,19 @@ def render_section_heading(title: str, page: str = None):
     white = GLOBAL_COLORS['white']
     
     st.markdown(f"""
-    <div style="
+    <div class="section-heading-box" style="
         background: {background};
-        padding: 0.7rem 1.4rem;
-        border-radius: 6px;
+        padding: {HEADING_PADDING};
+        border-radius: {HEADING_BORDER_RADIUS};
         margin: 0.4rem 0 0.6rem 0;
-        border: 1px solid {border_color};
+        border: 2px solid {border_color};
         text-align: center;
-        box-shadow: 0 0 12px rgba(0, 145, 255, 0.3);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         width: 100%;
     ">
-        <h2 style="
+        <div style="
             margin: 0;
-            font-size: 2.2rem;
+            font-size: 3.5rem;
             font-weight: 800;
             color: {white};
             text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6);
@@ -82,6 +82,6 @@ def render_section_heading(title: str, page: str = None):
             overflow-wrap: break-word;
         ">
             {safe_title}
-        </h2>
+        </div>
     </div>
     """, unsafe_allow_html=True)
