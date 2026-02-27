@@ -92,11 +92,11 @@ def _build_flow_diagram(stages, caption=""):
 
 def _build_motif_card(n, sub, col, desc):
     return (
-        f"<div style='background:white;padding:0.9rem;border-radius:8px;"
+        f"<div style='background:white;padding:0.5rem 0.7rem;border-radius:8px;"
         f"box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left:4px solid {col};'>"
-        f"<strong style='color:#1e293b;font-size:1.0rem;'>{n}</strong>"
-        f"<div style='color:{col};font-size:0.85rem;font-weight:600;margin:0.15rem 0;'>{sub}</div>"
-        f"<div style='color:#64748b;font-size:0.85rem;line-height:1.4;'>{desc}</div></div>"
+        f"<strong style='color:#1e293b;font-size:0.95rem;'>{n}</strong>"
+        f"<div style='color:{col};font-size:0.85rem;font-weight:600;margin:0.1rem 0;'>{sub}</div>"
+        f"<div style='color:#64748b;font-size:0.85rem;line-height:1.3;'>{desc}</div></div>"
     )
 
 

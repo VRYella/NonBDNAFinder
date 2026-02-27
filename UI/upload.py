@@ -169,27 +169,27 @@ def render_sequence_stats_card(idx: int, name: str, length: int, gc_pct: float, 
     
     return f"""
     <div style='background: linear-gradient({gradient_colors}); 
-                border-radius: 8px; padding: 16px; margin: 8px 0; color: white;
+                border-radius: 8px; padding: 8px 12px; margin: 4px 0; color: white;
                 box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);'>
-        <div style='font-weight: 600; font-size: 1.05rem; margin-bottom: 8px;'>
+        <div style='font-weight: 600; font-size: 0.95rem; margin-bottom: 4px;'>
             {idx}. {display_name}
         </div>
-        <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; 
-                    font-size: 0.95rem; margin-top: 8px;'>
-            <div style='background: rgba(255,255,255,0.15); padding: 8px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1.1rem;'>{length:,}</div>
+        <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
+                    font-size: 0.88rem; margin-top: 4px;'>
+            <div style='background: rgba(255,255,255,0.15); padding: 4px 6px; border-radius: 4px; text-align: center;'>
+                <div style='font-weight: 700; font-size: 1.0rem;'>{length:,}</div>
                 <div style='opacity: 0.9; font-size: 0.82rem;'>Base Pairs</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 8px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1.1rem;'>{gc_pct:.2f}%</div>
+            <div style='background: rgba(255,255,255,0.15); padding: 4px 6px; border-radius: 4px; text-align: center;'>
+                <div style='font-weight: 700; font-size: 1.0rem;'>{gc_pct:.2f}%</div>
                 <div style='opacity: 0.9; font-size: 0.82rem;'>GC Content</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 8px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1.1rem;'>{at_pct:.2f}%</div>
+            <div style='background: rgba(255,255,255,0.15); padding: 4px 6px; border-radius: 4px; text-align: center;'>
+                <div style='font-weight: 700; font-size: 1.0rem;'>{at_pct:.2f}%</div>
                 <div style='opacity: 0.9; font-size: 0.82rem;'>AT Content</div>
             </div>
-            <div style='background: rgba(255,255,255,0.15); padding: 8px; border-radius: 4px; text-align: center;'>
-                <div style='font-weight: 700; font-size: 1.1rem;'>{gc_balance}</div>
+            <div style='background: rgba(255,255,255,0.15); padding: 4px 6px; border-radius: 4px; text-align: center;'>
+                <div style='font-weight: 700; font-size: 1.0rem;'>{gc_balance}</div>
                 <div style='opacity: 0.9; font-size: 0.82rem;'>GC Balance</div>
             </div>
         </div>

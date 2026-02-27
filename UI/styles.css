@@ -795,3 +795,14 @@ p, span, label, li, td, th {
 .stContainer {
     padding: 0.3rem !important;
 }
+
+/* Section heading box - height shrinks to fit text */
+.section-heading-box {
+    height: auto !important;
+    min-height: unset !important;
+}
+
+/* Ensure all inline HTML div boxes use auto height */
+[data-testid="stMarkdownContainer"] > div {
+    height: auto !important;
+}
