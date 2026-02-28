@@ -215,78 +215,147 @@ class TriplexDetector(BaseMotifDetector):
         k = self.SEED_SIZE
         hits = []
 
-        seed_index = defaultdict(list)
+        # -----------------------------------------------------------------------
+        # Find seed pairs (i, j) where seq[i:i+k] == reversed(seq[j:j+k])
+        # and j - i - k in [0, MAX_LOOP] using numpy sliding-window hashing —
+        # O(n × MAX_LOOP) C-speed instead of two O(n) Python loops.
+        # -----------------------------------------------------------------------
+        try:
+            import numpy as _np
+            _NP = True
+        except ImportError:
+            _NP = False
 
-        for i in range(n - k + 1):
-            seed_index[seq[i:i+k]].append(i)
+        if _NP and n >= k:
+            valid_pairs = self._find_mirror_pairs_numpy(seq, n, k, _np)
+        else:
+            seed_index: dict = defaultdict(list)
+            for i in range(n - k + 1):
+                seed_index[seq[i:i+k]].append(i)
+            valid_pairs = []
+            for kmer, i_positions in seed_index.items():
+                mirror = kmer[::-1]
+                j_positions = seed_index.get(mirror)
+                if not j_positions:
+                    continue
+                for i in i_positions:
+                    j_lo = i + k
+                    j_hi = j_lo + self.MAX_LOOP
+                    for j in j_positions:
+                        if j_lo <= j <= j_hi:
+                            valid_pairs.append((i, j))
 
-        for i in range(n - k + 1):
+        seen_pairs: set = set()
+        for i, j in valid_pairs:
+            pair_key = (i, j)
+            if pair_key in seen_pairs:
+                continue
+            seen_pairs.add(pair_key)
 
-            seed = seq[i:i+k]
-            mirror = seed[::-1]
+            loop_len = j - (i + k)
 
-            if mirror not in seed_index:
+            left_start = i
+            right_start = j
+            arm_len = k
+
+            while (
+                left_start > 0 and
+                right_start + arm_len < n and
+                seq[left_start - 1] == seq[right_start + arm_len] and
+                arm_len < self.MAX_ARM
+            ):
+                left_start -= 1
+                arm_len += 1
+
+            if arm_len < self.MIN_ARM:
                 continue
 
-            for j in seed_index[mirror]:
+            left_seq = seq[left_start:left_start + arm_len]
 
-                if j <= i:
-                    continue
+            purine_fraction = sum(b in "AG" for b in left_seq) / arm_len
+            pyr_fraction = sum(b in "CT" for b in left_seq) / arm_len
+            purity = max(purine_fraction, pyr_fraction)
 
-                loop_len = j - (i + k)
+            if purity < self.PURITY_THRESHOLD:
+                continue
 
-                # Strict spacer constraint
-                if loop_len < 0 or loop_len > self.MAX_LOOP:
-                    continue
+            interruptions = sum(
+                1 for b in left_seq
+                if (purine_fraction > pyr_fraction and b not in "AG")
+                or (pyr_fraction > purine_fraction and b not in "CT")
+            )
 
-                left_start = i
-                right_start = j
-                arm_len = k
+            score = self._score_mirror_triplex(
+                arm_len, loop_len, purity, interruptions
+            )
 
-                while (
-                    left_start > 0 and
-                    right_start + arm_len < n and
-                    seq[left_start - 1] == seq[right_start + arm_len] and
-                    arm_len < self.MAX_ARM
-                ):
-                    left_start -= 1
-                    arm_len += 1
-
-                if arm_len < self.MIN_ARM:
-                    continue
-
-                left_seq = seq[left_start:left_start + arm_len]
-
-                purine_fraction = sum(b in "AG" for b in left_seq) / arm_len
-                pyr_fraction = sum(b in "CT" for b in left_seq) / arm_len
-                purity = max(purine_fraction, pyr_fraction)
-
-                if purity < self.PURITY_THRESHOLD:
-                    continue
-
-                interruptions = sum(
-                    1 for b in left_seq
-                    if (purine_fraction > pyr_fraction and b not in "AG")
-                    or (pyr_fraction > purine_fraction and b not in "CT")
-                )
-
-                score = self._score_mirror_triplex(
-                    arm_len, loop_len, purity, interruptions
-                )
-
-                hits.append({
-                    "start": left_start,
-                    "end": right_start + arm_len,
-                    "arm_length": arm_len,
-                    "loop_length": loop_len,
-                    "purity": round(purity, 3),
-                    "interruptions": interruptions,
-                    "score": score,
-                    "sequence": seq[left_start:right_start + arm_len]
-                })
+            hits.append({
+                "start": left_start,
+                "end": right_start + arm_len,
+                "arm_length": arm_len,
+                "loop_length": loop_len,
+                "purity": round(purity, 3),
+                "interruptions": interruptions,
+                "score": score,
+                "sequence": seq[left_start:right_start + arm_len]
+            })
 
         hits.sort(key=lambda x: (-x["arm_length"], x["loop_length"], x["start"]))
         return hits
+
+    # -------------------------
+    # Numpy mirror-pair discovery
+    # -------------------------
+
+    # Module-level encoding table (A=0, C=1, G=2, T=3)
+    _BASE_ENC = None
+
+    @classmethod
+    def _get_base_enc(cls, _np):
+        if cls._BASE_ENC is None:
+            enc = _np.full(256, 255, dtype=_np.uint8)
+            for ch, code in zip('ACGT', range(4)):
+                enc[ord(ch)] = code
+            cls._BASE_ENC = enc
+        return cls._BASE_ENC
+
+    @classmethod
+    def _find_mirror_pairs_numpy(cls, seq: str, n: int, k: int, _np) -> list:
+        """Return all (i, j) pairs where seq[i:i+k] is a mirror of seq[j:j+k]
+        (i.e., seq[j:j+k] == seq[i:i+k][::-1]) and j - i - k in [0, MAX_LOOP].
+
+        Mirror hash: hash of reversed k-mer = polynomial hash with reversed
+        coefficient order, equivalent to the forward hash computed with POWERS_REV.
+        """
+        enc_lut = cls._get_base_enc(_np)
+        raw = _np.frombuffer(seq.encode('ascii'), dtype=_np.uint8)
+        enc = enc_lut[raw].astype(_np.int64)
+        num_w = n - k + 1
+
+        POWERS = 4 ** _np.arange(k, dtype=_np.int64)
+        POWERS_REV = 4 ** _np.arange(k - 1, -1, -1, dtype=_np.int64)
+
+        fwd_hash = _np.zeros(num_w, dtype=_np.int64)
+        mirror_hash = _np.zeros(num_w, dtype=_np.int64)
+        for j in range(k):
+            fwd_hash += enc[j:j + num_w] * POWERS[j]
+            mirror_hash += enc[j:j + num_w] * POWERS_REV[j]
+
+        valid_pairs = []
+        for loop_offset in range(0, cls.MAX_LOOP + 1):
+            j_offset = k + loop_offset
+            if j_offset >= num_w:
+                break
+            ni = num_w - j_offset
+            # mirror_hash[i] == fwd_hash[i+j_offset] means that the k-mer at
+            # position i is the reverse of the k-mer at position i+j_offset,
+            # i.e. seq[i:i+k] reversed == seq[i+j_offset:i+j_offset+k].
+            # This is precisely the mirror-repeat (palindromic) seed condition
+            # required for triplex / H-DNA detection.
+            matches = mirror_hash[:ni] == fwd_hash[j_offset:j_offset + ni]
+            for i in _np.where(matches)[0].tolist():
+                valid_pairs.append((i, i + j_offset))
+        return valid_pairs
 
     # ------------------------------------------------------------------ #
     # Sticky DNA Detection (GAA/TTC repeats)

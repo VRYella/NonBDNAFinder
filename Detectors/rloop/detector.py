@@ -22,6 +22,10 @@ except ImportError:
 MIN_PERC_G_RIZ = 50; NUM_LINKER = 50; WINDOW_STEP = 100
 MAX_LENGTH_REZ = 2000; MIN_PERC_G_REZ = 40; QUALITY_THRESHOLD = 0.4
 
+# Minimum sequence length to prefer numpy prefix-sum over pure Python.
+# Below this threshold the function-call overhead of numpy is not worth paying.
+_NUMPY_PREFIX_THRESHOLD_BP = 1000
+
 
 class RLoopDetector(BaseMotifDetector):
     """QmRLFS-finder R-loop detector (literature-faithful, accelerated)."""
@@ -169,22 +173,38 @@ class RLoopDetector(BaseMotifDetector):
         return results
 
 
+    def _build_prefix_g(self, seq: str):
+        """Build G-count prefix sum for the entire sequence (computed once per call).
+
+        Using numpy frombuffer + cumsum eliminates the Python character loop
+        and avoids recomputing the prefix array for every RIZ region.
+        """
+        seq_len = len(seq)
+        if NUMPY_AVAILABLE and seq_len > _NUMPY_PREFIX_THRESHOLD_BP:
+            # frombuffer avoids a copy; compare ASCII codes directly (G=71)
+            seq_bytes = np.frombuffer(seq.encode('ascii'), dtype=np.uint8)
+            g_mask = (seq_bytes == 71).astype(np.int32)
+            prefix = np.empty(seq_len + 1, dtype=np.int32)
+            prefix[0] = 0
+            np.cumsum(g_mask, out=prefix[1:])
+            return prefix
+        prefix = [0] * (seq_len + 1)
+        for i in range(seq_len):
+            prefix[i + 1] = prefix[i] + (1 if seq[i] == 'G' else 0)
+        return prefix
+
     def _find_rez(self,
                   seq: str,
-                  riz_end: int) -> Optional[Dict[str, Any]]:
+                  riz_end: int,
+                  prefix_g=None) -> Optional[Dict[str, Any]]:
 
         seq_len = len(seq)
         search_start = riz_end + self.NUM_LINKER
         if search_start >= seq_len:
             return None
 
-        if NUMPY_AVAILABLE and seq_len > 1000:
-            seq_array = np.array([1 if c == 'G' else 0 for c in seq], dtype=np.int32)
-            prefix_g = np.concatenate(([0], np.cumsum(seq_array)))
-        else:
-            prefix_g = [0] * (seq_len + 1)
-            for i in range(seq_len):
-                prefix_g[i + 1] = prefix_g[i] + (1 if seq[i] == 'G' else 0)
+        if prefix_g is None:
+            prefix_g = self._build_prefix_g(seq)
 
         best = None
         max_score = 0.0
@@ -239,13 +259,16 @@ class RLoopDetector(BaseMotifDetector):
         models = models or ['qmrlfs_model_1', 'qmrlfs_model_2']
         results = []
 
+        # Build prefix_g once for the entire sequence to avoid per-RIZ recomputation
+        prefix_g = self._build_prefix_g(seq)
+
         for model in models:
 
             riz_regions = self._riz_search(seq, model)
 
             for riz in riz_regions:
 
-                rez = self._find_rez(seq, riz['end'])
+                rez = self._find_rez(seq, riz['end'], prefix_g=prefix_g)
 
                 result = {
                     'model': model,
