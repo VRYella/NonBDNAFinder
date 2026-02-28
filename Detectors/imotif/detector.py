@@ -11,7 +11,7 @@ try: from motif_patterns import IMOTIF_PATTERNS
 except ImportError: IMOTIF_PATTERNS = {}
 
 # TUNABLE PARAMETERS
-MIN_REGION_LEN = 10; CLASS_PRIORITIES = {'canonical_imotif': 1, 'hur_ac_motif': 2}
+MIN_REGION_LEN = 10; CLASS_PRIORITIES = {'canonical_imotif': 1, 'relaxed_imotif': 2, 'hur_ac_motif': 3}
 VALIDATED_SEQS = [("IM_VAL_001", "CCCCTCCCCTCCCCTCCCC", "Validated i-motif 1", "Gehring 1993"),
                   ("IM_VAL_002", "CCCCACCCCACCCCACCCC", "Validated i-motif 2", "Leroy 1995")]
 
@@ -40,9 +40,10 @@ class IMotifDetector(BaseMotifDetector):
         return 1.0
 
     def get_patterns(self) -> Dict[str, List[Tuple]]:
-        """Return i-motif patterns: canonical 4×C-tracts and HUR AC-motifs."""
+        """Return i-motif patterns: canonical 4×C-tracts, relaxed (extended-loop), and HUR AC-motifs."""
         return self._load_patterns(IMOTIF_PATTERNS, lambda: {
             'canonical_imotif': [(r'C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}[ATGC]{1,7}C{3,}', 'IM_0', 'Canonical i-motif', 'canonical_imotif', 15, 'imotif_score', 0.95, 'pH-dependent C-rich structure', 'Gehring 1993')],
+            'relaxed_imotif': [(r'C{3,}[ATGC]{1,12}C{3,}[ATGC]{1,12}C{3,}[ATGC]{1,12}C{3,}', 'IM_EXT', 'Relaxed i-motif', 'relaxed_imotif', 18, 'imotif_score', 0.95, 'Extended-loop i-motif (loops up to 12 nt)', 'Zeraati 2018')],
             'hur_ac_motif': [
                 (r'A{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}', 'HUR_AC_1', 'HUR AC-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR AC alternating motif', 'Hur 2021'),
                 (r'C{3}[ACGT]{4}C{3}[ACGT]{4}C{3}[ACGT]{4}A{3}', 'HUR_AC_2', 'HUR CA-motif (4bp)', 'AC-motif (HUR)', 18, 'ac_motif_score', 0.85, 'HUR CA alternating motif', 'Hur 2021'),
@@ -81,12 +82,19 @@ class IMotifDetector(BaseMotifDetector):
 
     def _find_regex_candidates(self, sequence: str) -> List[Dict[str, Any]]:
         seq = sequence.upper(); patterns = self.get_patterns(); out = []
+        rc_seq = revcomp(seq); n = len(seq)
         for class_name, pats in patterns.items():
             for patt in pats:
                 regex = patt[0]; pid = patt[1] if len(patt) > 1 else f"{class_name}_pat"
-                for m in re.finditer(regex, seq, flags=re.IGNORECASE | re.ASCII):
-                    s, e = m.start(), m.end()
-                    if (e - s) >= MIN_REGION_LEN: out.append({'class_name': class_name, 'pattern_id': pid, 'start': s, 'end': e, 'matched_seq': seq[s:e]})
+                for strand, target in (('+', seq), ('-', rc_seq)):
+                    for m in re.finditer(regex, target, flags=re.IGNORECASE | re.ASCII):
+                        s, e = m.start(), m.end()
+                        if (e - s) >= MIN_REGION_LEN:
+                            fwd_s = s if strand == '+' else n - e
+                            fwd_e = e if strand == '+' else n - s
+                            out.append({'class_name': class_name, 'pattern_id': pid,
+                                        'start': fwd_s, 'end': fwd_e,
+                                        'matched_seq': target[s:e], 'strand': strand})
         return out
 
     def _score_imotif_candidate(self, matched_seq: str) -> float:
@@ -147,8 +155,10 @@ class IMotifDetector(BaseMotifDetector):
         regex_cands = self._find_regex_candidates(seq)
         for r in regex_cands: r['score'] = self._score_imotif_candidate(r['matched_seq'])
         res['regex_matches'] = regex_cands
-        combined = [dict(class_name='ac_motif_hur', start=h['start'], end=h['end'], score=h['score'], details=h) for h in hur_cands]
-        combined += [dict(class_name=r['class_name'], start=r['start'], end=r['end'], score=r['score'], details=r) for r in regex_cands]
+        combined = [dict(class_name='ac_motif_hur', start=h['start'], end=h['end'], score=h['score'],
+                         strand=h.get('strand', '+'), details=h) for h in hur_cands]
+        combined += [dict(class_name=r['class_name'], start=r['start'], end=r['end'], score=r['score'],
+                          strand=r.get('strand', '+'), details=r) for r in regex_cands]
         res['accepted'] = self._resolve_overlaps_greedy(combined, merge_gap=0)
         return res
     
@@ -156,22 +166,27 @@ class IMotifDetector(BaseMotifDetector):
         """Detect i-motif structures with component details and overlap resolution."""
         seq = sequence.upper(); motifs = []
         annotation_result = self.annotate_sequence(seq); accepted_motifs = annotation_result.get('accepted', [])
-        subclass_map = {'canonical_imotif': 'Canonical i-motif', 'hur_ac_motif': 'AC-motif', 'ac_motif_hur': 'AC-motif'}
+        subclass_map = {'canonical_imotif': 'Canonical i-motif', 'relaxed_imotif': 'Relaxed i-motif', 'hur_ac_motif': 'AC-motif', 'ac_motif_hur': 'AC-motif'}
 
         for i, accepted in enumerate(accepted_motifs):
             start_pos, end_pos = accepted['start'], accepted['end']; motif_seq = seq[start_pos:end_pos]
+            strand = accepted.get('strand', '+')
+            # For minus-strand hits use the matched C-rich sequence (from RC scan) for structural
+            # feature extraction (C-tracts, loops). _find_regex_candidates stores the RC-strand
+            # matched sequence in 'matched_seq' inside the details dict.
+            analysis_seq = accepted.get('details', {}).get('matched_seq') or motif_seq
             class_name = accepted.get('class_name', 'canonical_imotif'); subclass = subclass_map.get(class_name, 'Canonical i-motif')
             score = accepted.get('score', 0)
             canonical_class, canonical_subclass = normalize_class_subclass(self.get_motif_class_name(), subclass, strict=False, auto_correct=True)
-            c_tracts = re.findall(r'C{2,}', motif_seq); loops = []
-            c_tract_matches = list(re.finditer(r'C{2,}', motif_seq))
+            c_tracts = re.findall(r'C{2,}', analysis_seq); loops = []
+            c_tract_matches = list(re.finditer(r'C{2,}', analysis_seq))
             for j in range(len(c_tract_matches) - 1):
                 loop_start, loop_end = c_tract_matches[j].end(), c_tract_matches[j + 1].start()
-                if loop_end > loop_start: loops.append(motif_seq[loop_start:loop_end])
+                if loop_end > loop_start: loops.append(analysis_seq[loop_start:loop_end])
             gc_total = self._calc_gc(motif_seq); gc_stems = self._calc_gc(''.join(c_tracts)) if c_tracts else 0
             motif = {'ID': f"{sequence_name}_IMOT_{start_pos+1}", 'Sequence_Name': sequence_name, 'Class': canonical_class,
                      'Subclass': canonical_subclass, 'Start': start_pos + 1, 'End': end_pos, 'Length': end_pos - start_pos,
-                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self.normalize_score(score, end_pos - start_pos, canonical_subclass), 'Strand': '+', 'Method': 'i-Motif_detection',
+                     'Sequence': motif_seq, 'Raw_Score': round(score, 3), 'Score': self.normalize_score(score, end_pos - start_pos, canonical_subclass), 'Strand': strand, 'Method': 'i-Motif_detection',
                      'Pattern_ID': f'IMOT_{i+1}', 'Stems': c_tracts, 'Loops': loops, 'Num_Stems': len(c_tracts),
                      'Num_Loops': len(loops), 'Stem_Lengths': [len(s) for s in c_tracts], 'Loop_Lengths': [len(l) for l in loops],
                      'GC_Content': round(gc_total, 2), 'GC_Total': round(gc_total, 2), 'GC_Stems': round(gc_stems, 2),
@@ -190,6 +205,8 @@ class IMotifDetector(BaseMotifDetector):
         """Classify i-motif structural type"""
         if 'AC-motif' in subclass:
             return 'AC-motif (HUR) - A-tract/C-tract alternating'
+        elif 'Relaxed' in subclass:
+            return 'Relaxed i-motif (extended loops, C-rich)'
         elif num_stems >= 4:
             return 'Four-stranded canonical i-motif (C-rich)'
         elif num_stems == 3:
@@ -201,6 +218,8 @@ class IMotifDetector(BaseMotifDetector):
         """Explain i-motif classification criterion"""
         if 'AC-motif' in subclass:
             return f'HUR AC-motif: A3-linker-C3 pattern (Hur 2021); {num_stems} C-tracts detected'
+        elif 'Relaxed' in subclass:
+            return f'Relaxed i-motif: {num_stems}+ C-tracts (≥3C each), loops 1-12bp; Zeraati 2018'
         else:
             loop_range = f'loops 1-7bp' if loops and all(1 <= len(l) <= 7 for l in loops) else 'variable loops'
             return f'Canonical i-motif: {num_stems}+ C-tracts (≥3C each), {loop_range}; Gehring 1993'
