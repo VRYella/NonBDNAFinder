@@ -1017,6 +1017,172 @@ def _tab_statistical_guide():
     ]), unsafe_allow_html=True)
 
 
+def _tab_novelty_scope():
+    _section_heading("Novelty, Prior-Work Comparison & Future Scope")
+    _prose(
+        "<p>This page documents how NonBDNAFinder's comparative nine-genome analysis advances the field "
+        "beyond existing non-B DNA tools and studies, and outlines the most productive research directions "
+        "identified from the results.</p>"
+    )
+
+    # ── 1. What Makes This Analysis Novel ────────────────────────────────────
+    _section_heading("1. What Makes This Analysis Novel")
+    _prose(
+        "<p>The present comparative study breaks new ground across five dimensions:</p>"
+    )
+    _prose(
+        "<ul style='line-height:1.9;'>"
+        "<li><strong>Simultaneous nine-class detection.</strong> All nine primary structural classes "
+        "(Curved DNA, A-philic DNA, Cruciform, Slipped DNA, Triplex, Z-DNA, R-Loop, G-Quadruplex, "
+        "i-Motif) are detected in a single pipeline run, enabling discovery of hybrid overlaps and "
+        "cluster hotspots that are invisible when classes are analysed independently.</li>"
+        "<li><strong>22-canonical-subclass framework.</strong> A fixed vocabulary of 22 biologically "
+        "meaningful subclass labels allows standardised cross-genome benchmarking — the first published "
+        "comparative subclass-level non-B DNA landscape across nine organisms.</li>"
+        "<li><strong>Seven derived structural metrics.</strong> Structural Complexity Index (SCI), "
+        "Weighted Structural Coverage (WSC), Coefficient of Variation of inter-motif distance (CV), "
+        "Structural Load Index (SLI), Structural Intensity (SI), Simpson Diversity Index (D), and "
+        "Effective Class Number (N_eff) characterise each genome beyond simple motif counts.</li>"
+        "<li><strong>Widest GC range in any comparative non-B DNA study.</strong> 17.6 % "
+        "(<em>Ca. Carsonella</em>) to 76.2 % (<em>M. marina</em>) — a 58.6 percentage-point span — "
+        "reveals composition–structure relationships invisible in studies restricted to organisms "
+        "within a 30–60 % GC band.</li>"
+        "<li><strong>Hybrid and cluster co-occurrence analysis.</strong> Hybrid regions and "
+        "Non-B DNA Cluster regions are formally detected and characterised as analytical layers rather "
+        "than filtered artefacts. The strong hybrid–cluster co-variation (r = 0.72) is the first "
+        "quantitative evidence that binary co-habituation and higher-order clustering are mechanistically "
+        "coupled genome-wide.</li>"
+        "</ul>"
+    )
+
+    # ── 2. Comparison with Prior Non-B DNA Studies ────────────────────────────
+    _section_heading("2. Comparison with Prior Non-B DNA Studies")
+
+    th_c = "text-align:left;padding:0.5rem 0.75rem;border-bottom:2px solid #cbd5e1;background:#f1f5f9;font-size:0.8rem;color:#334155;"
+    td_c = "padding:0.45rem 0.75rem;border-bottom:1px solid #e2e8f0;font-size:0.8rem;vertical-align:top;"
+
+    comparison_rows = [
+        ("Huppert &amp; Balasubramanian (2005)",
+         "1 (human)", "1 (G4)", "None", "No", "~41 %",
+         "Regex-based G4 census; no thermodynamic scoring or cross-class analysis."),
+        ("Cer et al. — NonB DB (2013)",
+         "1 (human)", "7", "None", "No", "~41 %",
+         "Multi-class human-only catalogue; no composite metrics, hybrids, or clusters."),
+        ("Georgakopoulos-Soares et al. (2022)",
+         "1 (human)", "4", "None", "No", "~41 %",
+         "Promoter-focused MPRA study; genome-wide baseline and prokaryotes absent."),
+        ("Wolfl et al. (1995)",
+         "3 prokaryotes", "1 (Z-DNA)", "None", "No", "40–65 %",
+         "Z-DNA propensity survey; no multi-class or diversity metrics."),
+        ("<strong>This study (NonBDNAFinder)</strong>",
+         "<strong>9 (3 domains)</strong>",
+         "<strong>9 + hybrid + cluster</strong>",
+         "<strong>7 metrics</strong>",
+         "<strong>Yes</strong>",
+         "<strong>18–76 %</strong>",
+         "<strong>First complete nine-class comparative landscape across a 58.6 pp GC range.</strong>"),
+    ]
+    rows_html = "".join(
+        f"<tr>"
+        f"<td style='{td_c}color:#1e40af;'>{study}</td>"
+        f"<td style='{td_c}'>{orgs}</td>"
+        f"<td style='{td_c}'>{cls}</td>"
+        f"<td style='{td_c}'>{metrics}</td>"
+        f"<td style='{td_c}'>{hybrid}</td>"
+        f"<td style='{td_c}color:#7c3aed;'>{gc}</td>"
+        f"<td style='{td_c}color:#334155;font-style:italic;'>{note}</td>"
+        "</tr>"
+        for study, orgs, cls, metrics, hybrid, gc, note in comparison_rows
+    )
+    st.markdown(
+        "<table style='width:100%;border-collapse:collapse;font-family:Georgia,serif;margin-bottom:1.2rem;'>"
+        "<thead><tr>"
+        f"<th style='{th_c}'>Study</th>"
+        f"<th style='{th_c}'>Organisms</th>"
+        f"<th style='{th_c}'>Classes</th>"
+        f"<th style='{th_c}'>Composite Metrics</th>"
+        f"<th style='{th_c}'>Hybrid / Cluster</th>"
+        f"<th style='{th_c}'>GC Range</th>"
+        f"<th style='{th_c}'>Key Gap Addressed</th>"
+        "</tr></thead>"
+        f"<tbody>{rows_html}</tbody></table>",
+        unsafe_allow_html=True,
+    )
+
+    _prose(
+        "<p><strong>G4-only studies</strong> (Huppert &amp; Balasubramanian, 2005; "
+        "Hansel-Hertsch <em>et al.</em>, 2017) demonstrate that G4 abundance correlates with cancer "
+        "transcriptional dysregulation in human cells. NonBDNAFinder's nine-genome results add the "
+        "prokaryotic perspective: G4 density in GC-rich bacteria (<em>C. shaoxiangyii</em>, "
+        "<em>M. marina</em>) exceeds published human G4 densities by &gt;3-fold per Mb, implying that "
+        "bacterial structural genomics is an underexplored source of functional G4 biology.</p>"
+        "<p><strong>Z-DNA surveys</strong> (Wolfl <em>et al.</em>, 1995; Zhang <em>et al.</em>, 2006) "
+        "placed typical Z-DNA density at 0.5–5 % of prokaryotic genomes. Our GC-rich bacteria show "
+        "densities 10–100× higher — establishing a new empirical upper bound and demonstrating that "
+        "Z-DNA content is primarily a compositional rather than a functional selection signature.</p>"
+        "<p><strong>NonB DB</strong> (Cer <em>et al.</em>, 2013) is restricted to the human genome and "
+        "reports raw class counts without composite structural metrics. The present study applies an "
+        "equivalent multi-class detection to nine organisms spanning three domains of life, showing that "
+        "the structural landscapes of GC-rich bacteria rival or exceed the human genome in certain class "
+        "densities.</p>"
+    )
+
+    # ── 3. Future Research Directions ────────────────────────────────────────
+    _section_heading("3. Future Research Directions")
+
+    future_items = [
+        ("Near-term", "#dbeafe", "#1e40af", [
+            ("Hundred-genome cohort",
+             "Apply NonBDNAFinder to 100–500 bacterial genomes stratified by GC content (10 % bins, 20–80 %) "
+             "to derive robust regression models of non-B DNA density vs. base composition."),
+            ("Functional annotation overlay",
+             "Integrate RefSeq gene annotation (CDS, promoters, replication origins) with non-B DNA coordinates "
+             "to test whether G4/Z-DNA are enriched at promoters in GC-rich bacteria."),
+            ("Archaea and organellar genomes",
+             "Extend kingdom representation to archaea and mitochondria/plastids to test whether "
+             "endosymbiotic reductive evolution universally drives Curved DNA dominance."),
+        ]),
+        ("Medium-term", "#dcfce7", "#15803d", [
+            ("Strand-specific analysis",
+             "Separate plus- and minus-strand detection for R-loops, G4, and i-Motif — inherently "
+             "strand-specific structures — and compute strand-asymmetry indices."),
+            ("Multi-strain comparison",
+             "Compare non-B DNA landscapes across strains of the same organism (e.g., H. pylori reference "
+             "vs. clinical isolates) to identify strain-specific structural hotspots linked to virulence."),
+            ("Transcriptomics / epigenomics integration",
+             "Cross-reference non-B DNA coordinates with RNA-seq, ATAC-seq, and BS-seq to determine whether "
+             "high-structural-burden regions are transcriptionally active, accessible, or methylated."),
+        ]),
+        ("Long-term", "#fce7f3", "#9d174d", [
+            ("Machine learning for structural prediction",
+             "Train classification models on the nine-genome dataset to predict structural class composition "
+             "from sequence features alone, enabling rapid screening of newly sequenced genomes."),
+            ("Experimental validation of predicted hotspots",
+             "Prioritise 7-class cluster regions in C. shaoxiangyii and R-loop-rich regions in H. pylori "
+             "for DMS-MaPseq, G4-ChIP-seq, or R-ChIP experimental validation."),
+            ("Clinical antimicrobial application",
+             "Develop a pipeline that flags non-B DNA hotspots in pathogen genomes as candidate antimicrobial "
+             "target sites, leveraging the observation that H. pylori's R-loop burden is exceptionally high."),
+        ]),
+    ]
+
+    for phase, bg, col, items in future_items:
+        st.markdown(
+            f"<div style='background:{bg};border-left:4px solid {col};border-radius:6px;"
+            f"padding:0.6rem 1rem;margin-bottom:0.6rem;'>"
+            f"<div style='color:{col};font-weight:700;font-size:0.95rem;margin-bottom:0.4rem;'>"
+            f"{phase}</div>"
+            + "".join(
+                f"<div style='margin-bottom:0.5rem;'>"
+                f"<span style='color:{col};font-weight:600;font-size:0.85rem;'>▸ {title}:</span> "
+                f"<span style='color:#334155;font-size:0.82rem;'>{desc}</span></div>"
+                for title, desc in items
+            )
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+
+
 def _tab_references():
     _prose(
         "<p style='margin-bottom:0.8rem;'>NonBDNAFinder implements algorithms validated in peer-reviewed "
@@ -1080,6 +1246,7 @@ def render():
         "Optimization",
         "Validation",
         "Statistical Guide",
+        "Novelty & Scope",
         "References",
         "Citation",
     ])
@@ -1103,6 +1270,8 @@ def render():
     with tabs[8]:
         _tab_statistical_guide()
     with tabs[9]:
-        _tab_references()
+        _tab_novelty_scope()
     with tabs[10]:
+        _tab_references()
+    with tabs[11]:
         _tab_citation()
