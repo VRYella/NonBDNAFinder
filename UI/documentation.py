@@ -1237,41 +1237,36 @@ def render():
     render_section_heading("Scientific Documentation & References", page="Documentation")
 
     tabs = st.tabs([
-        "Overview",
-        "Architecture",
-        "Motif Library",
-        "Detection Algorithms",
-        "Scoring & Normalization",
-        "Hybrid & Clustering",
-        "Optimization",
-        "Validation",
-        "Statistical Guide",
-        "Novelty & Scope",
-        "References",
-        "Citation",
+        "🔬 Overview & Architecture",
+        "🧬 Motif Library & Algorithms",
+        "📊 Scoring & Analysis",
+        "📈 Statistics Guide",
+        "📚 References & Citation",
     ])
 
     with tabs[0]:
         _tab_overview()
-    with tabs[1]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_architecture()
-    with tabs[2]:
+
+    with tabs[1]:
         _tab_motif_library()
-    with tabs[3]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_detection_algorithms()
-    with tabs[4]:
+
+    with tabs[2]:
         _tab_scoring()
-    with tabs[5]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_hybrid_clustering()
-    with tabs[6]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_optimization()
-    with tabs[7]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_validation()
-    with tabs[8]:
+
+    with tabs[3]:
         _tab_statistical_guide()
-    with tabs[9]:
-        _tab_novelty_scope()
-    with tabs[10]:
+
+    with tabs[4]:
         _tab_references()
-    with tabs[11]:
+        st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_citation()
