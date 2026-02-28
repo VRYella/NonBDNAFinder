@@ -95,7 +95,9 @@ class GQuadruplexDetector(BaseMotifDetector):
                 (r'(?:TTAGGG){4,}', 'G4_TEL', 'Telomeric G4', 'Telomeric G4')
             ],
             'stacked_g4': [
-                (r'(?:(?:G{3,}[ACGT]{1,7}){3}G{3,})(?:[ACGT]{0,20}(?:(?:G{3,}[ACGT]{1,7}){3}G{3,}))+',
+                # Non-G loop constraint eliminates catastrophic backtracking while
+                # preserving canonical G4 semantics (loops are non-G by definition).
+                (r'(?:(?:G{3,}[ACT]{1,7}){3}G{3,})(?:[ACT]{0,20}(?:(?:G{3,}[ACT]{1,7}){3}G{3,}))+',
                  'G4_STK', 'Stacked G4 (multi-quadruplex assembly)', 'Stacked G4')
             ],
             'canonical_g4': [
@@ -107,7 +109,8 @@ class GQuadruplexDetector(BaseMotifDetector):
                  'G4_EXT', 'Extended-loop canonical', 'Extended-loop canonical')
             ],
             'higher_order_g4': [
-                (r'(?:G{3,}[ACGT]{1,7}){7,}',
+                # Non-G loop constraint eliminates backtracking in the repeating group.
+                (r'G{3,}(?:[ACT]{1,7}G{3,}){6,}',
                  'G4_HIGH', 'Higher-order G4 array/G4-wire', 'Higher-order G4 array/G4-wire')
             ],
             'g_triplex': [

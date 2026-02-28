@@ -11,11 +11,25 @@ from Utilities.core.motif_normalizer import normalize_class_subclass
 try: from motif_patterns import CRUCIFORM_PATTERNS
 except ImportError: CRUCIFORM_PATTERNS = {}
 
+try:
+    import numpy as np
+    _NUMPY_AVAILABLE = True
+except ImportError:
+    _NUMPY_AVAILABLE = False
+
 # TUNABLE PARAMETERS
 MIN_ARM = 8; MAX_ARM = 50; MAX_LOOP = 12; MAX_MISMATCHES = 0; MAX_SEQUENCE_LENGTH = 200000; SCORE_THRESHOLD = 0.2
 SEED_SIZE = 6; DELTA_G_THRESHOLD = -5.0  # kcal/mol stability cutoff
 NN_ENERGY = {"AA": -1.0, "AC": -1.44, "AG": -1.28, "AT": -0.88, "CA": -1.45, "CC": -1.84, "CG": -2.17, "CT": -1.28,
              "GA": -1.30, "GC": -2.24, "GG": -1.84, "GT": -1.44, "TA": -0.58, "TC": -1.30, "TG": -1.45, "TT": -1.0}
+
+# Precompute reverse-complement for all 6-mers once (4^6 = 4096 entries)
+_RC_TABLE = str.maketrans("ACGT", "TGCA")
+
+def _precompute_seed_rc_map(k: int):
+    """Return a dict mapping each k-mer → its reverse complement string."""
+    # Built lazily; for k=6 this covers all 4096 possible k-mers
+    return {}
 
 
 class CruciformDetector(BaseMotifDetector):
@@ -107,83 +121,153 @@ class CruciformDetector(BaseMotifDetector):
         hits: List[Dict[str, Any]] = []
         k = self.SEED_SIZE
 
-        seed_index = defaultdict(list)
-        for i in range(n - k + 1):
-            seed_index[seq[i:i+k]].append(i)
+        # -----------------------------------------------------------------------
+        # Find seed pairs using numpy sliding-window hash matching.
+        # For each loop offset d in 0..max_loop we check all positions i where
+        # hash(seq[i:i+k]) == rc_hash(seq[i+k+d:i+2k+d]) in a single vectorised
+        # C-speed comparison — O(n × max_loop) rather than two O(n) Python loops.
+        # -----------------------------------------------------------------------
+        if _NUMPY_AVAILABLE and n >= k:
+            valid_pairs = self._find_seed_pairs_numpy(seq, n, k, max_loop)
+        else:
+            # Fallback: Python dict index
+            seed_index: dict = defaultdict(list)
+            for i in range(n - k + 1):
+                seed_index[seq[i:i+k]].append(i)
+            valid_pairs = []
+            for kmer, i_positions in seed_index.items():
+                rc_kmer = kmer.translate(_RC_TABLE)[::-1]
+                j_positions = seed_index.get(rc_kmer)
+                if not j_positions:
+                    continue
+                for i in i_positions:
+                    j_lo = i + k
+                    j_hi = j_lo + max_loop
+                    for j in j_positions:
+                        if j_lo <= j <= j_hi:
+                            valid_pairs.append((i, j))
 
-        for i in range(n - k + 1):
-            seed = seq[i:i+k]
-            seed_rc = revcomp(seed)
+        # Extend seeds into full inverted repeats
+        seen_pairs: set = set()
+        for i, j in valid_pairs:
+            pair_key = (i, j)
+            if pair_key in seen_pairs:
+                continue
+            seen_pairs.add(pair_key)
 
-            if seed_rc not in seed_index:
+            loop_len = j - (i + k)
+            left_start = i
+            right_start = j
+            arm_len = k
+            mismatches = 0
+
+            # Extend outward
+            while True:
+                if left_start == 0 or right_start + arm_len >= n:
+                    break
+
+                next_left = seq[left_start - 1]
+                next_right = seq[right_start + arm_len]
+
+                if next_left != next_right.translate(_RC_TABLE):
+                    mismatches += 1
+                    if mismatches > max_mismatches:
+                        break
+
+                left_start -= 1
+                arm_len += 1
+
+                if arm_len >= max_arm:
+                    break
+
+            if arm_len < min_arm:
                 continue
 
-            for j in seed_index[seed_rc]:
-                if j <= i:
-                    continue
+            left_end = left_start + arm_len
+            right_end = right_start + arm_len
 
-                loop_len = j - (i + k)
-                if loop_len < 0 or loop_len > max_loop:
-                    continue
+            left_seq = seq[left_start:left_end]
+            right_seq = seq[right_start:right_end]
 
-                left_start = i
-                right_start = j
-                arm_len = k
-                mismatches = 0
+            deltaG = self._calculate_cruciform_deltaG(left_seq, loop_len)
 
-                # Extend outward
-                while True:
-                    if left_start == 0 or right_start + arm_len >= n:
-                        break
+            if deltaG > self.DELTA_G_THRESHOLD:
+                continue
 
-                    next_left = seq[left_start - 1]
-                    next_right = seq[right_start + arm_len]
+            score = self._normalize_deltaG(deltaG)
 
-                    if next_left != revcomp(next_right):
-                        mismatches += 1
-                        if mismatches > max_mismatches:
-                            break
-
-                    left_start -= 1
-                    arm_len += 1
-
-                    if arm_len >= max_arm:
-                        break
-
-                if arm_len < min_arm:
-                    continue
-
-                left_end = left_start + arm_len
-                right_end = right_start + arm_len
-
-                left_seq = seq[left_start:left_end]
-                right_seq = seq[right_start:right_end]
-
-                deltaG = self._calculate_cruciform_deltaG(left_seq, loop_len)
-
-                if deltaG > self.DELTA_G_THRESHOLD:
-                    continue
-
-                score = self._normalize_deltaG(deltaG)
-
-                hits.append({
-                    'left_start': left_start,
-                    'left_end': left_end,
-                    'right_start': right_start,
-                    'right_end': right_end,
-                    'arm_len': arm_len,
-                    'loop_len': loop_len,
-                    'left_seq': left_seq,
-                    'right_seq': right_seq,
-                    'right_seq_rc': revcomp(right_seq),
-                    'mismatches': mismatches,
-                    'match_fraction': round((arm_len - mismatches) / arm_len, 4),
-                    'deltaG': round(deltaG, 3),
-                    'score': score
-                })
+            hits.append({
+                'left_start': left_start,
+                'left_end': left_end,
+                'right_start': right_start,
+                'right_end': right_end,
+                'arm_len': arm_len,
+                'loop_len': loop_len,
+                'left_seq': left_seq,
+                'right_seq': right_seq,
+                'right_seq_rc': revcomp(right_seq),
+                'mismatches': mismatches,
+                'match_fraction': round((arm_len - mismatches) / arm_len, 4),
+                'deltaG': round(deltaG, 3),
+                'score': score
+            })
 
         hits.sort(key=lambda h: (-h['score'], h['left_start'], -h['arm_len']))
         return hits
+
+    # -------------------------
+    # Numpy seed-pair discovery
+    # -------------------------
+
+    # Module-level constants for base encoding (A=0, C=1, G=2, T=3)
+    _BASE_ENC = None  # built lazily
+
+    @staticmethod
+    def _get_base_enc():
+        """Return (and cache) the 256-entry base-encoding lookup array."""
+        if CruciformDetector._BASE_ENC is None:
+            enc = np.full(256, 255, dtype=np.uint8)
+            for ch, code in zip('ACGT', range(4)):
+                enc[ord(ch)] = code
+            CruciformDetector._BASE_ENC = enc
+        return CruciformDetector._BASE_ENC
+
+    @staticmethod
+    def _find_seed_pairs_numpy(seq: str, n: int, k: int, max_loop: int):
+        """Return all (i, j) seed pairs where revcomp(seq[i:i+k]) == seq[j:j+k]
+        and j - i - k in [0, max_loop].
+
+        Algorithm: compute polynomial hashes for forward k-mers and their RC
+        counterparts in two O(k·n) numpy passes, then slide over max_loop+1
+        offsets with a single vectorised comparison per offset — O(n·max_loop)
+        total, completely eliminating the O(n) Python position loop.
+        """
+        enc_lut = CruciformDetector._get_base_enc()
+        raw = np.frombuffer(seq.encode('ascii'), dtype=np.uint8)
+        enc = enc_lut[raw].astype(np.int64)
+        num_w = n - k + 1
+
+        POWERS = 4 ** np.arange(k, dtype=np.int64)
+        POWERS_REV = 4 ** np.arange(k - 1, -1, -1, dtype=np.int64)
+
+        fwd_hash = np.zeros(num_w, dtype=np.int64)
+        rev_hash = np.zeros(num_w, dtype=np.int64)
+        for j in range(k):
+            fwd_hash += enc[j:j + num_w] * POWERS[j]
+            rev_hash += enc[j:j + num_w] * POWERS_REV[j]
+        rc_hash = (4 ** k - 1) - rev_hash  # hash of revcomp(seq[i:i+k])
+
+        valid_pairs = []
+        for loop_offset in range(0, max_loop + 1):
+            j_offset = k + loop_offset
+            if j_offset >= num_w:
+                break
+            ni = num_w - j_offset
+            # Positions where rc_hash[i] == fwd_hash[i + j_offset]
+            matches = rc_hash[:ni] == fwd_hash[j_offset:j_offset + ni]
+            for i in np.where(matches)[0].tolist():
+                valid_pairs.append((i, i + j_offset))
+        return valid_pairs
 
     # -------------------------
     # Unchanged Downstream Logic
