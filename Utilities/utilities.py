@@ -5073,20 +5073,21 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     ax.set_xticks(range(len(categories)))
     
     # Replace underscores with spaces in category labels
-    # Apply 45° rotation for all categories (Nature style - consistent readability)
+    # Scale font size with number of categories to prevent overlap
+    n_cats = len(categories)
+    xtick_fs = max(6, min(9, 110 // max(n_cats, 1)))
     display_categories = [format_plot_title(cat) for cat in categories]
-    ax.set_xticklabels(display_categories, rotation=45, ha='right')
+    ax.set_xticklabels(display_categories, rotation=45, ha='right',
+                       rotation_mode='anchor', fontsize=xtick_fs)
     
-    # Add count labels on ALL bars (improved visibility)
-    # Show numbers for all categories to make distribution clear
+    # Add count labels on non-zero bars only; scale font size with category count
+    lbl_fs = max(6, min(10, 120 // max(n_cats, 1)))
     max_val = max(values) if values and max(values) > 0 else 1
     for bar, count in zip(bars, values):
-        height = bar.get_height()
-        # Position label above bar if count > 0, at baseline if 0
-        y_pos = height + max_val * 0.02 if count > 0 else 0.5
-        # Use medium font size for readability
-        ax.text(bar.get_x() + bar.get_width()/2., y_pos,
-                str(count), ha='center', va='bottom', fontsize=10, fontweight='bold')
+        if count > 0:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.015,
+                    str(count), ha='center', va='bottom', fontsize=lbl_fs, fontweight='bold')
     
     # Apply Nature journal style
     _apply_nature_style(ax)
@@ -7650,10 +7651,9 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style()
     
-    if figsize is None:
-        figsize = (12, 10)  # Larger for better readability
-    
     if not motifs:
+        if figsize is None:
+            figsize = (10, 8)
         fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
         ax.text(0.5, 0.5, 'No motifs to display', ha='center', va='center',
                 transform=ax.transAxes, fontsize=14)
@@ -7667,10 +7667,15 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     if not classes:
         classes = sorted(set(m.get('Class', 'Unknown') for m in motifs))
     
+    n_classes = len(classes)
+
+    # Dynamic figure size: scale with number of classes for readability
+    if figsize is None:
+        cell_size = max(0.9, min(1.3, 14.0 / max(n_classes, 1)))
+        dim = max(7, n_classes * cell_size + 3)
+        figsize = (dim + 2, dim)  # slightly wider for colorbar
+
     # Pre-compute class → position arrays outside all loops for maximum performance.
-    # This eliminates O(n_classes²) repeated list comprehensions and replaces the
-    # O(|motifs_i| × |motifs_j|) Python inner loop with numpy vectorised operations,
-    # yielding roughly 100–1000× speedup on typical datasets.
     class_starts: Dict[str, np.ndarray] = {}
     class_ends: Dict[str, np.ndarray] = {}
     for cls in classes:
@@ -7683,7 +7688,6 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
             class_ends[cls]   = np.empty(0, dtype=np.int64)
 
     # Initialize co-occurrence matrix
-    n_classes = len(classes)
     cooccurrence_matrix = np.zeros((n_classes, n_classes))
 
     # Calculate co-occurrences using vectorised numpy broadcasting
@@ -7697,79 +7701,101 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
             ej = class_ends[class_j]
             if sj.size == 0:
                 continue
-            # distance[m, n] = max(0, max(si[m], sj[n]) - min(ei[m], ej[n]))
-            # Shape: (|si|, |sj|) – computed at C speed via numpy broadcasting
             distances = np.maximum(
                 0,
                 np.maximum(si[:, None], sj[None, :]) - np.minimum(ei[:, None], ej[None, :])
             )
             cooccurrence_matrix[i, j] = int(np.sum(distances <= overlap_threshold))
 
-    # Create heatmap with enhanced styling
-    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
-    
-    # Use vibrant colorblind-friendly colormap
-    im = ax.imshow(cooccurrence_matrix, cmap='YlOrRd', aspect='auto', 
-                   interpolation='nearest', vmin=0)
-    
-    # Add colored bars on left and top to indicate class
+    # Mask diagonal and zeros for a cleaner look
+    masked_matrix = np.ma.masked_where(cooccurrence_matrix == 0, cooccurrence_matrix)
+
+    # Create heatmap with proper margins using GridSpec
+    fig = plt.figure(figsize=figsize, dpi=PUBLICATION_DPI)
+    # Reserve space: left class-color strip (0.04), matrix (0.64), gap (0.02), colorbar (0.05)
+    # Top class-color strip will be handled via a separate axis
+    gs = fig.add_gridspec(
+        2, 3,
+        height_ratios=[0.04, 1],
+        width_ratios=[0.04, 1, 0.06],
+        left=0.18, right=0.92,
+        top=0.88, bottom=0.18,
+        hspace=0.02, wspace=0.02,
+    )
+    ax_top   = fig.add_subplot(gs[0, 1])   # top color strip
+    ax_left  = fig.add_subplot(gs[1, 0])   # left color strip
+    ax_main  = fig.add_subplot(gs[1, 1])   # main heatmap
+    ax_cbar  = fig.add_subplot(gs[1, 2])   # colorbar
+
+    # Draw top color strip (column class colors)
     class_colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in classes]
-    
-    # Left color bar
     for i, color in enumerate(class_colors):
-        rect = patches.Rectangle((-0.6, i - 0.4), 0.3, 0.8, 
-                                facecolor=color, edgecolor='white', linewidth=1,
-                                clip_on=False, transform=ax.transData)
-        ax.add_patch(rect)
-    
-    # Top color bar
+        ax_top.add_patch(patches.Rectangle(
+            (i, 0), 1, 1, facecolor=color, edgecolor='white', linewidth=0.8,
+            transform=ax_top.transData, clip_on=False
+        ))
+    ax_top.set_xlim(0, n_classes)
+    ax_top.set_ylim(0, 1)
+    ax_top.axis('off')
+
+    # Draw left color strip (row class colors)
     for i, color in enumerate(class_colors):
-        rect = patches.Rectangle((i - 0.4, n_classes - 0.4), 0.8, 0.3, 
-                                facecolor=color, edgecolor='white', linewidth=1,
-                                clip_on=False, transform=ax.transData)
-        ax.add_patch(rect)
-    
-    # Set ticks and labels with proper visibility
-    ax.set_xticks(range(n_classes))
-    ax.set_yticks(range(n_classes))
-    
-    # Replace underscores with spaces in labels
+        ax_left.add_patch(patches.Rectangle(
+            (0, n_classes - 1 - i), 1, 1, facecolor=color, edgecolor='white', linewidth=0.8,
+            transform=ax_left.transData, clip_on=False
+        ))
+    ax_left.set_xlim(0, 1)
+    ax_left.set_ylim(0, n_classes)
+    ax_left.axis('off')
+
+    # Elegant colormap: white for zero (masked), then blue-red gradient
+    cmap = plt.cm.get_cmap('YlOrRd').copy()
+    cmap.set_bad(color='#f8fafc')   # very light grey for masked (zero) cells
+    im = ax_main.imshow(masked_matrix, cmap=cmap, aspect='auto',
+                        interpolation='nearest', vmin=1)
+
+    # Tick labels — scale font size with number of classes
+    label_fs = max(6, min(10, 100 // max(n_classes, 1)))
     display_classes = [c.replace('_', ' ') for c in classes]
-    ax.set_xticklabels(display_classes, rotation=45, ha='right', rotation_mode='anchor',
-                       fontsize=9, fontweight='bold')
-    ax.set_yticklabels(display_classes, fontsize=9, fontweight='bold')
-    
-    # Add colorbar with enhanced styling
-    cbar = plt.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
-    cbar.set_label('Co-occurrence Count', fontsize=11, fontweight='bold')
-    cbar.ax.tick_params(labelsize=9)
-    
-    # Add values to cells with smart coloring
-    if n_classes <= 12:
+
+    ax_main.set_xticks(range(n_classes))
+    ax_main.set_yticks(range(n_classes))
+    ax_main.set_xticklabels(display_classes, rotation=45, ha='right',
+                             rotation_mode='anchor', fontsize=label_fs, fontweight='bold')
+    ax_main.set_yticklabels(display_classes, fontsize=label_fs, fontweight='bold')
+
+    # Subtle grid lines aligned with cell boundaries
+    ax_main.set_xticks(np.arange(n_classes) - 0.5, minor=True)
+    ax_main.set_yticks(np.arange(n_classes) - 0.5, minor=True)
+    ax_main.grid(which='minor', color='white', linestyle='-', linewidth=1.5)
+    ax_main.tick_params(which='minor', bottom=False, left=False)
+
+    # Cell annotations (only when matrix is not too large)
+    if n_classes <= 14:
         max_val = cooccurrence_matrix.max()
         for i in range(n_classes):
             for j in range(n_classes):
                 value = int(cooccurrence_matrix[i, j])
                 if value > 0:
-                    # Use white text on dark cells, black on light cells
-                    text_color = 'white' if value > max_val / 2 else 'black'
-                    # Bold for off-diagonal (different classes), normal for diagonal (same class)
-                    fontweight = 'bold' if i != j else 'normal'
-                    ax.text(j, i, str(value), ha='center', va='center', 
-                           color=text_color, fontsize=8, fontweight=fontweight)
-    
-    # Enhanced title and labels
+                    text_color = 'white' if value > max_val * 0.55 else '#1e293b'
+                    fw = 'bold' if i != j else 'normal'
+                    ann_fs = max(6, min(8, 90 // max(n_classes, 1)))
+                    ax_main.text(j, i, str(value), ha='center', va='center',
+                                color=text_color, fontsize=ann_fs, fontweight=fw)
+
+    # Axis labels
+    ax_main.set_xlabel('Motif Class', fontsize=11, fontweight='bold', labelpad=8)
+    ax_main.set_ylabel('Motif Class', fontsize=11, fontweight='bold', labelpad=8)
+
+    # Colorbar in dedicated axis
+    cb = fig.colorbar(im, cax=ax_cbar)
+    cb.set_label('Co-occurrence Count', fontsize=9, fontweight='bold', labelpad=8)
+    cb.ax.tick_params(labelsize=8)
+
+    # Title centered over the full figure
     display_title = title.replace('_', ' ')
-    ax.set_title(display_title, fontsize=14, fontweight='bold', pad=20)
-    ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold', labelpad=15)
-    ax.set_ylabel('Motif Class', fontsize=12, fontweight='bold', labelpad=10)
-    
-    # Add grid for better readability
-    ax.set_xticks(np.arange(n_classes) - 0.5, minor=True)
-    ax.set_yticks(np.arange(n_classes) - 0.5, minor=True)
-    ax.grid(which="minor", color="white", linestyle='-', linewidth=2)
-    
-    plt.tight_layout()
+    fig.suptitle(display_title, fontsize=13, fontweight='bold', y=0.96)
+
     return fig
 
 def plot_gc_content_correlation(motifs: List[Dict[str, Any]], 
@@ -7959,8 +7985,9 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
         
         # Add class label on the left (always shown for track identification)
         display_name = class_name.replace('_', ' ')
-        ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
-               display_name, ha='right', va='center', fontsize=9, fontweight='bold')
+        ax.text(-0.01, y_pos, 
+               display_name, ha='right', va='center', fontsize=8, fontweight='bold',
+               clip_on=False, transform=ax.get_yaxis_transform())
     
     # Styling
     ax.set_xlim(region_start, region_end)
@@ -8067,10 +8094,13 @@ def plot_linear_subclass_track(motifs: List[Dict[str, Any]],
             )
             ax.add_patch(rect)
         
-        # Add subclass label on the left - use medium font size
+        # Add subclass label on the left — scale font size with track count
+        n_sub = len(subclasses)
+        lfs = max(6, min(9, 90 // max(n_sub, 1)))
         display_name = subclass_name.replace('_', ' ')
-        ax.text(region_start - (region_end - region_start) * 0.02, y_pos, 
-               display_name, ha='right', va='center', fontsize=10, fontweight='bold')
+        ax.text(-0.01, y_pos, 
+               display_name, ha='right', va='center', fontsize=lfs, fontweight='bold',
+               clip_on=False, transform=ax.get_yaxis_transform())
     
     # Styling
     ax.set_xlim(region_start, region_end)
@@ -8340,7 +8370,9 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
     ax.set_title(display_title, fontsize=11, fontweight='bold', pad=10)
     
     if by_class and all_lengths:
-        ax.legend(loc='upper right', fontsize=7, framealpha=0.9, ncol=2)
+        n_cls = len(all_lengths)
+        legend_cols = max(1, min(3, n_cls // 4 + 1))
+        ax.legend(loc='upper right', fontsize=7, framealpha=0.9, ncol=legend_cols)
     
     # Apply Nature journal style
     _apply_nature_style(ax)
@@ -8406,14 +8438,19 @@ def plot_score_violin(motifs: List[Dict[str, Any]],
         ax.axis('off')
         return fig
     
-    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
-    
     df = pd.DataFrame(scores_data)
     
     # Get colors for each class
     unique_classes = df['Class'].unique()
     palette = {cls: MOTIF_CLASS_COLORS.get(cls.replace(' ', '_'), '#808080') 
                for cls in unique_classes}
+
+    # Scale figure width with number of classes to prevent label overlap
+    n_cls = len(unique_classes)
+    if figsize == FIGURE_SIZES.get('one_and_half'):
+        figsize = (max(figsize[0], n_cls * 1.1 + 1.5), figsize[1])
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Violin plot with inner box plot
     sns.violinplot(data=df, x='Class', y='Score', ax=ax, palette=palette,
@@ -8421,8 +8458,10 @@ def plot_score_violin(motifs: List[Dict[str, Any]],
     
     # Uniform axis labels (Nature standard)
     ax.set_xlabel('Motif Class', fontsize=10, fontweight='bold')
-    ax.set_ylabel('Score (1-3)', fontsize=10, fontweight='bold')
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', fontsize=8)
+    ax.set_ylabel('Score (1–3)', fontsize=10, fontweight='bold')
+    # Rotate x-axis labels and use tight layout to avoid overlap
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha='right',
+                       rotation_mode='anchor', fontsize=max(7, min(9, 90 // max(n_cls, 1))))
     
     display_title = title.replace('_', ' ')
     ax.set_title(display_title, fontsize=11, fontweight='bold', pad=10)
@@ -8505,11 +8544,13 @@ def plot_structural_heatmap(motifs: List[Dict[str, Any]],
     
     # Format axis labels
     display_classes = [c.replace('_', ' ') for c in classes]
+    n_cls = len(classes)
+    label_fs = max(7, min(9, 90 // max(n_cls, 1)))
     ax.set_yticks(range(len(classes)))
-    ax.set_yticklabels(display_classes, fontsize=8)
+    ax.set_yticklabels(display_classes, fontsize=label_fs)
     
     # X-axis: show position in kb
-    n_xticks = min(10, n_bins)
+    n_xticks = min(8, n_bins)
     tick_positions = np.linspace(0, n_bins-1, n_xticks, dtype=int)
     tick_labels = [f'{int(p * bin_size / 1000)}' for p in tick_positions]
     ax.set_xticks(tick_positions)
@@ -8521,11 +8562,11 @@ def plot_structural_heatmap(motifs: List[Dict[str, Any]],
     
     # Colorbar
     cbar = plt.colorbar(im, ax=ax, shrink=0.8, pad=0.02)
-    cbar.set_label('Normalized Density', fontsize=9)
+    cbar.set_label('Normalized Density', fontsize=9, fontweight='bold')
     cbar.ax.tick_params(labelsize=7)
     
     display_title = title.replace('_', ' ')
-    ax.set_title(display_title, fontsize=11, fontweight='bold', pad=10)
+    ax.set_title(display_title, fontsize=11, fontweight='bold', pad=12)
     
     plt.tight_layout()
     return fig
@@ -8807,11 +8848,17 @@ def plot_chromosome_density(motifs: List[Dict[str, Any]],
     bars = ax.barh(display_classes, counts, color=colors, alpha=0.85, 
                    edgecolor='white', linewidth=0.5)
     
-    # Add count labels
+    # Add count labels inside bars to avoid going outside figure bounds
+    max_count = max(counts) if counts else 1
     for bar, count in zip(bars, counts):
         width = bar.get_width()
-        ax.text(width + max(counts) * 0.01, bar.get_y() + bar.get_height()/2,
-               f'{count}', va='center', fontsize=8, fontweight='bold')
+        x_pos = width * 0.97  # near right edge of bar
+        ax.text(x_pos, bar.get_y() + bar.get_height()/2,
+               f'{count:,}', va='center', ha='right', fontsize=8, fontweight='bold',
+               color='white' if count > max_count * 0.15 else '#1e293b')
+    
+    # Extend x-axis a little for clean appearance
+    ax.set_xlim(0, max(counts) * 1.05)
     
     # Uniform axis labels (Nature standard)
     ax.set_xlabel('Count', fontsize=10, fontweight='bold')
@@ -8975,8 +9022,8 @@ def plot_spacer_loop_variation(motifs: List[Dict[str, Any]],
     _apply_nature_style(axes[1])
 
     display_title = title.replace('_', ' ')
-    plt.suptitle(display_title, fontsize=11, fontweight='bold', y=1.02)
-    plt.tight_layout()
+    plt.suptitle(display_title, fontsize=11, fontweight='bold')
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     return fig
 
 
@@ -9162,8 +9209,8 @@ def plot_structural_competition_upset(motifs: List[Dict[str, Any]],
     ax_matrix.set_ylabel('Classes', fontsize=9, fontweight='bold')
     
     display_title = title.replace('_', ' ')
-    plt.suptitle(display_title, fontsize=11, fontweight='bold', y=1.02)
-    plt.tight_layout()
+    plt.suptitle(display_title, fontsize=11, fontweight='bold')
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     return fig
 
 
