@@ -61,7 +61,7 @@ def _build_flow_diagram(stages, caption=""):
         )
         items.append(
             f"<div style='flex-shrink:0;background:{bg};border:2px solid {bdr};"
-            f"border-radius:8px;padding:0.6rem 0.9rem;min-width:140px;max-width:190px;"
+            f"border-radius:8px;padding:0.3rem 0.9rem;min-width:140px;max-width:190px;"
             f"text-align:center;'>"
             f"<div style='color:{bdr};font-size:0.72rem;font-weight:700;'>STEP {i + 1}</div>"
             f"<div style='color:{txt};font-size:0.85rem;font-weight:600;line-height:1.3;'>"
@@ -81,7 +81,7 @@ def _build_flow_diagram(stages, caption=""):
     return (
         "<div style='overflow-x:auto;margin-bottom:1rem;'>"
         "<div style='display:inline-flex;align-items:stretch;gap:0;"
-        "padding:0.8rem 1rem;background:#f8fafc;border-radius:10px;"
+        "padding:0.4rem 1rem;background:#f8fafc;border-radius:10px;"
         "border:1px solid #e2e8f0;min-width:max-content;'>"
         + "".join(items)
         + "</div>"
@@ -92,7 +92,7 @@ def _build_flow_diagram(stages, caption=""):
 
 def _build_motif_card(n, sub, col, desc):
     return (
-        f"<div style='background:white;padding:0.5rem 0.7rem;border-radius:8px;"
+        f"<div style='background:white;padding:0.25rem 0.7rem;border-radius:8px;"
         f"box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left:4px solid {col};'>"
         f"<strong style='color:#1e293b;font-size:0.95rem;'>{n}</strong>"
         f"<div style='color:{col};font-size:0.85rem;font-weight:600;margin:0.1rem 0;'>{sub}</div>"
@@ -989,7 +989,7 @@ def _tab_statistical_guide():
     for bg, col, title, metrics, desc in cards:
         cards_html += (
             f"<div style='background:{bg};border:1.5px solid {col};border-radius:8px;"
-            f"padding:0.7rem 0.9rem;'>"
+            f"padding:0.35rem 0.9rem;'>"
             f"<div style='color:{col};font-weight:700;font-size:0.95rem;margin-bottom:0.3rem;'>{title}</div>"
             f"<div style='color:#334155;font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;'>{metrics}</div>"
             f"<div style='color:#475569;font-size:0.78rem;line-height:1.4;'>{desc}</div>"
@@ -1169,7 +1169,7 @@ def _tab_novelty_scope():
     for phase, bg, col, items in future_items:
         st.markdown(
             f"<div style='background:{bg};border-left:4px solid {col};border-radius:6px;"
-            f"padding:0.6rem 1rem;margin-bottom:0.6rem;'>"
+            f"padding:0.3rem 1rem;margin-bottom:0.6rem;'>"
             f"<div style='color:{col};font-weight:700;font-size:0.95rem;margin-bottom:0.4rem;'>"
             f"{phase}</div>"
             + "".join(
@@ -1210,7 +1210,7 @@ def _tab_citation():
     _section_heading("How to Cite")
     st.markdown(
         "<div style='font-family:\"Courier New\",monospace;font-size:0.78rem;line-height:1.5;"
-        "color:#334155;background:#f8fafc;padding:0.8rem 1rem;border-left:4px solid #2563eb;"
+        "color:#334155;background:#f8fafc;padding:0.4rem 1rem;border-left:4px solid #2563eb;"
         "border-radius:4px;margin-bottom:1rem;'>"
         "<strong>Yella VR</strong> (2025). NonBDNAFinder: Comprehensive Detection and Analysis of "
         "Non-B DNA Forming Motifs.<br>"

@@ -329,7 +329,7 @@ p, span, label, li, td, th {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 6px 10px;
+    padding: 3px 10px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-radius: 8px;
     border: 1px solid #e2e8f0;
@@ -384,7 +384,7 @@ p, span, label, li, td, th {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 8px;
+    padding: 4px 8px;
     background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
     border-radius: 12px;
     margin: 8px 0;
@@ -452,7 +452,7 @@ p, span, label, li, td, th {
 
 /* Progress panel base */
 .progress-panel {
-    padding: 10px;
+    padding: 5px 10px;
     border-radius: 12px;
     margin: 8px 0;
 }
@@ -596,7 +596,7 @@ p, span, label, li, td, th {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    padding: 6px 12px;
+    padding: 3px 12px;
     background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
     border-radius: 10px;
     margin-bottom: 10px;
@@ -620,7 +620,7 @@ p, span, label, li, td, th {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    padding: 8px 12px;
+    padding: 4px 12px;
     background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
     border-radius: 10px;
     border: 1px solid #f9a8d4;
@@ -762,14 +762,14 @@ p, span, label, li, td, th {
 
 /* Generic thin card styling */
 .thin-card {
-    padding: 0.3rem 0.6rem !important;
+    padding: 0.15rem 0.6rem !important;
     border-radius: 6px !important;
     border-width: 1px !important;
 }
 
 /* Thin section header boxes */
 .section-header-thin {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.1rem 0.5rem !important;
     border-radius: 5px !important;
     border-left-width: 2px !important;
     margin-bottom: 0.3rem !important;
@@ -777,7 +777,7 @@ p, span, label, li, td, th {
 
 /* Thin info boxes */
 .info-box-thin {
-    padding: 0.3rem 0.5rem !important;
+    padding: 0.15rem 0.5rem !important;
     border-radius: 5px !important;
     border-width: 1px !important;
     line-height: 1.25 !important;

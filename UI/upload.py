@@ -376,7 +376,7 @@ def render():
     with left_col:
         st.markdown("""
         <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
-                    padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
+                    padding: 0.25rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
                     border-left: 3px solid #10b981;'>
             <h4 style='margin: 0; color: #065f46; font-size: 0.95rem; font-weight: 600;'>
                 Sequence Context
@@ -460,7 +460,7 @@ def render():
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
             border: 2px dashed #10b981 !important;
             border-radius: 12px !important;
-            padding: 1rem !important;
+            padding: 0.5rem !important;
         }
         section[data-testid="stFileUploader"]:hover {
             background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
@@ -884,7 +884,7 @@ def render():
     with right_col:
         st.markdown("""
         <div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); 
-                    padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
+                    padding: 0.25rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
                     border-left: 3px solid #8b5cf6;'>
             <h4 style='margin: 0; color: #5b21b6; font-size: 0.95rem; font-weight: 600;'>
                 Detection Scope: Select Non-B DNA Motifs
@@ -1083,7 +1083,7 @@ def render():
         if enabled_classes:
             st.markdown(f"""
             <div style='background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-                        padding: 6px 10px; border-radius: 6px; margin-top: 8px;
+                        padding: 3px 10px; border-radius: 6px; margin-top: 8px;
                         border: 1px solid #c4b5fd; font-size: 0.78rem;'>
                 <span style='font-weight: 600; color: #6d28d9;'>
                     {len(enabled_classes)} classes · {num_enabled}/{total_submotifs} submotifs
@@ -1207,7 +1207,7 @@ def render():
         with st.container():
             st.markdown("""
             <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
-                        padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem;
+                        padding: 0.35rem 1rem; border-radius: 8px; margin-top: 1rem;
                         border-left: 4px solid #0ea5e9;
                         box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
                 <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem;'>
