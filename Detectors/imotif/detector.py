@@ -12,6 +12,9 @@ except ImportError: IMOTIF_PATTERNS = {}
 
 # TUNABLE PARAMETERS
 MIN_REGION_LEN = 10; CLASS_PRIORITIES = {'canonical_imotif': 1, 'relaxed_imotif': 2, 'hur_ac_motif': 3}
+# HUR AC-motif class names (from both direct detection and regex scan).
+# These are resolved independently and may overlap with canonical/relaxed i-motifs.
+HUR_AC_CLASSES = {'ac_motif_hur', 'hur_ac_motif'}
 VALIDATED_SEQS = [("IM_VAL_001", "CCCCTCCCCTCCCCTCCCC", "Validated i-motif 1", "Gehring 1993"),
                   ("IM_VAL_002", "CCCCACCCCACCCCACCCC", "Validated i-motif 2", "Leroy 1995")]
 
@@ -116,22 +119,36 @@ class IMotifDetector(BaseMotifDetector):
 
     def _resolve_overlaps_greedy(self, scored: List[Dict[str, Any]], merge_gap: int = 0) -> List[Dict[str, Any]]:
         if not scored: return []
-        scored_sorted = sorted(scored, key=lambda x: (-x['score'], _class_prio_idx(x.get('class_name','')), -(x['end']-x['start'])))
-        accepted: List[Dict[str, Any]] = []
-        # Maintain sorted accepted-interval lists for O(log n) overlap checking.
-        acc_starts: List[int] = []
-        acc_ends: List[int] = []
-        for cand in scored_sorted:
-            s, e = cand['start'], cand['end']
-            idx = bisect.bisect_left(acc_starts, e + merge_gap)
-            conflict = (idx > 0 and acc_ends[idx - 1] + merge_gap > s) or \
-                       (idx < len(acc_starts) and acc_starts[idx] - merge_gap < e)
-            if not conflict:
-                accepted.append(cand)
-                ins = bisect.bisect_left(acc_starts, s)
-                acc_starts.insert(ins, s)
-                acc_ends.insert(ins, e)
-        accepted.sort(key=lambda x: x['start']); return accepted
+
+        def _greedy_within_group(candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+            """Greedy overlap resolution within a single group of candidates."""
+            if not candidates: return []
+            srt = sorted(candidates, key=lambda x: (-x['score'], _class_prio_idx(x.get('class_name', '')), -(x['end'] - x['start'])))
+            accepted: List[Dict[str, Any]] = []
+            acc_starts: List[int] = []
+            acc_ends: List[int] = []
+            for cand in srt:
+                s, e = cand['start'], cand['end']
+                idx = bisect.bisect_left(acc_starts, e + merge_gap)
+                conflict = (idx > 0 and acc_ends[idx - 1] + merge_gap > s) or \
+                           (idx < len(acc_starts) and acc_starts[idx] - merge_gap < e)
+                if not conflict:
+                    accepted.append(cand)
+                    ins = bisect.bisect_left(acc_starts, s)
+                    acc_starts.insert(ins, s)
+                    acc_ends.insert(ins, e)
+            return accepted
+
+        # HUR AC-motifs are treated as a separate group: overlaps between HUR AC-motif
+        # and canonical/relaxed i-motifs are allowed (both are reported).  Overlaps
+        # *within* canonical/relaxed are still resolved (canonical preferred over
+        # relaxed via CLASS_PRIORITIES).  Overlaps *within* HUR AC are also resolved.
+        hur_ac = [c for c in scored if c.get('class_name', '') in HUR_AC_CLASSES]
+        others = [c for c in scored if c.get('class_name', '') not in HUR_AC_CLASSES]
+
+        accepted = _greedy_within_group(others) + _greedy_within_group(hur_ac)
+        accepted.sort(key=lambda x: x['start'])
+        return accepted
 
     def calculate_score(self, sequence: str, pattern_info: Tuple = None) -> float:
         seq = sequence.upper()
