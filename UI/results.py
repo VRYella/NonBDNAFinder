@@ -92,7 +92,7 @@ def _render_overlap_matrix(overlaps, title):
 
 def render():
     load_css(TAB_THEMES.get('Results', 'genomic_purple')); render_section_heading("Analysis Results & Visualization", page="Results")
-    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown("<div style='background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);padding:1.2rem;border-radius:12px;margin-top:0.8rem;border:1px solid #f9a8d4;text-align:center;'><h3 style='color:#be185d;margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:#6b7280;margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
+    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown("<div style='background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);padding:0.5rem 1.2rem;border-radius:12px;margin-top:0.8rem;border:1px solid #f9a8d4;text-align:center;'><h3 style='color:#be185d;margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:#6b7280;margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
     st.markdown(f"<div style='font-size:0.85rem;font-weight:700;color:#1e293b;margin-bottom:4px;padding:6px 10px;background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);border-radius:8px;border:1px solid #f9a8d4;'>📋 Summary — {len(st.session_state.summary_df)} rows</div>", unsafe_allow_html=True)
     st.dataframe(st.session_state.summary_df, use_container_width=True)
     
@@ -176,7 +176,7 @@ def render():
     if seq_count > 1:
         st.markdown("---")
         st.markdown("### MultiFASTA Unified Analysis")
-        st.markdown("<div style='background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #f59e0b;'><p style='color:#92400e;margin:0;font-size:0.8rem;'><strong>Unified View:</strong> Comparing motif patterns across all sequences in your MultiFASTA input.</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);padding:0.3rem;border-radius:10px;margin-bottom:0.8rem;border-left:4px solid #f59e0b;'><p style='color:#92400e;margin:0;font-size:0.8rem;'><strong>Unified View:</strong> Comparing motif patterns across all sequences in your MultiFASTA input.</p></div>", unsafe_allow_html=True)
         
         # Check if all sequences have equal length
         equal_length = len(set(lengths)) == 1
@@ -265,7 +265,7 @@ def render():
         
         st.markdown("---")
         st.markdown("### Individual Sequence Analysis")
-        st.markdown("<div style='background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);padding:0.6rem;border-radius:10px;margin-bottom:0.8rem;border:1px solid #f9a8d4;'><p style='color:#be185d;margin:0;font-size:0.8rem;'>Select a sequence below to view detailed per-sequence visualizations.</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);padding:0.3rem;border-radius:10px;margin-bottom:0.8rem;border:1px solid #f9a8d4;'><p style='color:#be185d;margin:0;font-size:0.8rem;'>Select a sequence below to view detailed per-sequence visualizations.</p></div>", unsafe_allow_html=True)
     
     seq_idx = 0
     if seq_count > 1:
