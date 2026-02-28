@@ -95,8 +95,14 @@ class GQuadruplexDetector(BaseMotifDetector):
                 (r'(?:TTAGGG){4,}', 'G4_TEL', 'Telomeric G4', 'Telomeric G4')
             ],
             'stacked_g4': [
-                # Non-G loop constraint eliminates catastrophic backtracking while
-                # preserving canonical G4 semantics (loops are non-G by definition).
+                # Non-G loop constraint (using [ACT] instead of [ACGT]) eliminates
+                # catastrophic backtracking that occurs when the regex engine tries
+                # all ways to partition G-tracts vs. loop regions in a dense G-rich
+                # region.  This is semantically correct: a G4 loop is defined as
+                # the linker between two G-tracts, so the loop cannot itself contain
+                # G's (they would instead extend the adjacent G-tract).
+                # Python's `re` module does not support possessive quantifiers, so
+                # restricting the character class is the portable equivalent.
                 (r'(?:(?:G{3,}[ACT]{1,7}){3}G{3,})(?:[ACT]{0,20}(?:(?:G{3,}[ACT]{1,7}){3}G{3,}))+',
                  'G4_STK', 'Stacked G4 (multi-quadruplex assembly)', 'Stacked G4')
             ],

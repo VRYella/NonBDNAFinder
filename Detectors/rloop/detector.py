@@ -22,6 +22,10 @@ except ImportError:
 MIN_PERC_G_RIZ = 50; NUM_LINKER = 50; WINDOW_STEP = 100
 MAX_LENGTH_REZ = 2000; MIN_PERC_G_REZ = 40; QUALITY_THRESHOLD = 0.4
 
+# Minimum sequence length to prefer numpy prefix-sum over pure Python.
+# Below this threshold the function-call overhead of numpy is not worth paying.
+_NUMPY_PREFIX_THRESHOLD_BP = 1000
+
 
 class RLoopDetector(BaseMotifDetector):
     """QmRLFS-finder R-loop detector (literature-faithful, accelerated)."""
@@ -176,7 +180,7 @@ class RLoopDetector(BaseMotifDetector):
         and avoids recomputing the prefix array for every RIZ region.
         """
         seq_len = len(seq)
-        if NUMPY_AVAILABLE and seq_len > 1000:
+        if NUMPY_AVAILABLE and seq_len > _NUMPY_PREFIX_THRESHOLD_BP:
             # frombuffer avoids a copy; compare ASCII codes directly (G=71)
             seq_bytes = np.frombuffer(seq.encode('ascii'), dtype=np.uint8)
             g_mask = (seq_bytes == 71).astype(np.int32)

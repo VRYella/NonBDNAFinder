@@ -347,8 +347,11 @@ class TriplexDetector(BaseMotifDetector):
             if j_offset >= num_w:
                 break
             ni = num_w - j_offset
-            # mirror_hash[i] == fwd_hash[i+j_offset] means
-            # reversed(seq[i:i+k]) == seq[i+j_offset:i+j_offset+k]
+            # mirror_hash[i] == fwd_hash[i+j_offset] means that the k-mer at
+            # position i is the reverse of the k-mer at position i+j_offset,
+            # i.e. seq[i:i+k] reversed == seq[i+j_offset:i+j_offset+k].
+            # This is precisely the mirror-repeat (palindromic) seed condition
+            # required for triplex / H-DNA detection.
             matches = mirror_hash[:ni] == fwd_hash[j_offset:j_offset + ni]
             for i in _np.where(matches)[0].tolist():
                 valid_pairs.append((i, i + j_offset))

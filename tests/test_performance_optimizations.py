@@ -238,7 +238,8 @@ class TestGQuadruplexPatternSpeed:
     GRICH = "GGGGTTGGGGTTGGGGTTGGGGTTGGGGTTGGGGTTGGGGTTGGGGTTGGGGTTGGGGTT"
 
     def test_stacked_g4_fast_on_grich(self):
-        """stacked_g4 pattern must match in < 10 ms on a 60-bp all-G4 sequence."""
+        """stacked_g4 pattern must match in < 10 ms on a 60-bp all-G4 sequence
+        and the match must contain at least 2 G-tracts (basic structural check)."""
         import re
         from Detectors.gquad.detector import GQuadruplexDetector
         patterns = GQuadruplexDetector().get_patterns()
@@ -248,6 +249,12 @@ class TestGQuadruplexPatternSpeed:
         elapsed = time.perf_counter() - start
         assert elapsed < 0.01, f"stacked_g4 took {elapsed*1000:.1f} ms (> 10 ms limit)"
         assert len(matches) >= 1, "Expected at least one stacked G4 match"
+        # Structural check: each match must contain at least 2 GGGG+ tracts
+        for m in matches:
+            g_tracts = re.findall(r'G{3,}', m.group())
+            assert len(g_tracts) >= 2, (
+                f"stacked G4 match '{m.group()[:30]}' has < 2 G-tracts: {g_tracts}"
+            )
 
     def test_higher_order_g4_fast_on_grich(self):
         """higher_order_g4 pattern must match in < 10 ms on the same sequence."""

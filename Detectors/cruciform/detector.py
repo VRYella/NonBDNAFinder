@@ -255,7 +255,14 @@ class CruciformDetector(BaseMotifDetector):
         for j in range(k):
             fwd_hash += enc[j:j + num_w] * POWERS[j]
             rev_hash += enc[j:j + num_w] * POWERS_REV[j]
-        rc_hash = (4 ** k - 1) - rev_hash  # hash of revcomp(seq[i:i+k])
+        # RC hash derivation:
+        #   revcomp(seq[i:i+k]) reverses the k-mer and complements each base.
+        #   With the base encoding A=0,C=1,G=2,T=3, the complement of base b is
+        #   (3 - b).  Therefore:
+        #     rc_hash[i] = sum((3 - enc[i+k-1-j]) * 4^j  for j in 0..k-1)
+        #                = 3*(1+4+...+4^(k-1)) - rev_hash[i]
+        #                = (4^k - 1) - rev_hash[i]
+        rc_hash = (4 ** k - 1) - rev_hash
 
         valid_pairs = []
         for loop_offset in range(0, max_loop + 1):

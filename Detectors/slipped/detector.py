@@ -223,10 +223,12 @@ class SlippedDNADetector(BaseMotifDetector):
                 unit = seq[rs:rs + k]
                 if 'N' in unit:
                     continue
-                # Truncate to complete periods: run_len = re_end - rs may include
-                # one accidental extra match at a segment boundary (where seq[i]
-                # happens to equal seq[i+k] by coincidence), so floor-divide first.
-                copies = (re_end - rs) // k + 1  # +1 for the initial copy
+                # The run covers positions rs..re_end-1 in the match array, i.e.
+                # re_end-rs consecutive pairwise equalities seq[i]==seq[i+k].
+                # That corresponds to (re_end-rs)//k ADDITIONAL copies beyond the
+                # initial copy.  Integer division naturally discards any accidental
+                # boundary match that is not part of a complete period.
+                copies = (re_end - rs) // k + 1  # total copies (initial + run)
                 repeat_end = min(rs + copies * k, n)
                 full_seq = seq[rs:repeat_end]
                 candidates.append({
