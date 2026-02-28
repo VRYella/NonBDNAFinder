@@ -599,6 +599,424 @@ def _tab_validation():
     )
 
 
+def _tab_statistical_guide():
+    _section_heading("How to Interpret Your Results")
+    _prose(
+        "<p>This guide provides precise definitions, mathematical formulas, valid value ranges, and "
+        "biological significance for every statistical metric reported by NonBDNAFinder. Understanding "
+        "these metrics allows you to assess the structural complexity of your sequence, compare results "
+        "across genomes, and identify biologically meaningful patterns.</p>"
+    )
+
+    # ── 1. Core output metrics ────────────────────────────────────────────────
+    _section_heading("1. Core Output Metrics")
+    th = "text-align:left;padding:0.5rem 0.75rem;border-bottom:2px solid #cbd5e1;background:#f1f5f9;font-size:0.8rem;color:#334155;"
+    td = "padding:0.45rem 0.75rem;border-bottom:1px solid #e2e8f0;font-size:0.8rem;vertical-align:top;"
+    def _metric_table(rows):
+        header = (
+            "<table style='width:100%;border-collapse:collapse;font-family:Georgia,serif;margin-bottom:1.2rem;'>"
+            "<thead><tr>"
+            f"<th style='{th}'>Metric</th>"
+            f"<th style='{th}'>Formula</th>"
+            f"<th style='{th}'>Range</th>"
+            f"<th style='{th}'>Significance</th>"
+            "</tr></thead><tbody>"
+        )
+        body = "".join(
+            f"<tr>"
+            f"<td style='{td}font-weight:600;color:#1e40af;'>{m}</td>"
+            f"<td style='{td}font-family:\"Courier New\",monospace;color:#0f766e;'>{f}</td>"
+            f"<td style='{td}color:#7c3aed;'>{r}</td>"
+            f"<td style='{td}color:#334155;'>{s}</td>"
+            "</tr>"
+            for m, f, r, s in rows
+        )
+        return header + body + "</tbody></table>"
+
+    st.markdown(_metric_table([
+        (
+            "Total Motifs (N)",
+            "count of all detected motif intervals",
+            "0 – ∞ (genome-size dependent)",
+            "Absolute number of non-B DNA–forming sites in the analysed region. "
+            "Higher counts suggest a structurally complex or repeat-rich genome.",
+        ),
+        (
+            "Motif Density (D)",
+            "D = N / (G / 1 000)  [motifs per kb]",
+            "Typical prokaryotes: 1–10 /kb; "
+            "eukaryotes: 5–40 /kb",
+            "Normalizes motif abundance to sequence length, enabling fair comparison across "
+            "genomes of different sizes. Values >20/kb indicate a structurally dense sequence.",
+        ),
+        (
+            "Coverage %",
+            "Cov% = (∑ unique covered bases / G) × 100",
+            "0 – 100 %",
+            "Fraction of the genome occupied by at least one non-B motif (after merging "
+            "overlapping intervals). Values >10% flag highly non-B–enriched sequences.",
+        ),
+        (
+            "Total Covered Bases",
+            "∑ union of all motif intervals (bp)",
+            "0 – G (genome length)",
+            "Absolute base-pair footprint of non-B DNA. Useful for estimating the proportion "
+            "of the sequence that may adopt alternative secondary structures in vivo.",
+        ),
+        (
+            "Raw Occupancy (bp)",
+            "∑ Li  (sum of all motif lengths, counting overlaps)",
+            "0 – ∞",
+            "Total base-pair length of all motifs including overlap regions. Raw occupancy "
+            "exceeds covered bases whenever motifs overlap.",
+        ),
+        (
+            "Normalized Occupancy",
+            "NO = (∑ Li) / G",
+            "0 – ∞ (values >1 indicate average overlap depth >1×)",
+            "Mean motif 'pile-up' depth per base. NO = 0.5 means, on average, every other "
+            "base is covered by a motif.",
+        ),
+        (
+            "Mean Overlap Depth",
+            "Ratio of Raw Occupancy to Covered Bases",
+            "1.0 – ∞",
+            "Average number of motifs stacked at each covered base. Values near 1.0 indicate "
+            "non-overlapping motifs; high values (>3) suggest hotspot regions.",
+        ),
+        (
+            "GC Content",
+            "GC% = (G + C) / (A + T + G + C) × 100",
+            "0 – 100 %; balanced genomes: 30–70 %",
+            "Only canonical ATGC bases are counted in both numerator and denominator. "
+            "Deviations outside 30–70% correlate with higher densities of Z-DNA, G4, "
+            "and i-Motif structures.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 2. Confidence Score (1.0–3.0 scale) ──────────────────────────────────
+    _section_heading("2. Confidence Score (Universal 1.0–3.0 Scale)")
+    _prose(
+        "<p>Every reported motif carries a normalized confidence score on a universal "
+        "<strong>1.0–3.0</strong> scale, enabling direct comparison across all nine structural classes. "
+        "Normalization uses linear interpolation between empirically defined class-specific floor and "
+        "ceiling values:</p>"
+        "<p style='font-family:\"Courier New\",monospace;background:#f8fafc;padding:0.5rem 1rem;"
+        "border-left:4px solid #2563eb;border-radius:4px;'>"
+        "Score = 1.0 + 2.0 × (raw − floor) / (ceiling − floor)"
+        "</p>"
+        "<p>Scores below the floor are clipped to 1.0; scores above the ceiling are clipped to 3.0.</p>"
+    )
+    st.markdown(_metric_table([
+        ("Score 1.0 – 1.5", "Low confidence", "Any value ≥1.0",
+         "Weak pattern match; sequence satisfies minimum motif criteria but may be a "
+         "low-probability structural form. Treat with caution in downstream analyses."),
+        ("Score 1.5 – 2.0", "Moderate confidence", "—",
+         "Canonical motif with typical structural parameters. Represents the majority of "
+         "detected sites in a typical genomic sequence."),
+        ("Score 2.0 – 2.5", "High confidence", "—",
+         "Strong structural candidate with favourable length, composition, and thermodynamic "
+         "parameters. Prioritise these sites for experimental validation."),
+        ("Score 2.5 – 3.0", "Very high confidence", "Maximum = 3.0",
+         "Optimal or extended motif with multiple reinforcing features. Highest-priority sites "
+         "for ChIP-seq, DMS-MaPseq, or biophysical studies."),
+    ]), unsafe_allow_html=True)
+
+    # ── 3. Structural Load Metrics ────────────────────────────────────────────
+    _section_heading("3. Structural Load Metrics")
+    _prose(
+        "<p>Structural load metrics quantify the overall burden of non-B DNA structures relative "
+        "to genome size, weighting contributions by both motif length and motif quality.</p>"
+    )
+    st.markdown(_metric_table([
+        (
+            "Structural Load Index (SLI)",
+            "SLI = ∑ Li / G",
+            "0 – ∞ (typical: 0.01 – 2.0)",
+            "Identical to Normalized Occupancy. SLI = 0.1 means 10% of the genome is covered "
+            "by non-B DNA motif bases on average. Values >0.5 indicate a heavily loaded sequence.",
+        ),
+        (
+            "Structural Intensity (SI)",
+            "SI = ∑(Score_i × Li) / G",
+            "0 – 3.0 (bounded by score ceiling × SLI)",
+            "Score-weighted coverage: rewards long, high-confidence motifs. "
+            "More informative than SLI alone for assessing biological impact.",
+        ),
+        (
+            "Weighted Structural Coverage (WSC)",
+            "WSC = ∑(Score_i / Score_max × Li) / G",
+            "0 – 1.0",
+            "Normalizes SI by the maximum observed score, producing a dimensionless "
+            "quality-weighted coverage fraction. WSC = 1.0 would mean the entire genome is "
+            "covered by maximum-confidence motifs.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 4. Diversity Metrics ──────────────────────────────────────────────────
+    _section_heading("4. Structural Diversity Metrics")
+    _prose(
+        "<p>Diversity metrics describe how motif counts are distributed across structural classes, "
+        "analogous to species diversity measures in ecology.</p>"
+    )
+    st.markdown(_metric_table([
+        (
+            "Simpson Diversity Index (D)",
+            "D = 1 − ∑(n_c / N)²",
+            "0 – 1  (higher = more diverse)",
+            "D = 0: all motifs belong to one class (no diversity). "
+            "D → 1: motifs are evenly distributed across many classes. "
+            "D > 0.7 indicates a highly diverse structural landscape. "
+            "Directly analogous to the ecological Simpson index.",
+        ),
+        (
+            "Effective Class Number (N_eff)",
+            "N_eff = 1 / ∑(n_c / N)²",
+            "1 – C  (where C = number of classes detected)",
+            "Equivalent number of equally-abundant classes that would produce the observed "
+            "diversity. N_eff = 3.5 means the distribution is as diverse as if 3.5 classes "
+            "were equally represented.",
+        ),
+        (
+            "Classes Detected (C)",
+            "Count of distinct motif classes with ≥ 1 hit",
+            "0 – 11  (0 = no classes detected; 11 = all 9 primary + Hybrid + Clusters)",
+            "Raw class richness. C = 9 indicates all primary structural classes are present, "
+            "suggesting a genomically complex sequence.",
+        ),
+        (
+            "Subclasses Detected",
+            "Count of distinct subclass labels with ≥ 1 hit",
+            "0 – 24  (0 = none detected; 24 = all canonical subclasses present)",
+            "Subclass richness across all 24 canonical subclasses. Higher values indicate "
+            "structural variety even within individual motif families.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 5. Comparative and Complexity Metrics ─────────────────────────────────
+    _section_heading("5. Comparative & Complexity Metrics")
+    st.markdown(_metric_table([
+        (
+            "Structural Complexity Index (SCI)",
+            "SCI = Coverage_Fraction × N_eff",
+            "0 – C (typical: 0 – 5)",
+            "Composite metric integrating coverage breadth with structural diversity. "
+            "SCI = 2.0 means the sequence covers 50% of the genome with an effective "
+            "class richness of 4, or 100% coverage with an effective class richness of 2.",
+        ),
+        (
+            "Dominance Ratio (DR)",
+            "DR = max(n_c) / N",
+            "0 – 1  (lower = more even distribution)",
+            "Fraction of all motifs attributable to the single most abundant class. "
+            "DR > 0.8 indicates one structural class dominates. Low DR (< 0.3) suggests "
+            "a balanced multi-class distribution.",
+        ),
+        (
+            "Class Contribution (%)",
+            "(n_c / N) × 100 per class",
+            "0 – 100 % per class; all classes sum to 100 %",
+            "Relative proportion of each structural class in the total motif pool, useful "
+            "for identifying the dominant structural theme of a sequence.",
+        ),
+        (
+            "Class Coverage (%)",
+            "(unique bases covered by class c / G) × 100",
+            "0 – 100 % per class",
+            "Individual genomic footprint of each class independent of other classes. "
+            "Useful for assessing which structural type has the greatest spatial spread.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 6. Spatial distribution metrics ──────────────────────────────────────
+    _section_heading("6. Spatial Distribution Metrics")
+    st.markdown(_metric_table([
+        (
+            "Mean Inter-Motif Distance",
+            "mean(Start_{i+1} − End_i)  across consecutive motifs",
+            "0 – G bp  (0 = adjacent motifs)",
+            "Average gap (in bp) between consecutive motifs. Short mean distances indicate "
+            "clustering; large distances suggest sparse, widely-spaced structural sites.",
+        ),
+        (
+            "CV Spatial Clustering",
+            "CV = σ(inter-motif gaps) / μ(inter-motif gaps)",
+            "0 – ∞  (CV = 0: perfectly regular; CV >> 1: highly clustered)",
+            "Coefficient of variation of inter-motif distances. CV < 0.5 indicates a nearly "
+            "regular, periodic distribution. CV > 2 indicates strong spatial clustering with "
+            "hotspot regions interspersed by large motif-free stretches.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 7. Hybrid & Cluster metrics ───────────────────────────────────────────
+    _section_heading("7. Hybrid Motif & Cluster Metrics")
+    _prose(
+        "<p>Hybrid motifs are derived intervals where two or more distinct structural classes "
+        "overlap by at least 50% of the shorter interval. Clusters are high-density windows "
+        "containing ≥4 motifs from ≥3 classes within a 300 bp window.</p>"
+    )
+    st.markdown(_metric_table([
+        (
+            "Hybrid Count",
+            "count of inter-class overlapping intervals",
+            "0 – N",
+            "Number of genomic sites where two or more non-B structures co-occupy the same "
+            "region. High hybrid counts may indicate regulatory hotspots or fragile sites.",
+        ),
+        (
+            "Hybrid Coverage %",
+            "(unique bases in hybrid intervals / G) × 100",
+            "0 – 100 %",
+            "Fraction of the genome exhibiting simultaneous structural multiplicity. "
+            "Values >1% are noteworthy in compact prokaryotic genomes.",
+        ),
+        (
+            "Hybrid Density",
+            "Hybrid Count / G  [hybrids per bp]",
+            "0 – ∞",
+            "Per-base frequency of hybrid structural sites.",
+        ),
+        (
+            "Cluster Count",
+            "count of 300 bp windows with ≥4 motifs from ≥3 classes",
+            "0 – N",
+            "Number of identified structural hotspot windows. Clusters coincide with "
+            "replication origins, promoters, and recombination hotspots in model genomes.",
+        ),
+        (
+            "Cluster Coverage %",
+            "(unique bases in cluster windows / G) × 100",
+            "0 – 100 %",
+            "Spatial extent of structural hotspot regions.",
+        ),
+    ]), unsafe_allow_html=True)
+
+    # ── 8. Class-specific scoring parameters ─────────────────────────────────
+    _section_heading("8. Class-Specific Scoring Parameters")
+    _prose(
+        "<p>Each detector employs a biologically informed raw scoring model before normalization "
+        "to the universal 1.0–3.0 scale. The table below summarises the key formula components "
+        "and threshold values for each class.</p>"
+    )
+    th2 = "text-align:left;padding:0.5rem 0.75rem;border-bottom:2px solid #cbd5e1;background:#f1f5f9;font-size:0.8rem;color:#334155;"
+    td2 = "padding:0.45rem 0.75rem;border-bottom:1px solid #e2e8f0;font-size:0.8rem;vertical-align:top;"
+    class_rows = [
+        ("Curved DNA",
+         "Score = 1 − (|spacing − 11.0| / 1.1) for APRs; L/(L+7) for local tracts",
+         "1.0 – 3.0", "9.9 – 11.1 bp phasing window; ≥3 A-tract centers required for APR",
+         "Crothers et al. 1990"),
+        ("Slipped DNA",
+         "Score = f(L, copies, unit_size, purity, GC); Shannon entropy ≥ 0.5 bits",
+         "1.0 – 3.0", "STR: units 1–9 nt, ≥4 copies; DR: units 10–50 nt, ≥2 copies",
+         "Pearson et al. 2005"),
+        ("Cruciform",
+         "Score = arm_length × symmetry × GC_factor; ΔG ≤ −5.0 kcal/mol required",
+         "1.0 – 3.0", "Arm 8–50 bp; spacer ≤12 bp; nearest-neighbour ΔG filter",
+         "Lilley 1980"),
+        ("R-Loop",
+         "Score = GC_content × G_density across RIZ + REZ",
+         "1.0 – 3.0", "G-content ≥50% in RIZ; GC ≥40% in REZ (≤2000 bp)",
+         "Jenjaroenpun et al. 2015"),
+        ("Triplex",
+         "Score = 0.35×arm + 0.20×loop_penalty + 0.30×purity + 0.15×interruptions",
+         "1.0 – 3.0", "Arm 10–100 bp; purine/pyrimidine purity ≥90%; spacer ≤8 bp",
+         "Frank-Kamenetskii & Mirkin 1995"),
+        ("G-Quadruplex",
+         "G4Hunter: sliding-window 25 nt; score = max_G_density × length_factor",
+         "1.0 – 3.0 (raw G4Hunter ≥0.5)", "8 subclasses; Telomeric >(TTAGGG){4}; canonical G{3+}N{1–7}×4",
+         "Bedrat et al. 2016"),
+        ("i-Motif",
+         "Score = C_density + cytosine_fraction + loop_compactness",
+         "1.0 – 3.0", "C{3+}N{1–7}×4; subclasses: canonical (loops 1–7 nt) vs relaxed (1–12 nt)",
+         "Zeraati et al. 2018"),
+        ("Z-DNA",
+         "Cumulative 10-mer propensity score ≥50.0; eGZ: CGG/GGC/CCG/GCC ≥4 repeats",
+         "1.0 – 3.0 (raw 50–2000)", "10-mer propensity table from Ho et al. 1986",
+         "Ho et al. 1986"),
+        ("A-philic DNA",
+         "Cumulative log₂ A-form propensity sum ≥0.5 per merged region",
+         "1.0 – 3.0", "log₂ odds from A-form vs B-form crystal structures; pseudocount 0.5",
+         "Vinogradov 2003"),
+    ]
+    rows_html = "".join(
+        f"<tr>"
+        f"<td style='{td2}font-weight:600;color:#1e40af;'>{c}</td>"
+        f"<td style='{td2}font-family:\"Courier New\",monospace;font-size:0.75rem;color:#0f766e;'>{fo}</td>"
+        f"<td style='{td2}color:#7c3aed;'>{sc}</td>"
+        f"<td style='{td2}color:#334155;'>{th_val}</td>"
+        f"<td style='{td2}color:#64748b;font-style:italic;'>{ref}</td>"
+        "</tr>"
+        for c, fo, sc, th_val, ref in class_rows
+    )
+    st.markdown(
+        "<table style='width:100%;border-collapse:collapse;font-family:Georgia,serif;margin-bottom:1.2rem;'>"
+        "<thead><tr>"
+        f"<th style='{th2}'>Class</th>"
+        f"<th style='{th2}'>Scoring Formula</th>"
+        f"<th style='{th2}'>Score Range</th>"
+        f"<th style='{th2}'>Key Threshold(s)</th>"
+        f"<th style='{th2}'>Reference</th>"
+        "</tr></thead>"
+        f"<tbody>{rows_html}</tbody></table>",
+        unsafe_allow_html=True,
+    )
+
+    # ── 9. Quick-reference interpretation guide ───────────────────────────────
+    _section_heading("9. Quick-Reference Interpretation Guide")
+    cards = [
+        ("#dbeafe", "#1e40af",
+         "Low non-B DNA burden",
+         "Coverage% < 5%, Density < 2 /kb, SLI < 0.05",
+         "Typical for compact genomes with few repeats (e.g., some bacteria). "
+         "Limited propensity for structural mutagenesis."),
+        ("#dcfce7", "#15803d",
+         "Moderate non-B DNA burden",
+         "Coverage% 5–20%, Density 2–15 /kb, SLI 0.05–0.20",
+         "Common in most prokaryotes and simple eukaryotes. Balance between "
+         "regulatory flexibility and genomic stability."),
+        ("#fef9c3", "#a16207",
+         "High non-B DNA burden",
+         "Coverage% 20–40%, Density 15–40 /kb, SLI 0.20–0.50",
+         "Typical for repeat-rich organisms (e.g., S. cerevisiae). "
+         "Elevated risk of replication stress and mutagenesis."),
+        ("#fce7f3", "#9d174d",
+         "Very high non-B DNA burden",
+         "Coverage% > 40%, Density > 40 /kb, SLI > 0.50",
+         "Indicates extreme repeat content or structural enrichment. "
+         "Found in pathological expansions or highly GC-biased genomes."),
+    ]
+    cards_html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.6rem;margin-bottom:1.2rem;">'
+    for bg, col, title, metrics, desc in cards:
+        cards_html += (
+            f"<div style='background:{bg};border:1.5px solid {col};border-radius:8px;"
+            f"padding:0.7rem 0.9rem;'>"
+            f"<div style='color:{col};font-weight:700;font-size:0.95rem;margin-bottom:0.3rem;'>{title}</div>"
+            f"<div style='color:#334155;font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;'>{metrics}</div>"
+            f"<div style='color:#475569;font-size:0.78rem;line-height:1.4;'>{desc}</div>"
+            "</div>"
+        )
+    cards_html += "</div>"
+    st.markdown(cards_html, unsafe_allow_html=True)
+
+    # ── 10. Diversity interpretation ──────────────────────────────────────────
+    _section_heading("10. Structural Diversity Interpretation")
+    st.markdown(_metric_table([
+        ("D = 0.0 – 0.3", "Low diversity", "1–2 dominant classes",
+         "The structural landscape is dominated by one or two motif types. "
+         "Common in AT-rich genomes (Curved DNA, Slipped DNA dominate) or GC-rich genomes "
+         "(G4, Z-DNA, i-Motif dominate)."),
+        ("D = 0.3 – 0.6", "Moderate diversity", "3–5 roughly equal classes",
+         "Multiple structural classes contribute substantially. "
+         "Typical for balanced eukaryotic genomes."),
+        ("D = 0.6 – 0.8", "High diversity", "6–8 effectively equal classes",
+         "Rich multi-class structural landscape. Often associated with complex regulatory "
+         "regions such as promoters, origins of replication, and enhancers."),
+        ("D = 0.8 – 1.0", "Very high diversity", "≥9 effectively equal classes",
+         "Exceptionally balanced distribution across all structural classes. "
+         "Rare in natural genomic DNA; may indicate a synthetic or shuffled sequence."),
+    ]), unsafe_allow_html=True)
+
+
 def _tab_references():
     _prose(
         "<p style='margin-bottom:0.8rem;'>NonBDNAFinder implements algorithms validated in peer-reviewed "
@@ -661,6 +1079,7 @@ def render():
         "Hybrid & Clustering",
         "Optimization",
         "Validation",
+        "Statistical Guide",
         "References",
         "Citation",
     ])
@@ -682,6 +1101,8 @@ def render():
     with tabs[7]:
         _tab_validation()
     with tabs[8]:
-        _tab_references()
+        _tab_statistical_guide()
     with tabs[9]:
+        _tab_references()
+    with tabs[10]:
         _tab_citation()
