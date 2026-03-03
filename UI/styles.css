@@ -52,31 +52,35 @@ section[data-testid="stSidebar"] {
    MAIN NAVIGATION TABS — Per-Tab Recommended Color System
    ═══════════════════════════════════════════════════════════════ */
 
-/* Main Tab Container — Dark Neutral Strip */
+/* Main Tab Container — Light Scientific Strip */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {
-    gap: 6px !important;
+    gap: 4px !important;
     width: 100% !important;
     display: flex !important;
     justify-content: space-evenly !important;
     overflow: visible !important;
-    padding: 8px 6px !important;
-    background: linear-gradient(180deg, #1e293b 0%, #2d3748 100%) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    padding: 6px 8px !important;
+    margin: 4px 0 !important;
+    background: #F8FAFC !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
 }
 
 /* Main Tab Buttons — Base Styles */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] {
     height: auto !important;
-    padding: 8px 10px !important;
-    border-radius: 12px !important;
+    padding: 10px 18px !important;
+    border-radius: 10px !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
     font-size: 1.08rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.01em !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.2s ease !important;
     flex: 1 1 0 !important;
     min-width: 0 !important;
-    margin: 0 3px !important;
+    margin: 0 4px !important;
     white-space: normal !important;
     overflow: visible !important;
     text-align: center !important;
@@ -85,119 +89,117 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
+/* Main Tab Buttons — Hover State */
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:hover {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+}
+
 /* ─── Tab 1: Home — Deep Slate Blue ──────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #2C3E50 0%, #3B4C63 100%) !important;
-    color: #F8FAFC !important;
-    border: 2px solid rgba(93, 138, 168, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #34495E 0%, #445A6F 100%) !important;
-    color: #F8FAFC !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(93, 138, 168, 0.4), inset 0 1px 0 rgba(255,255,255,0.12) !important;
-    border-color: rgba(93, 138, 168, 0.65) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
     background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%) !important;
     color: #F8FAFC !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 0 14px rgba(93, 138, 168, 0.55), 0 4px 15px rgba(44, 62, 80, 0.5) !important;
-    border: 2px solid rgba(148, 192, 219, 0.6) !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 4px 12px rgba(44, 62, 80, 0.25) !important;
+    border: 1px solid rgba(93, 138, 168, 0.4) !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 2: Upload & Analyze — Royal Indigo ─────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid rgba(99, 102, 241, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.55), inset 0 1px 0 rgba(255,255,255,0.12) !important;
-    border-color: rgba(129, 140, 248, 0.65) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
+    background: #4F46E5 !important;
     color: #FFFFFF !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.65), 0 4px 15px rgba(67, 56, 202, 0.55) !important;
-    border: 2px solid rgba(165, 180, 252, 0.75) !important;
-    text-shadow: 0 0 8px rgba(165, 180, 252, 0.5) !important;
+    box-shadow: 0 6px 16px rgba(79,70,229,0.25) !important;
+    border: none !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 3: Results — Teal-Cyan ─────────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #0EA5A4 0%, #06B6D4 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid rgba(14, 165, 164, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #0D9488 0%, #0EA5A4 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.5), inset 0 1px 0 rgba(255,255,255,0.12) !important;
-    border-color: rgba(34, 211, 238, 0.6) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
     background: linear-gradient(135deg, #0D9488 0%, #0EA5A4 100%) !important;
     color: #FFFFFF !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 0 16px rgba(34, 211, 238, 0.65), 0 4px 15px rgba(13, 148, 136, 0.5) !important;
-    border: 2px solid rgba(103, 232, 249, 0.75) !important;
-    text-shadow: 0 0 8px rgba(103, 232, 249, 0.5) !important;
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.25) !important;
+    border: none !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 4: Download — Emerald Green ────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #15803D 0%, #22C55E 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid rgba(22, 163, 74, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #15803D 0%, #16A34A 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5), inset 0 1px 0 rgba(255,255,255,0.12) !important;
-    border-color: rgba(74, 222, 128, 0.6) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
     background: linear-gradient(135deg, #15803D 0%, #16A34A 100%) !important;
     color: #FFFFFF !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 0 16px rgba(74, 222, 128, 0.65), 0 4px 15px rgba(21, 128, 61, 0.55) !important;
-    border: 2px solid rgba(134, 239, 172, 0.75) !important;
-    text-shadow: 0 0 8px rgba(134, 239, 172, 0.4) !important;
+    box-shadow: 0 6px 16px rgba(21, 128, 61, 0.25) !important;
+    border: none !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 5: Documentation — Academic Crimson ────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #B91C1C 0%, #DC2626 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid rgba(185, 28, 28, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #991B1B 0%, #B91C1C 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5), inset 0 1px 0 rgba(255,255,255,0.12) !important;
-    border-color: rgba(248, 113, 113, 0.6) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #991B1B 0%, #B91C1C 100%) !important;
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%) !important;
     color: #FFFFFF !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 0 14px rgba(220, 38, 38, 0.55), 0 4px 15px rgba(153, 27, 27, 0.5) !important;
-    border: 2px solid rgba(252, 165, 165, 0.65) !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 6px 16px rgba(185, 28, 28, 0.25) !important;
+    border: none !important;
+    text-shadow: none !important;
 }
 
 /* Main tab text — inherit per-tab color */
@@ -230,9 +232,9 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 4px !important;
     padding: 6px !important;
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    background: #F1F5F9 !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Sub-tab Base Style */
@@ -241,116 +243,113 @@ section[data-testid="stSidebar"] {
     padding: 6px 10px !important;
     font-size: 0.92rem !important;
     font-weight: 600 !important;
-    transition: all 0.25s ease !important;
+    transition: all 0.2s ease !important;
     flex: 1 1 0 !important;
     white-space: normal !important;
     text-align: center !important;
     word-break: break-word !important;
     text-shadow: none !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
+}
+
+/* Sub-tab Hover State */
+.stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:hover {
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
+    transform: translateY(-1px) !important;
 }
 
 /* Sub-tab 1: Overview & Architecture — Soft Steel Blue */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #475569 0%, #64748B 100%) !important;
-    color: #F1F5F9 !important;
-    border: 1px solid rgba(100, 116, 139, 0.4) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #64748B 0%, #7D8FA3 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(100, 116, 139, 0.4) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
     background: linear-gradient(135deg, #64748B 0%, #475569 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(100, 116, 139, 0.6) !important;
-    border: 1px solid rgba(148, 163, 184, 0.7) !important;
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.25) !important;
+    border: none !important;
 }
 
 /* Sub-tab 2: Motif Library & Algorithms — Muted Indigo */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
-    color: #EEF2FF !important;
-    border: 1px solid rgba(99, 102, 241, 0.35) !important;
-    opacity: 0.88 !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.4) !important;
-    opacity: 1 !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
     background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.55) !important;
-    border: 1px solid rgba(165, 180, 252, 0.7) !important;
-    opacity: 1 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+    border: none !important;
 }
 
 /* Sub-tab 3: Scoring & Analysis — Muted Teal */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%) !important;
-    color: #F0FDFA !important;
-    border: 1px solid rgba(15, 118, 110, 0.35) !important;
-    opacity: 0.88 !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(13, 148, 136, 0.4) !important;
-    opacity: 1 !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
     background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(20, 184, 166, 0.55) !important;
-    border: 1px solid rgba(94, 234, 212, 0.7) !important;
-    opacity: 1 !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+    border: none !important;
 }
 
 /* Sub-tab 4: Statistics Guide — Emerald Accent (highlighted) */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
-    color: #ECFDF5 !important;
-    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.45) !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
     background: linear-gradient(135deg, #047857 0%, #10B981 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 12px rgba(52, 211, 153, 0.65) !important;
-    border: 1px solid rgba(110, 231, 183, 0.8) !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+    border: none !important;
 }
 
 /* Sub-tab 5: References & Citation — Deep Burgundy */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%) !important;
-    color: #FEF2F2 !important;
-    border: 1px solid rgba(127, 29, 29, 0.35) !important;
-    opacity: 0.88 !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    border: 1px solid #E2E8F0 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #991B1B 0%, #B91C1C 100%) !important;
-    color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 3px 10px rgba(185, 28, 28, 0.4) !important;
-    opacity: 1 !important;
+    background: #F1F5F9 !important;
+    color: #1e293b !important;
+    border-color: #CBD5E1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
     background: linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(220, 38, 38, 0.45) !important;
-    border: 1px solid rgba(252, 165, 165, 0.6) !important;
-    opacity: 1 !important;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.25) !important;
+    border: none !important;
 }
 
 /* Sub-tab text — inherit color */
@@ -1061,4 +1060,26 @@ p, span, label, li, td, th {
 /* Ensure all inline HTML div boxes use auto height */
 [data-testid="stMarkdownContainer"] > div {
     height: auto !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SPACING OPTIMIZATION
+   Compact scientific layout — reduced vertical gaps
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Section wrapper — minimal vertical margin */
+.section-wrapper {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+/* Page section — compact vertical padding */
+.page-section {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Adjacent navigation containers — minimal gap */
+.nav-container + .nav-container {
+    margin-top: 4px;
 }
