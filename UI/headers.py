@@ -17,13 +17,13 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#2C3E50', 'pattern': 'linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #5D8AA8 100%)'},
-    'Upload & Analyze': {'primary': '#4F46E5', 'pattern': 'linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #818CF8 100%)'},
-    'Results': {'primary': '#0EA5A4', 'pattern': 'linear-gradient(135deg, #0891B2 0%, #0EA5A4 50%, #06B6D4 100%)'},
-    'Downloads': {'primary': '#16A34A', 'pattern': 'linear-gradient(135deg, #15803D 0%, #16A34A 50%, #22C55E 100%)'},
-    'Documentation': {'primary': '#B91C1C', 'pattern': 'linear-gradient(135deg, #991B1B 0%, #B91C1C 50%, #DC2626 100%)'},
+    'Home': {'primary': '#2C3E50', 'border': '#94C0DB', 'pattern': 'linear-gradient(135deg, #1e3a5f 0%, #2C3E50 35%, #34495E 70%, #5D8AA8 100%)'},
+    'Upload & Analyze': {'primary': '#4F46E5', 'border': '#a5b4fc', 'pattern': 'linear-gradient(135deg, #3730a3 0%, #4F46E5 40%, #6366F1 75%, #818CF8 100%)'},
+    'Results': {'primary': '#0EA5A4', 'border': '#67e8f9', 'pattern': 'linear-gradient(135deg, #0a5f5e 0%, #0891B2 35%, #0EA5A4 65%, #06B6D4 100%)'},
+    'Downloads': {'primary': '#16A34A', 'border': '#86efac', 'pattern': 'linear-gradient(135deg, #0f6b30 0%, #15803D 35%, #16A34A 65%, #22C55E 100%)'},
+    'Documentation': {'primary': '#B91C1C', 'border': '#fca5a5', 'pattern': 'linear-gradient(135deg, #7f1012 0%, #991B1B 35%, #B91C1C 65%, #DC2626 100%)'},
 }
-HEADING_PADDING = "0.15rem 1.2rem"; HEADING_FONT_SIZE = "1.5rem"; HEADING_BORDER_RADIUS = "8px"
+HEADING_PADDING = "0.25rem 1.4rem"; HEADING_FONT_SIZE = "1.65rem"; HEADING_BORDER_RADIUS = "12px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -50,13 +50,13 @@ def render_section_heading(title: str, page: str = None):
     if page and page in PAGE_HEADING_COLORS:
         colors = PAGE_HEADING_COLORS[page]
         background = colors['pattern']
-        border_color = colors['primary']
+        border_color = colors['border']
     else:
         # Default to blue gradient
-        primary_color = HOME_COLORS['primary']  # #0091FF
-        secondary_color = HOME_COLORS['secondary']  # #00B4FF
-        background = f"linear-gradient(135deg, {primary_color} 0%, {secondary_color} 100%)"
-        border_color = primary_color
+        primary_color = HOME_COLORS['primary']
+        secondary_color = HOME_COLORS['secondary']
+        background = f"linear-gradient(135deg, #1e3a5f 0%, {primary_color} 50%, {secondary_color} 100%)"
+        border_color = '#94C0DB'
     
     white = GLOBAL_COLORS['white']
     
@@ -66,21 +66,25 @@ def render_section_heading(title: str, page: str = None):
         padding: {HEADING_PADDING};
         border-radius: {HEADING_BORDER_RADIUS};
         margin: 0.4rem 0 0.6rem 0;
-        border: 2px solid {border_color};
+        border: 4px solid {border_color};
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35), 0 0 20px rgba(255,255,255,0.08) inset, 0 0 0 1px rgba(255,255,255,0.1);
         width: 100%;
+        position: relative;
+        overflow: hidden;
     ">
         <div title="{safe_title}" style="
             margin: 0;
             font-size: {HEADING_FONT_SIZE};
-            font-weight: 800;
+            font-weight: 900;
             color: {white};
-            text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6);
-            letter-spacing: -0.01em;
+            text-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 35px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.4);
+            letter-spacing: 0.03em;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            position: relative;
+            z-index: 1;
         ">
             {safe_title}
         </div>
