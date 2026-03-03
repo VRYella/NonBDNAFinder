@@ -23,7 +23,7 @@ PAGE_HEADING_COLORS = {
     'Downloads': {'primary': '#16A34A', 'pattern': 'linear-gradient(135deg, #15803D 0%, #16A34A 50%, #22C55E 100%)'},
     'Documentation': {'primary': '#B91C1C', 'pattern': 'linear-gradient(135deg, #991B1B 0%, #B91C1C 50%, #DC2626 100%)'},
 }
-HEADING_PADDING = "10px"; HEADING_FONT_SIZE = "1.5rem"; HEADING_BORDER_RADIUS = "10px"
+HEADING_PADDING = "0.15rem 1.2rem"; HEADING_FONT_SIZE = "1.5rem"; HEADING_BORDER_RADIUS = "8px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -65,10 +65,10 @@ def render_section_heading(title: str, page: str = None):
         background: {background};
         padding: {HEADING_PADDING};
         border-radius: {HEADING_BORDER_RADIUS};
-        margin: 6px 0;
+        margin: 0.4rem 0 0.6rem 0;
         border: 2px solid {border_color};
         text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         width: 100%;
     ">
         <div title="{safe_title}" style="
@@ -76,7 +76,7 @@ def render_section_heading(title: str, page: str = None):
             font-size: {HEADING_FONT_SIZE};
             font-weight: 800;
             color: {white};
-            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.6);
             letter-spacing: -0.01em;
             white-space: nowrap;
             overflow: hidden;
