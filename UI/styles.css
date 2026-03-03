@@ -130,7 +130,7 @@ section[data-testid="stSidebar"] {
     border-color: #CBD5E1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: #4F46E5 !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     font-weight: 800 !important;
     transform: translateY(-1px) !important;
