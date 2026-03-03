@@ -16,8 +16,13 @@ maxMessageSize = 200
 gatherUsageStats = false
 
 [theme]
-# Use default theme (can be customized by user)
+# Vibrant publication-quality scientific theme
 base = "light"
+primaryColor = "#4F46E5"
+backgroundColor = "#f0f4ff"
+secondaryBackgroundColor = "#e8edff"
+textColor = "#1e293b"
+font = "sans serif"
 
 [runner]
 # Prevent long-running scripts from being interrupted
