@@ -33,14 +33,14 @@ GLOBAL_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#2C3E50',      # Deep Slate Blue
-    'secondary': '#34495E',
-    'accent': '#5D8AA8',       # Steel blue accent
-    'light': '#EFF6FF',
-    'lighter': '#F8FAFC',
-    'border': '#94A3B8',
-    'text': '#2C3E50',
-    'shadow': 'rgba(44, 62, 80, 0.12)',
+    'primary': '#7C3AED',      # Vibrant Violet
+    'secondary': '#8B5CF6',
+    'accent': '#A78BFA',       # Soft violet accent
+    'light': '#F5F3FF',
+    'lighter': '#FAF7FF',
+    'border': '#C4B5FD',
+    'text': '#3B0764',
+    'shadow': 'rgba(124, 58, 237, 0.15)',
 }
 
 INPUT_COLORS = {
@@ -200,8 +200,8 @@ MOTIF_CARD_COLORS = {
     'i-Motif': {'primary': '#16A34A','light': '#F0FDF4','lighter': '#DCFCE7','dark': '#14532D'},
     'Z-DNA': {'primary': '#4F46E5','light': '#EEF2FF','lighter': '#E0E7FF','dark': '#312E81'},
     'A-philic_DNA': {'primary': '#EA580C','light': '#FFF7ED','lighter': '#FFEDD5','dark': '#7C2D12'},
-    'Hybrid': {'primary': '#64748B','light': '#F8FAFC','lighter': '#F1F5F9','dark': '#1E293B'},
-    'Non-B_DNA_Clusters': {'primary': '#334155','light': '#F1F5F9','lighter': '#E2E8F0','dark': '#0F172A'},
+    'Hybrid': {'primary': '#F97316','light': '#FFF7ED','lighter': '#FFEDD5','dark': '#7C2D12'},
+    'Non-B_DNA_Clusters': {'primary': '#EC4899','light': '#FDF2F8','lighter': '#FCE7F3','dark': '#831843'},
 }
 
 # ==================== MOTIF CLASS DISPLAY INFO ====================
@@ -223,7 +223,7 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#2C3E50', 'hover': '#34495E', 'text': '#F8FAFC', 'glow': 'rgba(93, 138, 168, 0.55)'},
+    'Home': {'bg': '#7C3AED', 'hover': '#6D28D9', 'text': '#F5F3FF', 'glow': 'rgba(139, 92, 246, 0.65)'},
     'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#FFFFFF', 'glow': 'rgba(99, 102, 241, 0.65)'},
     'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
     'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
@@ -233,7 +233,7 @@ TAB_NAV_COLORS = {
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
 
 DOC_SUBTAB_COLORS = {
-    'Overview & Architecture': {'bg': '#64748B', 'hover': '#7D8FA3', 'text': '#F1F5F9'},
+    'Overview & Architecture': {'bg': '#6366F1', 'hover': '#4F46E5', 'text': '#EEF2FF'},
     'Motif Library & Algorithms': {'bg': '#6366F1', 'hover': '#4F46E5', 'text': '#EEF2FF'},
     'Scoring & Analysis': {'bg': '#0F766E', 'hover': '#14B8A6', 'text': '#F0FDFA'},
     'Statistics Guide': {'bg': '#10B981', 'hover': '#059669', 'text': '#ECFDF5'},
