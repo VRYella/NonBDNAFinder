@@ -33,25 +33,25 @@ GLOBAL_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#2563EB',      # Refined scientific blue
-    'secondary': '#3B82F6',
-    'accent': '#60A5FA',
+    'primary': '#2C3E50',      # Deep Slate Blue
+    'secondary': '#34495E',
+    'accent': '#5D8AA8',       # Steel blue accent
     'light': '#EFF6FF',
-    'lighter': '#F8FAFF',
-    'border': '#BFDBFE',
-    'text': '#1E3A8A',
-    'shadow': 'rgba(37, 99, 235, 0.12)',
+    'lighter': '#F8FAFC',
+    'border': '#94A3B8',
+    'text': '#2C3E50',
+    'shadow': 'rgba(44, 62, 80, 0.12)',
 }
 
 INPUT_COLORS = {
-    'primary': '#16A34A',
-    'secondary': '#22C55E',
-    'accent': '#4ADE80',
-    'light': '#ECFDF5',
-    'lighter': '#F6FFFA',
-    'border': '#BBF7D0',
-    'text': '#14532D',
-    'shadow': 'rgba(22, 163, 74, 0.12)',
+    'primary': '#4F46E5',      # Royal Indigo
+    'secondary': '#6366F1',
+    'accent': '#818CF8',
+    'light': '#EEF2FF',
+    'lighter': '#F0F3FF',
+    'border': '#C7D2FE',
+    'text': '#1E1B4B',
+    'shadow': 'rgba(79, 70, 229, 0.12)',
 }
 
 ANALYSIS_COLORS = {
@@ -66,14 +66,14 @@ ANALYSIS_COLORS = {
 }
 
 RESULTS_COLORS = {
-    'primary': '#7C3AED',
-    'secondary': '#8B5CF6',
-    'accent': '#A78BFA',
-    'light': '#F5F3FF',
-    'lighter': '#FAF8FF',
-    'border': '#DDD6FE',
-    'text': '#4C1D95',
-    'shadow': 'rgba(124, 58, 237, 0.12)',
+    'primary': '#0EA5A4',      # Teal-Cyan
+    'secondary': '#06B6D4',
+    'accent': '#22D3EE',
+    'light': '#ECFEFF',
+    'lighter': '#F0FDFF',
+    'border': '#A5F3FC',
+    'text': '#164E63',
+    'shadow': 'rgba(14, 165, 164, 0.12)',
 }
 
 VISUALIZATION_COLORS = {
@@ -88,25 +88,25 @@ VISUALIZATION_COLORS = {
 }
 
 DOWNLOAD_COLORS = {
-    'primary': '#4338CA',
-    'secondary': '#6366F1',
-    'accent': '#818CF8',
-    'light': '#EEF2FF',
-    'lighter': '#F6F8FF',
-    'border': '#C7D2FE',
-    'text': '#1E1B4B',
-    'shadow': 'rgba(67, 56, 202, 0.12)',
+    'primary': '#16A34A',      # Emerald Green
+    'secondary': '#22C55E',
+    'accent': '#4ADE80',
+    'light': '#ECFDF5',
+    'lighter': '#F0FDF4',
+    'border': '#BBF7D0',
+    'text': '#14532D',
+    'shadow': 'rgba(22, 163, 74, 0.12)',
 }
 
 DOCUMENTATION_COLORS = {
-    'primary': '#6D28D9',
-    'secondary': '#8B5CF6',
-    'accent': '#C4B5FD',
-    'light': '#111827',
-    'lighter': '#0B1120',
-    'border': '#1F2937',
-    'text': '#E5E7EB',
-    'shadow': 'rgba(0, 0, 0, 0.45)',
+    'primary': '#B91C1C',      # Academic Crimson
+    'secondary': '#DC2626',
+    'accent': '#FCA5A5',
+    'light': '#FEF2F2',
+    'lighter': '#FFF5F5',
+    'border': '#FECACA',
+    'text': '#1E293B',
+    'shadow': 'rgba(185, 28, 28, 0.15)',
 }
 
 # ==================== SEMANTIC STATUS COLORS ====================
@@ -219,6 +219,26 @@ MOTIF_CLASS_INFO = [
     {'key': 'Hybrid', 'name': 'Hybrid', 'subtitle': 'Multi-class overlap', 'num': 10},
     {'key': 'Non-B_DNA_Clusters', 'name': 'Clusters', 'subtitle': 'Motif hotspots', 'num': 11},
 ]
+
+# ==================== TOP NAVIGATION TAB COLORS ====================
+
+TAB_NAV_COLORS = {
+    'Home': {'bg': '#2C3E50', 'hover': '#34495E', 'text': '#F8FAFC', 'glow': 'rgba(93, 138, 168, 0.55)'},
+    'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#FFFFFF', 'glow': 'rgba(99, 102, 241, 0.65)'},
+    'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
+    'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
+    'Documentation': {'bg': '#B91C1C', 'hover': '#991B1B', 'text': '#FFFFFF', 'glow': 'rgba(220, 38, 38, 0.55)'},
+}
+
+# ==================== DOCUMENTATION SUB-TAB COLORS ====================
+
+DOC_SUBTAB_COLORS = {
+    'Overview & Architecture': {'bg': '#64748B', 'hover': '#7D8FA3', 'text': '#F1F5F9'},
+    'Motif Library & Algorithms': {'bg': '#6366F1', 'hover': '#4F46E5', 'text': '#EEF2FF'},
+    'Scoring & Analysis': {'bg': '#0F766E', 'hover': '#14B8A6', 'text': '#F0FDFA'},
+    'Statistics Guide': {'bg': '#10B981', 'hover': '#059669', 'text': '#ECFDF5'},
+    'References & Citation': {'bg': '#7F1D1D', 'hover': '#991B1B', 'text': '#FEF2F2'},
+}
 
 def get_motif_card_style(class_key: str) -> dict:
     colors = MOTIF_CARD_COLORS.get(class_key, MOTIF_CARD_COLORS['Hybrid'])

@@ -17,11 +17,11 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#1a56db', 'pattern': 'linear-gradient(135deg, #1a56db 0%, #3b82f6 50%, #60a5fa 100%)'},
-    'Upload & Analyze': {'primary': '#059669', 'pattern': 'linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%)'},
-    'Results': {'primary': '#7c3aed', 'pattern': 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%)'},
-    'Downloads': {'primary': '#ea580c', 'pattern': 'linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%)'},
-    'Documentation': {'primary': '#dc2626', 'pattern': 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)'},
+    'Home': {'primary': '#2C3E50', 'pattern': 'linear-gradient(135deg, #2C3E50 0%, #34495E 50%, #5D8AA8 100%)'},
+    'Upload & Analyze': {'primary': '#4F46E5', 'pattern': 'linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #818CF8 100%)'},
+    'Results': {'primary': '#0EA5A4', 'pattern': 'linear-gradient(135deg, #0891B2 0%, #0EA5A4 50%, #06B6D4 100%)'},
+    'Downloads': {'primary': '#16A34A', 'pattern': 'linear-gradient(135deg, #15803D 0%, #16A34A 50%, #22C55E 100%)'},
+    'Documentation': {'primary': '#B91C1C', 'pattern': 'linear-gradient(135deg, #991B1B 0%, #B91C1C 50%, #DC2626 100%)'},
 }
 HEADING_PADDING = "0.15rem 1.2rem"; HEADING_FONT_SIZE = "1.5rem"; HEADING_BORDER_RADIUS = "8px"
 # ═══════════════════════════════════════════════════════════════════════════════
