@@ -1076,7 +1076,7 @@ def render():
                     'Submotif': subclass
                 })
 
-        # Compact summary with publication-grade terminology
+        # Compact summary
         num_enabled = len(enabled_subclasses)
         total_submotifs = len(flat_submotifs)
 
@@ -1363,7 +1363,7 @@ def render():
                                      processed_bp, total_bp, detector_count, extra_info=""):
                 """Display progress panel using Streamlit native components with scientific time formatting.
                 
-                Uses canonical format: HH:MM:SS › mmm for precise, publication-quality time display.
+                Uses canonical format: HH:MM:SS › mmm for time display.
                 
                 Args:
                     container: Streamlit container to display in

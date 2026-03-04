@@ -42,7 +42,7 @@ Sequences shorter than 10 bp are automatically skipped with a warning; no error 
 
 ## Key Capabilities
 
-NBDFinder provides integrated multi-class detection in a single workflow, subclass-specific scoring and prioritization, overlap-aware hybrid motif identification, and density-based structural hotspot detection. The platform supports genome-scale analysis of multi-megabase sequences and produces exportable structured outputs in CSV/XLSX/BED-ready formats alongside publication-quality visualizations.
+NBDFinder provides integrated multi-class detection in a single workflow, subclass-specific scoring and prioritization, overlap-aware hybrid motif identification, and density-based structural hotspot detection. The platform supports genome-scale analysis of multi-megabase sequences and produces exportable structured outputs in CSV/XLSX/BED-ready formats alongside standard visualizations.
 
 ## Input
 

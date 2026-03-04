@@ -74,7 +74,7 @@ def plot_stacked_bar_class_subclass(
     exclude_classes: Optional[List[str]] = None
 ) -> plt.Figure:
     """
-    Create publication-quality stacked bar plot showing Class → Subclass hierarchy.
+    Create stacked bar plot showing Class → Subclass hierarchy.
     
     Replaces nested pie chart with clearer bar visualization suitable for scientific
     publications. Shows motif counts stacked by subclasses within each class.
@@ -199,7 +199,7 @@ def plot_stacked_bar_class_subclass(
         total = class_totals[cls]; ax.text(x_positions[idx], total + 0.02 * ax.get_ylim()[1], f'n={total}', ha='center', va='bottom', fontsize=11, fontweight='bold')
     
     # ═══════════════════════════════════════════════════════════════════════════
-    # STYLING: Apply publication-quality formatting
+    # STYLING: Apply standard formatting
     # ═══════════════════════════════════════════════════════════════════════════
     # Set axis labels and title
     ax.set_xlabel('Motif Class', fontsize=14, fontweight='bold'); ax.set_ylabel('Motif Count', fontsize=14, fontweight='bold')

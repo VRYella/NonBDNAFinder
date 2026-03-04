@@ -261,9 +261,9 @@ def get_memory_usage_mb() -> float:
 # =============================================================================
 
 # Core columns for output tables (as per requirements)
-# Mandatory, universal columns for publication-grade reporting
+# Mandatory, universal columns for standard reporting
 # These columns appear in all display tables and CSV exports
-# Task 1 & 2: Minimal, high-value features for Nature/NAR/Genome Research standards
+# Task 1 & 2: Minimal, high-value features for standard output formatting
 CORE_OUTPUT_COLUMNS = [
     'Sequence_Name',  # Identity: Traceability
     'Class',          # Classification: Biological interpretation
@@ -271,7 +271,7 @@ CORE_OUTPUT_COLUMNS = [
     'Start',          # Genomics: Absolute genomic context
     'End',            # Genomics: Absolute genomic context
     'Length',         # Genomics: Feature size (bp)
-    'Sequence',       # Sequence: Always visible motif sequence (publication-grade requirement)
+    'Sequence',       # Sequence: Always visible motif sequence (standard requirement)
     'Strand',         # Strand: DNA strand orientation (+/- indicates forward/reverse)
     'Score',          # Confidence: 1-3 normalized, cross-motif comparability
     'Raw_Score',      # Confidence: Original detector score (class-specific scale, for reproducibility)
@@ -3389,7 +3389,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
                    simple_format: bool = False) -> str:
     """
     Export motifs to Excel format with Task 1 & 2 requirements:
-    - Main sheet: Core columns only (minimal, publication-grade)
+    - Main sheet: Core columns only (minimal, standard)
     - Additional sheets: Motif-specific columns per class (conditional reporting)
     
     Core columns (all sheets):
@@ -3474,7 +3474,7 @@ def export_to_excel(motifs: List[Dict[str, Any]], filename: str = "nonbscanner_r
             df_all = pd.DataFrame(all_data, columns=core_columns)
             df_all.to_excel(writer, sheet_name='OverlappingAll', index=False)
         else:
-            # Publication-grade format with motif-specific sheets
+            # Structured format with motif-specific sheets
             # Sheet 1: Core columns only (all non-overlapping motifs)
             consolidated_motifs = [m for m in motifs 
                                  if m.get('Class') not in EXCLUDED_FROM_CONSOLIDATED]
@@ -4214,7 +4214,7 @@ def export_results_to_dataframe(motifs: List[Dict[str, Any]]) -> pd.DataFrame:
     Additional motif-specific columns (Repeat_Unit, Loop_Length, etc.) are only shown 
     in Excel download class-specific sheets, not in display tables.
     
-    This ensures publication-grade clarity per Nature/NAR/Genome Research standards.
+    This ensures standard clarity per standard output formatting.
     """
     if not motifs:
         return pd.DataFrame()
@@ -4800,7 +4800,7 @@ VISUALIZATION TABLE:
 │ Export       │ save_all_plots            │ Batch plot export                 │
 └──────────────────────────────────────────────────────────────────────────────┘
 
-ADVANCED VISUALIZATIONS (Publication-Quality):
+ADVANCED VISUALIZATIONS (Standard):
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ - plot_genome_landscape_track      │ Horizontal genomic ruler with glyphs │
 │ - plot_sliding_window_heat_ribbon  │ 1D density heatmap with score        │
@@ -4813,7 +4813,7 @@ ADVANCED VISUALIZATIONS (Publication-Quality):
 └──────────────────────────────────────────────────────────────────────────────┘
 
 FEATURES:
-    - Publication-quality static plots
+    - Standard static plots
     - Interactive visualizations (Plotly)
     - Colorblind-friendly palettes
     - SVG/PNG export at 300 DPI
@@ -4821,9 +4821,9 @@ FEATURES:
 """
 
 # =============================================================================
-# NATURE-LEVEL PUBLICATION STYLING & CONFIGURATION
+# SCIENTIFIC STYLING & CONFIGURATION
 # =============================================================================
-# Following Nature Methods/Nature Genetics style guidelines:
+# Following Scientific style guidelines:
 # - Sans-serif fonts (Arial/Helvetica preferred)
 # - High DPI (300+ for print)
 # - Clean, minimal design with proper spacing
@@ -4831,13 +4831,13 @@ FEATURES:
 
 # Default DPI for visualization (reduced to 72 for screen display)
 # 72 DPI matches standard screen resolution and minimizes rendering time/memory
-# For print/publication quality, Nature journals typically require 300 DPI
+# For print/standard quality, 300 DPI is typically required for print
 # but we prioritize performance and memory savings for web application display
 PUBLICATION_DPI = 72
 
 # MOTIF_CLASS_COLORS: Centralized visualization color palette
 # Single source of truth: config/colors.py → VISUALIZATION_MOTIF_COLORS
-# Based on Wong, B. (2011) Nature Methods colorblind-safe palette
+# Based on Wong, B. (2011) colorblind-safe palette
 # Reference: Wong, B. (2011) Points of view: Color blindness. Nat Methods 8, 441
 from Utilities.config.colors import VISUALIZATION_MOTIF_COLORS as MOTIF_CLASS_COLORS
 
@@ -4873,11 +4873,11 @@ def _format_display_name(name: str) -> str:
     """
     return name.replace('_', ' ')
 
-# Nature-level scientific styling configuration for publication-quality plots
-# Reference: Nature author guidelines for figure preparation
+# Scientific styling configuration for standard scientific plots
+# Reference: scientific figure preparation guidelines
 # Modified: Fonts set to medium size for better readability
 _NATURE_STYLE_PARAMS = {
-    # Typography - Arial/Helvetica as per Nature guidelines - UNIFORM FONTS
+    # Typography - Arial/Helvetica as per scientific guidelines - UNIFORM FONTS
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
     'font.size': 10,  # UNIFORM: Base font size for all text
@@ -4898,7 +4898,7 @@ _NATURE_STYLE_PARAMS = {
     
     # Legend - UNIFORM sizing
     'legend.fontsize': 9,  # UNIFORM: All legend text
-    'legend.frameon': False,  # Nature style: frameless legends for cleaner figures
+    'legend.frameon': False,  # Minimal style: frameless legends for cleaner figures
     'legend.borderpad': 0.4,
     
     # Figure - UNIFORM sizing
@@ -4911,8 +4911,8 @@ _NATURE_STYLE_PARAMS = {
     'savefig.bbox': 'tight',
     'savefig.pad_inches': 0.05,
     
-    # Axes - minimal, clean design (Nature style with optional subtle grid)
-    'axes.grid': False,  # Nature typically uses minimal grids; can be enabled per-plot
+    # Axes - minimal, clean design (minimal style with optional subtle grid)
+    'axes.grid': False,  # Scientific figures typically use minimal grids; can be enabled per-plot
     'grid.alpha': 0.3,  # Subtle grid when enabled
     'grid.linestyle': '--',
     'axes.spines.top': False,
@@ -4932,14 +4932,14 @@ _NATURE_STYLE_PARAMS = {
     'ps.fonttype': 42,
 }
 
-# NOTE: Nature-level styling is now applied lazily in set_scientific_style()
+# NOTE: scientific styling is now applied lazily in set_scientific_style()
 # to avoid matplotlib import at module load (performance optimization)
 
 # Constants for enrichment analysis visualization
 INFINITE_FOLD_ENRICHMENT_CAP = 100  # Cap for infinite fold enrichment values in plots
 
-# Figure size constants (in inches) following Nature guidelines
-# Nature column widths: single=89mm(3.5in), 1.5=120mm(4.7in), double=183mm(7.2in)
+# Figure size constants (in inches) following scientific style guidelines
+# Standard column widths: single=89mm(3.5in), 1.5=120mm(4.7in), double=183mm(7.2in)
 FIGURE_SIZES = {
     'single_column': (3.5, 2.8),      # Single column
     'one_and_half': (4.7, 3.5),       # 1.5 column
@@ -4951,11 +4951,11 @@ FIGURE_SIZES = {
 
 def set_scientific_style(style: str = 'nature'):
     """
-    Apply scientific publication-ready styling.
+    Apply scientific styling to matplotlib figures.
     
     Args:
         style: Style preset ('nature', 'default', 'presentation')
-               - 'nature': Nature/Science journal style (default)
+               - 'nature': clean, minimal scientific style (default)
                - 'default': Standard seaborn whitegrid
                - 'presentation': Larger fonts for presentations
     """
@@ -4985,7 +4985,7 @@ def set_scientific_style(style: str = 'nature'):
 # =============================================================================
 
 def _apply_nature_style(ax):
-    """Apply Nature journal style to matplotlib axis (remove top/right spines).
+    """Apply scientific style to matplotlib axis (remove top/right spines).
     
     | Parameter | Type | Description            |
     |-----------|------|------------------------|
@@ -4996,7 +4996,7 @@ def _apply_nature_style(ax):
     ax.spines['right'].set_visible(False)
 
 # =============================================================================
-# DISTRIBUTION PLOTS (Nature-Level Quality)
+# DISTRIBUTION PLOTS (Standard Scientific Quality)
 # =============================================================================
 
 def plot_motif_distribution(motifs: List[Dict[str, Any]], 
@@ -5007,7 +5007,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     """
     Plot distribution of motifs by class or subclass.
     
-    Publication-quality bar chart following Nature Methods guidelines.
+    Standard bar chart following scientific style guidelines.
     Shows all classes/subclasses even when count is 0, ensuring comprehensive
     visualization of both detected and undetected motif types.
     
@@ -5015,7 +5015,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
         motifs: List of motif dictionaries.
         by: Group by 'Class' or 'Subclass'.
         title: Custom plot title.
-        figsize: Figure size (width, height) in inches. Uses Nature standard if None.
+        figsize: Figure size (width, height) in inches. Uses standard if None.
         style: Style preset ('nature', 'default', 'presentation').
         
     Returns:
@@ -5024,7 +5024,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     plt, sns, patches, PdfPages = _ensure_matplotlib()
     set_scientific_style(style)
     
-    # Use Nature-appropriate figure size
+    # Use appropriate figure size
     if figsize is None:
         figsize = FIGURE_SIZES['double_column'] if by == 'Subclass' else FIGURE_SIZES['one_and_half']
     
@@ -5059,11 +5059,11 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
     # Create figure with high DPI
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
-    # Create bars with Nature-style aesthetics
+    # Create bars with clean scientific aesthetics
     bars = ax.bar(range(len(categories)), values, color=colors, 
                   edgecolor='black', linewidth=0.5, width=0.8)
     
-    # Customize axes (Nature style - minimal, clean)
+    # Customize axes (minimal, clean style)
     ax.set_xlabel(f'Motif {by}', fontweight='normal')
     ax.set_ylabel('Count', fontweight='normal')
     if title:
@@ -5089,7 +5089,7 @@ def plot_motif_distribution(motifs: List[Dict[str, Any]],
             ax.text(bar.get_x() + bar.get_width()/2., height + max_val * 0.015,
                     str(count), ha='center', va='bottom', fontsize=lbl_fs, fontweight='bold')
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -5102,7 +5102,7 @@ def plot_class_subclass_sunburst(motifs: List[Dict[str, Any]],
     """
     Create sunburst plot showing class-subclass hierarchy.
     
-    Publication-quality hierarchical visualization.
+    Standard hierarchical visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -5174,7 +5174,7 @@ def plot_class_subclass_sunburst(motifs: List[Dict[str, Any]],
         hovertemplate='<b>%{label}</b><br>Count: %{value}<extra></extra>',
     ))
     
-    # Publication-quality layout
+    # Standard layout
     fig.update_layout(
         title=dict(text=title, font=dict(size=10, family='Arial')),
         font=dict(size=8, family='Arial'),
@@ -5194,7 +5194,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
     Create stacked bar chart for Class -> Subclass visualization.
     
     DEPRECATED: This function now redirects to plot_stacked_bar_class_subclass()
-    for improved clarity and publication-quality visualization.
+    for improved clarity and standard scientific visualization.
     
     The nested pie chart has been replaced with a stacked bar chart that:
     - Shows exact counts (easier to read than pie percentages)
@@ -5218,7 +5218,7 @@ def plot_nested_pie_chart(motifs: List[Dict[str, Any]],
 
 
 # =============================================================================
-# COVERAGE & POSITIONAL PLOTS (Nature-Level Quality)
+# COVERAGE & POSITIONAL PLOTS (Standard Scientific Quality)
 # =============================================================================
 
 def plot_coverage_map(motifs: List[Dict[str, Any]], 
@@ -5229,7 +5229,7 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
     """
     Plot motif coverage map showing positions along sequence.
     
-    Publication-quality genomic track visualization.
+    Standard genomic track visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -5277,7 +5277,7 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
             end = motif.get('End', start + 1)
             length = end - start
             
-            # Draw motif as rectangle (Nature style - clean edges)
+            # Draw motif as rectangle (clean edges)
             rect = patches.Rectangle(
                 (start, y_pos - 0.35), length, 0.7,
                 facecolor=color, edgecolor='black', linewidth=0.3
@@ -5286,7 +5286,7 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
         
         y_pos += 1
     
-    # Customize axes (Nature style)
+    # Customize axes (scientific style)
     ax.set_xlim(0, sequence_length)
     ax.set_ylim(-0.5, len(class_motifs) - 0.5)
     ax.set_xlabel('Position (bp)')
@@ -5304,7 +5304,7 @@ def plot_coverage_map(motifs: List[Dict[str, Any]],
     # Clean x-axis ticks
     ax.ticklabel_format(style='sci', axis='x', scilimits=(3, 3))
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -5320,7 +5320,7 @@ def plot_density_heatmap(motifs: List[Dict[str, Any]],
     """
     Plot motif density heatmap along sequence.
     
-    Publication-quality density visualization.
+    Standard density visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -5377,13 +5377,13 @@ def plot_density_heatmap(motifs: List[Dict[str, Any]],
             
             density_matrix[i, j] = count
     
-    # Create heatmap with publication quality
+    # Create heatmap with standard quality
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Use colorblind-friendly colormap
     im = ax.imshow(density_matrix, cmap='viridis', aspect='auto', interpolation='nearest')
     
-    # Customize axes (Nature style)
+    # Customize axes (scientific style)
     ax.set_xlabel(f'Position (kb)')
     ax.set_ylabel('Motif Class')
     if title:
@@ -5411,7 +5411,7 @@ def plot_density_heatmap(motifs: List[Dict[str, Any]],
 
 
 # =============================================================================
-# STATISTICAL PLOTS (Nature-Level Quality)
+# STATISTICAL PLOTS (Standard Scientific Quality)
 # =============================================================================
 
 def plot_score_distribution(motifs: List[Dict[str, Any]], 
@@ -5422,7 +5422,7 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
     """
     Plot distribution of motif scores.
     
-    Publication-quality box plot visualization.
+    Standard box plot visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -5478,7 +5478,7 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         # Create DataFrame for seaborn
         df = pd.DataFrame(scores_data)
         
-        # Box plot by class (Nature style - clean, minimal)
+        # Box plot by class (clean, minimal style)
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.boxplot(data=df, x='Class', y='Score', ax=ax, palette=colors,
                    linewidth=0.8, fliersize=2)
@@ -5498,7 +5498,7 @@ def plot_score_distribution(motifs: List[Dict[str, Any]],
         display_title = title.replace('_', ' ')
         ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -5513,7 +5513,7 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
     """
     Plot distribution of motif lengths.
     
-    Publication-quality violin plot visualization.
+    Standard violin plot visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -5569,7 +5569,7 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         # Create DataFrame for seaborn
         df = pd.DataFrame(length_data)
         
-        # Violin plot by class (Nature style - clean)
+        # Violin plot by class (clean style)
         colors = [MOTIF_CLASS_COLORS.get(cls, '#808080') for cls in df['Class'].unique()]
         sns.violinplot(data=df, x='Class', y='Length', ax=ax, palette=colors,
                       linewidth=0.8, inner='box')
@@ -5589,7 +5589,7 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
         display_title = title.replace('_', ' ')
         ax.set_title(display_title, fontweight='bold', pad=10)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -5597,7 +5597,7 @@ def plot_length_distribution(motifs: List[Dict[str, Any]],
 
 
 # =============================================================================
-# COMPARISON PLOTS (Nature-Level Quality)
+# COMPARISON PLOTS (Standard Scientific Quality)
 # =============================================================================
 
 def plot_class_comparison(results: Dict[str, List[Dict[str, Any]]], 
@@ -5608,7 +5608,7 @@ def plot_class_comparison(results: Dict[str, List[Dict[str, Any]]],
     """
     Compare motif classes across multiple sequences/samples.
     
-    Publication-quality heatmap comparison.
+    Standard heatmap comparison.
     
     Args:
         results: Dictionary of {sample_name: motifs_list}
@@ -5792,7 +5792,7 @@ def create_interactive_coverage_plot(motifs: List[Dict[str, Any]],
     return fig
 
 # =============================================================================
-# BATCH EXPORT FUNCTIONS (Publication-Ready)
+# BATCH EXPORT FUNCTIONS
 # =============================================================================
 
 def save_all_plots(motifs: List[Dict[str, Any]], 
@@ -5802,7 +5802,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
                    dpi: int = 300,
                    style: str = 'nature') -> Dict[str, str]:
     """
-    Generate and save all standard plots in publication quality.
+    Generate and save all standard plots in standard quality.
     
     Args:
         motifs: List of motif dictionaries
@@ -5847,7 +5847,7 @@ def save_all_plots(motifs: List[Dict[str, Any]],
             filepath = os.path.join(output_dir, filename)
             
             if hasattr(fig, 'savefig'):  # Matplotlib figure
-                # Publication-quality save options
+                # Standard save options
                 fig.savefig(filepath, format=file_format, dpi=dpi, 
                            bbox_inches='tight', pad_inches=0.05,
                            facecolor='white', edgecolor='none')
@@ -6428,7 +6428,7 @@ def plot_density_comparison(genomic_density: Dict[str, float],
             ax2.text(val + max_positional * 0.01, i, f'{val:.2f}', 
                     va='center', fontsize=9, fontweight='bold')
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax1)
     _apply_nature_style(ax2)
     
@@ -7226,13 +7226,13 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
             
             density_matrix[i, j] = count
     
-    # Create heatmap with publication quality
+    # Create heatmap with standard quality
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Use colorblind-friendly colormap
     im = ax.imshow(density_matrix, cmap='viridis', aspect='auto', interpolation='nearest')
     
-    # Customize axes (Nature style)
+    # Customize axes (scientific style)
     ax.set_xlabel(f'Position (kb)', fontsize=12, fontweight='bold')
     ax.set_ylabel('Motif Subclass', fontsize=12, fontweight='bold')
     
@@ -7260,7 +7260,7 @@ def plot_subclass_density_heatmap(motifs: List[Dict[str, Any]],
 
 
 # =============================================================================
-# NATURE-LEVEL PUBLICATION VISUALIZATIONS (GENOME-WIDE)
+# GENOME-WIDE VISUALIZATIONS
 # =============================================================================
 
 def plot_manhattan_motif_density(motifs: List[Dict[str, Any]], 
@@ -7273,7 +7273,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
     Create Manhattan plot showing motif density or score across genomic coordinates.
     
     Ideal for highlighting hotspots, clusters, and hybrid zones in large genomes.
-    Publication-quality visualization following Nature Methods guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -7378,7 +7378,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
         ax.legend(legend_elements, display_classes, loc='upper right', 
                  fontsize=8, framealpha=0.9, ncol=min(3, len(legend_elements)))
     
-    # Apply label suppression policy (Nature-ready: no individual labels)
+    # Apply label suppression policy (no individual labels)
     # Only annotate top 5% density hotspots if requested
     if values:
         threshold = np.percentile(values, 95)  # Top 5%
@@ -7392,7 +7392,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
             if val >= threshold and hotspot_count < max_labels:
                 # Check distance from last label
                 if pos - last_label_pos >= min_distance_kb:
-                    # Subtle annotation (Nature-ready: minimal, professional)
+                    # Subtle annotation (minimal, professional)
                     ax.annotate(f'{val:.1f}', xy=(pos, val), 
                                xytext=(0, 5), textcoords='offset points',
                                fontsize=6, alpha=0.7, ha='center',
@@ -7401,7 +7401,7 @@ def plot_manhattan_motif_density(motifs: List[Dict[str, Any]],
                     last_label_pos = pos
                     hotspot_count += 1
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -7515,7 +7515,7 @@ def plot_manhattan_subclass_density(motifs: List[Dict[str, Any]],
     # Add horizontal grid
     ax.grid(axis='y', alpha=0.3, linestyle='--', linewidth=0.5)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -7531,7 +7531,7 @@ def plot_cumulative_motif_distribution(motifs: List[Dict[str, Any]],
     Create cumulative distribution plot showing running sum of motifs over genome.
     
     Useful for comparing motifs or samples, showing how motif accumulation
-    varies across the sequence. Publication-quality following Nature guidelines.
+    varies across the sequence. Standard following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -7619,7 +7619,7 @@ def plot_cumulative_motif_distribution(motifs: List[Dict[str, Any]],
     if by_class:
         ax.legend(loc='upper left', fontsize=8, framealpha=0.9)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -7637,7 +7637,7 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     - Colorblind-friendly heatmap with consistent class colors
     - Row/column color coding by motif class
     - Annotated cells with co-occurrence counts
-    - Publication-quality styling
+    - Standard styling
     
     Args:
         motifs: List of motif dictionaries
@@ -7807,7 +7807,7 @@ def plot_gc_content_correlation(motifs: List[Dict[str, Any]],
     Create scatter plot showing correlation between GC content and motif density.
     
     Shows GC-driven motif enrichment patterns. One dot per genomic window.
-    Publication-quality visualization with regression line.
+    Standard visualization with regression line.
     
     Args:
         motifs: List of motif dictionaries
@@ -7894,7 +7894,7 @@ def plot_gc_content_correlation(motifs: List[Dict[str, Any]],
     if len(gc_percentages) > 1:
         ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -7907,12 +7907,12 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
                             region_end: int = None,
                             title: str = "Linear Motif Track",
                             figsize: Tuple[int, int] = None,
-                            show_labels: bool = False) -> plt.Figure:  # Default to False per Nature-ready standards
+                            show_labels: bool = False) -> plt.Figure:  # Default to False per standard settings
     """
     Create horizontal graphical track with colored blocks for motifs.
     
     Best for visualizing <10kb regions. Colored blocks show motif positions
-    with class-specific colors. Publication-quality linear genome browser view.
+    with class-specific colors. Standard linear genome browser view.
     
     NATURE-READY: Individual motif labels suppressed by default for clarity.
     Only class track labels are shown.
@@ -8006,7 +8006,7 @@ def plot_linear_motif_track(motifs: List[Dict[str, Any]],
     # Format x-axis
     ax.ticklabel_format(style='plain', axis='x')
     
-    # Apply Nature journal style (minimal spines)
+    # Apply scientific style (minimal spines)
     for spine in ['left', 'right', 'bottom']:
         ax.spines[spine].set_visible(False)
     ax.spines['top'].set_visible(True)
@@ -8119,7 +8119,7 @@ def plot_linear_subclass_track(motifs: List[Dict[str, Any]],
     # Format x-axis
     ax.ticklabel_format(style='plain', axis='x')
     
-    # Apply Nature journal style (minimal spines)
+    # Apply scientific style (minimal spines)
     for spine in ['left', 'right', 'bottom']:
         ax.spines[spine].set_visible(False)
     ax.spines['top'].set_visible(True)
@@ -8140,7 +8140,7 @@ def plot_cluster_size_distribution(motifs: List[Dict[str, Any]],
     - Cluster density heatmap
     - Top cluster classes composition
     
-    Publication-quality visualization with consistent styling.
+    Standard visualization with consistent styling.
     
     Args:
         motifs: List of motif dictionaries (should include cluster motifs)
@@ -8296,11 +8296,11 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
                           title: str = "Motif Length Distribution",
                           figsize: Tuple[int, int] = None) -> plt.Figure:
     """
-    Plot histogram of motif length distributions (Nature publication standard).
+    Plot histogram of motif length distributions (standard scientific style).
     
     Replaces KDE with stacked histograms for cleaner, more interpretable visualization.
     Shows frequency counts for motif lengths grouped by class.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -8362,7 +8362,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
             ax.hist(lengths, bins=30, alpha=0.8, color='#0072B2', 
                    edgecolor='white', linewidth=0.5)
     
-    # Uniform axis labels (Nature standard)
+    # Uniform axis labels (standard)
     ax.set_xlabel('Length (bp)', fontsize=10, fontweight='bold')
     ax.set_ylabel('Count', fontsize=10, fontweight='bold')
     
@@ -8374,7 +8374,7 @@ def plot_motif_length_kde(motifs: List[Dict[str, Any]],
         legend_cols = max(1, min(3, n_cls // 4 + 1))
         ax.legend(loc='upper right', fontsize=7, framealpha=0.9, ncol=legend_cols)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -8391,11 +8391,11 @@ def plot_score_violin(motifs: List[Dict[str, Any]],
                       title: str = "Score Distribution",
                       figsize: Tuple[int, int] = None) -> plt.Figure:
     """
-    Plot violin plot of motif score distributions (Nature publication standard).
+    Plot violin plot of motif score distributions (standard scientific style).
     
     Shows distribution shape, median, and quartiles for each motif class.
     Superior to box plots for showing distribution shape.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -8456,7 +8456,7 @@ def plot_score_violin(motifs: List[Dict[str, Any]],
     sns.violinplot(data=df, x='Class', y='Score', ax=ax, palette=palette,
                    linewidth=0.8, inner='box', cut=0)
     
-    # Uniform axis labels (Nature standard)
+    # Uniform axis labels (standard)
     ax.set_xlabel('Motif Class', fontsize=10, fontweight='bold')
     ax.set_ylabel('Score (1–3)', fontsize=10, fontweight='bold')
     # Rotate x-axis labels and use tight layout to avoid overlap
@@ -8466,7 +8466,7 @@ def plot_score_violin(motifs: List[Dict[str, Any]],
     display_title = title.replace('_', ' ')
     ax.set_title(display_title, fontsize=11, fontweight='bold', pad=10)
     
-    # Apply Nature journal style
+    # Apply scientific style
     _apply_nature_style(ax)
     
     plt.tight_layout()
@@ -8483,7 +8483,7 @@ def plot_structural_heatmap(motifs: List[Dict[str, Any]],
     
     Visualizes structural potential landscape across the sequence.
     Each row is a motif class, each column is a genomic bin.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -8556,7 +8556,7 @@ def plot_structural_heatmap(motifs: List[Dict[str, Any]],
     ax.set_xticks(tick_positions)
     ax.set_xticklabels(tick_labels, fontsize=8)
     
-    # Uniform axis labels (Nature standard)
+    # Uniform axis labels (standard)
     ax.set_xlabel('Position (kb)', fontsize=10, fontweight='bold')
     ax.set_ylabel('Motif Class', fontsize=10, fontweight='bold')
     
@@ -8581,7 +8581,7 @@ def plot_gc_motif_correlation(motifs: List[Dict[str, Any]],
     Plot GC content correlation with motif density (sliding window).
     
     Shows relationship between local GC content and motif enrichment.
-    Publication-quality scatter plot with trend line.
+    Standard scatter plot with trend line.
     
     Args:
         motifs: List of motif dictionaries
@@ -8684,7 +8684,7 @@ def plot_motif_network(motifs: List[Dict[str, Any]],
     
     Nodes represent motif classes, edges represent co-occurrence frequency.
     Edge width proportional to co-occurrence strength.
-    Publication-quality network visualization.
+    Standard network visualization.
     
     Args:
         motifs: List of motif dictionaries
@@ -8805,7 +8805,7 @@ def plot_chromosome_density(motifs: List[Dict[str, Any]],
     Plot chromosome-wise motif density bar chart.
     
     Shows total motif count per class as stacked horizontal bars.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -8860,7 +8860,7 @@ def plot_chromosome_density(motifs: List[Dict[str, Any]],
     # Extend x-axis a little for clean appearance
     ax.set_xlim(0, max(counts) * 1.05)
     
-    # Uniform axis labels (Nature standard)
+    # Uniform axis labels (standard)
     ax.set_xlabel('Count', fontsize=10, fontweight='bold')
     ax.set_ylabel('Motif Class', fontsize=10, fontweight='bold')
     
@@ -8879,7 +8879,7 @@ def plot_spacer_loop_variation(motifs: List[Dict[str, Any]],
     Plot spacer and loop length variation for G4, Triplex, Cruciform, i-Motif, and R-Loop motifs.
     
     Shows distribution of structural parameters specific to complex motifs.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -9034,7 +9034,7 @@ def plot_motif_clustering_distance(motifs: List[Dict[str, Any]],
     Plot distribution of distances between consecutive motifs.
     
     Shows clustering patterns by measuring inter-motif distances.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -9108,7 +9108,7 @@ def plot_structural_competition_upset(motifs: List[Dict[str, Any]],
     Create UpSet-style plot showing overlapping motif combinations.
     
     Visualizes which motif classes overlap and their frequencies.
-    Publication-quality visualization following Nature guidelines.
+    Standard visualization following scientific style guidelines.
     
     Args:
         motifs: List of motif dictionaries
@@ -9891,7 +9891,7 @@ statistical software (R, Python, MATLAB) for further analysis.
 USAGE NOTES
 ═══════════
 ✓ All files are ready for immediate use
-✓ PDF visualizations are publication-quality (300 DPI)
+✓ PDF visualizations are standard scientific (300 DPI)
 ✓ Excel data can be filtered, sorted, and analyzed
 ✓ CSV is compatible with all standard analysis tools
 ✓ Statistics file provides comprehensive metrics for reporting

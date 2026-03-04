@@ -17,7 +17,7 @@ VISUALIZATION_CONFIG = {
     # Plot resolution (DPI - dots per inch)
     # 72: Standard screen resolution (fastest rendering, lowest memory)
     # 150: Good for screen viewing
-    # 300: Publication quality (Nature, Science journals)
+    # 300: High resolution (suitable for print)
     # 600: High-quality print (posters, large format)
     'dpi': 72,
     
