@@ -375,10 +375,10 @@ def render():
     # ============================================================
     with left_col:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+        <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); 
                     padding: 0.25rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
-                    border-left: 3px solid #10b981;'>
-            <h4 style='margin: 0; color: #065f46; font-size: 0.95rem; font-weight: 600;'>
+                    border-left: 3px solid #ca8a04;'>
+            <h4 style='margin: 0; color: #713f12; font-size: 0.95rem; font-weight: 600;'>
                 Sequence Context
             </h4>
         </div>
@@ -398,17 +398,17 @@ def render():
             width: 100% !important;
         }
         
-        /* Color 1: Upload FASTA File - Green */
+        /* Color 1: Upload FASTA File - Yellow */
         label[data-baseweb="radio"]:has(input[value="0"]) {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
-            border: 2px solid #10b981 !important;
+            background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%) !important;
+            border: 2px solid #ca8a04 !important;
         }
         label[data-baseweb="radio"]:has(input[value="0"]):hover {
-            background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%) !important;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+            background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%) !important;
+            box-shadow: 0 2px 8px rgba(202, 138, 4, 0.3) !important;
         }
         label[data-baseweb="radio"]:has(input[value="0"]) p {
-            color: #065f46 !important;
+            color: #713f12 !important;
             font-weight: 600 !important;
         }
         
@@ -455,27 +455,27 @@ def render():
         }
         
         /* ===== VIBRANT STYLING FOR BUTTONS AND FILE UPLOADER ===== */
-        /* File uploader - Vibrant green */
+        /* File uploader - Vibrant yellow */
         section[data-testid="stFileUploader"] {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
-            border: 2px dashed #10b981 !important;
+            background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%) !important;
+            border: 2px dashed #ca8a04 !important;
             border-radius: 12px !important;
             padding: 0.5rem !important;
         }
         section[data-testid="stFileUploader"]:hover {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
-            border-color: #059669 !important;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+            background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%) !important;
+            border-color: #a16207 !important;
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.25) !important;
         }
         section[data-testid="stFileUploader"] button {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%) !important;
             color: white !important;
             border: none !important;
             font-weight: 700 !important;
         }
         section[data-testid="stFileUploader"] button:hover {
-            background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+            background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%) !important;
+            box-shadow: 0 4px 12px rgba(202, 138, 4, 0.4) !important;
         }
         
         /* Load Example buttons - Vibrant amber/gold */
@@ -547,9 +547,9 @@ def render():
                 
                     # Compact QC Summary Strip (replaces individual cards)
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                    <div style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                                 border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);'>
+                                box-shadow: 0 2px 6px rgba(202, 138, 4, 0.2);'>
                         <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;'>
                             {fasta_file.name}
                         </div>
@@ -662,9 +662,9 @@ def render():
                     avg_gc = (all_g + all_c) / total_atgc * 100 if total_atgc > 0 else 0.0
                     total_bp = sum(len(s) for s in seqs)
                     st.markdown(f"""
-                    <div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                    <div style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                                 border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);'>
+                                box-shadow: 0 2px 6px rgba(202, 138, 4, 0.2);'>
                         <div style='font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;'>
                             Pasted Input
                         </div>
@@ -854,9 +854,9 @@ def render():
             sum_n = sum(s.get('N', 0) for s in cached_stats)
             
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+            <div style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                         border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
-                        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);'>
+                        box-shadow: 0 2px 6px rgba(202, 138, 4, 0.25);'>
                 <div style='font-weight: 600; font-size: 0.85rem; margin-bottom: 6px;'>
                     ✓ Ready for Analysis
                 </div>
@@ -883,10 +883,10 @@ def render():
     # ============================================================
     with right_col:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); 
+        <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); 
                     padding: 0.25rem 1rem; border-radius: 6px; margin-bottom: 0.75rem;
-                    border-left: 3px solid #8b5cf6;'>
-            <h4 style='margin: 0; color: #5b21b6; font-size: 0.95rem; font-weight: 600;'>
+                    border-left: 3px solid #ca8a04;'>
+            <h4 style='margin: 0; color: #713f12; font-size: 0.95rem; font-weight: 600;'>
                 Detection Scope: Select Non-B DNA Motifs
             </h4>
         </div>
@@ -1082,10 +1082,10 @@ def render():
 
         if enabled_classes:
             st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
                         padding: 3px 10px; border-radius: 6px; margin-top: 8px;
-                        border: 1px solid #c4b5fd; font-size: 0.78rem;'>
-                <span style='font-weight: 600; color: #6d28d9;'>
+                        border: 1px solid #fde68a; font-size: 0.78rem;'>
+                <span style='font-weight: 600; color: #713f12;'>
                     {len(enabled_classes)} classes · {num_enabled}/{total_submotifs} submotifs
                 </span>
             </div>
@@ -1152,7 +1152,7 @@ def render():
                 # Show analysis complete status
                 st.markdown("""
                 <div role="status" aria-label="Analysis Complete"
-                     style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                     style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                             color: white; padding: 12px; 
                             border-radius: 8px; text-align: center; font-weight: 600;
                             font-size: 0.95rem;'>
@@ -1206,11 +1206,11 @@ def render():
         # Create a vibrant container for progress display below the buttons
         with st.container():
             st.markdown("""
-            <div style='background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+            <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); 
                         padding: 0.35rem 1rem; border-radius: 8px; margin-top: 1rem;
-                        border-left: 4px solid #0ea5e9;
-                        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);'>
-                <div style='color: #0369a1; font-weight: 600; font-size: 0.9rem;'>
+                        border-left: 4px solid #ca8a04;
+                        box-shadow: 0 2px 8px rgba(202, 138, 4, 0.15);'>
+                <div style='color: #713f12; font-weight: 600; font-size: 0.9rem;'>
                     📊 Analysis Progress
                 </div>
             </div>

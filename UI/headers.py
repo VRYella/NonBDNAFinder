@@ -18,7 +18,7 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
     'Home': {'primary': '#EA580C', 'border': '#FDBA74', 'pattern': 'linear-gradient(135deg, #9A3412 0%, #EA580C 40%, #FB923C 75%, #FBBF24 100%)'},
-    'Upload & Analyze': {'primary': '#4F46E5', 'border': '#a5b4fc', 'pattern': 'linear-gradient(135deg, #3730a3 0%, #4F46E5 40%, #6366F1 75%, #818CF8 100%)'},
+    'Upload & Analyze': {'primary': '#CA8A04', 'border': '#FEF08A', 'pattern': 'linear-gradient(135deg, #713F12 0%, #CA8A04 40%, #EAB308 75%, #FACC15 100%)'},
     'Results': {'primary': '#0EA5A4', 'border': '#67e8f9', 'pattern': 'linear-gradient(135deg, #0891B2 0%, #0EA5A4 40%, #06B6D4 75%, #22D3EE 100%)'},
     'Downloads': {'primary': '#16A34A', 'border': '#86efac', 'pattern': 'linear-gradient(135deg, #16A34A 0%, #22C55E 40%, #4ADE80 75%, #86EFAC 100%)'},
     'Documentation': {'primary': '#DC2626', 'border': '#fca5a5', 'pattern': 'linear-gradient(135deg, #B91C1C 0%, #DC2626 40%, #EF4444 75%, #FCA5A5 100%)'},
