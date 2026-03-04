@@ -53,10 +53,10 @@ def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
         rows: List of (metric_name, value_str, definition_str) tuples.
         note: Optional italicised footnote shown below the table.
     """
-    th_style = "background:#f1f5f9;color:#334155;font-size:0.75rem;font-weight:700;padding:5px 10px;text-align:left;border-bottom:2px solid #e2e8f0;"
-    td_style = "font-size:0.78rem;color:#1e293b;padding:5px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top;"
-    val_style = "font-size:0.78rem;font-weight:600;color:#be185d;padding:5px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;"
-    def_style = "font-size:0.75rem;color:#64748b;padding:5px 10px;border-bottom:1px solid #f1f5f9;font-style:italic;vertical-align:top;"
+    th_style = "background:#f1f5f9;color:#334155;font-size:0.75rem;font-weight:700;padding:5px 10px;text-align:left;border-bottom:2px solid #1e293b;"
+    td_style = "font-size:0.78rem;color:#1e293b;padding:5px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top;"
+    val_style = "font-size:0.78rem;font-weight:600;color:#be185d;padding:5px 10px;border-bottom:1px solid #e2e8f0;white-space:nowrap;"
+    def_style = "font-size:0.75rem;color:#64748b;padding:5px 10px;border-bottom:1px solid #e2e8f0;font-style:italic;vertical-align:top;"
     rows_html = "".join(
         f"<tr><td style='{td_style}'>{m}</td><td style='{val_style}'>{v}</td><td style='{def_style}'>{d}</td></tr>"
         for m, v, d in rows
@@ -65,14 +65,14 @@ def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
     st.markdown(
         f"<div style='margin-top:10px;'>"
         f"<div style='font-size:0.85rem;font-weight:800;color:#1e293b;margin-bottom:4px;'>{header}</div>"
-        f"<table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;'>"
+        f"<table style='width:100%;border-collapse:collapse;border:1.5px solid #1e293b;border-radius:6px;overflow:hidden;'>"
         f"<thead><tr><th style='{th_style}'>Metric</th><th style='{th_style}'>Value</th><th style='{th_style}'>Definition</th></tr></thead>"
         f"<tbody>{rows_html}</tbody></table>"
         f"{note_html}</div>",
         unsafe_allow_html=True,
     )
 
-def _render_analysis_summary_box(cov, den, cnt, slen): st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px;padding:5px 10px;background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);border-radius:6px;border:1px solid #f9a8d4;margin-bottom:8px;justify-content:space-around;align-items:center;'><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cov:.2f}%</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Coverage</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{den:.2f}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs/kb</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cnt:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{slen:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>bp</span></div></div>", unsafe_allow_html=True)
+def _render_analysis_summary_box(cov, den, cnt, slen): st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px;padding:5px 10px;background:#ffffff;border-radius:6px;border:1.5px solid #1e293b;margin-bottom:8px;justify-content:space-around;align-items:center;'><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cov:.2f}%</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Coverage</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{den:.2f}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs/kb</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cnt:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{slen:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>bp</span></div></div>", unsafe_allow_html=True)
 
 def _calculate_overlaps(motifs, by='Class'):
     overlaps = {}; sorted_m = sorted(motifs, key=lambda m: m.get('Start', 0))
@@ -92,9 +92,7 @@ def _render_overlap_matrix(overlaps, title):
 
 def render():
     load_css(TAB_THEMES.get('Results', 'genomic_purple')); render_section_heading("Analysis Results & Visualization", page="Results")
-    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown("<div style='background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);padding:0.5rem 1.2rem;border-radius:12px;margin-top:0.8rem;border:1px solid #f9a8d4;text-align:center;'><h3 style='color:#be185d;margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:#6b7280;margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
-    st.markdown(f"<div style='font-size:0.85rem;font-weight:700;color:#1e293b;margin-bottom:4px;padding:6px 10px;background:linear-gradient(135deg,#fdf2f8 0%,#dcfce7 100%);border-radius:8px;border:1px solid #f9a8d4;'>📋 Summary — {len(st.session_state.summary_df)} rows</div>", unsafe_allow_html=True)
-    st.dataframe(st.session_state.summary_df, use_container_width=True)
+    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown("<div style='background:#ffffff;padding:0.5rem 1.2rem;border-radius:12px;margin-top:0.8rem;border:1.5px solid #1e293b;text-align:center;'><h3 style='color:#be185d;margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:#6b7280;margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
     
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
