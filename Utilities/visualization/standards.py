@@ -1,7 +1,7 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║              NATURE-READY VISUALIZATION STANDARDS MODULE                      ║
-║          Publication-First Visualization & Redundancy Elimination             ║
+║                    VISUALIZATION STANDARDS MODULE                           ║
+║             Visualization Configuration & Redundancy Elimination            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 MODULE: visualization_standards.py
@@ -10,20 +10,20 @@ VERSION: 2025.1
 LICENSE: MIT
 
 DESCRIPTION:
-    Centralized configuration for Nature-ready visualization standards.
+    Centralized configuration for Visualization standards.
     Implements automatic redundancy elimination, plot dominance rules,
-    and journal-ready figure panel layouts.
+    and scientific figure panel layouts.
 
 CORE PRINCIPLES:
     1. Eliminate redundant plots automatically
     2. Expose only biologically interpretable metrics
     3. Guarantee non-overlapping, uncluttered figures
-    4. Produce journal-ready panels with minimal user tuning
+    4. Produce scientific panels with minimal user tuning
     5. Preserve all advanced outputs for export/supplementary use
 
 REFERENCE:
     Design follows standards from:
-    - Nature journal figure guidelines
+    - Figure guidelines
     - Broad Institute visualization best practices
     - EMBL-EBI data visualization standards
 """
@@ -330,9 +330,9 @@ materials.
 # =============================================================================
 
 class ValidationThresholds:
-    """Quality checks for Nature-ready figures."""
+    """Quality checks for Figures."""
     
-    MAX_COLORS_PER_FIGURE = 6           # Nature guideline
+    MAX_COLORS_PER_FIGURE = 6           # Color count guideline
     MAX_TEXT_OVERLAP_PCT = 0.0          # Zero tolerance
     MIN_DPI = 72                        # Screen display quality
     REQUIRED_FORMATS = ['png', 'pdf']   # Raster + vector
@@ -412,9 +412,9 @@ def should_show_plot(plot_name: str, sequence_length: int, has_clusters: bool = 
     # Default: show if not hidden
     return PlotDominance.is_plot_allowed(plot_name)
 
-def get_nature_style_params() -> Dict[str, any]:
+def get_scientific_style_params() -> Dict[str, any]:
     """
-    Get Nature journal style parameters for matplotlib.
+    Get scientific style parameters for matplotlib.
     
     Returns:
         Dictionary of matplotlib rcParams
@@ -456,3 +456,6 @@ def get_nature_style_params() -> Dict[str, any]:
         'savefig.bbox': 'tight',
         'savefig.pad_inches': 0.05
     }
+
+# Backward compatibility alias
+get_nature_style_params = get_scientific_style_params

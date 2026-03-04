@@ -281,4 +281,4 @@ def render():
     # VISUALIZATION NOTES
     # ═══════════════════════════════════════════════════════════════════════════════
     st.markdown("---")
-    st.markdown("<div style='background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);padding:0.5rem 0.8rem;border-radius:8px;border-left:4px solid #a855f7;'><p style='color:#6b21a8;margin:0;font-size:0.9rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab follow Nature publication standards with uniform axis labels, clean aesthetics, and colorblind-friendly palettes. The PDF export includes all primary visualizations for publication use.</p></div>", unsafe_allow_html=True)
+    st.markdown("<div style='background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);padding:0.5rem 0.8rem;border-radius:8px;border-left:4px solid #a855f7;'><p style='color:#6b21a8;margin:0;font-size:0.9rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab use uniform axis labels, clean aesthetics, and colorblind-friendly palettes. PDF export includes all primary visualizations.</p></div>", unsafe_allow_html=True)

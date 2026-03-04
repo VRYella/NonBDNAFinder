@@ -26,7 +26,7 @@ USAGE:
 """
 
 # =============================================================================
-# VISUALIZATION STANDARDS - Nature-ready visualization configuration
+# VISUALIZATION STANDARDS - Visualization configuration
 # =============================================================================
 from Utilities.visualization.standards import (
     # Color schemes
@@ -127,7 +127,7 @@ from Utilities.utilities import (
     # Subclass-specific plots
     plot_subclass_density_heatmap,
     
-    # Advanced visualization functions (Nature publication standard)
+    # Advanced visualization functions
     plot_structural_heatmap,
     plot_gc_motif_correlation,
     plot_motif_network,
@@ -219,7 +219,7 @@ __all__ = [
     # Subclass-specific plots
     'plot_subclass_density_heatmap',
     
-    # Advanced visualization functions (Nature publication standard)
+    # Advanced visualization functions
     'plot_structural_heatmap',
     'plot_gc_motif_correlation',
     'plot_motif_network',

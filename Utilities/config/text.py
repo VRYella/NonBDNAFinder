@@ -38,7 +38,7 @@ UI_TEXT = {
         'Standard mode: Regex-based pattern matching (full functionality enabled)',
 
     'home_publication_ready':
-        'Outputs suitable for publication-quality figures and tables',
+        'Outputs include figures and tables for analysis and reporting',
 
     'home_call_to_action_title': 'Start an Analysis',
 

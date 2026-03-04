@@ -1,8 +1,8 @@
 """
 Typography configuration for NBDScanner.
 
-Refined edition: Elegant, research-grade, publication-quality typography.
-Optimized for clarity, hierarchy, and long-form scientific readability.
+Refined edition: Elegant typography for clarity and readability.
+Optimized for hierarchy and long-form scientific readability.
 """
 
 # ==================== TYPOGRAPHY & FONTS ====================

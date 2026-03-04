@@ -141,7 +141,7 @@ def _tab_overview():
         "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>24,674 bp/s</span>"
         "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>200MB+ sequences</span>"
         "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>25+ visualizations</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>Nature-ready output</span>"
+        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>Structured output</span>"
         "</div>",
         unsafe_allow_html=True,
     )

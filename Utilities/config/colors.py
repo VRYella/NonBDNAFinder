@@ -1,7 +1,7 @@
 """
 Color palette definitions for NBDScanner.
 
-Refined edition: Elegant, publication-grade, scientifically disciplined.
+Refined edition: Elegant, scientifically disciplined color scheme.
 All variable names and structure preserved.
 """
 
