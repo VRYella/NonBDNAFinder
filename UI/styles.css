@@ -30,9 +30,9 @@
     
     /* Shadows for depth */
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
-    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
-    --shadow-glow: 0 0 20px rgba(234, 88, 12, 0.18);
+    --shadow-md: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.10);
+    --shadow-glow: 0 2px 8px rgba(234, 88, 12, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -52,7 +52,7 @@ section[data-testid="stSidebar"] {
    MAIN NAVIGATION TABS — Per-Tab Recommended Color System
    ═══════════════════════════════════════════════════════════════ */
 
-/* Main Tab Container — Vibrant Warm Orange Strip */
+/* Main Tab Container — Light Neutral Scientific */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 7px !important;
     width: 100% !important;
@@ -60,10 +60,10 @@ section[data-testid="stSidebar"] {
     justify-content: space-evenly !important;
     overflow: visible !important;
     padding: 10px 8px !important;
-    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 45%, #FEF3C7 100%) !important;
+    background: #FFFFFF !important;
     border-radius: 18px !important;
-    box-shadow: 0 8px 32px rgba(234, 88, 12, 0.20), 0 2px 12px rgba(251, 146, 60, 0.12), inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    border: 2px solid rgba(234, 88, 12, 0.30) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    border: 2px solid #1e293b !important;
 }
 
 /* Main Tab Buttons — Base Styles */
@@ -86,119 +86,119 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
-/* ─── Tab 1: Home — Vibrant Orange-Amber ──────────────────── */
+/* ─── Tab 1: Home — Crimson (swapped with Documentation) ──── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%) !important;
-    color: #FFF7ED !important;
-    border: 3px solid rgba(251, 146, 60, 0.6) !important;
+    background: linear-gradient(135deg, #B91C1C 0%, #DC2626 60%, #EF4444 100%) !important;
+    color: #FFFFFF !important;
+    border: 2px solid #7f1d1d !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
+    background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
     color: #FFFFFF !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.65), 0 0 18px rgba(251, 146, 60, 0.40), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(253, 186, 116, 0.9) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+    border-color: #7f1d1d !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
+    background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 28px rgba(251, 146, 60, 0.80), 0 6px 22px rgba(194, 65, 12, 0.60), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border: 3px solid rgba(253, 186, 116, 0.9) !important;
-    text-shadow: 0 0 14px rgba(253, 230, 138, 0.85), 0 1px 3px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
+    border: 2px solid #7f1d1d !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 2: Upload & Analyze — Royal Indigo ─────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    border: 3px solid rgba(99, 102, 241, 0.6) !important;
+    border: 2px solid #312e81 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
     background: linear-gradient(135deg, #3730a3 0%, #4338CA 100%) !important;
     color: #FFFFFF !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.7), 0 0 22px rgba(129, 140, 248, 0.45), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(165, 180, 252, 0.9) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+    border-color: #312e81 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 26px rgba(99, 102, 241, 0.8), 0 6px 20px rgba(67, 56, 202, 0.65), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border: 3px solid rgba(165, 180, 252, 0.9) !important;
-    text-shadow: 0 0 14px rgba(165, 180, 252, 0.7), 0 1px 2px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
+    border: 2px solid #312e81 !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 3: Results — Vibrant Teal-Cyan ─────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
     background: linear-gradient(135deg, #0EA5A4 0%, #06B6D4 60%, #22D3EE 100%) !important;
     color: #FFFFFF !important;
-    border: 3px solid rgba(34, 211, 238, 0.6) !important;
+    border: 2px solid #0e7490 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
     background: linear-gradient(135deg, #0D9488 0%, #0EA5A4 100%) !important;
     color: #FFFFFF !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.7), 0 0 22px rgba(34, 211, 238, 0.45), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(103, 232, 249, 0.9) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+    border-color: #0e7490 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
     background: linear-gradient(135deg, #0D9488 0%, #06B6D4 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 26px rgba(34, 211, 238, 0.85), 0 6px 20px rgba(13, 148, 136, 0.6), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border: 3px solid rgba(103, 232, 249, 0.9) !important;
-    text-shadow: 0 0 14px rgba(103, 232, 249, 0.75), 0 1px 2px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
+    border: 2px solid #0e7490 !important;
+    text-shadow: none !important;
 }
 
 /* ─── Tab 4: Download — Vibrant Emerald Green ────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
     background: linear-gradient(135deg, #16A34A 0%, #22C55E 60%, #4ADE80 100%) !important;
     color: #FFFFFF !important;
-    border: 3px solid rgba(74, 222, 128, 0.6) !important;
+    border: 2px solid #166534 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
     background: linear-gradient(135deg, #15803D 0%, #22C55E 100%) !important;
     color: #FFFFFF !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.7), 0 0 22px rgba(74, 222, 128, 0.45), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(134, 239, 172, 0.9) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+    border-color: #166534 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
     background: linear-gradient(135deg, #15803D 0%, #22C55E 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 26px rgba(74, 222, 128, 0.85), 0 6px 20px rgba(22, 163, 74, 0.65), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border: 3px solid rgba(134, 239, 172, 0.9) !important;
-    text-shadow: 0 0 14px rgba(134, 239, 172, 0.75), 0 1px 2px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
+    border: 2px solid #166534 !important;
+    text-shadow: none !important;
 }
 
-/* ─── Tab 5: Documentation — Vibrant Crimson ─────────────── */
+/* ─── Tab 5: Documentation — Orange-Amber (swapped with Home) ─── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #B91C1C 0%, #DC2626 60%, #EF4444 100%) !important;
+    background: linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%) !important;
     color: #FFFFFF !important;
-    border: 3px solid rgba(252, 165, 165, 0.55) !important;
+    border: 2px solid #7c2d12 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
+    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
     color: #FFFFFF !important;
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.65), 0 0 22px rgba(252, 165, 165, 0.4), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(252, 165, 165, 0.9) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+    border-color: #7c2d12 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%) !important;
+    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 24px rgba(239, 68, 68, 0.8), 0 6px 20px rgba(185, 28, 28, 0.6), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-    border: 3px solid rgba(252, 165, 165, 0.9) !important;
-    text-shadow: 0 0 14px rgba(252, 165, 165, 0.7), 0 1px 2px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
+    border: 2px solid #7c2d12 !important;
+    text-shadow: none !important;
 }
 
 /* Main tab text — inherit per-tab color */
@@ -231,10 +231,10 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 5px !important;
     padding: 7px !important;
-    background: linear-gradient(135deg, #FDF4FF 0%, #EEF2FF 50%, #F0FDFA 100%) !important;
+    background: #FFFFFF !important;
     border-radius: 14px !important;
-    box-shadow: 0 6px 24px rgba(139, 92, 246, 0.15), inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    border: 2px solid rgba(139, 92, 246, 0.22) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border: 2px solid #1e293b !important;
 }
 
 /* Sub-tab Base Style */
@@ -255,106 +255,106 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #EEF2FF !important;
-    border: 2px solid rgba(99, 102, 241, 0.55) !important;
+    border: 2px solid #312e81 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.6), 0 0 14px rgba(129, 140, 248, 0.35) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
     background: linear-gradient(135deg, #3730a3 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 18px rgba(99, 102, 241, 0.75), 0 4px 14px rgba(55, 48, 163, 0.5) !important;
-    border: 2px solid rgba(165, 180, 252, 0.9) !important;
-    text-shadow: 0 0 10px rgba(165, 180, 252, 0.65) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
+    border: 2px solid #312e81 !important;
+    text-shadow: none !important;
 }
 
 /* Sub-tab 2: Motif Library & Algorithms — Muted Indigo */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #EEF2FF !important;
-    border: 2px solid rgba(99, 102, 241, 0.5) !important;
+    border: 2px solid #312e81 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
     background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.55), 0 0 14px rgba(129, 140, 248, 0.3) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
     background: linear-gradient(135deg, #3730a3 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 18px rgba(99, 102, 241, 0.7), 0 4px 14px rgba(55, 48, 163, 0.5) !important;
-    border: 2px solid rgba(165, 180, 252, 0.85) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
+    border: 2px solid #312e81 !important;
     opacity: 1 !important;
-    text-shadow: 0 0 10px rgba(165, 180, 252, 0.6) !important;
+    text-shadow: none !important;
 }
 
 /* Sub-tab 3: Scoring & Analysis — Vibrant Teal */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
     background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 60%, #06B6D4 100%) !important;
     color: #F0FDFA !important;
-    border: 2px solid rgba(14, 165, 164, 0.5) !important;
+    border: 2px solid #0c4a6e !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
     background: linear-gradient(135deg, #0E7490 0%, #14B8A6 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.6), 0 0 14px rgba(20, 184, 166, 0.35) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
     background: linear-gradient(135deg, #0E7490 0%, #0D9488 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 18px rgba(20, 184, 166, 0.75), 0 4px 14px rgba(14, 116, 144, 0.5) !important;
-    border: 2px solid rgba(94, 234, 212, 0.9) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
+    border: 2px solid #0c4a6e !important;
     opacity: 1 !important;
-    text-shadow: 0 0 10px rgba(94, 234, 212, 0.65) !important;
+    text-shadow: none !important;
 }
 
 /* Sub-tab 4: Statistics Guide — Vibrant Emerald */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
     background: linear-gradient(135deg, #059669 0%, #10B981 60%, #34D399 100%) !important;
     color: #ECFDF5 !important;
-    border: 2px solid rgba(52, 211, 153, 0.5) !important;
+    border: 2px solid #065f46 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
     background: linear-gradient(135deg, #047857 0%, #10B981 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.65), 0 0 14px rgba(52, 211, 153, 0.35) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
     background: linear-gradient(135deg, #047857 0%, #34D399 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.8), 0 4px 14px rgba(5, 150, 105, 0.5) !important;
-    border: 2px solid rgba(110, 231, 183, 0.9) !important;
-    text-shadow: 0 0 10px rgba(110, 231, 183, 0.65) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
+    border: 2px solid #065f46 !important;
+    text-shadow: none !important;
 }
 
 /* Sub-tab 5: References & Citation — Vibrant Crimson */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
     background: linear-gradient(135deg, #B91C1C 0%, #DC2626 60%, #EF4444 100%) !important;
     color: #FEF2F2 !important;
-    border: 2px solid rgba(252, 165, 165, 0.5) !important;
+    border: 2px solid #7f1d1d !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
     background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.6), 0 0 14px rgba(239, 68, 68, 0.35) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
     background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 18px rgba(239, 68, 68, 0.7), 0 4px 14px rgba(185, 28, 28, 0.5) !important;
-    border: 2px solid rgba(252, 165, 165, 0.85) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
+    border: 2px solid #7f1d1d !important;
     opacity: 1 !important;
-    text-shadow: 0 0 10px rgba(252, 165, 165, 0.65) !important;
+    text-shadow: none !important;
 }
 
 /* Sub-tab text — inherit color */
@@ -370,17 +370,17 @@ section[data-testid="stSidebar"] {
 
 /* ─── Deeper Nested Tabs (algorithm sub-tabs etc.) — Vibrant Light ─ */
 .stTabs .stTabs .stTabs [data-baseweb="tab-list"] {
-    background: linear-gradient(135deg, #F0F3FF 0%, #E8F4FF 100%) !important;
+    background: #FFFFFF !important;
     border-radius: 10px !important;
     padding: 5px !important;
     gap: 3px !important;
-    border: 2px solid rgba(99, 102, 241, 0.2) !important;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.1) !important;
+    border: 1.5px solid #1e293b !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
 }
 .stTabs .stTabs .stTabs [data-baseweb="tab"] {
     background: rgba(99, 102, 241, 0.08) !important;
     color: #3730a3 !important;
-    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    border: 1px solid #4338ca !important;
     border-radius: 7px !important;
     font-size: 0.88rem !important;
     font-weight: 600 !important;
@@ -393,8 +393,8 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs .stTabs [data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.45) !important;
-    border: 1px solid rgba(165, 180, 252, 0.6) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    border: 1px solid #312e81 !important;
 }
 
 /* Accessibility: Reduced Motion Support for Vestibular Disorders */
@@ -430,12 +430,11 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
     font-size: 3.0rem !important;
     font-weight: 900 !important;
-    color: #ec4899;
+    color: #1e293b;
     background: linear-gradient(135deg, #6366f1 0%, #ec4899 40%, #f97316 70%, #22c55e 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.35));
 }
 
 /* H2 - Section Headers */
@@ -649,11 +648,11 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 8px;
     padding: 4px 8px;
-    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    background: #ffffff;
     border-radius: 12px;
     margin: 8px 0;
     justify-content: space-between;
-    border: 1px solid #f9a8d4;
+    border: 1.5px solid #1e293b;
 }
 
 /* Individual metric card - compact horizontal */
@@ -861,12 +860,12 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 10px;
     padding: 3px 12px;
-    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    background: #ffffff;
     border-radius: 10px;
     margin-bottom: 10px;
     justify-content: center;
     align-items: center;
-    border: 1px solid #f9a8d4;
+    border: 1.5px solid #1e293b;
 }
 
 .ribbon-item {
@@ -885,9 +884,9 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 5px;
     padding: 4px 12px;
-    background: linear-gradient(135deg, #fdf2f8 0%, #dcfce7 100%);
+    background: #ffffff;
     border-radius: 10px;
-    border: 1px solid #f9a8d4;
+    border: 1.5px solid #1e293b;
     margin-bottom: 10px;
     justify-content: space-around;
 }
