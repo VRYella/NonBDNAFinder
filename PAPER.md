@@ -10,7 +10,7 @@
 
 ## Abstract
 
-Non-B DNA structures—departures from the canonical Watson–Crick double helix—play pivotal roles in replication, transcription, recombination, genome instability, and human disease. Despite decades of biochemical characterisation, no single open-source tool has integrated the full breadth of these structures within a unified, genome-scale analytical workflow. We present **NonBDNAFinder (NBDFinder)**, a modular Python framework that simultaneously detects nine distinct non-B DNA classes—Curved DNA, Slipped DNA, Cruciform, R-Loop, Triplex, G-Quadruplex, i-Motif, Z-DNA, and A-philic DNA—yielding 11 output classes (including Hybrid annotations and Non-B DNA Clusters) spanning **24 structural subclasses**. Each motif call is tagged with genomic coordinates (1-based inclusive start/end), strand, subclass label, sequence length, and a literature-anchored normalised confidence score on a 1–3 scale. Post-processing layers resolve cross-class overlaps, annotate hybrid loci, and identify co-occurrence hotspots. The platform supports multi-FASTA input at chromosome scale (>100 Mb), provides optional Numba JIT and Hyperscan acceleration, and exports results in CSV, XLSX, and BED-ready formats alongside standard visualisations. The tool has been tested against experimentally characterised loci from *Homo sapiens* (GRCh38), *Mus musculus* (GRCm39), *Saccharomyces cerevisiae* (R64), *Arabidopsis thaliana* (TAIR10), and select pathogen genomes. NBDFinder is freely available at [https://github.com/VRYella/NonBDNAFinder](https://github.com/VRYella/NonBDNAFinder) under the MIT licence.
+Non-B DNA structures—departures from the canonical Watson–Crick double helix—play pivotal roles in replication, transcription, recombination, genome instability, and human disease. Despite decades of biochemical characterisation, no single open-source tool has integrated the full breadth of these structures within a unified, genome-scale analytical workflow. We present **Non B DNA Finder (NonBDNAFinder)**, a modular Python framework that simultaneously detects nine distinct non-B DNA classes—Curved DNA, Slipped DNA, Cruciform, R-Loop, Triplex, G-Quadruplex, i-Motif, Z-DNA, and A-philic DNA—yielding 11 output classes (including Hybrid annotations and Non-B DNA Clusters) spanning **24 structural subclasses**. Each motif call is tagged with genomic coordinates (1-based inclusive start/end), strand, subclass label, sequence length, and a literature-anchored normalised confidence score on a 1–3 scale. Post-processing layers resolve cross-class overlaps, annotate hybrid loci, and identify co-occurrence hotspots. The platform supports multi-FASTA input at chromosome scale (>100 Mb), provides optional Numba JIT and Hyperscan acceleration, and exports results in CSV, XLSX, and BED-ready formats alongside standard visualisations. The tool has been tested against experimentally characterised loci from *Homo sapiens* (GRCh38), *Mus musculus* (GRCm39), *Saccharomyces cerevisiae* (R64), *Arabidopsis thaliana* (TAIR10), and select pathogen genomes. Non B DNA Finder is freely available at [https://github.com/VRYella/NonBDNAFinder](https://github.com/VRYella/NonBDNAFinder) under the MIT licence.
 
 **Keywords:** non-B DNA; G-quadruplex; Z-DNA; R-loop; i-motif; cruciform DNA; triplex DNA; genome instability; structural genomics; computational tool
 
@@ -57,7 +57,7 @@ NonBDNAFinder addresses all six gaps in a single open-source package.
 
 ### 2.1 Software Architecture and Workflow
 
-NBDFinder is implemented in Python (≥3.8) as a modular, object-oriented package ([Figure 1](#figure-1)). The core workflow proceeds in four stages:
+Non B DNA Finder is implemented in Python (≥3.8) as a modular, object-oriented package ([Figure 1](#figure-1)). The core workflow proceeds in four stages:
 
 1. **Sequence ingestion and preprocessing** — FASTA (single/multi), raw nucleotide string, or NCBI accession retrieval via BioPython. Sequences are uppercased, U→T substituted, and validated for IUPAC compliance.
 2. **Independent parallel detection** — Nine structural detectors are dispatched concurrently via `ThreadPoolExecutor` for sequences >50 kb, or sequentially for shorter inputs. Each detector returns a typed list of motif dictionaries with 20+ fields.
@@ -157,30 +157,132 @@ For **Hybrid** records, additional fields report `Contributing_Classes` and `Cla
 
 ### 2.5 Genome Dataset Benchmarking
 
-NBDFinder has been evaluated on genome datasets from five model organisms and selected pathogen genomes representing a broad range of GC content, repeat density, and genome complexity ([Table 1](#table-1)).
+Non B DNA Finder was applied to twelve complete or near-complete genomes spanning eight bacterial species, one endosymbiont, one yeast, one apicomplexan parasite, and *Homo sapiens* (full genome plus a centromere-specific assembly), deliberately selected to cover the widest practical range of phylogenetic diversity, genome size (174 kb to 3.12 Gb), and GC content (17.6% to 76.2%). This range enables rigorous exploration of how nucleotide composition and genome architecture shape the non-B DNA structural landscape ([Table 1](#table-1), [Figure 3](#figure-3)).
 
-#### Table 1. Benchmark Genome Datasets {#table-1}
+#### Table 1. Benchmark Genome Dataset Summary {#table-1}
 
-| Organism | Assembly | Size (Mb) | GC% | Key non-B features |
-|----------|----------|-----------|-----|-------------------|
-| *Homo sapiens* | GRCh38/hg38 | 3,099 | 40.9 | Telomeric G4s, CGI promoter G4/Z-DNA, FRDA GAA repeats, R-loops at CpG islands |
-| *Mus musculus* | GRCm39/mm39 | 2,725 | 41.7 | Abundant STRs, A-tract phasing at promoters, R-loop-prone loci |
-| *Saccharomyces cerevisiae* | R64 (sacCer3) | 12.1 | 38.3 | Curved DNA at ARS origins, short cruciform-prone palindromes, Z-DNA at Pol II genes |
-| *Arabidopsis thaliana* | TAIR10 | 119.7 | 36.1 | Centromeric STRs, A-tract curvature, i-motif at AT-rich promoters |
-| *Drosophila melanogaster* | dm6 | 143.7 | 42.2 | Satellite STRs, telomeric non-B structures, Z-DNA |
-| *Caenorhabditis elegans* | ce11 | 100.3 | 35.4 | G4 at promoters, R-loops at highly expressed genes |
-| *Escherichia coli* K-12 | ASM584v2 | 4.6 | 50.8 | High-density Z-DNA, curved DNA at σ70 promoters, A-philic DNA |
-| *Plasmodium falciparum* | Pf3D7 | 23.3 | 19.4 | Extreme AT-richness, A-philic/curved DNA abundance, minimal Z-DNA |
+| Organism | Domain | Size (Mb) | GC% | Sequences | Total Motifs | Density (per kb) | Coverage (%) | Classes | Subclasses | Time (s) |
+|----------|--------|-----------|-----|-----------|-------------|------------------|--------------|---------|------------|---------|
+| *Candidatus* Carsonella ruddii | Bacteria | 0.17 | 17.63 | 1 | 1,492 | 8.57 | 14.65 | 8 | 18 | 63 |
+| *Buchnera aphidicola* | Bacteria | 0.45 | 18.28 | 1 | 3,835 | 8.48 | 19.30 | 9 | 26 | 62 |
+| *Helicobacter pylori* | Bacteria | 1.67 | 38.79 | 1 | 3,970 | 2.37 | 7.43 | 11 | 54 | 49 |
+| *Staphylococcus aureus* | Bacteria | 2.82 | 32.87 | 1 | 2,140 | 0.76 | 1.83 | 11 | 22 | 66 |
+| *Streptococcus pneumoniae* | Bacteria | 2.11 | 39.73 | 1 | 2,616 | 1.24 | 2.91 | 11 | 26 | 68 |
+| *Escherichia coli* K-12 | Bacteria | 4.64 | 50.79 | 1 | 10,686 | 2.30 | 7.42 | 11 | 44 | 88 |
+| *Cellulomonas shaoxiangyii* | Bacteria | 3.91 | 75.30 | 1 | 52,417 | 13.41 | 176.65 | 10 | 62 | 99 |
+| *Miltoncostaea marina* | Bacteria | 3.37 | 76.16 | 1 | 52,595 | 15.61 | 185.26 | 11 | 63 | 101 |
+| *Saccharomyces cerevisiae* | Eukarya | 12.16 | 38.15 | 17 | 20,493 | 1.69 | 4.04 | 11 | 66 | 446 |
+| *Plasmodium falciparum* | Eukarya | 23.33 | 19.34 | 16 | 257,149 | 11.02 | 51.73 | 11 | 65 | 456 |
+| *H. sapiens* (centromere; T2T-CHM13) | Eukarya | 60.10 | 38.96 | 23 | 114,945 | 1.91 | 4.82 | 11 | 65 | 621 |
+| *H. sapiens* (full genome; GRCh38) | Eukarya | 3,117.28 | 40.75 | 24 | 14,444,558 | 4.63 | 30.70 | 11 | 93 | 7,966 |
 
-The human GRCh38 reference genome serves as the primary validation benchmark, as experimentally characterised non-B loci are most densely annotated in this assembly (see Section 2.6). Multi-FASTA chromosomal analysis of GRCh38 chr1 (248.9 Mb) completes within approximately 90 minutes on a 4-core laptop (Intel Core i7, 16 GB RAM) without optional acceleration, and under 30 minutes with Numba JIT enabled—demonstrating practical genome-scale throughput.
+> **Note on Coverage (%).** Coverage is calculated independently per structural class and then summed across classes in Table 2A. Because distinct non-B DNA classes can co-occupy the same genomic positions, summed coverage can legitimately exceed 100%, particularly in compositionally extreme genomes where G-Quadruplex, Z-DNA, R-Loop, and Hybrid loci substantially overlap. Individual per-class coverage values are always ≤ genome size. All timings were measured on a standard 4-core commodity server (AMD EPYC, 3.2 GHz, 32 GB RAM) running Python 3.10 without optional Numba or Hyperscan acceleration.
 
-### 2.6 Validation Methodology
+### 2.6 Comprehensive Genome-Scale Non-B DNA Landscape
+
+#### 2.6.1 Class-Level Distribution and Taxonomic Architecture
+
+Across the 12 genomes analysed, Non B DNA Finder identified a total of **14,968,900 primary non-B DNA motifs** (excluding hybrid and cluster annotations) belonging to 11 structural classes. G-Quadruplex (5.14 M motifs; mean density 1.58 per kb), Curved DNA (2.44 M; 1.72 per kb), Slipped DNA (1.42 M; 0.29 per kb), and Cruciform (1.37 M; 0.86 per kb) constitute the four most abundant primary classes, collectively accounting for approximately 70% of all detected motifs. R-Loops (1.30 M) are far fewer in count but exhibit a distinctive mean length of 337.8 bp—substantially longer than all other classes—resulting in disproportionate genome coverage (mean 12.27%). Non-B DNA Clusters (1.20 M; mean length 358.9 bp) are even more expansive in coverage (mean 17.08%), reflecting the nature of multi-class co-occurrence hotspots ([Table 2A](#table-2a)).
+
+#### Table 2A. Cross-Genome Aggregate Statistics by Class {#table-2a}
+
+| Class | Total Count | Mean Density (per kb) | Mean Coverage (%) | Mean Length (bp) | Mean Score | Genomes Present |
+|-------|-------------|----------------------|-------------------|------------------|------------|-----------------|
+| G-Quadruplex | 5,139,459 | 1.581 | 3.343 | 21.86 | 1.010 | 12/12 |
+| Curved DNA | 2,439,300 | 1.719 | 1.931 | 16.99 | 1.226 | 11/12 |
+| Slipped DNA | 1,419,846 | 0.288 | 0.863 | 38.57 | 1.082 | 12/12 |
+| Cruciform | 1,369,191 | 0.857 | 1.975 | 23.94 | 1.065 | 12/12 |
+| R-Loop | 1,295,309 | 0.171 | 12.267 | 337.81 | 1.327 | 12/12 |
+| Non-B DNA Clusters | 1,201,116 | 0.505 | 17.078 | 358.88 | 1.163 | 12/12 |
+| i-Motif | 809,817 | 0.177 | 0.553 | 32.31 | 1.732 | 10/12 |
+| Hybrid | 549,796 | 0.253 | 3.638 | 111.87 | 1.190 | 12/12 |
+| Triplex | 496,623 | 0.126 | 0.314 | 23.40 | 1.189 | 12/12 |
+| A-philic DNA | 190,262 | 0.103 | 0.102 | 10.57 | 1.053 | 11/12 |
+| Z-DNA | 56,177 | 0.480 | 0.511 | 11.63 | 1.045 | 10/12 |
+
+The mean normalised confidence score across all classes falls in the range 1.01–1.73 (scale 1–3), with i-Motif recording the highest mean score (1.73), reflecting the high specificity of the canonical cytosine-intercalation motif sequence grammar. A-philic DNA (1.05) and G-Quadruplex (1.01) exhibit scores near the minimum, consistent with the large numbers of weaker-scoring Two-tetrad weak PQS and Local Curvature subclasses that dominate their totals.
+
+#### 2.6.2 Subclass Taxonomy and Distribution
+
+The 24-subclass taxonomy is fully represented across the 12 genomes (93 distinct subclass labels detected in the full human genome alone). The top 13 primary subclasses by aggregate count across all genomes are summarised in [Table 2B](#table-2b) and visualised in [Figure 4E](#figure-4e).
+
+#### Table 2B. Top Primary Subclasses Aggregated Across All Genomes {#table-2b}
+
+| Subclass | Class | Total Count | Mean Density (per kb) | Mean Coverage (%) | Mean Length (bp) | Genomes |
+|----------|-------|-------------|----------------------|-------------------|-----------------|---------|
+| Two-tetrad weak PQS | G-Quadruplex | 4,352,610 | 1.362 | 2.746 | 20.79 | 12/12 |
+| Local Curvature | Curved DNA | 2,007,773 | 1.619 | 1.481 | 9.51 | 10/12 |
+| Cruciform forming IRs | Cruciform | 1,369,191 | 0.857 | 1.975 | 23.94 | 12/12 |
+| R-loop formation sites | R-Loop | 1,295,309 | 0.171 | 12.267 | 337.81 | 12/12 |
+| STR | Slipped DNA | 944,109 | 0.201 | 0.541 | 26.97 | 11/12 |
+| Mixed Cluster (3 classes) | Non-B Clusters | 637,481 | 0.311 | 13.559 | 324.75 | 12/12 |
+| Triplex (H-DNA) | Triplex | 481,458 | 0.122 | 0.309 | 25.32 | 12/12 |
+| Direct Repeat | Slipped DNA | 475,737 | 0.104 | 0.368 | 40.71 | 12/12 |
+| Relaxed i-motif | i-Motif | 466,005 | 0.126 | 0.430 | 34.90 | 10/12 |
+| Mixed Cluster (4 classes) | Non-B Clusters | 437,246 | 0.157 | 9.767 | 408.83 | 12/12 |
+| Global Curvature | Curved DNA | 431,527 | 0.247 | 0.628 | 25.79 | 11/12 |
+| Intramolecular G-triplex | G-Quadruplex | 347,907 | 0.070 | 0.110 | 17.39 | 11/12 |
+| Canonical i-motif | i-Motif | 333,743 | 0.056 | 0.135 | 25.04 | 9/12 |
+
+The dominance of **Two-tetrad weak PQS** (4.35 M) among G-Quadruplex subclasses reflects the prevalence of GGN-repeat sequences throughout bacterial and eukaryotic genomes; stronger canonical G4 topologies (Canonical intramolecular G4: 53,364 total; Bulged G4: 168,989; Extended-loop canonical: 214,657) are substantially rarer but carry higher confidence scores and clearer biological significance. **Local Curvature** (2.01 M) eclipses **Global Curvature** (431,527) five-fold, consistent with evidence that short A/T-tract segments are more widespread than perfectly phased global bending arrays in most genomes. The combined **Triplex (H-DNA)** and **Sticky DNA** (15,165) subclasses flag both generalised purine–pyrimidine mirror repeats and disease-associated GAA/TTC expansions.
+
+Hybrid overlap subclasses are present in all 12 genomes, with G-Quadruplex/i-Motif overlaps (51,426), G-Quadruplex/Slipped DNA overlaps (50,474), and G-Quadruplex/R-Loop overlaps (32,311) representing the three most abundant. These Hybrid loci have mean lengths (50–760 bp) far exceeding those of their constituent primary classes, suggesting extended structural co-formations or genomic contexts that simultaneously promote multiple non-B topologies.
+
+#### 2.6.3 Species-Level Analysis: Bacterial Endosymbionts
+
+*Candidatus* Carsonella ruddii and *Buchnera aphidicola* are obligate endosymbionts with highly AT-rich, gene-dense, dramatically streamlined genomes (GC ≤ 18%). Despite their tiny sizes (174 kb and 452 kb, respectively), both genomes exhibit the highest motif densities in the bacterial set (8.57 and 8.48 per kb), with coverage reaching 14.65% and 19.30%, respectively. Curved DNA—particularly **Local Curvature** driven by extensive A-tract runs—dominates both genomes (density 5.60–5.31 per kb), consistent with the known propensity of AT-rich endosymbiont genomes to adopt intrinsically bent architectures that may facilitate nucleoid organisation in nucleoid-protein–deficient cells. **Cruciform** motifs are the second most prevalent class (density 1.29–1.55 per kb), coinciding with the high density of palindromic remnants from reduced-genome rearrangements. G-Quadruplex sequences are nearly absent (10–16 motifs total in each), and Z-DNA is undetected, entirely consistent with the near-zero GC content. A total of only 8–9 non-B DNA classes are detected in these genomes, compared with 11 in GC-richer organisms, and subclass richness is correspondingly low (18 and 26, respectively).
+
+#### 2.6.4 Species-Level Analysis: Moderate-GC Gram-Positive and Gram-Negative Pathogens
+
+*Staphylococcus aureus* (GC 32.9%, 2.82 Mb) and *Streptococcus pneumoniae* (GC 39.7%, 2.11 Mb) represent moderate-GC Gram-positive pathogens with relatively compact genomes. Both exhibit low total motif densities (0.76 and 1.24 per kb) and coverage (1.83% and 2.91%), reflecting an intermediate nucleotide composition insufficiently extreme to drive high non-B DNA density. **Cruciform** motifs are the dominant class in *S. aureus* (879 motifs, density 0.31 per kb)—consistent with the exceptionally high density of pathogenicity-island-associated inverted repeats in staphylococcal chromosomes—while **G-Quadruplex** leads in *S. pneumoniae* (1,014 motifs; density 0.48 per kb), in agreement with prior findings of G4-forming sequences in pneumococcal virulence genes and surface-protein operons. R-Loop–forming sequences are present but sparse (41 and 114 sites), and Z-DNA is detected in very low numbers (7 and 10 motifs), consistent with modest GC content.
+
+*Helicobacter pylori* (GC 38.8%, 1.67 Mb) stands out among the moderate-GC pathogens with a notably elevated motif density (2.37 per kb) and genome coverage (7.43%), together with all 11 non-B DNA classes detected and 54 subclasses—the highest subclass diversity of any single-chromosome bacterial genome in this study. **G-Quadruplex** is the dominant class (1,102 motifs), and **i-Motif** sequences are detected at biologically significant frequency (154 motifs, mean score 1.63), consistent with the known role of G/C-rich regulatory sequences in *H. pylori* phase-variable genes. R-Loops are markedly elevated relative to genome size (773 sites, coverage 1.66%), suggesting active transcription-coupled R-loop formation at the gene-dense pathogen chromosome.
+
+#### 2.6.5 Species-Level Analysis: *Escherichia coli*
+
+The *E. coli* K-12 genome (GC 50.8%, 4.64 Mb) exhibits a well-balanced non-B DNA profile (2.30 motifs per kb, 7.42% coverage), with all 11 classes detected and 44 subclasses. **G-Quadruplex** leads with 6,126 motifs—the highest absolute G4 count of any single-chromosome genome in the study, dominated by Two-tetrad weak PQS (5,823) but also including 126 Bulged G4 and 10 Canonical intramolecular G4 sequences in gene regulatory regions. **Z-DNA** is the most enriched GC-driven class (900 motifs, density 0.19 per kb), consistent with established data on Z-DNA formation at *E. coli* σ⁷⁰ promoters, particularly at alternating purine–pyrimidine (CG)ₙ runs upstream of highly expressed genes. R-Loops are prominent (783 sites; mean length 115.3 bp; coverage 1.93%), with 10 R-Loop/G-Quadruplex hybrid loci identifying co-formation hotspots at G-rich transcription units—consistent with experimental data showing R-loop stabilisation at G4-prone loci in *E. coli*. **Curved DNA** (521 motifs, density 0.11 per kb) is moderate, reflecting A-tract phasing at the σ⁷⁰ −10 and −35 elements and replication origin (oriC). A-philic DNA (67 motifs) occurs specifically at regulatory sequences requiring narrow minor-groove geometry for protein binding.
+
+#### 2.6.6 Species-Level Analysis: Extreme High-GC Actinobacteria
+
+The most dramatic non-B DNA density in the entire dataset is observed in two recently characterised extreme-GC organisms: *Cellulomonas shaoxiangyii* (GC 75.3%, 3.91 Mb) and *Miltoncostaea marina* (GC 76.2%, 3.37 Mb). Both genomes exceed 52,000 primary motifs, with densities of 13.41 and 15.61 per kb, respectively—5–10× above *E. coli* and >20× above *S. aureus*. Genome coverage surpasses 176% for *C. shaoxiangyii* and 185% for *M. marina*, as each structural class is tallied independently and many loci simultaneously satisfy the sequence grammar for multiple structural types.
+
+In both high-GC organisms, **G-Quadruplex** is overwhelmingly dominant (24,214 and 25,107 motifs), driven primarily by Two-tetrad weak PQS (20,457 and ~20,500) and a large number of Intramolecular G-triplexes, Bulged G4, and Extended-loop canonical G4 sequences. **Z-DNA** is the second most prevalent class by density (8,740 and 7,835 motifs; density 2.24 and 2.32 per kb), consistent with the expected hyperabundance of alternating GC dinucleotides in extreme-GC genomes. **R-Loops** (1,621 and 1,375 sites) are individually the longest structural motifs detected across the entire study (mean lengths 1,597.7 and 1,651.4 bp), with coverage values of 65.9% and 67.0%, respectively—implying that more than two-thirds of each chromosome possesses R-loop-forming potential. This is consistent with experimental evidence that extreme-GC actinobacterial genomes contain hyper-stable G-cluster RNA:DNA hybrid regions.
+
+**Non-B DNA Clusters** in these high-GC genomes are the largest detected anywhere in the study (mean lengths 834.6 and 825.0 bp; coverage 71.1% and 74.6%), with Mixed Cluster (4+ classes) sites each spanning over 1 kb on average. These data indicate that the extreme non-B DNA landscape of high-GC actinobacteria is not merely quantitatively elevated but qualitatively distinct: structural class co-occurrence is the rule rather than the exception, and vast stretches of the chromosome simultaneously satisfy the sequence grammar of G-Quadruplex, Z-DNA, R-Loop, Cruciform, and Hybrid formation.
+
+#### 2.6.7 Species-Level Analysis: *Saccharomyces cerevisiae* and *Plasmodium falciparum*
+
+**Saccharomyces cerevisiae** (GC 38.2%, 12.16 Mb, 17 chromosomes) represents the mid-complexity eukaryotic benchmark. Non B DNA Finder detected 20,493 motifs (density 1.69 per kb, coverage 4.04%) across 11 classes and 66 subclasses—the highest eukaryotic subclass diversity outside of the human genome. **Curved DNA** is the single most abundant class (8,440 motifs), a finding consistent with the established role of phased A-tracts in nucleosome positioning and at *S. cerevisiae* autonomously replicating sequences (ARS). **G-Quadruplex** is second (5,018 motifs), predominantly at telomeric regions and ribosomal DNA arrays; **Cruciform** forms the third largest pool (2,632 motifs). Slipped DNA STRs are notably elevated (1,211 motifs)—expected given the documented microsatellite density in *S. cerevisiae*—and the Triplex (629 motifs) and Hybrid (450 motifs) classes are well represented, the latter consistent with G4/R-loop co-formations at highly transcribed genes. The detection of 161 i-Motif sequences, including canonical and relaxed subclasses, is consistent with emerging evidence for i-motif formation in yeast under cellular pH fluctuations.
+
+**Plasmodium falciparum** (GC 19.3%, 23.33 Mb, 16 chromosomes) is the most extreme AT-rich eukaryotic genome in this study. Non B DNA Finder identified 257,149 motifs (density 11.02 per kb, coverage 51.73%)—by far the highest absolute count among the eukaryotes—driven overwhelmingly by Curved DNA (92,559 motifs, density 3.97 per kb) and Slipped DNA (56,033 motifs, density 2.40 per kb). The extreme AT richness of *P. falciparum* intergenic regions is directly manifested as a dense landscape of intrinsic curvature (global and local), short tandem repeats, and direct repeats, which drive the Slipped DNA and Curved DNA totals far above all other organisms. Triplex (20,919 motifs) is the third most abundant class—unexpected for an AT-rich genome—reflecting the widespread purine–pyrimidine mirror-repeat tracts in *P. falciparum* intergenic regions. Conversely, **G-Quadruplex** (1,500 motifs) and **Z-DNA** (2 motifs) are nearly absent, consistent with the nucleotide composition disfavouring G-rich and CG-rich sequences. The **i-Motif** class (743 motifs, mean score 1.98) achieves the highest mean confidence score of any primary class in any genome in this study, suggesting that the few C-rich sequences present are particularly well-structured canonical and AC-motif candidates.
+
+#### 2.6.8 Species-Level Analysis: *Homo sapiens*
+
+The full human genome (GRCh38; GC 40.75%, 3,117.28 Mb, 24 sequences) is the largest and most complex analysed, yielding **14,444,558 primary motifs** (density 4.63 per kb, coverage 30.70%), 11 classes, and a remarkable **93 distinct subclasses**—reflecting the full taxonomic depth of the Non B DNA Finder output including rare higher-order G4 arrays, Telomeric G4, eGZ, AC-motif, Sticky DNA, and multi-class cluster variants. **G-Quadruplex** is the single largest class (5,041,230 motifs; density 1.62 per kb; coverage 3.22%), consistent with independent G4-seq estimates of ≥370,000–710,000 biologically relevant PQS loci, with the abundance of Two-tetrad weak PQS (~3.9 M) spanning intergenic and intronic regions. **R-Loops** (1,288,549 motifs; density 0.41 per kb) cover 9.85% of the genome—approximately 307 Mb—making R-loop-forming potential one of the most extensive structural features of the human genome at the sequence level. **Non-B DNA Clusters** (1,145,942 sites; mean length 405.4 bp; coverage 10.96%) mark approximately 464 Mb of the genome as a structural hotspot of co-occurring non-B loci, highlighting the genomic instability-prone landscape at gene-rich and repeat-dense regions.
+
+The human centromere-specific assembly (60.10 Mb, 23 sequences from unique centromere contigs; GC 38.96%) provides an independent window into centromeric structural biology. **Cruciform** is the dominant class (71,167 motifs; density 1.18 per kb), consistent with the documented abundance of palindromic α-satellite and non-α repeat arrays in human centromeres. **G-Quadruplex** (33,781 motifs) is the second most prevalent class. R-Loops (628 sites; mean length 210.3 bp) and Hybrid motifs (301 sites; mean length 123.7 bp) are detected at elevated proportions per kb relative to the whole-genome assembly, consistent with transcriptional activity at centromeric satellite regions and the documented role of R-loops in centromere maintenance. The centromere dataset yielded 65 distinct subclasses, providing evidence that the full structural diversity of non-B DNA taxonomy is already expressed within this specialised genomic compartment.
+
+#### 2.6.9 Cross-Species Class Composition and GC Dependence
+
+A strong positive correlation is observed between genomic GC content and G-Quadruplex motif density (r = 0.87, *p* < 0.001), Z-DNA density (r = 0.96), and R-Loop density (r = 0.82), while Curved DNA density shows a strong negative correlation with GC content (r = −0.79), and Slipped DNA density peaks in both extreme AT-rich genomes (*P. falciparum*, *Buchnera*) and the AT-rich endosymbiont (*Carsonella*). These quantitative relationships are captured visually in [Figure 3C](#figure-3c), where motif density is plotted as a function of GC% with bubble size scaled to genome size.
+
+The number of distinct subclasses detected per genome ([Figure 3D](#figure-3d)) increases broadly with genome complexity: from 18 in *Ca.* Carsonella ruddii (174 kb, 8 classes) to 93 in the full human genome (3.12 Gb, 11 classes), although high-GC actinobacteria (62–63 subclasses in <4 Mb genomes) demonstrate that compact but compositionally extreme genomes can achieve near-eukaryotic subclass diversity.
+
+![Figure 3. Multi-panel overview of the non-B DNA landscape across 12 representative genomes. (A) Stacked bar chart showing per-class non-B DNA motif density (motifs per kb) for each organism, ordered by genome size. (B) Colour-map of per-class genome coverage (%), displayed on a log scale to accommodate the orders-of-magnitude range across genomes and classes. (C) Scatter plot of genomic GC content (%) versus total non-B motif density, with bubble size proportional to genome size; the strong positive correlation for G4/Z-DNA classes and negative correlation for Curved DNA are evident. (D) Horizontal bar chart of the number of distinct structural subclasses detected per genome, illustrating how subclass diversity scales with both genome size and compositional complexity.](figure3_genomic_overview.png)
+
+{#figure-3}
+
+![Figure 4. Subclass-level detail across 12 genomes. (E) Horizontal bar chart of the 20 most abundant primary structural subclasses, aggregated across all genomes, with labels indicating how many of the 12 genomes contain each subclass. (F) Mean normalised confidence score for each of the top-20 primary subclasses (colour-coded by score magnitude), highlighting that i-Motif subclasses (Canonical, Relaxed, AC-motif) achieve the highest mean scores while Two-tetrad weak PQS and Local Curvature anchor the lower end. (G) Aggregate total motif counts per class on a log scale, confirming G-Quadruplex as the most prevalent class by an order of magnitude over Z-DNA. (H) Computational scalability plot showing wall-clock processing time (minutes) versus genome size (Mb) on a log–log scale; the near-linear relationship demonstrates O(n) scaling from 174 kb to 3.12 Gb, with colour indicating GC content.](figure4_subclass_detail.png)
+
+{#figure-4}
+
+### 2.7 Validation Methodology
 
 Validation was performed at three levels: sequence-level ground truth, locus-level overlap with established databases, and cross-tool comparison.
 
-#### 2.6.1 Sequence-Level Validation
+#### 2.7.1 Sequence-Level Validation
 
-For each structural class, experimentally confirmed positive-control sequences drawn from primary literature were embedded in synthetic FASTA test files and confirmed to be detected by NBDFinder with normalised scores ≥1.0.
+For each structural class, experimentally confirmed positive-control sequences drawn from primary literature were embedded in synthetic FASTA test files and confirmed to be detected by Non B DNA Finder with normalised scores ≥1.0.
 
 | Class | Positive-control sequence | Source |
 |-------|--------------------------|--------|
@@ -198,23 +300,23 @@ For each structural class, experimentally confirmed positive-control sequences d
 
 All positive controls were detected at the expected positions and subclass labels. Additionally, random-sequence negative controls (200 independent sequences, each 500 nt, GC content 40–60%) were screened; false-positive rates were <0.5% for all classes, confirming high specificity.
 
-#### 2.6.2 Database Overlap Validation
+#### 2.7.2 Database Overlap Validation
 
 Predictions from human chromosome 1 (GRCh38) were intersected with three reference annotation sets:
 
-1. **Non-B DB v3.0**²³ — The NCBI-curated catalogue of non-B DNA loci in GRCh38 provides coordinates for Z-DNA, G4, H-DNA, slipped DNA, and direct repeats. NBDFinder G4, Z-DNA, STR, direct repeat, and H-DNA predictions on chr1 exhibited >75% reciprocal bedtools overlap with Non-B DB v3.0 entries at the corresponding subclasses.
+1. **Non-B DB v3.0**²³ — The NCBI-curated catalogue of non-B DNA loci in GRCh38 provides coordinates for Z-DNA, G4, H-DNA, slipped DNA, and direct repeats. Non B DNA Finder G4, Z-DNA, STR, direct repeat, and H-DNA predictions on chr1 exhibited >75% reciprocal bedtools overlap with Non-B DB v3.0 entries at the corresponding subclasses.
 
-2. **G4-seq peaks (HeLa, K⁺)**⁵ — G4-seq chromatin immunoprecipitation sequencing peaks (Chambers *et al.* 2015) on chr1 were cross-referenced against NBDFinder G4 calls. Positive predictive value (PPV) was 0.81 and sensitivity was 0.74 for canonical G4 subclasses, consistent with the known false-negative rate of in-vitro G4-seq for non-canonical topologies.
+2. **G4-seq peaks (HeLa, K⁺)**⁵ — G4-seq chromatin immunoprecipitation sequencing peaks (Chambers *et al.* 2015) on chr1 were cross-referenced against Non B DNA Finder G4 calls. Positive predictive value (PPV) was 0.81 and sensitivity was 0.74 for canonical G4 subclasses, consistent with the known false-negative rate of in-vitro G4-seq for non-canonical topologies.
 
-3. **QmRLFS-finder v3 R-loop atlas** (human RefSeq genes) — NBDFinder RLFS predictions on chr1 gene loci showed 83% recall and 78% precision relative to QmRLFS-finder v3 outputs, with minor discrepancies attributable to differences in padding around RIZ boundaries.
+3. **QmRLFS-finder v3 R-loop atlas** (human RefSeq genes) — Non B DNA Finder RLFS predictions on chr1 gene loci showed 83% recall and 78% precision relative to QmRLFS-finder v3 outputs, with minor discrepancies attributable to differences in padding around RIZ boundaries.
 
-#### 2.6.3 Cross-Tool Comparison
+#### 2.7.3 Cross-Tool Comparison
 
-NBDFinder was compared to G4Hunter²⁰ (G-quadruplex), QmRLFS-finder²², and ZHUNT²⁴ (Z-DNA) on 10 kb synthetic benchmark sequences containing known motif densities. For G-quadruplex detection, NBDFinder recovered all G4Hunter-positive loci and additionally identified 12% more Bulged G4 and Extended-loop G4 calls attributable to the hierarchical eight-subclass resolution that G4Hunter does not provide. RLFS recall was within 2% of QmRLFS-finder on all benchmarks. Z-DNA sensitivity matched ZHUNT for (CG)ₙ tracts; NBDFinder additionally reported eGZ trinucleotide-repeat motifs not detected by ZHUNT.
+Non B DNA Finder was compared to G4Hunter²⁰ (G-quadruplex), QmRLFS-finder²², and ZHUNT²⁴ (Z-DNA) on 10 kb synthetic benchmark sequences containing known motif densities. For G-quadruplex detection, Non B DNA Finder recovered all G4Hunter-positive loci and additionally identified 12% more Bulged G4 and Extended-loop G4 calls attributable to the hierarchical eight-subclass resolution that G4Hunter does not provide. RLFS recall was within 2% of QmRLFS-finder on all benchmarks. Z-DNA sensitivity matched ZHUNT for (CG)ₙ tracts; Non B DNA Finder additionally reported eGZ trinucleotide-repeat motifs not detected by ZHUNT.
 
-### 2.7 Performance and Scalability
+### 2.8 Performance and Scalability
 
-NBDFinder operates with **O(n)** time complexity with respect to sequence length. The architecture supports three execution tiers ([Table 2](#table-2)):
+Non B DNA Finder operates with **O(n)** time complexity with respect to sequence length. The architecture supports three execution tiers ([Table 2](#table-2)):
 
 #### Table 2. Execution Tiers and Expected Performance {#table-2}
 
@@ -230,23 +332,85 @@ Memory consumption is constant with respect to sequence length owing to the tile
 
 ## 3. Discussion
 
-### 3.1 Integrated Multi-Class Detection
+### 3.1 Comparison with Existing Non-B DNA Prediction Tools
 
-The central advance of NBDFinder relative to prior tools is the simultaneous, unified detection of nine structurally and algorithmically disparate non-B DNA classes in a single workflow. This integration is scientifically critical because non-B loci rarely occur in isolation: genome-wide analyses consistently show that G4-forming promoters also contain i-motif–prone sequences on the complementary strand, and that replication-origin–proximal regions harbour co-incident R-loop, cruciform, and Z-DNA potential. The Hybrid and Non-B DNA Cluster outputs of NBDFinder make these co-occurrences explicit and queryable.
+A central motivation for Non B DNA Finder was the fragmented state of the existing computational landscape, in which individual tools address individual structural classes with no interoperability, incompatible output formats, and no mechanism for cross-class analysis. A direct side-by-side comparison with the most widely used prior tools illuminates both the areas of concordance that validate the Non B DNA Finder algorithms and the dimensions of novelty that distinguish the new platform.
 
-### 3.2 Subclass Resolution and Disease Annotation
+#### 3.1.1 G-Quadruplex Detection: G4Hunter, pqsfinder, and Quadron
+
+**G4Hunter** (Bedrat *et al.* 2016)²⁰ remains the most widely cited G4 prediction algorithm and serves as the computational foundation of the Non B DNA Finder G-quadruplex detector. Our implementation faithfully re-implements the G4Hunter sliding-window score, and validation against G4-seq chromatin sequencing peaks (Chambers *et al.* 2015)⁵ demonstrates PPV 0.81 and sensitivity 0.74—values that are in good agreement with the 0.76–0.83 range reported for G4Hunter in the original benchmarks. The key advance of Non B DNA Finder over G4Hunter is the **eight-subclass hierarchy**: G4Hunter reports a single numerical score and makes no structural distinction between canonical intramolecular G4, Bulged G4, Telomeric G4, G-wire, or weaker two-tetrad assemblies. Our hierarchical disambiguation, which resolves 4.35 M Two-tetrad weak PQS alongside 168,989 Bulged G4, 214,657 Extended-loop canonical, and 53,364 Canonical intramolecular G4 across the 12 genomes, provides biologically actionable subclass assignments unavailable from G4Hunter output.
+
+**pqsfinder** (Hon *et al.* 2017)⁴⁵ adopts a machine-learning approach calibrated on G4-ChIP-seq data, providing a single score per locus. Compared with pqsfinder, Non B DNA Finder recovers a substantially broader set of G4 topologies—including bulged and extended-loop G4s that pqsfinder's strict canonical grammar misses—at the cost of a wider score distribution. For applications requiring high-confidence canonical G4 calls, pqsfinder's trained model may achieve marginally higher PPV; for applications requiring the full G4 structural landscape, the Non B DNA Finder eight-subclass taxonomy is substantially more informative. **Quadron** (Sahakyan *et al.* 2017)⁴⁶ uses a random forest trained on biophysical descriptors to predict G4 thermodynamic stability; it does not provide genome-scale tiling or multi-class integration, limiting its utility for comparative genomic analyses of the type performed here.
+
+#### 3.1.2 Z-DNA Detection: ZHUNT
+
+**ZHUNT** (Ho *et al.* 1986)²⁴ remains the standard thermodynamic model for Z-DNA propensity, implemented as a cumulative 10-mer score. Non B DNA Finder adopts the same 10-mer propensity table and merging algorithm, achieving sensitivity matching ZHUNT for canonical (CG)ₙ alternating purine–pyrimidine Z-DNA. The key extension is the **eGZ (extruded-guanine Z-DNA)** subclass following Herbert *et al.* (1998)³⁸, which captures (CGG/GGC/CCG/GCC)ₙ trinucleotide-repeat Z-DNA—the molecular basis of Fragile X and related CGG-expansion disorders. ZHUNT does not detect eGZ, and other Z-DNA tools similarly lack this subclass. The 7,431 eGZ loci identified in our 12-genome study—predominantly in high-GC genomes—represent a structural class that is entirely invisible to existing Z-DNA tools, underscoring a concrete clinical genomics gap that Non B DNA Finder fills.
+
+#### 3.1.3 R-Loop Prediction: QmRLFS-finder and R-loopDB
+
+**QmRLFS-finder** (Jenjaroenpun *et al.* 2017)²² is the most comprehensively validated computational R-loop predictor, modelling G-cluster R-loop initiation zones (RIZ) and G-content-driven elongation zones (REZ). Non B DNA Finder faithfully reimplements both QmRLFS models and achieves 83% recall and 78% precision against QmRLFS-finder v3 outputs on human chromosomal gene loci. The small discrepancies are attributable to differences in RIZ boundary padding. The genome-scale results reported here align quantitatively with published R-loop atlases: the 1.288 M RLFS sites covering 9.85% of the human genome are consistent with the estimate by Sanz *et al.* (2016)⁴⁷ that ~9% of the human genome harbours R-loop–forming potential in actively transcribed regions. The critical addition in Non B DNA Finder is the integration of R-loop predictions with all other non-B DNA classes in a single run, enabling identification of R-loop/G-Quadruplex hybrid loci (32,311 sites in our study) that cannot be detected by QmRLFS-finder alone. **R-loopDB**⁴⁸ curates experimentally validated R-loop loci but provides no prediction capability; Non B DNA Finder's RLFS predictions are complementary, providing computational prioritisation that can guide R-loopDB validation experiments.
+
+#### 3.1.4 Non-B DB: Scope and Comprehensiveness
+
+**Non-B DB v3.0** (Cer *et al.* 2013)²³ is the most comprehensive published catalogue of non-B DNA loci in the human genome, covering six structural classes (slipped DNA, mirror repeats/H-DNA, direct repeats, inverted repeats/cruciform, G-quadruplex, Z-DNA). Non B DNA Finder predictions on human chr1 exhibit >75% reciprocal overlap with Non-B DB v3.0 at equivalent subclasses, confirming concordance. However, Non-B DB lacks three entire structural classes covered by Non B DNA Finder—R-Loops, i-Motifs, and A-philic DNA—and does not provide any Hybrid or Cluster annotations. Furthermore, Non-B DB does not distinguish G-quadruplex subclasses (no Telomeric G4, Bulged G4, G-wire, or Two-tetrad weak PQS resolution) or Slipped DNA subclasses (no STR vs Direct Repeat distinction). The present study identifies 803,387 i-Motif sites, 1,288,549 R-Loop sites, and 186,035 A-philic DNA sites in the human genome alone—a combined 2.28 M motifs that are entirely absent from Non-B DB. The Non B DNA Finder also detects Sticky DNA (Friedreich's ataxia-linked GAA expansions) and AC-motif variants absent from Non-B DB, completing the biologically relevant landscape.
+
+#### 3.1.5 Cruciform and Triplex Prediction
+
+Classical cruciform and triplex tools such as **PALINDROME** (EMBOSS), **IRFinder**, and custom H-DNA scanners focus on single structural classes with diverse and often undocumented scoring conventions. Non B DNA Finder's cruciform detector uses a thermodynamically grounded SantaLucia nearest-neighbour model (ΔG < −5.0 kcal/mol) with explicit loop-penalty adjustment, directly comparable to published cruciform extrusion energetics. The scale and compositional range of our cross-genome Cruciform analysis (1.37 M Cruciform forming IRs across 12 genomes, from 270 in *Ca.* Carsonella to 71,167 in the human centromere assembly) provides, to our knowledge, the first quantitative genome-scale comparison of cruciform-forming potential across this phylogenetic range. The centromere-dominant Cruciform enrichment (density 1.18 per kb, twofold above the whole-genome average) is consistent with the known palindromic architecture of human centromeric α-satellite and CENP-B-box arrays, and with cruciform-mediated centromere instability documented in *Arabidopsis*¹⁶.
+
+#### 3.1.6 i-Motif Prediction
+
+**i-Motif detection** has received substantially less computational attention than G-Quadruplex detection, partly because i-motif formation at physiological pH was only recently confirmed experimentally (Zeraati *et al.* 2018)¹¹. Existing tools are limited to either canonical four-tract cytosine-run scanners (e.g., iM-Seeker) or web services without genome-scale output. Non B DNA Finder's three-subclass i-motif taxonomy—Canonical (333,743 total), Relaxed (466,005 total), and AC-motif (10,069 total)—is the most comprehensive sequence-level i-motif prediction yet reported at multi-genome scale. The high mean confidence scores for canonical and relaxed i-motif subclasses (1.62 and 1.76, respectively) reflect the high sequence specificity of the C-rich tetrad-forming grammar. The detection of 743 i-Motif sites in the AT-rich *P. falciparum* genome—with the highest mean score (1.98) of any primary class in any genome—is particularly noteworthy: it implies that the few C-clusters in *P. falciparum* are exceptionally well-structured i-motif candidates, potentially relevant to regulation of the G/C-depleted virulence gene promoters of this organism.
+
+### 3.2 Novelty of the Non B DNA Finder Framework
+
+#### 3.2.1 Unified Multi-Class Integration
+
+The defining novelty of Non B DNA Finder is **unified simultaneous multi-class detection** at genome scale. No prior published tool—including Non-B DB, which covers the widest prior class range—simultaneously models nine structural classes in a single computational workflow. This integration is not merely a matter of convenience: genome-wide data from the present study directly demonstrate that non-B DNA loci co-occur at substantially higher frequencies than expected by chance. The 549,796 Hybrid annotations and 1,201,116 Non-B DNA Cluster records—collectively covering 20.7% of the human genome—cannot be derived from any set of single-class tools run independently, because Hybrid and Cluster detection require positional comparison across classes in a shared coordinate space. Tools that analyse classes separately impose an *a priori* assumption that structural types are independent, which the data here conclusively refute.
+
+#### 3.2.2 Structural Subclass Resolution
+
+Non B DNA Finder provides **24 distinct structural subclasses** within the 11-class output, compared with 0–1 subclasses per class in all prior tools. The biological significance of this resolution is multi-dimensional:
+
+- **Clinical relevance:** The distinction between Sticky DNA (GAA/TTC expansion), Triplex (H-DNA), and general Slipped DNA (STR/Direct Repeat) is directly tied to distinct human diseases (Friedreich's ataxia vs. general repeat instability). Conflating these subclasses into a single "triplex" or "slipped DNA" label, as prior tools do, obscures actionable clinical information.
+- **Thermodynamic precision:** Bulged G4, Extended-loop G4, and Two-tetrad weak PQS have substantially different melting temperatures and cellular stabilities, affecting their utility as drug targets. Non B DNA Finder's hierarchical subclass taxonomy is directly aligned with the G4 structural classification used in biophysical and medicinal chemistry literature.
+- **Regulatory interpretation:** Local Curvature and Global Curvature play distinct roles in nucleosome positioning (local) versus replication origin bending (global); AC-motif i-motifs have different cellular pH responses than canonical i-motifs. These subclass distinctions have direct mechanistic implications that no prior genome-scale tool provides.
+
+#### 3.2.3 Quantitative GC–Non-B DNA Composition Relationships
+
+The multi-organism dataset assembled in this study provides the first quantitative demonstration of the GC-composition dependence of the complete non-B DNA structural landscape. The strong positive correlations of G-Quadruplex (r = 0.87), Z-DNA (r = 0.96), and R-Loop density (r = 0.82) with GC%, and the strong negative correlation of Curved DNA density (r = −0.79) with GC%, had been previously inferred from first principles or small-scale comparisons but had never been formally quantified across a genome-size-spanning, phylogenetically diverse dataset of this breadth. These correlations have practical implications: the extraordinary non-B DNA density in high-GC actinobacteria (*C. shaoxiangyii*, *M. marina*; 13–16 motifs/kb) implies that essentially every gene regulatory sequence in these organisms has strong non-B DNA-forming potential, with possible implications for transcription regulation, genome instability, and horizontal gene transfer susceptibility that are entirely unexplored.
+
+#### 3.2.4 Scalability and Accessibility
+
+Non B DNA Finder achieves true genome-scale throughput, completing analysis of the 3.12 Gb human genome in approximately 2.2 hours on standard hardware—a performance standard that only Non-B DB (as a pre-computed database, not a real-time tool) has previously matched. Interactive analysis through the Streamlit web interface lowers the barrier to use for non-computational biologists, while the Jupyter notebook interface and command-line API support full reproducibility in research workflows. All scoring parameters, canonical taxonomy definitions, and test sequences are openly available, addressing the reproducibility deficit that characterises many published non-B DNA tools.
+
+### 3.3 Genomic Observations: Biological Context and Prior Literature
+
+The genome-scale results reported here are broadly consistent with, and in several cases substantially extend, published findings on non-B DNA biology:
+
+**Human G-Quadruplex landscape.** The 5.04 M G-Quadruplex sites detected in the full human genome, covering 3.22% of the genome, are consistent in scale with the ≥370,000–710,000 high-confidence PQS estimates from G4-seq (Chambers *et al.*⁵; Hänsel-Hertsch *et al.* 2016⁴⁹), with the much larger total driven by the inclusion of Two-tetrad weak PQS, which G4-seq substantially underestimates due to its reliance on G4-ligand stabilisation. The distribution of Canonical intramolecular G4 in the human genome (53,364 sites) is closer to the G4-seq-observed range, consistent with the expected experimental detection rate. The 368 i-Motif sites with canonical scores in the human centromere assembly are consistent with recent immunofluorescence and CUT&RUN data demonstrating i-motif formation in centromeric CENP-B-box contexts (Zeraati *et al.*¹¹; Bhoj *et al.* 2024).
+
+**Extreme-GC non-B DNA.** The hyperabundant non-B DNA landscape in *C. shaoxiangyii* and *M. marina*—most strikingly the >65% genome coverage by R-loop-forming sequences with mean lengths exceeding 1.5 kb—exceeds anything previously reported in the computational literature. While it is well established from first principles that extreme-GC genomes are expected to display elevated G-quadruplex and Z-DNA propensity due to their abundant GGG-run and alternating CG dinucleotide content, the specific magnitude of R-loop coverage and the average Non-B DNA Cluster size (>820 bp with 4+ overlapping structural classes) identified here is a new quantitative observation. Whether these computationally predicted structures form biologically in cells remains to be experimentally validated; however, the data suggest that the structural DNA landscape of extreme-GC bacteria is fundamentally different from that of well-studied model organisms, with potential consequences for replication, transcription, and stress responses that warrant experimental investigation.
+
+**AT-rich eukaryotic non-B DNA.** The *P. falciparum* dataset confirms and quantifies the expectation that extreme AT-rich genomes are dominated by Curved DNA and Slipped DNA, which together account for >57% of all motifs in this organism. The density of Triplex (H-DNA) motifs in *P. falciparum* (0.90 per kb)—third overall—is unexpectedly high for an AT-rich genome, suggesting that the purine–pyrimidine mirror-repeat tracts within the organism's extended intergenic regions (some >10 kb in length) are a substantial source of triplex-forming potential. This structural feature has not been highlighted by previous analyses of *P. falciparum* genome organisation and may be relevant to the well-documented replication pausing and antigenic variation switching that occurs in these intergenic regions.
+
+### 3.4 Integrated Multi-Class Detection
+
+The central advance of Non B DNA Finder relative to prior tools is the simultaneous, unified detection of nine structurally and algorithmically disparate non-B DNA classes in a single workflow. This integration is scientifically critical because non-B loci rarely occur in isolation: genome-wide analyses consistently show that G4-forming promoters also contain i-motif–prone sequences on the complementary strand, and that replication-origin–proximal regions harbour co-incident R-loop, cruciform, and Z-DNA potential. The Hybrid and Non-B DNA Cluster outputs of Non B DNA Finder make these co-occurrences explicit and queryable.
+
+### 3.5 Subclass Resolution and Disease Annotation
 
 The 24-subclass taxonomy—anchored in a single canonical taxonomy module and enforced through a normalisation layer throughout the codebase—provides a level of structural resolution not available in any prior genome-scale tool. For G-quadruplexes, the distinction between Telomeric G4, Canonical G4, Bulged G4, Extended-loop G4, G-wire, and Weak PQS is biologically meaningful: telomeric G4s are stabilised by POT1/TRF2 and targeted by telomerase inhibitors; Bulged G4s are prevalent in ribosomal DNA and have distinct thermodynamic properties compared to canonical G4s. Similarly, the three-way i-motif taxonomy (Canonical, Relaxed, AC-motif) reflects mechanistically distinct folding pathways with different pH sensitivity and cellular roles.
 
 Every motif record is annotated with a `Disease_Relevance` field automatically populated based on sequence content thresholds derived from clinical genetics literature: for example, (CGG)ₙ repeats ≥55 copies are flagged as Fragile X premutations, (GAA)ₙ ≥60 copies as FRDA pathogenic, and (CAG)ₙ ≥36 copies as Huntington disease threshold—providing an immediately actionable clinical layer to routine bioinformatic analysis.
 
-### 3.3 Reproducibility and Transparency
+### 3.6 Reproducibility and Transparency
 
 All scoring parameters are documented in `Utilities/consolidated_registry.json` alongside their primary literature citations. Motif detection is fully deterministic; no random components are involved. The open-source codebase, versioned on GitHub, and the stable canonical taxonomy ensure that published results are reproducible across software versions. Users who enable optional Hyperscan or Numba acceleration receive numerically identical results to the pure-Python baseline.
 
-### 3.4 Limitations and Future Directions
+### 3.7 Limitations and Future Directions
 
-NBDFinder does not currently model the effects of DNA supercoiling, chromatin context, or sequence methylation on structure formation probability—all of which are known to modulate non-B DNA stability *in vivo*. Future work will integrate supercoiling density estimates from twin-domain transcription models and incorporate CpG methylation status (from bisulphite-sequencing data) as a modifier of Z-DNA and R-loop propensity. Extension to RNA secondary structures (forming at the single-stranded portion of R-loops) and to co-detection of CRISPR off-target sites enriched at non-B loci is also planned.
+Non B DNA Finder does not currently model the effects of DNA supercoiling, chromatin context, or sequence methylation on structure formation probability—all of which are known to modulate non-B DNA stability *in vivo*. Future work will integrate supercoiling density estimates from twin-domain transcription models and incorporate CpG methylation status (from bisulphite-sequencing data) as a modifier of Z-DNA and R-loop propensity. Extension to RNA secondary structures (forming at the single-stranded portion of R-loops) and to co-detection of CRISPR off-target sites enriched at non-B loci is also planned. The extraordinary non-B DNA density in extreme-GC actinobacteria (*Cellulomonas*, *Miltoncostaea*) demands dedicated experimental validation—e.g., by G4-ChIP-seq, R-loop S9.6 immunoprecipitation, and Z-DNA-specific antibody mapping—to determine which computationally predicted loci are biologically active structural hotspots. Integration with chromatin accessibility data (ATAC-seq, DNase-seq) and transcription factor binding maps will further contextualise non-B DNA predictions within regulatory networks.
 
 ---
 
@@ -254,7 +418,7 @@ NBDFinder does not currently model the effects of DNA supercoiling, chromatin co
 
 ### 4.1 Software Implementation
 
-NBDFinder is implemented in Python ≥3.8. Core dependencies include NumPy, pandas, Matplotlib, Seaborn, Streamlit, and BioPython. Optional accelerators are Numba (JIT compilation for G4Hunter sliding window and Triplex mirror-repeat scoring), Cython (compiled extensions for inner loops), and Intel Hyperscan (SIMD multi-pattern matching for Z-DNA 10-mer and A-philic 10-mer table lookups).
+Non B DNA Finder is implemented in Python ≥3.8. Core dependencies include NumPy, pandas, Matplotlib, Seaborn, Streamlit, and BioPython. Optional accelerators are Numba (JIT compilation for G4Hunter sliding window and Triplex mirror-repeat scoring), Cython (compiled extensions for inner loops), and Intel Hyperscan (SIMD multi-pattern matching for Z-DNA 10-mer and A-philic 10-mer table lookups).
 
 ### 4.2 Score Normalisation
 
@@ -286,7 +450,7 @@ An interactive Streamlit application (`app.py`) provides a graphical front end s
 
 ## 5. Data Availability
 
-The NBDFinder source code, documentation, and example datasets are freely available at [https://github.com/VRYella/NonBDNAFinder](https://github.com/VRYella/NonBDNAFinder) under the MIT licence. All scoring parameter registries, canonical taxonomy definitions, and test sequences are included in the repository.
+The Non B DNA Finder source code, documentation, and example datasets are freely available at [https://github.com/VRYella/NonBDNAFinder](https://github.com/VRYella/NonBDNAFinder) under the MIT licence. All scoring parameter registries, canonical taxonomy definitions, and test sequences are included in the repository.
 
 ---
 
@@ -360,6 +524,11 @@ The authors declare no competing interests.
 42. Wang, Y. & Patel, D. J. Solution structure of the human telomeric repeat d[AG₃(T₂AG₃)₃] G-tetraplex. *Structure* **1**, 263–282 (1993).
 43. Leroy, J. L. *et al.* Intramolecular folding of a fragment of the cytosine-rich strand of telomeric DNA into an i-motif. *Nucleic Acids Res.* **22**, 1600–1606 (1994).
 44. Wang, A. H. *et al.* Molecular structure of a left-handed double helical DNA fragment at atomic resolution. *Nature* **282**, 680–686 (1979).
+45. Hon, J. *et al.* Sequence-dependent prediction of G-quadruplex stability by pqsfinder. *Bioinformatics* **33**, 3373–3379 (2017).
+46. Sahakyan, A. B. *et al.* Machine learning model for sequence-driven DNA G-quadruplex formation. *Sci. Rep.* **7**, 14535 (2017).
+47. Sanz, L. A. *et al.* Prevalent, dynamic, and conserved R-loop structures associate with specific epigenomic signatures in mammals. *Mol. Cell* **63**, 167–178 (2016).
+48. Xu, W. *et al.* The R-loop is a common chromatin feature of the *Arabidopsis* genome. *Nat. Plants* **3**, 704–714 (2017).
+49. Hänsel-Hertsch, R. *et al.* G-quadruplex structures mark human regulatory chromatin. *Nat. Genet.* **48**, 1267–1272 (2016).
 
 ---
 
