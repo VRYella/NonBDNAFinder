@@ -16,11 +16,11 @@ maxMessageSize = 200
 gatherUsageStats = false
 
 [theme]
-# Vibrant publication-quality scientific theme
+# Vibrant orange/yellow scientific theme for home page
 base = "light"
-primaryColor = "#4F46E5"
-backgroundColor = "#f0f4ff"
-secondaryBackgroundColor = "#e8edff"
+primaryColor = "#EA580C"
+backgroundColor = "#fff7ed"
+secondaryBackgroundColor = "#ffedd5"
 textColor = "#1e293b"
 font = "sans serif"
 

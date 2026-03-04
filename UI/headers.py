@@ -17,7 +17,7 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#7C3AED', 'border': '#C4B5FD', 'pattern': 'linear-gradient(135deg, #5B21B6 0%, #7C3AED 40%, #8B5CF6 75%, #A78BFA 100%)'},
+    'Home': {'primary': '#EA580C', 'border': '#FDBA74', 'pattern': 'linear-gradient(135deg, #9A3412 0%, #EA580C 40%, #FB923C 75%, #FBBF24 100%)'},
     'Upload & Analyze': {'primary': '#4F46E5', 'border': '#a5b4fc', 'pattern': 'linear-gradient(135deg, #3730a3 0%, #4F46E5 40%, #6366F1 75%, #818CF8 100%)'},
     'Results': {'primary': '#0EA5A4', 'border': '#67e8f9', 'pattern': 'linear-gradient(135deg, #0891B2 0%, #0EA5A4 40%, #06B6D4 75%, #22D3EE 100%)'},
     'Downloads': {'primary': '#16A34A', 'border': '#86efac', 'pattern': 'linear-gradient(135deg, #16A34A 0%, #22C55E 40%, #4ADE80 75%, #86EFAC 100%)'},
@@ -52,11 +52,11 @@ def render_section_heading(title: str, page: str = None):
         background = colors['pattern']
         border_color = colors['border']
     else:
-        # Default to blue gradient
+        # Fallback to HOME_COLORS gradient when page-specific colors are not defined
         primary_color = HOME_COLORS['primary']
         secondary_color = HOME_COLORS['secondary']
-        background = f"linear-gradient(135deg, #5B21B6 0%, {primary_color} 50%, {secondary_color} 100%)"
-        border_color = '#C4B5FD'
+        background = f"linear-gradient(135deg, #9A3412 0%, {primary_color} 50%, {secondary_color} 100%)"
+        border_color = '#FDBA74'
     
     white = GLOBAL_COLORS['white']
     

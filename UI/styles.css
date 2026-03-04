@@ -15,24 +15,24 @@
 :root {
     /* Scientific color palette - colorblind-safe */
     --sci-blue: #0072B2;
-    --sci-orange: #E69F00;
+    --sci-orange: #EA580C;
     --sci-green: #009E73;
-    --sci-purple: #7C3AED;
+    --sci-yellow: #FBBF24;
     --sci-red: #CC79A7;
     --sci-cyan: #56B4E9;
     --sci-dark: #1e293b;
     --sci-gray: #64748b;
     
     /* UI colors */
-    --gradient-primary: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    --gradient-primary: linear-gradient(135deg, #EA580C 0%, #FBBF24 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --gradient-accent: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+    --gradient-accent: linear-gradient(135deg, #FB923C 0%, #FDE68A 100%);
     
     /* Shadows for depth */
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
-    --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.15);
+    --shadow-glow: 0 0 20px rgba(234, 88, 12, 0.18);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -52,7 +52,7 @@ section[data-testid="stSidebar"] {
    MAIN NAVIGATION TABS — Per-Tab Recommended Color System
    ═══════════════════════════════════════════════════════════════ */
 
-/* Main Tab Container — Vibrant Light Strip */
+/* Main Tab Container — Vibrant Warm Orange Strip */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 7px !important;
     width: 100% !important;
@@ -60,10 +60,10 @@ section[data-testid="stSidebar"] {
     justify-content: space-evenly !important;
     overflow: visible !important;
     padding: 10px 8px !important;
-    background: linear-gradient(135deg, #EEF2FF 0%, #E0F2FE 45%, #F0FDF4 100%) !important;
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 45%, #FEF3C7 100%) !important;
     border-radius: 18px !important;
-    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18), 0 2px 12px rgba(14, 165, 164, 0.1), inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    border: 2px solid rgba(99, 102, 241, 0.28) !important;
+    box-shadow: 0 8px 32px rgba(234, 88, 12, 0.20), 0 2px 12px rgba(251, 146, 60, 0.12), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    border: 2px solid rgba(234, 88, 12, 0.30) !important;
 }
 
 /* Main Tab Buttons — Base Styles */
@@ -86,27 +86,27 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
-/* ─── Tab 1: Home — Vibrant Violet-Blue ──────────────────── */
+/* ─── Tab 1: Home — Vibrant Orange-Amber ──────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 50%, #8B5CF6 100%) !important;
-    color: #F5F3FF !important;
-    border: 3px solid rgba(167, 139, 250, 0.6) !important;
+    background: linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%) !important;
+    color: #FFF7ED !important;
+    border: 3px solid rgba(251, 146, 60, 0.6) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%) !important;
+    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6), 0 0 18px rgba(167, 139, 250, 0.35), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border-color: rgba(196, 181, 253, 0.9) !important;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.65), 0 0 18px rgba(251, 146, 60, 0.40), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+    border-color: rgba(253, 186, 116, 0.9) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%) !important;
+    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 24px rgba(139, 92, 246, 0.75), 0 6px 20px rgba(92, 33, 182, 0.55), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-    border: 3px solid rgba(196, 181, 253, 0.9) !important;
-    text-shadow: 0 0 14px rgba(196, 181, 253, 0.8), 0 1px 3px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 0 28px rgba(251, 146, 60, 0.80), 0 6px 22px rgba(194, 65, 12, 0.60), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+    border: 3px solid rgba(253, 186, 116, 0.9) !important;
+    text-shadow: 0 0 14px rgba(253, 230, 138, 0.85), 0 1px 3px rgba(0,0,0,0.25) !important;
 }
 
 /* ─── Tab 2: Upload & Analyze — Royal Indigo ─────────────── */
@@ -1284,9 +1284,9 @@ button[kind="secondary"]:hover {
 
 /* Streamlit top header bar */
 header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 30%, #0EA5A4 65%, #16A34A 100%) !important;
+    background: linear-gradient(90deg, #EA580C 0%, #FB923C 30%, #FBBF24 65%, #FDE68A 100%) !important;
     border-bottom: 3px solid rgba(255, 255, 255, 0.35) !important;
-    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.35) !important;
+    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.35) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
