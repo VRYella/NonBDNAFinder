@@ -44,14 +44,14 @@ HOME_COLORS = {
 }
 
 INPUT_COLORS = {
-    'primary': '#4F46E5',      # Royal Indigo
-    'secondary': '#6366F1',
-    'accent': '#818CF8',
-    'light': '#EEF2FF',
-    'lighter': '#F0F3FF',
-    'border': '#C7D2FE',
-    'text': '#1E1B4B',
-    'shadow': 'rgba(79, 70, 229, 0.12)',
+    'primary': '#CA8A04',      # Golden Yellow
+    'secondary': '#EAB308',    # Bright Yellow
+    'accent': '#FACC15',       # Light Yellow accent
+    'light': '#FEFCE8',        # Yellow-50 light background
+    'lighter': '#FFFEF5',      # Ultra-light yellow near-white
+    'border': '#FEF08A',       # Yellow border
+    'text': '#713F12',         # Dark amber-brown for visibility
+    'shadow': 'rgba(202, 138, 4, 0.18)',
 }
 
 ANALYSIS_COLORS = {
@@ -224,7 +224,7 @@ MOTIF_CLASS_INFO = [
 
 TAB_NAV_COLORS = {
     'Home': {'bg': '#EA580C', 'hover': '#C2410C', 'text': '#FFF7ED', 'glow': 'rgba(251, 146, 60, 0.70)'},
-    'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#FFFFFF', 'glow': 'rgba(99, 102, 241, 0.65)'},
+    'Upload & Analyze': {'bg': '#CA8A04', 'hover': '#A16207', 'text': '#FFFEF5', 'glow': 'rgba(234, 179, 8, 0.65)'},
     'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
     'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
     'Documentation': {'bg': '#B91C1C', 'hover': '#991B1B', 'text': '#FFFFFF', 'glow': 'rgba(220, 38, 38, 0.55)'},
