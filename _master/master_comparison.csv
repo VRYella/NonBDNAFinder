@@ -1,0 +1,13 @@
+﻿File,Stem,File_Type,Sequences,Total_bp,GC_Percent,Total_Motifs,Density_per_kb,Elapsed_s,Classes,Coverage_pct,Subclasses
+Helicobacter pylori_genome.fna,Helicobacter pylori_genome,single,1,1674010,38.79,3970,2.3716,49.0,11,7.432,54
+Candidatus Carsonella ruddii_genome.fna,Candidatus Carsonella ruddii_genome,single,1,174014,17.63,1492,8.574,63.26,8,14.652,18
+Buchnera aphidicola_genome.fna,Buchnera aphidicola_genome,single,1,452078,18.28,3835,8.483,61.66,9,19.296,26
+Staphylococcus aureus_genome.fna,Staphylococcus aureus_genome,single,1,2821361,32.87,2140,0.7585,66.34,11,1.83,22
+Streptococcus pneumoniae_genome.fna,Streptococcus pneumoniae_genome,single,1,2110968,39.73,2616,1.2392,68.43,11,2.911,26
+Escherichia coli_genome.fna,Escherichia coli_genome,single,1,4641652,50.79,10686,2.3022,87.77,11,7.423,44
+Cellulomonas shaoxiangyii_genome.fna,Cellulomonas shaoxiangyii_genome,single,1,3909366,75.3,52417,13.4081,99.29,10,176.652,62
+Miltoncostaea marina_genome.fna,Miltoncostaea marina_genome,single,1,3370274,76.16,52595,15.6056,101.2,11,185.257,63
+Saccharomyces cerevisiae_genome.fna,Saccharomyces cerevisiae_genome,multi,17,12157105,38.15,20493,1.6857,445.74,11,4.041,66
+Plasmodium falciparum_genome.fna,Plasmodium falciparum_genome,multi,16,23332839,19.34,257149,11.0209,455.55,11,51.725,65
+Homo_sapiens_centromere_unique.fasta,Homo_sapiens_centromere_unique,multi,23,60103118,38.96,114945,1.9125,621.43,11,4.817,65
+human_genome.fna,human_genome,multi,24,3117275501,40.75,14444558,4.6337,7966.18,11,30.698,93

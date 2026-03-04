@@ -1,0 +1,605 @@
+﻿Subclass,Count,Mean_Length,Mean_Score,Density_per_kb,Coverage_pct,Source_File
+Two-tetrad weak PQS,912,21.041,1.006,0.5448,1.092,Helicobacter pylori_genome.fna
+R-loop formation sites,773,36.849,1.026,0.4618,1.655,Helicobacter pylori_genome.fna
+Global Curvature,621,25.953,1.244,0.371,0.926,Helicobacter pylori_genome.fna
+Cruciform forming IRs,476,23.176,1.042,0.2843,0.631,Helicobacter pylori_genome.fna
+Local Curvature,420,8.46,1.169,0.2509,0.187,Helicobacter pylori_genome.fna
+Relaxed i-motif,118,35.898,1.626,0.0705,0.246,Helicobacter pylori_genome.fna
+Intramolecular G-triplex,108,17.852,1.012,0.0645,0.109,Helicobacter pylori_genome.fna
+Mixed_Cluster_3_classes,96,234.656,1.117,0.0573,1.324,Helicobacter pylori_genome.fna
+Mixed_Cluster_4_classes,55,210.055,1.156,0.0329,0.671,Helicobacter pylori_genome.fna
+A-philic DNA,55,11.091,1.069,0.0329,0.033,Helicobacter pylori_genome.fna
+Direct Repeat,54,36.574,1.082,0.0323,0.115,Helicobacter pylori_genome.fna
+Extended-loop canonical,54,37.019,1.047,0.0323,0.116,Helicobacter pylori_genome.fna
+Canonical i-motif,30,26.367,1.573,0.0179,0.045,Helicobacter pylori_genome.fna
+Bulged G4,22,31.727,1.037,0.0131,0.04,Helicobacter pylori_genome.fna
+Z-DNA,22,10.5,1.03,0.0131,0.012,Helicobacter pylori_genome.fna
+STR,15,28.6,1.037,0.009,0.025,Helicobacter pylori_genome.fna
+Triplex,14,23.929,1.205,0.0084,0.019,Helicobacter pylori_genome.fna
+G-Quadruplex_i-Motif_Overlap,9,46.333,1.402,0.0054,0.024,Helicobacter pylori_genome.fna
+G-Quadruplex_R-Loop_Overlap,8,33.25,1.014,0.0048,0.015,Helicobacter pylori_genome.fna
+Mixed_Cluster_5_classes,7,193.143,1.156,0.0042,0.08,Helicobacter pylori_genome.fna
+A-philic_DNA_R-Loop_Overlap,7,19.429,1.038,0.0042,0.008,Helicobacter pylori_genome.fna
+AC-motif,6,27.0,1.9,0.0036,0.009,Helicobacter pylori_genome.fna
+Sticky DNA,6,12.0,1.005,0.0036,0.004,Helicobacter pylori_genome.fna
+Canonical intramolecular G4,6,28.333,1.029,0.0036,0.01,Helicobacter pylori_genome.fna
+R-Loop_G-Quadruplex_Overlap,6,376.167,1.178,0.0036,0.134,Helicobacter pylori_genome.fna
+Curved_DNA_Cruciform_Overlap,6,29.333,1.142,0.0036,0.01,Helicobacter pylori_genome.fna
+R-Loop_A-philic_DNA_Overlap,6,23.833,1.04,0.0036,0.008,Helicobacter pylori_genome.fna
+Cruciform_Curved_DNA_Overlap,5,34.2,1.14,0.003,0.01,Helicobacter pylori_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,5,22.2,1.043,0.003,0.006,Helicobacter pylori_genome.fna
+Curved_DNA_R-Loop_Overlap,4,32.25,1.154,0.0024,0.007,Helicobacter pylori_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,4,33.25,1.032,0.0024,0.008,Helicobacter pylori_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,3,28.667,1.064,0.0018,0.005,Helicobacter pylori_genome.fna
+i-Motif_A-philic_DNA_Overlap,3,33.0,1.254,0.0018,0.006,Helicobacter pylori_genome.fna
+Curved_DNA_G-Quadruplex_Overlap,3,41.667,1.103,0.0018,0.007,Helicobacter pylori_genome.fna
+R-Loop_Slipped_DNA_Overlap,3,27.667,1.029,0.0018,0.005,Helicobacter pylori_genome.fna
+G-Quadruplex_Curved_DNA_Overlap,3,35.333,1.136,0.0018,0.006,Helicobacter pylori_genome.fna
+i-Motif_R-Loop_Overlap,3,42.0,1.457,0.0018,0.007,Helicobacter pylori_genome.fna
+A-philic_DNA_i-Motif_Overlap,2,25.0,1.188,0.0012,0.003,Helicobacter pylori_genome.fna
+R-Loop_Curved_DNA_Overlap,2,31.5,1.082,0.0012,0.004,Helicobacter pylori_genome.fna
+R-Loop_i-Motif_Overlap,2,27.5,1.43,0.0012,0.003,Helicobacter pylori_genome.fna
+G-Quadruplex_Cruciform_Overlap,2,40.5,1.029,0.0012,0.005,Helicobacter pylori_genome.fna
+Cruciform_G-Quadruplex_Overlap,2,29.0,1.016,0.0012,0.003,Helicobacter pylori_genome.fna
+i-Motif_G-Quadruplex_Overlap,1,45.0,1.31,0.0006,0.003,Helicobacter pylori_genome.fna
+eGZ,1,12.0,1.0,0.0006,0.001,Helicobacter pylori_genome.fna
+i-Motif_Cruciform_Overlap,1,49.0,1.442,0.0006,0.003,Helicobacter pylori_genome.fna
+Z-DNA_G-Quadruplex_Overlap,1,26.0,1.008,0.0006,0.001,Helicobacter pylori_genome.fna
+R-Loop_Cruciform_Overlap,1,29.0,1.024,0.0006,0.002,Helicobacter pylori_genome.fna
+Triplex_Slipped_DNA_Overlap,1,37.0,1.132,0.0006,0.002,Helicobacter pylori_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,1,52.0,1.032,0.0006,0.003,Helicobacter pylori_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,1,31.0,1.07,0.0006,0.002,Helicobacter pylori_genome.fna
+Mixed_Cluster_6_classes,1,307.0,1.146,0.0006,0.018,Helicobacter pylori_genome.fna
+G-Quadruplex_Z-DNA_Overlap,1,33.0,1.015,0.0006,0.002,Helicobacter pylori_genome.fna
+Curved_DNA_i-Motif_Overlap,1,43.0,1.307,0.0006,0.003,Helicobacter pylori_genome.fna
+i-Motif_Slipped_DNA_Overlap,1,31.0,1.439,0.0006,0.002,Helicobacter pylori_genome.fna
+Local Curvature,976,9.151,1.191,5.6087,4.571,Candidatus Carsonella ruddii_genome.fna
+Cruciform forming IRs,270,23.667,1.035,1.5516,3.517,Candidatus Carsonella ruddii_genome.fna
+Global Curvature,117,27.077,1.232,0.6724,1.753,Candidatus Carsonella ruddii_genome.fna
+Curved_DNA_Cruciform_Overlap,25,25.88,1.122,0.1437,0.357,Candidatus Carsonella ruddii_genome.fna
+Mixed_Cluster_3_classes,23,261.435,1.157,0.1322,3.323,Candidatus Carsonella ruddii_genome.fna
+Cruciform_Curved_DNA_Overlap,22,27.273,1.112,0.1264,0.332,Candidatus Carsonella ruddii_genome.fna
+Triplex,18,24.611,1.182,0.1034,0.244,Candidatus Carsonella ruddii_genome.fna
+Direct Repeat,11,30.545,1.064,0.0632,0.187,Candidatus Carsonella ruddii_genome.fna
+Two-tetrad weak PQS,9,18.889,1.004,0.0517,0.093,Candidatus Carsonella ruddii_genome.fna
+Curved_DNA_Triplex_Overlap,6,26.167,1.187,0.0345,0.087,Candidatus Carsonella ruddii_genome.fna
+Triplex_Curved_DNA_Overlap,4,28.25,1.217,0.023,0.063,Candidatus Carsonella ruddii_genome.fna
+Mixed_Cluster_4_classes,3,242.333,1.133,0.0172,0.416,Candidatus Carsonella ruddii_genome.fna
+Cruciform_Slipped_DNA_Overlap,2,35.0,1.051,0.0115,0.039,Candidatus Carsonella ruddii_genome.fna
+R-loop formation sites,2,14.5,1.008,0.0115,0.016,Candidatus Carsonella ruddii_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,1,25.0,1.164,0.0057,0.014,Candidatus Carsonella ruddii_genome.fna
+Intramolecular G-triplex,1,19.0,1.017,0.0057,0.01,Candidatus Carsonella ruddii_genome.fna
+STR,1,20.0,1.024,0.0057,0.011,Candidatus Carsonella ruddii_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,1,28.0,1.133,0.0057,0.016,Candidatus Carsonella ruddii_genome.fna
+Local Curvature,2406,9.236,1.194,5.3221,4.383,Buchnera aphidicola_genome.fna
+Cruciform forming IRs,583,24.484,1.039,1.2896,3.028,Buchnera aphidicola_genome.fna
+Global Curvature,265,26.875,1.248,0.5862,1.517,Buchnera aphidicola_genome.fna
+Mixed_Cluster_3_classes,135,249.793,1.166,0.2986,7.047,Buchnera aphidicola_genome.fna
+Triplex,126,26.492,1.219,0.2787,0.71,Buchnera aphidicola_genome.fna
+Direct Repeat,79,24.329,1.05,0.1747,0.408,Buchnera aphidicola_genome.fna
+Cruciform_Curved_DNA_Overlap,42,29.119,1.12,0.0929,0.26,Buchnera aphidicola_genome.fna
+Mixed_Cluster_4_classes,40,253.525,1.226,0.0885,2.169,Buchnera aphidicola_genome.fna
+Curved_DNA_Cruciform_Overlap,33,26.545,1.133,0.073,0.186,Buchnera aphidicola_genome.fna
+Triplex_Curved_DNA_Overlap,26,28.269,1.212,0.0575,0.157,Buchnera aphidicola_genome.fna
+STR,25,30.88,1.048,0.0553,0.165,Buchnera aphidicola_genome.fna
+Curved_DNA_Triplex_Overlap,22,29.682,1.265,0.0487,0.14,Buchnera aphidicola_genome.fna
+Two-tetrad weak PQS,15,21.0,1.003,0.0332,0.066,Buchnera aphidicola_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,9,24.778,1.128,0.0199,0.047,Buchnera aphidicola_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,7,25.857,1.111,0.0155,0.038,Buchnera aphidicola_genome.fna
+Slipped_DNA_Triplex_Overlap,5,30.2,1.124,0.0111,0.032,Buchnera aphidicola_genome.fna
+Slipped_DNA_Cruciform_Overlap,3,30.333,1.05,0.0066,0.019,Buchnera aphidicola_genome.fna
+Triplex_Cruciform_Overlap,3,36.667,1.134,0.0066,0.024,Buchnera aphidicola_genome.fna
+Cruciform_Slipped_DNA_Overlap,3,36.0,1.048,0.0066,0.023,Buchnera aphidicola_genome.fna
+Triplex_Slipped_DNA_Overlap,2,34.0,1.124,0.0044,0.015,Buchnera aphidicola_genome.fna
+Bulged G4,1,35.0,1.057,0.0022,0.008,Buchnera aphidicola_genome.fna
+Mixed_Cluster_5_classes,1,320.0,1.191,0.0022,0.071,Buchnera aphidicola_genome.fna
+R-loop formation sites,1,16.0,1.006,0.0022,0.003,Buchnera aphidicola_genome.fna
+Sticky DNA,1,12.0,1.005,0.0022,0.002,Buchnera aphidicola_genome.fna
+Cruciform_Triplex_Overlap,1,34.0,1.122,0.0022,0.007,Buchnera aphidicola_genome.fna
+A-philic DNA,1,10.0,1.035,0.0022,0.002,Buchnera aphidicola_genome.fna
+Cruciform forming IRs,879,24.742,1.064,0.3116,0.74,Staphylococcus aureus_genome.fna
+Global Curvature,600,25.677,1.245,0.2127,0.525,Staphylococcus aureus_genome.fna
+Two-tetrad weak PQS,337,21.136,1.002,0.1194,0.241,Staphylococcus aureus_genome.fna
+Local Curvature,97,8.093,1.157,0.0344,0.024,Staphylococcus aureus_genome.fna
+A-philic DNA,68,10.118,1.048,0.0241,0.022,Staphylococcus aureus_genome.fna
+Direct Repeat,48,40.125,1.088,0.017,0.067,Staphylococcus aureus_genome.fna
+R-loop formation sites,41,15.659,1.006,0.0145,0.021,Staphylococcus aureus_genome.fna
+Mixed_Cluster_3_classes,19,185.105,1.071,0.0067,0.124,Staphylococcus aureus_genome.fna
+Triplex,10,24.9,1.207,0.0035,0.008,Staphylococcus aureus_genome.fna
+Z-DNA,7,11.714,1.06,0.0025,0.003,Staphylococcus aureus_genome.fna
+Cruciform_Curved_DNA_Overlap,6,32.667,1.138,0.0021,0.007,Staphylococcus aureus_genome.fna
+Sticky DNA,5,12.6,1.006,0.0018,0.002,Staphylococcus aureus_genome.fna
+Curved_DNA_Cruciform_Overlap,5,38.2,1.206,0.0018,0.007,Staphylococcus aureus_genome.fna
+Mixed_Cluster_4_classes,4,246.25,1.122,0.0014,0.035,Staphylococcus aureus_genome.fna
+Slipped_DNA_Cruciform_Overlap,3,89.667,1.111,0.0011,0.009,Staphylococcus aureus_genome.fna
+A-philic_DNA_R-Loop_Overlap,2,14.0,1.026,0.0007,0.001,Staphylococcus aureus_genome.fna
+R-Loop_A-philic_DNA_Overlap,2,14.0,1.025,0.0007,0.001,Staphylococcus aureus_genome.fna
+Intramolecular G-triplex,2,19.5,1.01,0.0007,0.001,Staphylococcus aureus_genome.fna
+Bulged G4,2,26.5,1.018,0.0007,0.002,Staphylococcus aureus_genome.fna
+Relaxed i-motif,1,28.0,1.584,0.0004,0.001,Staphylococcus aureus_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,1,48.0,1.039,0.0004,0.002,Staphylococcus aureus_genome.fna
+G-Quadruplex_Cruciform_Overlap,1,35.0,1.009,0.0004,0.001,Staphylococcus aureus_genome.fna
+Two-tetrad weak PQS,995,20.892,1.003,0.4713,0.938,Streptococcus pneumoniae_genome.fna
+Cruciform forming IRs,852,24.203,1.064,0.4036,0.936,Streptococcus pneumoniae_genome.fna
+Global Curvature,410,25.749,1.232,0.1942,0.481,Streptococcus pneumoniae_genome.fna
+Local Curvature,123,8.22,1.161,0.0583,0.042,Streptococcus pneumoniae_genome.fna
+R-loop formation sites,114,16.746,1.006,0.054,0.085,Streptococcus pneumoniae_genome.fna
+Direct Repeat,34,89.412,1.224,0.0161,0.142,Streptococcus pneumoniae_genome.fna
+Mixed_Cluster_3_classes,19,235.526,1.079,0.009,0.203,Streptococcus pneumoniae_genome.fna
+Intramolecular G-triplex,14,17.714,1.011,0.0066,0.011,Streptococcus pneumoniae_genome.fna
+Z-DNA,10,11.3,1.051,0.0047,0.005,Streptococcus pneumoniae_genome.fna
+Cruciform_Curved_DNA_Overlap,8,40.375,1.204,0.0038,0.015,Streptococcus pneumoniae_genome.fna
+A-philic DNA,7,10.0,1.04,0.0033,0.003,Streptococcus pneumoniae_genome.fna
+Curved_DNA_Cruciform_Overlap,5,42.2,1.184,0.0024,0.01,Streptococcus pneumoniae_genome.fna
+Relaxed i-motif,5,36.0,1.687,0.0024,0.008,Streptococcus pneumoniae_genome.fna
+Triplex,4,25.75,1.229,0.0019,0.005,Streptococcus pneumoniae_genome.fna
+Extended-loop canonical,3,39.0,1.052,0.0014,0.005,Streptococcus pneumoniae_genome.fna
+Bulged G4,2,30.5,1.014,0.0009,0.003,Streptococcus pneumoniae_genome.fna
+Canonical i-motif,2,25.5,1.468,0.0009,0.002,Streptococcus pneumoniae_genome.fna
+Cruciform_R-Loop_Overlap,1,26.0,1.03,0.0005,0.001,Streptococcus pneumoniae_genome.fna
+Cruciform_G-Quadruplex_Overlap,1,32.0,1.068,0.0005,0.001,Streptococcus pneumoniae_genome.fna
+Mixed_Cluster_4_classes,1,299.0,1.158,0.0005,0.014,Streptococcus pneumoniae_genome.fna
+R-Loop_G-Quadruplex_Overlap,1,40.0,1.011,0.0005,0.002,Streptococcus pneumoniae_genome.fna
+G-Quadruplex_Curved_DNA_Overlap,1,35.0,1.111,0.0005,0.002,Streptococcus pneumoniae_genome.fna
+STR,1,21.0,1.024,0.0005,0.001,Streptococcus pneumoniae_genome.fna
+Slipped_DNA_Cruciform_Overlap,1,182.0,1.237,0.0005,0.009,Streptococcus pneumoniae_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,1,31.0,1.032,0.0005,0.001,Streptococcus pneumoniae_genome.fna
+Sticky DNA,1,12.0,1.005,0.0005,0.001,Streptococcus pneumoniae_genome.fna
+Two-tetrad weak PQS,5823,20.857,1.004,1.2545,2.491,Escherichia coli_genome.fna
+Cruciform forming IRs,1830,24.332,1.088,0.3943,0.92,Escherichia coli_genome.fna
+Z-DNA,892,11.068,1.043,0.1922,0.193,Escherichia coli_genome.fna
+R-loop formation sites,783,115.323,1.103,0.1687,1.929,Escherichia coli_genome.fna
+Global Curvature,297,25.515,1.247,0.064,0.157,Escherichia coli_genome.fna
+Local Curvature,224,8.08,1.156,0.0483,0.034,Escherichia coli_genome.fna
+Intramolecular G-triplex,144,16.84,1.012,0.031,0.049,Escherichia coli_genome.fna
+Mixed_Cluster_3_classes,133,296.609,1.1,0.0287,0.845,Escherichia coli_genome.fna
+Bulged G4,126,30.643,1.024,0.0271,0.08,Escherichia coli_genome.fna
+Relaxed i-motif,82,33.366,1.634,0.0177,0.057,Escherichia coli_genome.fna
+A-philic DNA,67,10.313,1.043,0.0144,0.013,Escherichia coli_genome.fna
+Canonical i-motif,49,23.735,1.551,0.0106,0.024,Escherichia coli_genome.fna
+Mixed_Cluster_4_classes,47,323.0,1.165,0.0101,0.322,Escherichia coli_genome.fna
+Extended-loop canonical,23,33.87,1.03,0.005,0.016,Escherichia coli_genome.fna
+Cruciform_G-Quadruplex_Overlap,18,29.778,1.053,0.0039,0.011,Escherichia coli_genome.fna
+Direct Repeat,16,66.875,1.154,0.0034,0.023,Escherichia coli_genome.fna
+G-Quadruplex_Cruciform_Overlap,15,31.0,1.051,0.0032,0.01,Escherichia coli_genome.fna
+Canonical intramolecular G4,10,23.8,1.021,0.0022,0.005,Escherichia coli_genome.fna
+R-Loop_G-Quadruplex_Overlap,10,484.5,1.233,0.0022,0.104,Escherichia coli_genome.fna
+G-Quadruplex_R-Loop_Overlap,9,679.667,1.334,0.0019,0.132,Escherichia coli_genome.fna
+R-Loop_Cruciform_Overlap,9,261.556,1.172,0.0019,0.051,Escherichia coli_genome.fna
+eGZ,8,12.75,1.0,0.0017,0.002,Escherichia coli_genome.fna
+Cruciform_Curved_DNA_Overlap,7,33.571,1.179,0.0015,0.005,Escherichia coli_genome.fna
+Mixed_Cluster_5_classes,7,226.857,1.144,0.0015,0.034,Escherichia coli_genome.fna
+Curved_DNA_Cruciform_Overlap,7,31.571,1.162,0.0015,0.005,Escherichia coli_genome.fna
+Cruciform_R-Loop_Overlap,7,206.0,1.155,0.0015,0.031,Escherichia coli_genome.fna
+G-Quadruplex_Z-DNA_Overlap,6,25.0,1.011,0.0013,0.003,Escherichia coli_genome.fna
+Triplex,5,24.4,1.19,0.0011,0.003,Escherichia coli_genome.fna
+A-philic_DNA_R-Loop_Overlap,4,22.0,1.034,0.0009,0.002,Escherichia coli_genome.fna
+Z-DNA_G-Quadruplex_Overlap,4,25.75,1.007,0.0009,0.002,Escherichia coli_genome.fna
+Sticky DNA,3,12.0,1.005,0.0006,0.001,Escherichia coli_genome.fna
+R-Loop_A-philic_DNA_Overlap,3,19.667,1.036,0.0006,0.001,Escherichia coli_genome.fna
+i-Motif_R-Loop_Overlap,3,202.333,1.401,0.0006,0.013,Escherichia coli_genome.fna
+STR,2,36.0,1.046,0.0004,0.002,Escherichia coli_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,2,23.0,1.025,0.0004,0.001,Escherichia coli_genome.fna
+AC-motif,2,27.0,1.9,0.0004,0.001,Escherichia coli_genome.fna
+G-Quadruplex_i-Motif_Overlap,2,43.5,1.342,0.0004,0.002,Escherichia coli_genome.fna
+Curved_DNA_R-Loop_Overlap,1,40.0,1.049,0.0002,0.001,Escherichia coli_genome.fna
+Z-DNA_Cruciform_Overlap,1,35.0,1.175,0.0002,0.001,Escherichia coli_genome.fna
+G-Quadruplex_Curved_DNA_Overlap,1,26.0,1.099,0.0002,0.001,Escherichia coli_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,1,43.0,1.071,0.0002,0.001,Escherichia coli_genome.fna
+i-Motif_A-philic_DNA_Overlap,1,24.0,1.04,0.0002,0.0,Escherichia coli_genome.fna
+i-Motif_Cruciform_Overlap,1,42.0,1.385,0.0002,0.001,Escherichia coli_genome.fna
+i-Motif_G-Quadruplex_Overlap,1,32.0,1.212,0.0002,0.001,Escherichia coli_genome.fna
+Two-tetrad weak PQS,20457,21.429,1.007,5.2328,10.69,Cellulomonas shaoxiangyii_genome.fna
+Z-DNA,8552,11.615,1.052,2.1876,2.322,Cellulomonas shaoxiangyii_genome.fna
+Cruciform forming IRs,4947,23.185,1.116,1.2654,2.807,Cellulomonas shaoxiangyii_genome.fna
+Mixed_Cluster_3_classes,3482,646.501,1.192,0.8907,55.572,Cellulomonas shaoxiangyii_genome.fna
+Relaxed i-motif,1948,35.218,1.844,0.4983,1.705,Cellulomonas shaoxiangyii_genome.fna
+Bulged G4,1830,31.743,1.04,0.4681,1.439,Cellulomonas shaoxiangyii_genome.fna
+Mixed_Cluster_4_classes,1709,1033.426,1.299,0.4372,44.288,Cellulomonas shaoxiangyii_genome.fna
+R-loop formation sites,1621,1597.725,2.585,0.4146,65.913,Cellulomonas shaoxiangyii_genome.fna
+A-philic DNA,1524,10.795,1.05,0.3898,0.382,Cellulomonas shaoxiangyii_genome.fna
+Intramolecular G-triplex,989,16.618,1.014,0.253,0.395,Cellulomonas shaoxiangyii_genome.fna
+Extended-loop canonical,830,36.912,1.068,0.2123,0.762,Cellulomonas shaoxiangyii_genome.fna
+Canonical i-motif,692,25.588,1.716,0.177,0.435,Cellulomonas shaoxiangyii_genome.fna
+Mixed_Cluster_5_classes,566,1256.058,1.321,0.1448,18.072,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_G-Quadruplex_Overlap,393,31.86,1.072,0.1005,0.31,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_Cruciform_Overlap,300,31.863,1.075,0.0767,0.237,Cellulomonas shaoxiangyii_genome.fna
+Direct Repeat,299,31.09,1.07,0.0765,0.23,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_i-Motif_Overlap,224,47.371,1.486,0.0573,0.265,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_R-Loop_Overlap,191,1669.236,1.844,0.0489,8.13,Cellulomonas shaoxiangyii_genome.fna
+eGZ,188,12.223,1.0,0.0481,0.054,Cellulomonas shaoxiangyii_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,144,25.986,1.036,0.0368,0.092,Cellulomonas shaoxiangyii_genome.fna
+Z-DNA_Cruciform_Overlap,122,26.041,1.095,0.0312,0.078,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_Z-DNA_Overlap,117,27.214,1.1,0.0299,0.078,Cellulomonas shaoxiangyii_genome.fna
+Canonical intramolecular G4,107,25.907,1.028,0.0274,0.068,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,106,26.66,1.04,0.0271,0.07,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_G-Quadruplex_Overlap,93,42.72,1.414,0.0238,0.099,Cellulomonas shaoxiangyii_genome.fna
+Mixed_Cluster_6_classes,92,1611.196,1.354,0.0235,3.786,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_Z-DNA_Overlap,89,27.18,1.033,0.0228,0.06,Cellulomonas shaoxiangyii_genome.fna
+Z-DNA_G-Quadruplex_Overlap,81,25.802,1.028,0.0207,0.051,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_G-Quadruplex_Overlap,75,1629.373,1.814,0.0192,3.124,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_i-Motif_Overlap,55,40.491,1.458,0.0141,0.056,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_R-Loop_Overlap,51,1743.588,2.296,0.013,2.273,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_i-Motif_Overlap,51,1783.706,2.342,0.013,2.326,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_A-philic_DNA_Overlap,47,33.66,1.416,0.012,0.039,Cellulomonas shaoxiangyii_genome.fna
+A-philic_DNA_i-Motif_Overlap,43,34.86,1.423,0.011,0.037,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_Cruciform_Overlap,42,40.548,1.497,0.0107,0.042,Cellulomonas shaoxiangyii_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,39,40.872,1.054,0.01,0.04,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,39,38.667,1.054,0.01,0.038,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_Slipped_DNA_Overlap,34,43.559,1.535,0.0087,0.037,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_Cruciform_Overlap,32,1672.5,1.904,0.0082,1.368,Cellulomonas shaoxiangyii_genome.fna
+STR,32,28.406,1.037,0.0082,0.022,Cellulomonas shaoxiangyii_genome.fna
+Slipped_DNA_i-Motif_Overlap,32,43.406,1.497,0.0082,0.035,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_R-Loop_Overlap,27,1499.852,1.812,0.0069,1.035,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_A-philic_DNA_Overlap,23,1630.826,1.839,0.0059,0.959,Cellulomonas shaoxiangyii_genome.fna
+A-philic_DNA_R-Loop_Overlap,16,1520.062,1.784,0.0041,0.622,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_A-philic_DNA_Overlap,16,28.0,1.104,0.0041,0.011,Cellulomonas shaoxiangyii_genome.fna
+A-philic_DNA_Cruciform_Overlap,13,27.154,1.09,0.0033,0.009,Cellulomonas shaoxiangyii_genome.fna
+Slipped_DNA_Cruciform_Overlap,11,39.0,1.097,0.0028,0.011,Cellulomonas shaoxiangyii_genome.fna
+Z-DNA_R-Loop_Overlap,9,1880.222,1.967,0.0023,0.433,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_Z-DNA_Overlap,8,965.5,1.496,0.002,0.197,Cellulomonas shaoxiangyii_genome.fna
+Slipped_DNA_R-Loop_Overlap,5,1796.6,1.915,0.0013,0.23,Cellulomonas shaoxiangyii_genome.fna
+Mixed_Cluster_7_classes,4,2110.5,1.332,0.001,0.216,Cellulomonas shaoxiangyii_genome.fna
+Triplex,4,24.25,1.164,0.001,0.002,Cellulomonas shaoxiangyii_genome.fna
+R-Loop_Slipped_DNA_Overlap,3,1972.0,2.022,0.0008,0.151,Cellulomonas shaoxiangyii_genome.fna
+Slipped_DNA_Z-DNA_Overlap,2,26.5,1.043,0.0005,0.001,Cellulomonas shaoxiangyii_genome.fna
+G-Quadruplex_Triplex_Overlap,2,48.5,1.174,0.0005,0.002,Cellulomonas shaoxiangyii_genome.fna
+Cruciform_Slipped_DNA_Overlap,2,29.0,1.084,0.0005,0.001,Cellulomonas shaoxiangyii_genome.fna
+i-Motif_Triplex_Overlap,2,33.5,1.538,0.0005,0.002,Cellulomonas shaoxiangyii_genome.fna
+Triplex_i-Motif_Overlap,1,27.0,1.482,0.0003,0.001,Cellulomonas shaoxiangyii_genome.fna
+Triplex_Slipped_DNA_Overlap,1,33.0,1.111,0.0003,0.001,Cellulomonas shaoxiangyii_genome.fna
+Triplex_G-Quadruplex_Overlap,1,53.0,1.18,0.0003,0.001,Cellulomonas shaoxiangyii_genome.fna
+Higher-order G4 array/G4-wire,1,37.0,1.1,0.0003,0.001,Cellulomonas shaoxiangyii_genome.fna
+AC-motif,1,27.0,1.9,0.0003,0.001,Cellulomonas shaoxiangyii_genome.fna
+Two-tetrad weak PQS,21152,21.299,1.007,6.276,12.739,Miltoncostaea marina_genome.fna
+Z-DNA,7428,11.683,1.054,2.204,2.354,Miltoncostaea marina_genome.fna
+Cruciform forming IRs,5207,22.981,1.121,1.545,3.396,Miltoncostaea marina_genome.fna
+Mixed_Cluster_3_classes,3310,645.083,1.177,0.9821,61.142,Miltoncostaea marina_genome.fna
+Bulged G4,2283,31.79,1.04,0.6774,2.086,Miltoncostaea marina_genome.fna
+A-philic DNA,1954,10.884,1.052,0.5798,0.573,Miltoncostaea marina_genome.fna
+Mixed_Cluster_4_classes,1679,998.334,1.267,0.4982,48.734,Miltoncostaea marina_genome.fna
+Relaxed i-motif,1610,34.794,1.834,0.4777,1.614,Miltoncostaea marina_genome.fna
+R-loop formation sites,1375,1651.396,2.64,0.408,67.031,Miltoncostaea marina_genome.fna
+Intramolecular G-triplex,942,16.478,1.015,0.2795,0.433,Miltoncostaea marina_genome.fna
+Extended-loop canonical,636,36.594,1.064,0.1887,0.672,Miltoncostaea marina_genome.fna
+Canonical i-motif,610,25.308,1.72,0.181,0.44,Miltoncostaea marina_genome.fna
+Mixed_Cluster_5_classes,604,1205.334,1.296,0.1792,21.417,Miltoncostaea marina_genome.fna
+Cruciform_G-Quadruplex_Overlap,515,31.138,1.077,0.1528,0.461,Miltoncostaea marina_genome.fna
+G-Quadruplex_Cruciform_Overlap,470,31.517,1.075,0.1395,0.426,Miltoncostaea marina_genome.fna
+eGZ,407,12.361,1.0,0.1208,0.137,Miltoncostaea marina_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,202,25.673,1.039,0.0599,0.148,Miltoncostaea marina_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,193,26.254,1.039,0.0573,0.145,Miltoncostaea marina_genome.fna
+G-Quadruplex_i-Motif_Overlap,184,44.614,1.451,0.0546,0.238,Miltoncostaea marina_genome.fna
+G-Quadruplex_R-Loop_Overlap,178,1715.674,1.866,0.0528,9.051,Miltoncostaea marina_genome.fna
+Cruciform_Z-DNA_Overlap,176,26.324,1.1,0.0522,0.132,Miltoncostaea marina_genome.fna
+Z-DNA_Cruciform_Overlap,169,26.74,1.101,0.0501,0.129,Miltoncostaea marina_genome.fna
+G-Quadruplex_Z-DNA_Overlap,143,26.986,1.033,0.0424,0.11,Miltoncostaea marina_genome.fna
+Z-DNA_G-Quadruplex_Overlap,136,26.632,1.032,0.0404,0.103,Miltoncostaea marina_genome.fna
+Direct Repeat,114,35.535,1.081,0.0338,0.117,Miltoncostaea marina_genome.fna
+Mixed_Cluster_6_classes,94,1606.479,1.343,0.0279,4.476,Miltoncostaea marina_genome.fna
+Canonical intramolecular G4,92,24.783,1.025,0.0273,0.065,Miltoncostaea marina_genome.fna
+i-Motif_G-Quadruplex_Overlap,86,40.779,1.414,0.0255,0.101,Miltoncostaea marina_genome.fna
+R-Loop_G-Quadruplex_Overlap,73,1702.603,1.85,0.0217,3.686,Miltoncostaea marina_genome.fna
+i-Motif_A-philic_DNA_Overlap,66,33.864,1.43,0.0196,0.064,Miltoncostaea marina_genome.fna
+Cruciform_i-Motif_Overlap,63,40.413,1.506,0.0187,0.074,Miltoncostaea marina_genome.fna
+A-philic_DNA_i-Motif_Overlap,63,35.365,1.432,0.0187,0.064,Miltoncostaea marina_genome.fna
+i-Motif_Cruciform_Overlap,48,39.083,1.461,0.0142,0.054,Miltoncostaea marina_genome.fna
+i-Motif_R-Loop_Overlap,37,1695.243,2.268,0.011,1.86,Miltoncostaea marina_genome.fna
+Cruciform_R-Loop_Overlap,35,1553.743,1.843,0.0104,1.613,Miltoncostaea marina_genome.fna
+R-Loop_i-Motif_Overlap,28,1717.643,2.254,0.0083,1.426,Miltoncostaea marina_genome.fna
+R-Loop_A-philic_DNA_Overlap,28,1576.393,1.811,0.0083,1.309,Miltoncostaea marina_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,21,42.524,1.053,0.0062,0.026,Miltoncostaea marina_genome.fna
+STR,20,24.55,1.032,0.0059,0.014,Miltoncostaea marina_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,20,53.45,1.065,0.0059,0.031,Miltoncostaea marina_genome.fna
+Cruciform_A-philic_DNA_Overlap,19,28.053,1.118,0.0056,0.015,Miltoncostaea marina_genome.fna
+A-philic_DNA_Cruciform_Overlap,19,28.526,1.116,0.0056,0.016,Miltoncostaea marina_genome.fna
+A-philic_DNA_R-Loop_Overlap,18,1597.222,1.821,0.0053,0.853,Miltoncostaea marina_genome.fna
+R-Loop_Cruciform_Overlap,18,1721.333,1.939,0.0053,0.919,Miltoncostaea marina_genome.fna
+Slipped_DNA_i-Motif_Overlap,17,43.294,1.507,0.005,0.021,Miltoncostaea marina_genome.fna
+Slipped_DNA_Cruciform_Overlap,8,26.875,1.093,0.0024,0.006,Miltoncostaea marina_genome.fna
+i-Motif_Slipped_DNA_Overlap,8,42.75,1.521,0.0024,0.01,Miltoncostaea marina_genome.fna
+Z-DNA_R-Loop_Overlap,6,1438.5,1.749,0.0018,0.256,Miltoncostaea marina_genome.fna
+R-Loop_Z-DNA_Overlap,6,1648.667,1.854,0.0018,0.293,Miltoncostaea marina_genome.fna
+Global Curvature,3,24.0,1.198,0.0009,0.002,Miltoncostaea marina_genome.fna
+Z-DNA_Slipped_DNA_Overlap,3,26.333,1.026,0.0009,0.002,Miltoncostaea marina_genome.fna
+Triplex,2,24.5,1.182,0.0006,0.001,Miltoncostaea marina_genome.fna
+AC-motif,2,28.5,1.95,0.0006,0.002,Miltoncostaea marina_genome.fna
+Slipped_DNA_A-philic_DNA_Overlap,2,32.0,1.076,0.0006,0.002,Miltoncostaea marina_genome.fna
+A-philic_DNA_Slipped_DNA_Overlap,2,78.0,1.103,0.0006,0.005,Miltoncostaea marina_genome.fna
+R-Loop_Slipped_DNA_Overlap,2,978.0,1.504,0.0006,0.058,Miltoncostaea marina_genome.fna
+Cruciform_Slipped_DNA_Overlap,2,31.5,1.14,0.0006,0.002,Miltoncostaea marina_genome.fna
+Higher-order G4 array/G4-wire,2,38.5,1.098,0.0006,0.002,Miltoncostaea marina_genome.fna
+Slipped_DNA_Z-DNA_Overlap,1,21.0,1.079,0.0003,0.001,Miltoncostaea marina_genome.fna
+Sticky DNA,1,12.0,1.005,0.0003,0.0,Miltoncostaea marina_genome.fna
+Triplex_Slipped_DNA_Overlap,1,28.0,1.11,0.0003,0.001,Miltoncostaea marina_genome.fna
+R-Loop_Triplex_Overlap,1,1970.0,2.083,0.0003,0.058,Miltoncostaea marina_genome.fna
+Mixed_Cluster_7_classes,1,2225.0,1.381,0.0003,0.066,Miltoncostaea marina_genome.fna
+Local Curvature,6350,9.896,1.217,0.5223,0.465,Saccharomyces cerevisiae_genome.fna
+Two-tetrad weak PQS,4745,20.946,1.004,0.3903,0.779,Saccharomyces cerevisiae_genome.fna
+Cruciform forming IRs,2632,23.435,1.046,0.2165,0.486,Saccharomyces cerevisiae_genome.fna
+Global Curvature,2090,25.581,1.242,0.1719,0.423,Saccharomyces cerevisiae_genome.fna
+R-loop formation sites,904,34.832,1.025,0.0744,0.252,Saccharomyces cerevisiae_genome.fna
+STR,624,25.934,1.038,0.0513,0.128,Saccharomyces cerevisiae_genome.fna
+Direct Repeat,587,34.29,1.076,0.0483,0.161,Saccharomyces cerevisiae_genome.fna
+Triplex,440,24.823,1.252,0.0362,0.086,Saccharomyces cerevisiae_genome.fna
+Mixed_Cluster_3_classes,410,210.249,1.158,0.0337,0.692,Saccharomyces cerevisiae_genome.fna
+A-philic DNA,239,10.728,1.06,0.0197,0.019,Saccharomyces cerevisiae_genome.fna
+Mixed_Cluster_4_classes,229,237.061,1.145,0.0188,0.428,Saccharomyces cerevisiae_genome.fna
+Sticky DNA,189,14.762,1.008,0.0155,0.021,Saccharomyces cerevisiae_genome.fna
+Relaxed i-motif,137,35.058,1.733,0.0113,0.038,Saccharomyces cerevisiae_genome.fna
+Intramolecular G-triplex,137,17.285,1.011,0.0113,0.018,Saccharomyces cerevisiae_genome.fna
+Z-DNA,105,10.886,1.04,0.0086,0.009,Saccharomyces cerevisiae_genome.fna
+Bulged G4,80,31.375,1.039,0.0066,0.02,Saccharomyces cerevisiae_genome.fna
+Mixed_Cluster_5_classes,53,265.094,1.11,0.0044,0.109,Saccharomyces cerevisiae_genome.fna
+Extended-loop canonical,52,35.942,1.052,0.0043,0.015,Saccharomyces cerevisiae_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,40,22.3,1.035,0.0033,0.007,Saccharomyces cerevisiae_genome.fna
+Triplex_Curved_DNA_Overlap,39,28.436,1.261,0.0032,0.009,Saccharomyces cerevisiae_genome.fna
+Curved_DNA_Triplex_Overlap,31,28.677,1.259,0.0025,0.007,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,27,37.333,1.046,0.0022,0.008,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_Triplex_Overlap,25,31.24,1.126,0.0021,0.006,Saccharomyces cerevisiae_genome.fna
+Cruciform_Curved_DNA_Overlap,24,26.0,1.13,0.002,0.005,Saccharomyces cerevisiae_genome.fna
+Canonical i-motif,23,24.0,1.554,0.0019,0.004,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_Cruciform_Overlap,22,31.409,1.043,0.0018,0.006,Saccharomyces cerevisiae_genome.fna
+Curved_DNA_Cruciform_Overlap,20,30.8,1.162,0.0016,0.005,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_i-Motif_Overlap,17,47.529,1.428,0.0014,0.006,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,16,31.25,1.173,0.0013,0.004,Saccharomyces cerevisiae_genome.fna
+R-Loop_G-Quadruplex_Overlap,16,111.312,1.066,0.0013,0.015,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,16,39.062,1.049,0.0013,0.005,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_i-Motif_Overlap,16,44.125,1.485,0.0013,0.006,Saccharomyces cerevisiae_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,15,26.133,1.147,0.0012,0.003,Saccharomyces cerevisiae_genome.fna
+i-Motif_Slipped_DNA_Overlap,14,44.286,1.464,0.0012,0.005,Saccharomyces cerevisiae_genome.fna
+Cruciform_Slipped_DNA_Overlap,11,34.364,1.049,0.0009,0.003,Saccharomyces cerevisiae_genome.fna
+Mixed_Cluster_6_classes,10,215.6,1.141,0.0008,0.017,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_R-Loop_Overlap,10,55.0,1.022,0.0008,0.004,Saccharomyces cerevisiae_genome.fna
+Cruciform_G-Quadruplex_Overlap,9,26.333,1.038,0.0007,0.002,Saccharomyces cerevisiae_genome.fna
+R-Loop_A-philic_DNA_Overlap,8,104.125,1.089,0.0007,0.007,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_Cruciform_Overlap,8,30.75,1.034,0.0007,0.002,Saccharomyces cerevisiae_genome.fna
+i-Motif_G-Quadruplex_Overlap,8,48.5,1.465,0.0007,0.003,Saccharomyces cerevisiae_genome.fna
+Cruciform_R-Loop_Overlap,7,24.857,1.05,0.0006,0.001,Saccharomyces cerevisiae_genome.fna
+Triplex_Slipped_DNA_Overlap,7,36.429,1.128,0.0006,0.002,Saccharomyces cerevisiae_genome.fna
+R-Loop_i-Motif_Overlap,6,208.333,1.545,0.0005,0.01,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,6,19.667,1.037,0.0005,0.001,Saccharomyces cerevisiae_genome.fna
+R-Loop_Cruciform_Overlap,5,23.8,1.062,0.0004,0.001,Saccharomyces cerevisiae_genome.fna
+Canonical intramolecular G4,4,20.0,1.019,0.0003,0.001,Saccharomyces cerevisiae_genome.fna
+Slipped_DNA_R-Loop_Overlap,4,272.25,1.157,0.0003,0.009,Saccharomyces cerevisiae_genome.fna
+A-philic_DNA_R-Loop_Overlap,4,19.25,1.036,0.0003,0.001,Saccharomyces cerevisiae_genome.fna
+R-Loop_Slipped_DNA_Overlap,3,181.333,1.121,0.0002,0.004,Saccharomyces cerevisiae_genome.fna
+A-philic_DNA_i-Motif_Overlap,2,27.0,1.15,0.0002,0.0,Saccharomyces cerevisiae_genome.fna
+i-Motif_R-Loop_Overlap,2,239.5,1.626,0.0002,0.004,Saccharomyces cerevisiae_genome.fna
+i-Motif_A-philic_DNA_Overlap,2,36.5,1.339,0.0002,0.001,Saccharomyces cerevisiae_genome.fna
+Curved_DNA_G-Quadruplex_Overlap,1,29.0,1.208,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+eGZ,1,12.0,1.0,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Z-DNA_Slipped_DNA_Overlap,1,21.0,1.014,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Triplex_G-Quadruplex_Overlap,1,26.0,1.114,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_Curved_DNA_Overlap,1,26.0,1.099,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Cruciform_A-philic_DNA_Overlap,1,26.0,1.082,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+G-Quadruplex_Triplex_Overlap,1,28.0,1.156,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Triplex_Cruciform_Overlap,1,31.0,1.024,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+AC-motif,1,30.0,2.0,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Cruciform_i-Motif_Overlap,1,40.0,1.485,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Mixed_Cluster_7_classes,1,280.0,1.085,0.0001,0.002,Saccharomyces cerevisiae_genome.fna
+R-Loop_Triplex_Overlap,1,38.0,1.125,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+i-Motif_Triplex_Overlap,1,38.0,1.343,0.0001,0.0,Saccharomyces cerevisiae_genome.fna
+Local Curvature,86188,12.937,1.324,3.6938,4.409,Plasmodium falciparum_genome.fna
+STR,41513,27.898,1.043,1.7792,4.786,Plasmodium falciparum_genome.fna
+Cruciform forming IRs,33589,29.559,1.076,1.4396,4.111,Plasmodium falciparum_genome.fna
+Mixed_Cluster_3_classes,24952,241.344,1.217,1.0694,23.924,Plasmodium falciparum_genome.fna
+Triplex,20428,26.661,1.277,0.8755,2.247,Plasmodium falciparum_genome.fna
+Mixed_Cluster_4_classes,14904,252.936,1.243,0.6388,14.93,Plasmodium falciparum_genome.fna
+Direct Repeat,14520,40.402,1.092,0.6223,2.452,Plasmodium falciparum_genome.fna
+Global Curvature,6371,26.557,1.245,0.273,0.698,Plasmodium falciparum_genome.fna
+Slipped_DNA_Cruciform_Overlap,2591,35.821,1.072,0.111,0.387,Plasmodium falciparum_genome.fna
+Curved_DNA_Triplex_Overlap,1565,32.283,1.293,0.0671,0.21,Plasmodium falciparum_genome.fna
+Triplex_Curved_DNA_Overlap,1525,31.953,1.295,0.0654,0.202,Plasmodium falciparum_genome.fna
+Two-tetrad weak PQS,1149,20.517,1.005,0.0492,0.096,Plasmodium falciparum_genome.fna
+Slipped_DNA_Triplex_Overlap,1038,38.136,1.173,0.0445,0.165,Plasmodium falciparum_genome.fna
+Relaxed i-motif,701,41.775,1.999,0.03,0.123,Plasmodium falciparum_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,661,33.855,1.175,0.0283,0.093,Plasmodium falciparum_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,640,34.4,1.181,0.0274,0.092,Plasmodium falciparum_genome.fna
+Cruciform_Slipped_DNA_Overlap,557,41.043,1.065,0.0239,0.096,Plasmodium falciparum_genome.fna
+Cruciform_Curved_DNA_Overlap,529,31.371,1.19,0.0227,0.069,Plasmodium falciparum_genome.fna
+Curved_DNA_Cruciform_Overlap,528,31.688,1.2,0.0226,0.069,Plasmodium falciparum_genome.fna
+R-loop formation sites,518,104.653,1.093,0.0222,0.23,Plasmodium falciparum_genome.fna
+Sticky DNA,491,14.615,1.008,0.021,0.029,Plasmodium falciparum_genome.fna
+Triplex_Slipped_DNA_Overlap,321,42.975,1.182,0.0138,0.058,Plasmodium falciparum_genome.fna
+Mixed_Cluster_5_classes,281,266.278,1.205,0.012,0.306,Plasmodium falciparum_genome.fna
+A-philic DNA,230,10.835,1.068,0.0099,0.01,Plasmodium falciparum_genome.fna
+i-Motif_Slipped_DNA_Overlap,189,55.614,1.569,0.0081,0.043,Plasmodium falciparum_genome.fna
+Slipped_DNA_i-Motif_Overlap,178,55.129,1.567,0.0076,0.04,Plasmodium falciparum_genome.fna
+Extended-loop canonical,101,39.109,1.042,0.0043,0.016,Plasmodium falciparum_genome.fna
+Intramolecular G-triplex,98,16.551,1.012,0.0042,0.007,Plasmodium falciparum_genome.fna
+Higher-order G4 array/G4-wire,91,119.89,1.705,0.0039,0.046,Plasmodium falciparum_genome.fna
+Cruciform_Triplex_Overlap,87,39.563,1.182,0.0037,0.014,Plasmodium falciparum_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,84,86.762,1.237,0.0036,0.031,Plasmodium falciparum_genome.fna
+Triplex_Cruciform_Overlap,84,42.262,1.183,0.0036,0.015,Plasmodium falciparum_genome.fna
+Mixed_Cluster_6_classes,80,291.85,1.212,0.0034,0.096,Plasmodium falciparum_genome.fna
+Bulged G4,55,32.873,1.041,0.0024,0.008,Plasmodium falciparum_genome.fna
+i-Motif_G-Quadruplex_Overlap,45,126.111,1.775,0.0019,0.024,Plasmodium falciparum_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,38,104.342,1.235,0.0016,0.017,Plasmodium falciparum_genome.fna
+Canonical i-motif,36,26.306,1.538,0.0015,0.004,Plasmodium falciparum_genome.fna
+G-Quadruplex_i-Motif_Overlap,36,80.083,1.527,0.0015,0.012,Plasmodium falciparum_genome.fna
+Slipped_DNA_R-Loop_Overlap,21,565.381,1.299,0.0009,0.051,Plasmodium falciparum_genome.fna
+i-Motif_R-Loop_Overlap,18,875.389,1.925,0.0008,0.067,Plasmodium falciparum_genome.fna
+R-Loop_i-Motif_Overlap,17,778.471,1.849,0.0007,0.057,Plasmodium falciparum_genome.fna
+R-Loop_G-Quadruplex_Overlap,11,611.727,1.506,0.0005,0.029,Plasmodium falciparum_genome.fna
+Mixed_Cluster_7_classes,11,277.0,1.207,0.0005,0.012,Plasmodium falciparum_genome.fna
+G-Quadruplex_R-Loop_Overlap,10,874.1,1.583,0.0004,0.037,Plasmodium falciparum_genome.fna
+R-Loop_Slipped_DNA_Overlap,9,839.333,1.409,0.0004,0.032,Plasmodium falciparum_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,9,18.556,1.047,0.0004,0.001,Plasmodium falciparum_genome.fna
+A-philic_DNA_R-Loop_Overlap,8,18.625,1.042,0.0003,0.001,Plasmodium falciparum_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,7,19.143,1.036,0.0003,0.001,Plasmodium falciparum_genome.fna
+AC-motif,6,27.5,1.879,0.0003,0.001,Plasmodium falciparum_genome.fna
+Canonical intramolecular G4,5,20.6,1.025,0.0002,0.0,Plasmodium falciparum_genome.fna
+R-Loop_A-philic_DNA_Overlap,4,390.25,1.227,0.0002,0.007,Plasmodium falciparum_genome.fna
+Triplex_R-Loop_Overlap,3,26.333,1.142,0.0001,0.0,Plasmodium falciparum_genome.fna
+Z-DNA,2,12.0,1.047,0.0001,0.0,Plasmodium falciparum_genome.fna
+A-philic_DNA_i-Motif_Overlap,2,26.0,1.281,0.0001,0.0,Plasmodium falciparum_genome.fna
+i-Motif_Triplex_Overlap,2,47.5,1.648,0.0001,0.0,Plasmodium falciparum_genome.fna
+Mixed_Cluster_8_classes,2,242.5,1.214,0.0001,0.002,Plasmodium falciparum_genome.fna
+G-Quadruplex_Triplex_Overlap,2,47.5,1.208,0.0001,0.0,Plasmodium falciparum_genome.fna
+Triplex_G-Quadruplex_Overlap,1,47.0,1.172,0.0,0.0,Plasmodium falciparum_genome.fna
+Cruciform_G-Quadruplex_Overlap,1,41.0,1.026,0.0,0.0,Plasmodium falciparum_genome.fna
+Triplex_i-Motif_Overlap,1,27.0,1.54,0.0,0.0,Plasmodium falciparum_genome.fna
+Curved_DNA_i-Motif_Overlap,1,38.0,1.73,0.0,0.0,Plasmodium falciparum_genome.fna
+i-Motif_A-philic_DNA_Overlap,1,28.0,1.292,0.0,0.0,Plasmodium falciparum_genome.fna
+G-Quadruplex_Cruciform_Overlap,1,28.0,1.023,0.0,0.0,Plasmodium falciparum_genome.fna
+R-Loop_Triplex_Overlap,1,51.0,1.233,0.0,0.0,Plasmodium falciparum_genome.fna
+Stacked G4,1,55.0,1.146,0.0,0.0,Plasmodium falciparum_genome.fna
+Cruciform forming IRs,71167,19.735,1.035,1.1841,2.218,Homo_sapiens_centromere_unique.fasta
+Two-tetrad weak PQS,33386,21.482,1.0,0.5555,1.138,Homo_sapiens_centromere_unique.fasta
+Local Curvature,2490,9.124,1.192,0.0414,0.034,Homo_sapiens_centromere_unique.fasta
+Global Curvature,2437,25.011,1.208,0.0405,0.097,Homo_sapiens_centromere_unique.fasta
+Mixed_Cluster_3_classes,1878,287.332,1.123,0.0312,0.892,Homo_sapiens_centromere_unique.fasta
+Direct Repeat,762,25.982,1.055,0.0127,0.032,Homo_sapiens_centromere_unique.fasta
+R-loop formation sites,628,210.252,1.199,0.0104,0.219,Homo_sapiens_centromere_unique.fasta
+STR,535,25.753,1.036,0.0089,0.022,Homo_sapiens_centromere_unique.fasta
+Triplex,272,27.04,1.273,0.0045,0.012,Homo_sapiens_centromere_unique.fasta
+Canonical i-motif,186,23.79,1.722,0.0031,0.007,Homo_sapiens_centromere_unique.fasta
+Relaxed i-motif,182,33.967,1.84,0.003,0.01,Homo_sapiens_centromere_unique.fasta
+Intramolecular G-triplex,175,16.88,1.014,0.0029,0.005,Homo_sapiens_centromere_unique.fasta
+Mixed_Cluster_4_classes,164,423.305,1.264,0.0027,0.114,Homo_sapiens_centromere_unique.fasta
+Extended-loop canonical,99,37.859,1.092,0.0016,0.006,Homo_sapiens_centromere_unique.fasta
+Bulged G4,97,32.784,1.053,0.0016,0.005,Homo_sapiens_centromere_unique.fasta
+A-philic DNA,82,10.671,1.053,0.0014,0.001,Homo_sapiens_centromere_unique.fasta
+Mixed_Cluster_5_classes,56,406.304,1.259,0.0009,0.038,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_G-Quadruplex_Overlap,42,28.238,1.02,0.0007,0.002,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_Slipped_DNA_Overlap,30,30.833,1.023,0.0005,0.001,Homo_sapiens_centromere_unique.fasta
+Curved_DNA_G-Quadruplex_Overlap,27,28.0,1.054,0.0004,0.001,Homo_sapiens_centromere_unique.fasta
+Canonical intramolecular G4,24,23.458,1.03,0.0004,0.001,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_Triplex_Overlap,20,37.45,1.19,0.0003,0.001,Homo_sapiens_centromere_unique.fasta
+Curved_DNA_Cruciform_Overlap,16,26.688,1.132,0.0003,0.001,Homo_sapiens_centromere_unique.fasta
+Curved_DNA_Triplex_Overlap,14,28.0,1.251,0.0002,0.001,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_i-Motif_Overlap,14,46.214,1.513,0.0002,0.001,Homo_sapiens_centromere_unique.fasta
+Triplex_Curved_DNA_Overlap,12,28.167,1.264,0.0002,0.001,Homo_sapiens_centromere_unique.fasta
+Mixed_Cluster_6_classes,11,516.909,1.285,0.0002,0.009,Homo_sapiens_centromere_unique.fasta
+R-Loop_G-Quadruplex_Overlap,10,477.7,1.241,0.0002,0.008,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_A-philic_DNA_Overlap,9,22.778,1.044,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+Z-DNA,8,11.0,1.042,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+i-Motif_A-philic_DNA_Overlap,8,33.625,1.448,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+Triplex_i-Motif_Overlap,7,37.143,1.62,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+R-Loop_i-Motif_Overlap,7,829.571,1.901,0.0001,0.01,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_R-Loop_Overlap,6,268.333,1.139,0.0001,0.003,Homo_sapiens_centromere_unique.fasta
+Triplex_Slipped_DNA_Overlap,6,34.167,1.166,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+Triplex_G-Quadruplex_Overlap,6,47.0,1.236,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+i-Motif_Triplex_Overlap,5,37.6,1.553,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+Cruciform_G-Quadruplex_Overlap,5,32.0,1.032,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+i-Motif_G-Quadruplex_Overlap,4,42.5,1.426,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_Triplex_Overlap,4,44.75,1.205,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+i-Motif_R-Loop_Overlap,4,1254.75,2.05,0.0001,0.008,Homo_sapiens_centromere_unique.fasta
+Curved_DNA_Slipped_DNA_Overlap,4,29.5,1.142,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_Cruciform_Overlap,4,32.0,1.041,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_Cruciform_Overlap,4,43.25,1.137,0.0001,0.0,Homo_sapiens_centromere_unique.fasta
+A-philic_DNA_G-Quadruplex_Overlap,3,26.667,1.063,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+eGZ,3,18.0,1.0,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+A-philic_DNA_R-Loop_Overlap,3,965.333,1.518,0.0,0.005,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_Curved_DNA_Overlap,3,27.0,1.154,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+A-philic_DNA_i-Motif_Overlap,3,26.667,1.331,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_i-Motif_Overlap,2,43.5,1.5,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Sticky DNA,2,13.5,1.006,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+R-Loop_Slipped_DNA_Overlap,2,1344.5,1.704,0.0,0.004,Homo_sapiens_centromere_unique.fasta
+Cruciform_R-Loop_Overlap,2,34.5,1.038,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Cruciform_Slipped_DNA_Overlap,2,41.0,1.065,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+R-Loop_A-philic_DNA_Overlap,2,246.5,1.149,0.0,0.001,Homo_sapiens_centromere_unique.fasta
+i-Motif_Slipped_DNA_Overlap,2,31.0,1.441,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+G-Quadruplex_Curved_DNA_Overlap,1,30.0,1.108,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+R-Loop_Curved_DNA_Overlap,1,30.0,1.103,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+A-philic_DNA_Slipped_DNA_Overlap,1,37.0,1.065,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Cruciform_i-Motif_Overlap,1,29.0,1.401,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Triplex_R-Loop_Overlap,1,1821.0,2.099,0.0,0.003,Homo_sapiens_centromere_unique.fasta
+Slipped_DNA_R-Loop_Overlap,1,1825.0,1.93,0.0,0.003,Homo_sapiens_centromere_unique.fasta
+R-Loop_Cruciform_Overlap,1,28.0,1.01,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+R-Loop_Triplex_Overlap,1,1829.0,2.115,0.0,0.003,Homo_sapiens_centromere_unique.fasta
+Cruciform_Curved_DNA_Overlap,1,21.0,1.103,0.0,0.0,Homo_sapiens_centromere_unique.fasta
+Two-tetrad weak PQS,4263630,19.937,1.007,1.3677,2.59,human_genome.fna
+Local Curvature,1908499,11.853,1.285,0.6122,0.664,human_genome.fna
+R-loop formation sites,1288549,239.766,1.229,0.4134,9.853,human_genome.fna
+Cruciform forming IRs,1246759,23.755,1.055,0.4,0.91,human_genome.fna
+STR,901341,27.695,1.04,0.2891,0.772,human_genome.fna
+Mixed_Cluster_3_classes,603024,403.371,1.219,0.1934,7.617,human_genome.fna
+Relaxed i-motif,461221,34.875,1.845,0.148,0.501,human_genome.fna
+Triplex,460135,26.46,1.279,0.1476,0.376,human_genome.fna
+Direct Repeat,459213,33.388,1.073,0.1473,0.477,human_genome.fna
+Mixed_Cluster_4_classes,418411,386.69,1.252,0.1342,5.085,human_genome.fna
+Global Curvature,418316,25.662,1.242,0.1342,0.331,human_genome.fna
+Intramolecular G-triplex,345297,16.624,1.014,0.1108,0.173,human_genome.fna
+Canonical i-motif,332115,24.749,1.725,0.1065,0.253,human_genome.fna
+Extended-loop canonical,212859,36.725,1.068,0.0683,0.244,human_genome.fna
+A-philic DNA,186035,10.844,1.059,0.0597,0.059,human_genome.fna
+Bulged G4,164491,32.533,1.053,0.0528,0.166,human_genome.fna
+Mixed_Cluster_5_classes,102874,457.342,1.257,0.033,1.488,human_genome.fna
+Canonical intramolecular G4,53116,23.917,1.027,0.017,0.039,human_genome.fna
+G-Quadruplex_i-Motif_Overlap,50940,47.05,1.48,0.0163,0.075,human_genome.fna
+G-Quadruplex_Slipped_DNA_Overlap,50325,33.957,1.031,0.0161,0.053,human_genome.fna
+Slipped_DNA_G-Quadruplex_Overlap,36988,37.218,1.04,0.0119,0.043,human_genome.fna
+G-Quadruplex_R-Loop_Overlap,31899,782.433,1.397,0.0102,0.799,human_genome.fna
+Z-DNA,31720,11.866,1.054,0.0102,0.011,human_genome.fna
+Slipped_DNA_Triplex_Overlap,25352,38.438,1.196,0.0081,0.03,human_genome.fna
+Curved_DNA_Triplex_Overlap,21490,28.261,1.241,0.0069,0.019,human_genome.fna
+Triplex_Curved_DNA_Overlap,21342,28.403,1.243,0.0068,0.019,human_genome.fna
+Mixed_Cluster_6_classes,19192,559.919,1.28,0.0062,0.342,human_genome.fna
+R-Loop_G-Quadruplex_Overlap,18711,721.707,1.363,0.006,0.432,human_genome.fna
+i-Motif_R-Loop_Overlap,17030,687.203,1.763,0.0055,0.375,human_genome.fna
+R-Loop_i-Motif_Overlap,16999,688.584,1.762,0.0055,0.375,human_genome.fna
+A-philic_DNA_G-Quadruplex_Overlap,15813,25.778,1.046,0.0051,0.013,human_genome.fna
+Slipped_DNA_Cruciform_Overlap,15278,46.268,1.093,0.0049,0.022,human_genome.fna
+G-Quadruplex_Cruciform_Overlap,14818,29.542,1.039,0.0048,0.014,human_genome.fna
+Sticky DNA,14466,16.633,1.016,0.0046,0.007,human_genome.fna
+G-Quadruplex_A-philic_DNA_Overlap,14168,25.607,1.047,0.0045,0.011,human_genome.fna
+i-Motif_G-Quadruplex_Overlap,13302,45.194,1.477,0.0043,0.019,human_genome.fna
+Slipped_DNA_i-Motif_Overlap,11982,51.75,1.519,0.0038,0.019,human_genome.fna
+Cruciform_G-Quadruplex_Overlap,11681,30.783,1.041,0.0037,0.011,human_genome.fna
+A-philic_DNA_i-Motif_Overlap,10308,31.762,1.422,0.0033,0.01,human_genome.fna
+AC-motif,10051,26.298,1.869,0.0032,0.008,human_genome.fna
+i-Motif_A-philic_DNA_Overlap,9779,31.854,1.416,0.0031,0.01,human_genome.fna
+i-Motif_Slipped_DNA_Overlap,8820,56.247,1.533,0.0028,0.016,human_genome.fna
+A-philic_DNA_R-Loop_Overlap,7979,343.627,1.199,0.0026,0.088,human_genome.fna
+Triplex_Slipped_DNA_Overlap,7732,44.499,1.203,0.0025,0.011,human_genome.fna
+Triplex_i-Motif_Overlap,7599,39.545,1.619,0.0024,0.009,human_genome.fna
+R-Loop_A-philic_DNA_Overlap,7442,279.449,1.167,0.0024,0.066,human_genome.fna
+i-Motif_Triplex_Overlap,7338,40.002,1.626,0.0024,0.009,human_genome.fna
+G-Quadruplex_Triplex_Overlap,7335,42.69,1.207,0.0024,0.01,human_genome.fna
+Cruciform_Slipped_DNA_Overlap,7332,58.832,1.123,0.0024,0.014,human_genome.fna
+Curved_DNA_Slipped_DNA_Overlap,7170,27.602,1.153,0.0023,0.006,human_genome.fna
+eGZ,6823,15.249,1.0,0.0022,0.003,human_genome.fna
+Triplex_G-Quadruplex_Overlap,6552,40.873,1.203,0.0021,0.008,human_genome.fna
+Cruciform_Curved_DNA_Overlap,6496,27.599,1.15,0.0021,0.006,human_genome.fna
+Slipped_DNA_Curved_DNA_Overlap,6177,28.424,1.155,0.002,0.005,human_genome.fna
+Curved_DNA_Cruciform_Overlap,5948,28.427,1.157,0.0019,0.005,human_genome.fna
+Slipped_DNA_R-Loop_Overlap,3733,620.867,1.344,0.0012,0.074,human_genome.fna
+R-Loop_Slipped_DNA_Overlap,2957,654.196,1.361,0.0009,0.062,human_genome.fna
+Triplex_R-Loop_Overlap,2841,500.769,1.394,0.0009,0.046,human_genome.fna
+R-Loop_Triplex_Overlap,2835,491.423,1.392,0.0009,0.045,human_genome.fna
+R-Loop_Cruciform_Overlap,2442,471.46,1.262,0.0008,0.037,human_genome.fna
+Cruciform_R-Loop_Overlap,2384,429.697,1.239,0.0008,0.033,human_genome.fna
+Mixed_Cluster_7_classes,2349,694.152,1.28,0.0008,0.052,human_genome.fna
+Cruciform_i-Motif_Overlap,2007,40.578,1.434,0.0006,0.003,human_genome.fna
+Higher-order G4 array/G4-wire,1796,90.361,1.483,0.0006,0.005,human_genome.fna
+i-Motif_Cruciform_Overlap,1738,39.196,1.423,0.0006,0.002,human_genome.fna
+G-Quadruplex_Curved_DNA_Overlap,1129,30.722,1.116,0.0004,0.001,human_genome.fna
+Z-DNA_G-Quadruplex_Overlap,966,27.592,1.021,0.0003,0.001,human_genome.fna
+G-Quadruplex_Z-DNA_Overlap,828,31.345,1.034,0.0003,0.001,human_genome.fna
+Curved_DNA_G-Quadruplex_Overlap,645,31.719,1.127,0.0002,0.001,human_genome.fna
+Curved_DNA_R-Loop_Overlap,637,229.385,1.219,0.0002,0.005,human_genome.fna
+R-Loop_Curved_DNA_Overlap,616,234.201,1.22,0.0002,0.005,human_genome.fna
+A-philic_DNA_Cruciform_Overlap,584,24.777,1.071,0.0002,0.0,human_genome.fna
+Cruciform_A-philic_DNA_Overlap,571,27.879,1.102,0.0002,0.0,human_genome.fna
+Cruciform_Triplex_Overlap,347,38.931,1.176,0.0001,0.0,human_genome.fna
+Slipped_DNA_Z-DNA_Overlap,332,39.151,1.044,0.0001,0.0,human_genome.fna
+Cruciform_Z-DNA_Overlap,327,26.768,1.105,0.0001,0.0,human_genome.fna
+A-philic_DNA_Slipped_DNA_Overlap,320,87.581,1.123,0.0001,0.001,human_genome.fna
+Z-DNA_Cruciform_Overlap,296,24.527,1.065,0.0001,0.0,human_genome.fna
+Triplex_Cruciform_Overlap,290,40.117,1.181,0.0001,0.0,human_genome.fna
+Curved_DNA_i-Motif_Overlap,255,32.376,1.503,0.0001,0.0,human_genome.fna
+i-Motif_Curved_DNA_Overlap,240,32.208,1.511,0.0001,0.0,human_genome.fna
+Z-DNA_Slipped_DNA_Overlap,202,31.391,1.041,0.0001,0.0,human_genome.fna
+Slipped_DNA_A-philic_DNA_Overlap,189,70.857,1.115,0.0001,0.0,human_genome.fna
+A-philic_DNA_Triplex_Overlap,97,29.412,1.152,0.0,0.0,human_genome.fna
+Triplex_A-philic_DNA_Overlap,96,29.312,1.148,0.0,0.0,human_genome.fna
+Mixed_Cluster_8_classes,91,563.176,1.247,0.0,0.002,human_genome.fna
+R-Loop_Z-DNA_Overlap,64,1382.672,1.703,0.0,0.003,human_genome.fna
+Z-DNA_R-Loop_Overlap,48,1486.625,1.757,0.0,0.002,human_genome.fna
+Telomeric G4,28,120.429,1.597,0.0,0.0,human_genome.fna
+Stacked G4,13,88.538,1.479,0.0,0.0,human_genome.fna
+Mixed_Cluster_9_classes,1,242.0,1.125,0.0,0.0,human_genome.fna
+Z-DNA_i-Motif_Overlap,1,50.0,1.584,0.0,0.0,human_genome.fna
+i-Motif_Z-DNA_Overlap,1,51.0,1.528,0.0,0.0,human_genome.fna

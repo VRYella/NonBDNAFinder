@@ -1,0 +1,94 @@
+﻿Subclass,Total_Count,Mean_Density,Mean_Coverage,Mean_Length,Mean_Score,Files_Present
+Two-tetrad weak PQS,4352610,1.3622,2.7461,20.7854,1.0043,12
+Local Curvature,2007773,1.6192,1.4813,9.505,1.2046,10
+Cruciform forming IRs,1369191,0.8571,1.975,23.9378,1.0651,12
+R-loop formation sites,1295309,0.1713,12.2672,337.8084,1.3272,12
+STR,944109,0.2012,0.5407,26.9742,1.0368,11
+Mixed_Cluster_3_classes,637481,0.3111,13.5588,324.7503,1.148,12
+Triplex,481458,0.1219,0.3094,25.318,1.2216,12
+Direct Repeat,475737,0.104,0.3676,40.7123,1.0924,12
+Relaxed i-motif,466005,0.1259,0.4303,34.8951,1.7626,10
+Mixed_Cluster_4_classes,437246,0.1567,9.7672,408.8262,1.2025,12
+Global Curvature,431527,0.2474,0.6282,25.787,1.2348,11
+Intramolecular G-triplex,347907,0.07,0.1101,17.3947,1.0129,11
+Canonical i-motif,333743,0.0556,0.1349,25.0381,1.6186,9
+Extended-loop canonical,214657,0.0576,0.2058,37.0033,1.0572,9
+A-philic DNA,190262,0.1034,0.1015,10.5708,1.0525,11
+Bulged G4,168989,0.1139,0.3506,31.588,1.0378,11
+Mixed_Cluster_5_classes,104449,0.0425,4.6239,510.7122,1.2154,9
+Canonical intramolecular G4,53364,0.0098,0.0236,23.8498,1.0255,8
+G-Quadruplex_i-Motif_Overlap,51426,0.0171,0.0779,50.3368,1.4536,8
+G-Quadruplex_Slipped_DNA_Overlap,50474,0.0048,0.0188,46.3294,1.0645,8
+Z-DNA,48746,0.4623,0.4909,11.3632,1.0473,10
+Slipped_DNA_G-Quadruplex_Overlap,37202,0.0044,0.0199,45.8591,1.0658,8
+G-Quadruplex_R-Loop_Overlap,32311,0.015,2.2714,759.7116,1.3999,8
+Slipped_DNA_Triplex_Overlap,26440,0.0132,0.0468,35.0928,1.1618,5
+Curved_DNA_Triplex_Overlap,23128,0.0267,0.0773,28.845,1.2493,6
+Triplex_Curved_DNA_Overlap,22948,0.026,0.0752,28.913,1.2487,6
+Mixed_Cluster_6_classes,19480,0.0089,1.2491,729.8504,1.2516,7
+R-Loop_G-Quadruplex_Overlap,18913,0.0061,0.8371,683.8988,1.3624,9
+Slipped_DNA_Cruciform_Overlap,17921,0.0146,0.0521,58.2914,1.1037,9
+i-Motif_R-Loop_Overlap,17148,0.0041,0.5759,842.5008,1.8482,8
+R-Loop_i-Motif_Overlap,17110,0.0042,0.601,861.9726,1.869,7
+A-philic_DNA_G-Quadruplex_Overlap,16218,0.0136,0.0335,23.77,1.0418,8
+G-Quadruplex_Cruciform_Overlap,15619,0.0252,0.0772,32.2413,1.0418,9
+Sticky DNA,15165,0.005,0.0067,13.211,1.0069,10
+G-Quadruplex_A-philic_DNA_Overlap,14492,0.0131,0.0333,24.1109,1.0439,7
+i-Motif_G-Quadruplex_Overlap,13540,0.0071,0.0312,52.8505,1.4366,8
+Cruciform_G-Quadruplex_Overlap,12625,0.0293,0.0888,31.5436,1.047,9
+Slipped_DNA_i-Motif_Overlap,12227,0.0043,0.0202,46.8673,1.5125,6
+A-philic_DNA_i-Motif_Overlap,10423,0.0049,0.0163,29.522,1.3181,7
+AC-motif,10069,0.0012,0.0031,27.614,1.914,7
+i-Motif_A-philic_DNA_Overlap,9907,0.0046,0.015,31.8129,1.3294,8
+i-Motif_Slipped_DNA_Overlap,9068,0.0034,0.0161,43.4937,1.5003,7
+Triplex_Slipped_DNA_Overlap,8071,0.0028,0.0112,36.2588,1.1445,8
+A-philic_DNA_R-Loop_Overlap,8041,0.002,0.1757,502.172,1.2776,9
+Cruciform_Slipped_DNA_Overlap,7911,0.0058,0.0223,38.3424,1.0781,8
+Curved_DNA_Slipped_DNA_Overlap,7861,0.0082,0.0234,29.9811,1.14,7
+Triplex_i-Motif_Overlap,7608,0.0007,0.0025,32.672,1.5652,4
+R-Loop_A-philic_DNA_Overlap,7518,0.0025,0.2621,476.1159,1.2648,9
+eGZ,7431,0.0248,0.0281,13.5119,1.0,7
+i-Motif_Triplex_Overlap,7348,0.0006,0.0022,39.3204,1.5416,5
+G-Quadruplex_Triplex_Overlap,7344,0.0006,0.0024,42.288,1.19,5
+Cruciform_Curved_DNA_Overlap,7140,0.0256,0.0709,30.3175,1.1466,10
+Slipped_DNA_Curved_DNA_Overlap,6845,0.0075,0.0224,29.4187,1.1396,7
+Curved_DNA_Cruciform_Overlap,6593,0.0252,0.0655,31.1332,1.16,10
+Triplex_G-Quadruplex_Overlap,6561,0.0005,0.0018,42.7746,1.181,5
+Slipped_DNA_R-Loop_Overlap,3764,0.0007,0.0734,1016.0196,1.529,5
+R-Loop_Slipped_DNA_Overlap,2979,0.0007,0.0451,856.7184,1.45,7
+Triplex_R-Loop_Overlap,2845,0.0003,0.0163,782.7007,1.545,3
+R-Loop_Triplex_Overlap,2839,0.0003,0.0212,875.8846,1.5896,5
+R-Loop_Cruciform_Overlap,2508,0.0025,0.3397,601.0927,1.339,7
+Cruciform_R-Loop_Overlap,2463,0.003,0.3877,539.2356,1.3096,7
+Mixed_Cluster_7_classes,2366,0.0005,0.0696,1117.3304,1.257,5
+Cruciform_i-Motif_Overlap,2127,0.0067,0.0266,38.0964,1.4568,5
+Higher-order G4 array/G4-wire,1890,0.0013,0.0135,71.4377,1.3465,4
+i-Motif_Cruciform_Overlap,1830,0.0053,0.0204,41.9654,1.4416,5
+Z-DNA_G-Quadruplex_Overlap,1188,0.0126,0.0316,26.3552,1.0192,5
+G-Quadruplex_Curved_DNA_Overlap,1136,0.0005,0.0017,30.5092,1.1115,6
+G-Quadruplex_Z-DNA_Overlap,1067,0.0135,0.0352,28.7022,1.0252,5
+Curved_DNA_G-Quadruplex_Overlap,676,0.0006,0.0023,32.5965,1.123,4
+Curved_DNA_R-Loop_Overlap,642,0.0009,0.0043,100.545,1.1407,3
+Cruciform_Z-DNA_Overlap,620,0.0274,0.07,26.7687,1.1017,3
+R-Loop_Curved_DNA_Overlap,619,0.0005,0.003,98.567,1.135,3
+A-philic_DNA_Cruciform_Overlap,616,0.003,0.0083,26.819,1.0923,3
+Cruciform_A-philic_DNA_Overlap,607,0.0025,0.0065,27.483,1.1015,4
+Z-DNA_Cruciform_Overlap,588,0.0204,0.052,28.077,1.109,4
+Cruciform_Triplex_Overlap,435,0.002,0.007,37.498,1.16,3
+Triplex_Cruciform_Overlap,378,0.0026,0.0098,37.5115,1.1305,4
+Slipped_DNA_Z-DNA_Overlap,335,0.0003,0.0007,28.8837,1.0553,3
+A-philic_DNA_Slipped_DNA_Overlap,323,0.0002,0.002,67.527,1.097,3
+Curved_DNA_i-Motif_Overlap,257,0.0002,0.001,37.792,1.5133,3
+i-Motif_Curved_DNA_Overlap,240,0.0001,0.0,32.208,1.511,1
+Z-DNA_Slipped_DNA_Overlap,206,0.0004,0.0007,26.2413,1.027,3
+Slipped_DNA_A-philic_DNA_Overlap,191,0.0004,0.001,51.4285,1.0955,2
+A-philic_DNA_Triplex_Overlap,97,0.0,0.0,29.412,1.152,1
+Triplex_A-philic_DNA_Overlap,96,0.0,0.0,29.312,1.148,1
+Mixed_Cluster_8_classes,93,0.0,0.002,402.838,1.2305,2
+R-Loop_Z-DNA_Overlap,78,0.0013,0.1643,1332.2797,1.6843,3
+Z-DNA_R-Loop_Overlap,63,0.0014,0.2303,1601.7823,1.8243,3
+Telomeric G4,28,0.0,0.0,120.429,1.597,1
+Stacked G4,14,0.0,0.0,71.769,1.3125,2
+Mixed_Cluster_9_classes,1,0.0,0.0,242.0,1.125,1
+Z-DNA_i-Motif_Overlap,1,0.0,0.0,50.0,1.584,1
+i-Motif_Z-DNA_Overlap,1,0.0,0.0,51.0,1.528,1

@@ -1,0 +1,51 @@
+	File	Stem	File_Type	Sequences	Total_bp	GC_Percent	Total_Motifs	Density_per_kb	Elapsed_s	Classes	Coverage_pct	Subclasses
+0	Helicobacter pylori_genome.fna	Helicobacter pylori_genome	single	1	1674010	38.79	3970	2.3716	49.00	11	7.432	54
+1	Candidatus Carsonella ruddii_genome.fna	Candidatus Carsonella ruddii_genome	single	1	174014	17.63	1492	8.5740	63.26	8	14.652	18
+2	Buchnera aphidicola_genome.fna	Buchnera aphidicola_genome	single	1	452078	18.28	3835	8.4830	61.66	9	19.296	26
+3	Staphylococcus aureus_genome.fna	Staphylococcus aureus_genome	single	1	2821361	32.87	2140	0.7585	66.34	11	1.830	22
+4	Streptococcus pneumoniae_genome.fna	Streptococcus pneumoniae_genome	single	1	2110968	39.73	2616	1.2392	68.43	11	2.911	26
+5	Escherichia coli_genome.fna	Escherichia coli_genome	single	1	4641652	50.79	10686	2.3022	87.77	11	7.423	44
+6	Cellulomonas shaoxiangyii_genome.fna	Cellulomonas shaoxiangyii_genome	single	1	3909366	75.30	52417	13.4081	99.29	10	176.652	62
+7	Miltoncostaea marina_genome.fna	Miltoncostaea marina_genome	single	1	3370274	76.16	52595	15.6056	101.20	11	185.257	63
+8	Saccharomyces cerevisiae_genome.fna	Saccharomyces cerevisiae_genome	multi	17	12157105	38.15	20493	1.6857	445.74	11	4.041	66
+9	Plasmodium falciparum_genome.fna	Plasmodium falciparum_genome	multi	16	23332839	19.34	257149	11.0209	455.55	11	51.725	65
+10	Homo_sapiens_centromere_unique.fasta	Homo_sapiens_centromere_unique	multi	23	60103118	38.96	114945	1.9125	621.43	11	4.817	65
+11	human_genome.fna	human_genome	multi	24	3117275501	40.75	14444558	4.6337	7966.18	11	30.698	93
+
+
+	Class	Total_Count	Mean_Density	Mean_Coverage	Mean_Length	Mean_Score	Files_Present
+3	G-Quadruplex	5139459	1.5810	3.3431	21.8576	1.0103	12
+2	Curved_DNA	2439300	1.7194	1.9313	16.9887	1.2255	11
+7	Slipped_DNA	1419846	0.2884	0.8631	38.5658	1.0818	12
+1	Cruciform	1369191	0.8571	1.9750	23.9378	1.0651	12
+6	R-Loop	1295309	0.1713	12.2672	337.8084	1.3272	12
+5	Non-B_DNA_Clusters	1201116	0.5051	17.0782	358.8793	1.1630	12
+10	i-Motif	809817	0.1768	0.5533	32.3055	1.7318	10
+4	Hybrid	549796	0.2526	3.6376	111.8727	1.1904	12
+8	Triplex	496623	0.1260	0.3136	23.3961	1.1890	12
+0	A-philic_DNA	190262	0.1034	0.1015	10.5708	1.0525	11
+9	Z-DNA	56177	0.4797	0.5106	11.6278	1.0446	10
+💾  master_subclass_statistics.csv + master_subclass_aggregate.csv written
+
+Subclass aggregate across all files (top 20):
+Subclass	Total_Count	Mean_Density	Mean_Coverage	Mean_Length	Mean_Score	Files_Present
+77	Two-tetrad weak PQS	4352610	1.3622	2.7461	20.7854	1.0043	12
+39	Local Curvature	2007773	1.6192	1.4813	9.5050	1.2046	10
+11	Cruciform forming IRs	1369191	0.8571	1.9750	23.9378	1.0651	12
+55	R-loop formation sites	1295309	0.1713	12.2672	337.8084	1.3272	12
+57	STR	944109	0.2012	0.5407	26.9742	1.0368	11
+40	Mixed_Cluster_3_classes	637481	0.3111	13.5588	324.7503	1.1480	12
+69	Triplex	481458	0.1219	0.3094	25.3180	1.2216	12
+26	Direct Repeat	475737	0.1040	0.3676	40.7123	1.0924	12
+56	Relaxed i-motif	466005	0.1259	0.4303	34.8951	1.7626	10
+41	Mixed_Cluster_4_classes	437246	0.1567	9.7672	408.8262	1.2025	12
+36	Global Curvature	431527	0.2474	0.6282	25.7870	1.2348	11
+38	Intramolecular G-triplex	347907	0.0700	0.1101	17.3947	1.0129	11
+9	Canonical i-motif	333743	0.0556	0.1349	25.0381	1.6186	9
+27	Extended-loop canonical	214657	0.0576	0.2058	37.0033	1.0572	9
+0	A-philic DNA	190262	0.1034	0.1015	10.5708	1.0525	11
+8	Bulged G4	168989	0.1139	0.3506	31.5880	1.0378	11
+42	Mixed_Cluster_5_classes	104449	0.0425	4.6239	510.7122	1.2154	9
+10	Canonical intramolecular G4	53364	0.0098	0.0236	23.8498	1.0255	8
+35	G-Quadruplex_i-Motif_Overlap	51426	0.0171	0.0779	50.3368	1.4536	8
+32	G-Quadruplex_Slipped_DNA_Overlap	50474	0.0048	0.0188	46.3294	1.0645	8
