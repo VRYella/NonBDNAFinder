@@ -1178,9 +1178,9 @@ class PatternRegistry:
     # Class 5: Triplex DNA - Three-stranded structures (optimized)
     TRIPLEX_PATTERNS = {
         'triplex_forming_sequences': [
-            (r'[GA]{15,}', 'TRX_5_1', 'Homopurine tract', 'Triplex', 15, 'triplex_potential', 0.90, 'H-DNA formation', 'Frank-Kamenetskii 1995'),
-            (r'[CT]{15,}', 'TRX_5_2', 'Homopyrimidine tract', 'Triplex', 15, 'triplex_potential', 0.90, 'H-DNA formation', 'Frank-Kamenetskii 1995'),
-            (r'(?:GA){6,}[GA]*(?:TC){6,}', 'TRX_5_3', 'Mirror repeat', 'Triplex', 24, 'triplex_potential', 0.85, 'Intermolecular triplex', 'Beal 1996'),
+            (r'[GA]{15,}', 'TRX_5_1', 'Homopurine tract', 'H-DNA', 15, 'triplex_potential', 0.90, 'H-DNA formation', 'Frank-Kamenetskii 1995'),
+            (r'[CT]{15,}', 'TRX_5_2', 'Homopyrimidine tract', 'H-DNA', 15, 'triplex_potential', 0.90, 'H-DNA formation', 'Frank-Kamenetskii 1995'),
+            (r'(?:GA){6,}[GA]*(?:TC){6,}', 'TRX_5_3', 'Mirror repeat', 'H-DNA', 24, 'triplex_potential', 0.85, 'Intramolecular triplex', 'Frank-Kamenetskii & Mirkin 1995'),
             (r'(?:GAA){4,}', 'TRX_5_4', 'GAA repeat', 'Sticky DNA', 12, 'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
             (r'(?:TTC){4,}', 'TRX_5_5', 'TTC repeat', 'Sticky DNA', 12, 'sticky_dna_score', 0.95, 'Disease-associated repeats', 'Sakamoto 1999'),
         ]
@@ -4305,7 +4305,7 @@ def test_triplex_sticky_dna():
     Tests the following:
     1. GAA repeat detection as Sticky DNA (Triplex class)
     2. TTC repeat detection as Sticky DNA (Triplex class)
-    3. Mirror repeat detection as Triplex subclass
+    3. Mirror repeat detection as H-DNA subclass
     4. Proper overlap handling between Triplex and other classes (Cruciform, Slipped)
     5. Canonical subclass names are used correctly
     """
@@ -4329,7 +4329,7 @@ def test_triplex_sticky_dna():
     # Verify canonical subclass name
     for m in triplex_motifs:
         assert m.get('Class') == 'Triplex', f"ERROR: Wrong class name: {m.get('Class')}"
-        assert m.get('Subclass') in ['Triplex', 'Sticky DNA'], f"ERROR: Invalid subclass: {m.get('Subclass')}"
+        assert m.get('Subclass') in ['H-DNA', 'Sticky DNA'], f"ERROR: Invalid subclass: {m.get('Subclass')}"
     print("   [OK] All subclass names are canonical")
     
     # Test 2: TTC repeat (Sticky DNA)

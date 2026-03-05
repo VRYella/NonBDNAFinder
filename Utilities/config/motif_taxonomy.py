@@ -55,7 +55,7 @@ MOTIF_CLASSIFICATION: Dict[int, Dict[str, any]] = {
     },
     5: {
         'class': 'Triplex',
-        'subclasses': ['Triplex', 'Sticky DNA']
+        'subclasses': ['H-DNA', 'Sticky DNA']
     },
     6: {
         'class': 'G-Quadruplex',
@@ -209,9 +209,12 @@ SUBCLASS_ALIASES: Dict[str, str] = {
     'qmrlfs-m2': 'R-loop formation sites',
     
     # Triplex subclasses
-    'triplex': 'Triplex',
-    'triplex_motif': 'Triplex',  # Legacy alias for backward compatibility
-    'triplex motif': 'Triplex',  # Legacy alias for backward compatibility
+    'triplex': 'H-DNA',
+    'triplex_motif': 'H-DNA',  # Legacy alias for backward compatibility
+    'triplex motif': 'H-DNA',  # Legacy alias for backward compatibility
+    'h-dna': 'H-DNA',
+    'h_dna': 'H-DNA',
+    'hdna': 'H-DNA',
     'sticky dna': 'Sticky DNA',
     'sticky_dna': 'Sticky DNA',
     

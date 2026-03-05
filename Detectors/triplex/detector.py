@@ -439,7 +439,7 @@ class TriplexDetector(BaseMotifDetector):
         seq = sequence.upper()
         results = []
         
-        # Detect mirror repeats (Triplex subclass)
+        # Detect mirror repeats (H-DNA subclass)
         mirror_used = [False] * len(seq)
         mirrors = self._find_mirror_repeats(seq)
 
@@ -455,7 +455,7 @@ class TriplexDetector(BaseMotifDetector):
 
             results.append({
                 "class_name": "Triplex",
-                "subclass": "Triplex",
+                "subclass": "H-DNA",
                 "pattern_id": "TRX_MIRROR",
                 "start": s,
                 "end": e,
@@ -511,7 +511,7 @@ class TriplexDetector(BaseMotifDetector):
         annotations = self.annotate_sequence(sequence)
 
         for annotation in annotations:
-            subclass = annotation.get("subclass", "Triplex")
+            subclass = annotation.get("subclass", "H-DNA")
             
             canonical_class, canonical_subclass = normalize_class_subclass(
                 self.get_motif_class_name(),

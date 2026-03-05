@@ -93,7 +93,7 @@ PARALLEL_PROCESSING_THRESHOLD = 2  # Use parallel processing for 2+ sequences
 SUBMOTIF_ABBREVIATIONS = {
     'Global Curvature': 'Global Curv', 'Local Curvature': 'Local Curv',
     'Direct Repeat': 'DR', 'STR': 'STR', 'Cruciform forming IRs': 'Cruciform',
-    'R-loop formation sites': 'R-loop', 'Triplex': 'Triplex', 'Sticky DNA': 'Sticky DNA',
+    'R-loop formation sites': 'R-loop', 'H-DNA': 'H-DNA', 'Sticky DNA': 'Sticky DNA',
     'Telomeric G4': 'Telo G4', 'Stacked G4': 'Stacked G4',
     'Canonical intramolecular G4': 'Intra G4', 'Extended-loop canonical': 'Ext. Loop G4',
     'Higher-order G4 array/G4-wire': 'G4 Array', 'Intramolecular G-triplex': 'G-triplex', 'Two-tetrad weak PQS': 'Weak PQS', 'Bulged G4': 'Bulged G4',
