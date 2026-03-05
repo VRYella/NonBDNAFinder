@@ -1281,11 +1281,106 @@ button[kind="secondary"]:hover {
    SIDEBAR / MAIN CONTENT BORDER (if visible)
    ═══════════════════════════════════════════════════════════════ */
 
-/* Streamlit top header bar */
+/* ═══════════════════════════════════════════════════════════════
+   PER-TAB FULL-PAGE THEMES — Professional 5-Color System
+   Uses CSS :has() to detect active tab (supported Chrome 105+,
+   Firefox 121+ full support, Safari 15.4+) and direct panel
+   backgrounds as the primary fallback mechanism.
+   Tab 1=Home(Crimson) 2=Upload(Indigo) 3=Results(Teal)
+        4=Download(Emerald) 5=Documentation(Amber)
+   DOM: tab-panels are nth-child(3)..nth-child(7) in parent .st-ae
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Direct Tab Panel Backgrounds (primary mechanism) ─────── */
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3) {
+    background: linear-gradient(160deg, #fff5f5 0%, #ffe4e4 50%, #fff0f0 100%) !important;
+}
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4) {
+    background: linear-gradient(160deg, #eef2ff 0%, #e0e7ff 50%, #f0f0ff 100%) !important;
+}
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5) {
+    background: linear-gradient(160deg, #ecfeff 0%, #cffafe 50%, #e5faff 100%) !important;
+}
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6) {
+    background: linear-gradient(160deg, #f0fdf4 0%, #dcfce7 50%, #e8faf0 100%) !important;
+}
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7) {
+    background: linear-gradient(160deg, #fff7ed 0%, #ffedd5 50%, #fff3e0 100%) !important;
+}
+
+/* ── App Background Tints — CSS :has() (modern browsers) ──── */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) .stApp {
+    background: linear-gradient(160deg, #fff5f5 0%, #ffe4e4 40%, #fff8f8 100%) !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) .stApp {
+    background: linear-gradient(160deg, #eef2ff 0%, #e0e7ff 40%, #f5f5ff 100%) !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5):not([hidden])) .stApp {
+    background: linear-gradient(160deg, #ecfeff 0%, #cffafe 40%, #eafaff 100%) !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):not([hidden])) .stApp {
+    background: linear-gradient(160deg, #f0fdf4 0%, #dcfce7 40%, #edfaf3 100%) !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7):not([hidden])) .stApp {
+    background: linear-gradient(160deg, #fff7ed 0%, #ffedd5 40%, #fff8f0 100%) !important;
+}
+
+/* ── Streamlit Top Header Bar — Per-Tab CSS :has() ────────── */
+/* Tab 1: Home — Crimson Red */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #7f1d1d 0%, #B91C1C 35%, #DC2626 65%, #EF4444 100%) !important;
+    box-shadow: 0 4px 20px rgba(185, 28, 28, 0.40) !important;
+    border-bottom: 3px solid rgba(252, 165, 165, 0.45) !important;
+}
+/* Tab 2: Upload & Analyze — Royal Indigo */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #1e1b4b 0%, #3730a3 35%, #4F46E5 65%, #818CF8 100%) !important;
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.40) !important;
+    border-bottom: 3px solid rgba(199, 210, 254, 0.45) !important;
+}
+/* Tab 3: Results — Teal Cyan */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5):not([hidden])) header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #164e63 0%, #0891b2 35%, #0EA5A4 65%, #22D3EE 100%) !important;
+    box-shadow: 0 4px 20px rgba(14, 165, 164, 0.40) !important;
+    border-bottom: 3px solid rgba(103, 232, 249, 0.45) !important;
+}
+/* Tab 4: Download — Emerald Green */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):not([hidden])) header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #14532d 0%, #16A34A 35%, #22C55E 65%, #4ADE80 100%) !important;
+    box-shadow: 0 4px 20px rgba(22, 163, 74, 0.40) !important;
+    border-bottom: 3px solid rgba(134, 239, 172, 0.45) !important;
+}
+/* Tab 5: Documentation — Amber Orange */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7):not([hidden])) header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #7c2d12 0%, #EA580C 35%, #FB923C 65%, #FBBF24 100%) !important;
+    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.40) !important;
+    border-bottom: 3px solid rgba(253, 186, 116, 0.45) !important;
+}
+
+/* ── Header Icons & Buttons — white text on all colored headers */
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) header[data-testid="stHeader"] button,
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) header[data-testid="stHeader"] a {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) header[data-testid="stHeader"] svg {
+    fill: #FFFFFF !important;
+}
+body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) header[data-testid="stHeader"] [data-testid="stAppDeployButton"] {
+    background: rgba(255,255,255,0.18) !important;
+    border: 1.5px solid rgba(255,255,255,0.55) !important;
+    border-radius: 8px !important;
+}
+
+/* ── Block container background transparency ───────────────── */
+.main .block-container {
+    background: transparent !important;
+}
+
+/* ── Fallback header when no tab is detected ───────────────── */
 header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #EA580C 0%, #FB923C 30%, #FBBF24 65%, #FDE68A 100%) !important;
     border-bottom: 3px solid rgba(255, 255, 255, 0.35) !important;
-    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.35) !important;
+    background: linear-gradient(90deg, #EA580C 0%, #FB923C 30%, #FBBF24 65%, #FDE68A 100%);
 }
 
 /* ═══════════════════════════════════════════════════════════════
