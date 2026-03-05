@@ -44,14 +44,14 @@ HOME_COLORS = {
 }
 
 INPUT_COLORS = {
-    'primary': '#CA8A04',      # Golden Yellow
-    'secondary': '#EAB308',    # Bright Yellow
-    'accent': '#FACC15',       # Light Yellow accent
-    'light': '#FEFCE8',        # Yellow-50 light background
-    'lighter': '#FFFEF5',      # Ultra-light yellow near-white
-    'border': '#FEF08A',       # Yellow border
-    'text': '#713F12',         # Dark amber-brown for visibility
-    'shadow': 'rgba(202, 138, 4, 0.18)',
+    'primary': '#4F46E5',      # Royal Indigo
+    'secondary': '#6366F1',    # Bright Indigo
+    'accent': '#818CF8',       # Light Indigo accent
+    'light': '#EEF2FF',        # Indigo-50 light background
+    'lighter': '#F5F7FF',      # Ultra-light indigo near-white
+    'border': '#C7D2FE',       # Indigo border
+    'text': '#1e1b4b',         # Deep navy text
+    'shadow': 'rgba(79, 70, 229, 0.18)',
 }
 
 ANALYSIS_COLORS = {
