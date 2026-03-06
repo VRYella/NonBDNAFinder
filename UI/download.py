@@ -18,7 +18,7 @@ import logging
 from collections import Counter
 from Utilities.config.text import UI_TEXT
 from Utilities.config.themes import TAB_THEMES
-from UI.css import load_css
+from UI.css import load_css, get_page_colors
 from UI.headers import render_section_heading
 from UI.guards import generate_excel_bytes, generate_multifasta_excel_bytes
 from UI.storage_helpers import has_results, get_sequences_info, get_results
@@ -185,7 +185,8 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
 
 def render():
     load_css(TAB_THEMES.get('Download', 'clinical_teal')); render_section_heading("Download & Export Results", page="Downloads")
-    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown("<div style='background:#ffffff;padding:0.35rem 1rem;border-radius:10px;margin-top:0.6rem;border:1.5px solid #1e293b;text-align:center;'><h3 style='color:#0284c7;margin:0 0 0.4rem 0;font-size:1.2rem;'>Export Formats Available</h3><p style='color:#6b7280;margin:0 0 0.4rem 0;font-size:0.95rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;'><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>CSV</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>Excel</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>JSON</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>BED</span><span style='background:#0ea5e9;color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
+    c = get_page_colors('Download')
+    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown(f"<div style='background:{c['light']};padding:0.35rem 1rem;border-radius:10px;margin-top:0.6rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};text-align:center;'><h3 style='color:{c['primary']};margin:0 0 0.4rem 0;font-size:1.2rem;'>Export Formats Available</h3><p style='color:{c['text']};margin:0 0 0.4rem 0;font-size:0.95rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;'><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>CSV</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>Excel</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>JSON</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>BED</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
     
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
@@ -221,7 +222,7 @@ def render():
     pdf_error = exports.get('pdf_error')
     export_times = exports.get('export_times', {})
 
-    st.markdown("### Export Options"); st.markdown("<div style='background:#ffffff;padding:0.4rem;border-radius:10px;margin-bottom:0.8rem;border:1.5px solid #1e293b;border-left:4px solid #0ea5e9;'><p style='color:#0c4a6e;margin:0;font-size:0.95rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
+    st.markdown("### Export Options"); st.markdown(f"<div style='background:{c['light']};padding:0.4rem;border-radius:10px;margin-bottom:0.8rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};border-left:4px solid {c['accent']};'><p style='color:{c['text']};margin:0;font-size:0.95rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
     st.markdown("#### Data Formats"); c1, c2, c3, c4, c5 = st.columns(5)
     with c1:
         st.download_button("📄 CSV", data=csv_data or b"", file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs", disabled=(csv_data is None), key="dl_csv")
@@ -254,7 +255,7 @@ def render():
     # Use @st.cache_data-backed generator so that reruns triggered by download
     # button clicks never recompute statistics and never cause buttons to flicker.
     # ═══════════════════════════════════════════════════════════════════════════════
-    st.markdown("---"); st.markdown("### Statistical Analysis Tables"); st.markdown("<div style='background:#ffffff;padding:0.4rem;border-radius:10px;margin-bottom:0.8rem;border:1.5px solid #1e293b;border-left:4px solid #22c55e;'><p style='color:#14532d;margin:0;font-size:0.95rem;'><strong>Advanced Analytics:</strong> Detailed distribution and density statistics</p></div>", unsafe_allow_html=True)
+    st.markdown("---"); st.markdown("### Statistical Analysis Tables"); st.markdown(f"<div style='background:{c['light']};padding:0.4rem;border-radius:10px;margin-bottom:0.8rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};border-left:4px solid {c['accent']};'><p style='color:{c['text']};margin:0;font-size:0.95rem;'><strong>Advanced Analytics:</strong> Detailed distribution and density statistics</p></div>", unsafe_allow_html=True)
     dist_df, sub_df, _stats_excel = generate_statistics(tuple(all_motifs), tuple(names), tuple(lengths), seq_count)
     st.markdown("#### Class-Level Distribution Statistics")
     if not dist_df.empty:
@@ -280,4 +281,4 @@ def render():
     # VISUALIZATION NOTES
     # ═══════════════════════════════════════════════════════════════════════════════
     st.markdown("---")
-    st.markdown("<div style='background:#ffffff;padding:0.5rem 0.8rem;border-radius:8px;border:1.5px solid #1e293b;border-left:4px solid #a855f7;'><p style='color:#6b21a8;margin:0;font-size:0.9rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab use uniform axis labels, clean aesthetics, and colorblind-friendly palettes. PDF export includes all primary visualizations.</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='background:{c['light']};padding:0.5rem 0.8rem;border-radius:8px;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};border-left:4px solid {c['accent']};'><p style='color:{c['text']};margin:0;font-size:0.9rem;'><strong>📊 Visualization Note:</strong> All visualizations in the Results tab use uniform axis labels, clean aesthetics, and colorblind-friendly palettes. PDF export includes all primary visualizations.</p></div>", unsafe_allow_html=True)

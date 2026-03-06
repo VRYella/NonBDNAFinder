@@ -16,7 +16,7 @@ from collections import Counter
 from Utilities.config.text import UI_TEXT
 from Utilities.config.themes import TAB_THEMES
 from Utilities.config.analysis import MAX_OVERLAP_DISPLAY
-from UI.css import load_css
+from UI.css import load_css, get_page_colors
 from UI.headers import render_section_heading
 from UI.storage_helpers import (
     has_results, get_sequences_info, get_sequence_length,
@@ -72,7 +72,9 @@ def _render_metric_panel(header: str, rows: list, note: str = "") -> None:
         unsafe_allow_html=True,
     )
 
-def _render_analysis_summary_box(cov, den, cnt, slen): st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px;padding:5px 10px;background:#ffffff;border-radius:6px;border:1.5px solid #1e293b;margin-bottom:8px;justify-content:space-around;align-items:center;'><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cov:.2f}%</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Coverage</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{den:.2f}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs/kb</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cnt:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{slen:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>bp</span></div></div>", unsafe_allow_html=True)
+def _render_analysis_summary_box(cov, den, cnt, slen):
+    rc = get_page_colors('Results')
+    st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px;padding:5px 10px;background:{rc['light']};border-radius:6px;border:2px solid {rc['primary']};box-shadow:0 2px 8px {rc['shadow']};margin-bottom:8px;justify-content:space-around;align-items:center;'><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cov:.2f}%</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Coverage</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{den:.2f}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs/kb</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{cnt:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>Motifs</span></div><div style='display:flex;flex-direction:column;align-items:center;padding:1px 8px;'><span style='font-size:0.95rem;font-weight:800;background:linear-gradient(135deg,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;'>{slen:,}</span><span style='font-size:0.6rem;color:#64748b;text-transform:uppercase;'>bp</span></div></div>", unsafe_allow_html=True)
 
 def _calculate_overlaps(motifs, by='Class'):
     overlaps = {}; sorted_m = sorted(motifs, key=lambda m: m.get('Start', 0))
@@ -92,7 +94,8 @@ def _render_overlap_matrix(overlaps, title):
 
 def render():
     load_css(TAB_THEMES.get('Results', 'genomic_purple')); render_section_heading("Analysis Results & Visualization", page="Results")
-    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown("<div style='background:#ffffff;padding:0.5rem 1.2rem;border-radius:12px;margin-top:0.8rem;border:1.5px solid #1e293b;text-align:center;'><h3 style='color:#be185d;margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:#6b7280;margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
+    rc = get_page_colors('Results')
+    if not has_results(): st.info(UI_TEXT['status_no_results']); st.info("Run analysis first in 'Upload & Analyze' tab."); st.markdown(f"<div style='background:{rc['light']};padding:0.5rem 1.2rem;border-radius:12px;margin-top:0.8rem;border:2px solid {rc['primary']};box-shadow:0 2px 10px {rc['shadow']};text-align:center;'><h3 style='color:{rc['primary']};margin:0 0 0.6rem 0;'>Visualization Preview</h3><p style='color:{rc['text']};margin:0;'>Upload and analyze a sequence to see motif track visualizations, distributions, density plots, and more.</p></div>", unsafe_allow_html=True); return
     
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
