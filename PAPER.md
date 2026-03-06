@@ -384,7 +384,81 @@ The multi-organism dataset assembled in this study provides the first quantitati
 
 Non B DNA Finder achieves true genome-scale throughput, completing analysis of the 3.12 Gb human genome in approximately 2.2 hours on standard hardware—a performance standard that only Non-B DB (as a pre-computed database, not a real-time tool) has previously matched. Interactive analysis through the Streamlit web interface lowers the barrier to use for non-computational biologists, while the Jupyter notebook interface and command-line API support full reproducibility in research workflows. All scoring parameters, canonical taxonomy definitions, and test sequences are openly available, addressing the reproducibility deficit that characterises many published non-B DNA tools.
 
-### 3.3 Genomic Observations: Biological Context and Prior Literature
+### 3.3 Algorithmic Optimization and Computational Framework
+
+Genome-scale non-B DNA detection imposes demanding computational requirements: a single chromosome can exceed 250 Mb, and nine detectors must be applied at every overlapping window position. Four complementary optimization strategies are integrated into Non B DNA Finder to achieve practical throughput on commodity hardware.
+
+#### 3.3.1 Hyperscan Multi-Pattern Matching
+
+Intel Hyperscan is a high-performance regular expression and exact-string matching library that compiles a set of patterns into a compiled finite automaton executed with SIMD (Single Instruction, Multiple Data) vector instructions. Non B DNA Finder uses Hyperscan in two detectors where the bottleneck is exact lookup of large tables of fixed-length patterns: Z-DNA 10-mer scanning and A-philic DNA 10-mer scanning. In both cases, the complete set of scored 10-mer keys is compiled into a Hyperscan database at module load time; the entire sequence is then scanned in a single pass, with match callbacks populating a position-indexed score array. When the `hyperscan` Python binding is unavailable, the library falls back transparently to a NumPy-vectorized polynomial-hash lookup (`vectorized_find_matches`) that encodes the DNA sequence as an integer array, computes all 10-mer hashes with ten NumPy array additions, and retrieves scores by array indexing—providing 5–10× acceleration over the naive Python loop (`py_find_matches_loop`) while requiring no compiled dependencies. A further fallback to the pure-Python sliding-window loop is invoked if NumPy is also absent. Hyperscan and the NumPy-vectorized path produce numerically identical outputs to the pure-Python baseline; no approximations are introduced.
+
+#### 3.3.2 Numba JIT Compilation
+
+Three computational hot-path kernels are decorated with `@jit(nopython=True, cache=True)` from the Numba just-in-time compilation library, which compiles Python/NumPy functions to native machine code on first call and caches the compiled binary to disk for subsequent invocations:
+
+- **G-Quadruplex sliding-window scoring** (`Detectors/gquad/detector.py`): The G4Hunter score is computed by summing per-base G/C contributions in a sliding window across the full sequence. The JIT-compiled kernel eliminates Python interpreter overhead on this innermost loop, yielding a 2–5× speedup for sequences >10 kb.
+- **Triplex mirror-repeat scoring** (`Detectors/triplex/detector.py`): The mirror-symmetry score is computed by pairwise comparison of purine–pyrimidine assignments across the candidate window. The JIT kernel compiles the character-comparison and score-accumulation logic to native code.
+- **Slipped DNA piecewise scoring** (`Detectors/slipped/detector.py`): Copy-number, unit-size, base-purity, and GC-fraction are combined in a piecewise arithmetic expression evaluated over each candidate repeat region. Numba compilation removes the interpretive cost of this multi-operand expression when called thousands of times per chromosome.
+
+When Numba is not installed, each function is replaced at module load time by an equivalent pure-Python implementation, ensuring correct results at a 2–5× throughput penalty.
+
+#### 3.3.3 Parallel Processing
+
+Non B DNA Finder implements two tiers of parallelism managed by Python's `concurrent.futures` module:
+
+**Sequence-level parallelism (ProcessPoolExecutor).** For sequences exceeding 1 Mb, the input chromosome is tiled into 50 kb chunks with 2 kb bilateral overlap, and chunks are dispatched to a `ProcessPoolExecutor` with a worker count equal to `min(chunk_count, os.cpu_count())`. Each worker process runs the full nine-detector pipeline on its assigned tile independently, bypassing the CPython Global Interpreter Lock and exploiting all available CPU cores. Results from completed chunks are collected as futures complete and merged by the `OverlapDeduplicator` module. For multi-FASTA inputs (e.g., whole-genome assemblies), the `MultiFastaEngine` dispatches entire sequences to a process pool, enabling all chromosomes to be analysed concurrently up to the available core count. Empirically, four-core commodity hardware achieves approximately 4× throughput improvement over single-threaded execution on chromosome-scale inputs.
+
+**Detector-level parallelism (ThreadPoolExecutor).** For sequences between 50 kb and 1 Mb that do not require chunking, up to nine concurrent worker threads—one per detector class—are launched via `ThreadPoolExecutor`. Because the G-Quadruplex, Cruciform, R-Loop, and Triplex detectors are CPU-bound, the threading benefit is modest (approximately 1.5–2× on an eight-core system due to GIL contention); the primary benefit is overlap of I/O-bound detector initialisation and of the Numba JIT warm-up period.
+
+A fallback to sequential single-threaded execution is used for sequences shorter than 50 kb, where process-spawning overhead exceeds the parallelism benefit.
+
+#### 3.3.4 Entropy Filtering
+
+Low-complexity DNA sequences—homopolymer runs, simple tandem repeats with minimal information content—can generate spurious motif calls from pattern-matching algorithms that have no model of sequence complexity. Non B DNA Finder applies Shannon entropy filtering as a post-detection quality gate for the Slipped DNA detector, which is most susceptible to low-complexity false positives. The Shannon entropy *H* of a candidate region is computed over the four base frequencies:
+
+*H* = −Σ *p*(*b*) log₂ *p*(*b*)  for *b* ∈ {A, T, G, C}
+
+Candidates with *H* < 0.5 bits are discarded before scoring, removing pure or near-pure homopolymers and degenerate dinucleotide repeats (e.g., AAAAAAA or TATATATATA with minimal base diversity) that would otherwise inflate STR and Direct Repeat counts. The 0.5-bit threshold was calibrated empirically against positive-control STR datasets to achieve <2% false-positive inflation while retaining >98% of biologically annotated tandem repeats.
+
+### 3.4 Software Implementation
+
+Non B DNA Finder is implemented as a modular Python package designed for portability, reproducibility, and accessibility across three usage modes: interactive web application, Jupyter notebook, and command-line API.
+
+#### 3.4.1 Python Libraries
+
+The core runtime stack requires Python ≥3.8 and the following libraries:
+
+- **NumPy** — vectorized array operations for 10-mer hash computation, per-base contribution arrays, and score normalisation arithmetic;
+- **pandas** — tabular result aggregation, multi-column sorting, CSV/XLSX export, and multi-index grouping for cross-class statistics;
+- **Matplotlib** and **Seaborn** — linear motif maps, class-distribution bar charts, GC-composition scatter plots, and confidence-score histograms embedded in the Streamlit interface and Jupyter notebooks;
+- **BioPython** (`Bio.SeqIO`) — FASTA parsing, sequence validation, reverse complement computation, and NCBI Entrez accession retrieval;
+- **Streamlit** — the reactive web application framework that renders the interactive front end (`app.py`) without any JavaScript;
+- **pyahocorasick** (optional) — C-extension Aho-Corasick automaton for single-pass multi-pattern matching used in the optimised scanner path, providing 50–200× acceleration over sequential regex for large pattern sets. When unavailable, the scanner falls back to a pure-Python Aho-Corasick implementation included in `Utilities/ac_matcher.py`.
+
+Optional performance accelerators add no new algorithmic behaviour:
+- **Numba** — JIT compilation of the G4Hunter, Triplex, and Slipped DNA hot-path kernels (Section 3.3.2);
+- **hyperscan** (Python bindings for Intel Hyperscan) — SIMD multi-pattern matching for Z-DNA and A-philic 10-mer lookup (Section 3.3.1).
+
+All dependencies are listed in `requirements.txt`; optional packages are caught with `try/except ImportError` and silently replaced by pure-Python equivalents, ensuring the tool runs correctly in environments without compiled extensions.
+
+#### 3.4.2 GitHub Repository and Open-Source Distribution
+
+The Non B DNA Finder source code is hosted at [https://github.com/VRYella/NonBDNAFinder](https://github.com/VRYella/NonBDNAFinder) under the MIT licence, which permits unrestricted use, modification, and redistribution. The repository is organised into logically separated sub-packages: `Detectors/` (nine detector modules, each in its own subdirectory with `__init__.py`, `detector.py`, and optional backend files), `Utilities/` (shared infrastructure: scanner, optimised scanner, parallel helpers, overlap deduplicator, export engine, visualisation pipeline), `UI/` (Streamlit page components and documentation renderer), `tests/` (pytest suite with sequence-level and performance regression tests), and `examples/` (benchmark FASTA files for positive-control validation). Scoring parameter registries (`Utilities/consolidated_registry.json`, `Detectors/zdna/tenmer_table.py`, `Detectors/aphilic/tenmer_table.py`) are stored as plain text alongside their primary literature citations, making every scoring decision auditable without inspecting compiled code. The production release is tagged `v1.0.0` and archived for long-term citability. Issue tracking, pull-request workflow, and release management are conducted through the GitHub platform, enabling community contributions and transparent bug reporting.
+
+#### 3.4.3 Streamlit Interface
+
+The interactive front end (`app.py`) is built on Streamlit and is deployable both locally (`streamlit run app.py`) and on Streamlit Community Cloud without any server configuration. The interface provides:
+
+- **Input modes**: Direct sequence paste, FASTA file upload (single or multi-sequence), and NCBI accession retrieval (Entrez nucleotide fetch with automatic FASTA conversion);
+- **Motif class selection**: An interactive toggle table listing all nine structural classes with per-class enable/disable checkboxes, allowing users to restrict analysis to classes of interest and reduce wall-clock time;
+- **Real-time execution progress**: A progress bar and live throughput display (bp/s) updated at each chunk boundary, computed from chunk completion timestamps;
+- **Tabular results**: A paginated, sortable, filterable data table of all detected motifs with 12 core fields per record (Sequence_Name, Class, Subclass, Start, End, Length, Sequence, Strand, Score, Raw_Score, Method, Pattern_ID) plus class-specific supplementary columns, with CSV and XLSX download buttons;
+- **Visualisation**: A linear motif map rendering all detected loci as colour-coded rectangles on a proportional chromosome axis, a stacked bar chart of per-class motif counts, and a class-distribution pie chart;
+- **Documentation**: An embedded multi-tab reference panel (Methods, Detection Algorithms, Scoring Guide, Optimization) rendered from `UI/documentation.py` without leaving the application.
+
+The Streamlit interface requires no bioinformatics command-line experience and is accessible to experimental biologists through a standard web browser, directly addressing the accessibility gap identified in Section 3.2.4.
+
+### 3.5 Genomic Observations: Biological Context and Prior Literature
 
 The genome-scale results reported here are broadly consistent with, and in several cases substantially extend, published findings on non-B DNA biology:
 
@@ -394,21 +468,21 @@ The genome-scale results reported here are broadly consistent with, and in sever
 
 **AT-rich eukaryotic non-B DNA.** The *P. falciparum* dataset confirms and quantifies the expectation that extreme AT-rich genomes are dominated by Curved DNA and Slipped DNA, which together account for >57% of all motifs in this organism. The density of Triplex (H-DNA) motifs in *P. falciparum* (0.90 per kb)—third overall—is unexpectedly high for an AT-rich genome, suggesting that the purine–pyrimidine mirror-repeat tracts within the organism's extended intergenic regions (some >10 kb in length) are a substantial source of triplex-forming potential. This structural feature has not been highlighted by previous analyses of *P. falciparum* genome organisation and may be relevant to the well-documented replication pausing and antigenic variation switching that occurs in these intergenic regions.
 
-### 3.4 Integrated Multi-Class Detection
+### 3.6 Integrated Multi-Class Detection
 
 The central advance of Non B DNA Finder relative to prior tools is the simultaneous, unified detection of nine structurally and algorithmically disparate non-B DNA classes in a single workflow. This integration is scientifically critical because non-B loci rarely occur in isolation: genome-wide analyses consistently show that G4-forming promoters also contain i-motif–prone sequences on the complementary strand, and that replication-origin–proximal regions harbour co-incident R-loop, cruciform, and Z-DNA potential. The Hybrid and Non-B DNA Cluster outputs of Non B DNA Finder make these co-occurrences explicit and queryable.
 
-### 3.5 Subclass Resolution and Disease Annotation
+### 3.7 Subclass Resolution and Disease Annotation
 
 The 24-subclass taxonomy—anchored in a single canonical taxonomy module and enforced through a normalisation layer throughout the codebase—provides a level of structural resolution not available in any prior genome-scale tool. For G-quadruplexes, the distinction between Telomeric G4, Canonical G4, Bulged G4, Extended-loop G4, G-wire, and Weak PQS is biologically meaningful: telomeric G4s are stabilised by POT1/TRF2 and targeted by telomerase inhibitors; Bulged G4s are prevalent in ribosomal DNA and have distinct thermodynamic properties compared to canonical G4s. Similarly, the three-way i-motif taxonomy (Canonical, Relaxed, AC-motif) reflects mechanistically distinct folding pathways with different pH sensitivity and cellular roles.
 
 Every motif record is annotated with a `Disease_Relevance` field automatically populated based on sequence content thresholds derived from clinical genetics literature: for example, (CGG)ₙ repeats ≥55 copies are flagged as Fragile X premutations, (GAA)ₙ ≥60 copies as FRDA pathogenic, and (CAG)ₙ ≥36 copies as Huntington disease threshold—providing an immediately actionable clinical layer to routine bioinformatic analysis.
 
-### 3.6 Reproducibility and Transparency
+### 3.8 Reproducibility and Transparency
 
 All scoring parameters are documented in `Utilities/consolidated_registry.json` alongside their primary literature citations. Motif detection is fully deterministic; no random components are involved. The open-source codebase, versioned on GitHub, and the stable canonical taxonomy ensure that published results are reproducible across software versions. Users who enable optional Hyperscan or Numba acceleration receive numerically identical results to the pure-Python baseline.
 
-### 3.7 Limitations and Future Directions
+### 3.9 Limitations and Future Directions
 
 Non B DNA Finder does not currently model the effects of DNA supercoiling, chromatin context, or sequence methylation on structure formation probability—all of which are known to modulate non-B DNA stability *in vivo*. Future work will integrate supercoiling density estimates from twin-domain transcription models and incorporate CpG methylation status (from bisulphite-sequencing data) as a modifier of Z-DNA and R-loop propensity. Extension to RNA secondary structures (forming at the single-stranded portion of R-loops) and to co-detection of CRISPR off-target sites enriched at non-B loci is also planned. The extraordinary non-B DNA density in extreme-GC actinobacteria (*Cellulomonas*, *Miltoncostaea*) demands dedicated experimental validation—e.g., by G4-ChIP-seq, R-loop S9.6 immunoprecipitation, and Z-DNA-specific antibody mapping—to determine which computationally predicted loci are biologically active structural hotspots. Integration with chromatin accessibility data (ATAC-seq, DNase-seq) and transcription factor binding maps will further contextualise non-B DNA predictions within regulatory networks.
 
