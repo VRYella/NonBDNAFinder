@@ -169,8 +169,8 @@ The core runtime stack requires Python ≥3.8 and the following libraries:
 - **pyahocorasick** (optional) — C-extension Aho-Corasick automaton for single-pass multi-pattern matching used in the optimised scanner path, providing 50–200× acceleration over sequential regex for large pattern sets. When unavailable, the scanner falls back to a pure-Python Aho-Corasick implementation included in `Utilities/ac_matcher.py`.
 
 Optional performance accelerators add no new algorithmic behaviour:
-- **Numba** — JIT compilation of the G4Hunter, Triplex, and Slipped DNA hot-path kernels (Section 3.3.2);
-- **hyperscan** (Python bindings for Intel Hyperscan) — SIMD multi-pattern matching for Z-DNA and A-philic 10-mer lookup (Section 3.3.1).
+- **Numba** — JIT compilation of the G4Hunter, Triplex, and Slipped DNA hot-path kernels (Section 2.3.2, Numba JIT Compilation);
+- **hyperscan** (Python bindings for Intel Hyperscan) — SIMD multi-pattern matching for Z-DNA and A-philic 10-mer lookup (Section 2.3.2, Hyperscan Multi-Pattern Matching).
 
 All dependencies are listed in `requirements.txt`; optional packages are caught with `try/except ImportError` and silently replaced by pure-Python equivalents, ensuring the tool runs correctly in environments without compiled extensions.
 
@@ -519,7 +519,7 @@ The interactive front end (`app.py`) is built on Streamlit and is deployable bot
 - **Visualisation**: A linear motif map rendering all detected loci as colour-coded rectangles on a proportional chromosome axis, a stacked bar chart of per-class motif counts, and a class-distribution pie chart;
 - **Documentation**: An embedded multi-tab reference panel (Methods, Detection Algorithms, Scoring Guide, Optimization) rendered from `UI/documentation.py` without leaving the application.
 
-The Streamlit interface requires no bioinformatics command-line experience and is accessible to experimental biologists through a standard web browser, directly addressing the accessibility gap identified in Section 3.2.4.
+The Streamlit interface requires no bioinformatics command-line experience and is accessible to experimental biologists through a standard web browser, directly addressing the accessibility gap identified in Section 4.1.4.
 
 ---
 
