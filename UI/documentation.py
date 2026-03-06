@@ -14,7 +14,7 @@ import pandas as pd
 from Utilities.config.text import UI_TEXT
 from Utilities.config.themes import TAB_THEMES
 from Utilities.config.colors import UNIFIED_MOTIF_COLORS, MOTIF_CLASS_INFO
-from UI.css import load_css
+from UI.css import load_css, get_page_colors
 from UI.headers import render_section_heading
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -91,9 +91,10 @@ def _build_flow_diagram(stages, caption=""):
 
 
 def _build_motif_card(n, sub, col, desc):
+    dc = get_page_colors('Documentation')
     return (
-        f"<div style='background:white;padding:0.25rem 0.7rem;border-radius:8px;"
-        f"box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left:4px solid {col};'>"
+        f"<div style='background:{dc['light']};padding:0.25rem 0.7rem;border-radius:8px;"
+        f"box-shadow:0 1px 4px rgba(0,0,0,0.10);border:1px solid {dc['border']};border-left:4px solid {col};'>"
         f"<strong style='color:#1e293b;font-size:0.95rem;'>{n}</strong>"
         f"<div style='color:{col};font-size:0.85rem;font-weight:600;margin:0.1rem 0;'>{sub}</div>"
         f"<div style='color:#64748b;font-size:0.85rem;line-height:1.3;'>{desc}</div></div>"

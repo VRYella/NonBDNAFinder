@@ -36,8 +36,9 @@ HOME_COLORS = {
     'primary': '#EA580C',      # Vibrant Deep Orange
     'secondary': '#FB923C',    # Bright Orange
     'accent': '#FBBF24',       # Vivid Amber/Yellow accent
-    'light': '#FFF7ED',        # Warm orange light background
-    'lighter': '#FFFBF5',      # Ultra-warm near-white
+    'light': '#FFEDD5',        # Orange-100 medium-lite background
+    'lighter': '#FFF7ED',      # Orange-50 lite background
+    'medium': '#FED7AA',       # Orange-200 medium background
     'border': '#FDBA74',       # Orange border
     'text': '#7C2D12',         # Deep burnt orange text
     'shadow': 'rgba(234, 88, 12, 0.18)',
@@ -47,8 +48,9 @@ INPUT_COLORS = {
     'primary': '#4F46E5',      # Royal Indigo
     'secondary': '#6366F1',    # Bright Indigo
     'accent': '#818CF8',       # Light Indigo accent
-    'light': '#EEF2FF',        # Indigo-50 light background
-    'lighter': '#F5F7FF',      # Ultra-light indigo near-white
+    'light': '#E0E7FF',        # Indigo-100 medium-lite background
+    'lighter': '#EEF2FF',      # Indigo-50 lite background
+    'medium': '#C7D2FE',       # Indigo-200 medium background
     'border': '#C7D2FE',       # Indigo border
     'text': '#1e1b4b',         # Deep navy text
     'shadow': 'rgba(79, 70, 229, 0.18)',
@@ -58,8 +60,9 @@ ANALYSIS_COLORS = {
     'primary': '#D97706',
     'secondary': '#F59E0B',
     'accent': '#FBBF24',
-    'light': '#FFFBEB',
-    'lighter': '#FFFEF7',
+    'light': '#FEF3C7',        # Amber-100 medium-lite
+    'lighter': '#FFFBEB',      # Amber-50 lite
+    'medium': '#FDE68A',       # Amber-200 medium
     'border': '#FDE68A',
     'text': '#7C2D12',
     'shadow': 'rgba(217, 119, 6, 0.12)',
@@ -69,8 +72,9 @@ RESULTS_COLORS = {
     'primary': '#0EA5A4',      # Teal-Cyan
     'secondary': '#06B6D4',
     'accent': '#22D3EE',
-    'light': '#ECFEFF',
-    'lighter': '#F0FDFF',
+    'light': '#CFFAFE',        # Cyan-100 medium-lite background
+    'lighter': '#ECFEFF',      # Cyan-50 lite background
+    'medium': '#A5F3FC',       # Cyan-200 medium background
     'border': '#A5F3FC',
     'text': '#164E63',
     'shadow': 'rgba(14, 165, 164, 0.12)',
@@ -80,8 +84,9 @@ VISUALIZATION_COLORS = {
     'primary': '#0F766E',
     'secondary': '#14B8A6',
     'accent': '#5EEAD4',
-    'light': '#F0FDFA',
-    'lighter': '#F7FEFC',
+    'light': '#CCFBF1',        # Teal-100 medium-lite background
+    'lighter': '#F0FDFA',      # Teal-50 lite background
+    'medium': '#99F6E4',       # Teal-200 medium background
     'border': '#99F6E4',
     'text': '#134E4A',
     'shadow': 'rgba(15, 118, 110, 0.12)',
@@ -91,8 +96,9 @@ DOWNLOAD_COLORS = {
     'primary': '#16A34A',      # Emerald Green
     'secondary': '#22C55E',
     'accent': '#4ADE80',
-    'light': '#ECFDF5',
-    'lighter': '#F0FDF4',
+    'light': '#DCFCE7',        # Green-100 medium-lite background
+    'lighter': '#ECFDF5',      # Green-50 lite background
+    'medium': '#BBF7D0',       # Green-200 medium background
     'border': '#BBF7D0',
     'text': '#14532D',
     'shadow': 'rgba(22, 163, 74, 0.12)',
@@ -102,8 +108,9 @@ DOCUMENTATION_COLORS = {
     'primary': '#B91C1C',      # Academic Crimson
     'secondary': '#DC2626',
     'accent': '#FCA5A5',
-    'light': '#FEF2F2',
-    'lighter': '#FFF5F5',
+    'light': '#FEE2E2',        # Red-100 medium-lite background
+    'lighter': '#FEF2F2',      # Red-50 lite background
+    'medium': '#FECACA',       # Red-200 medium background
     'border': '#FECACA',
     'text': '#1E293B',
     'shadow': 'rgba(185, 28, 28, 0.15)',

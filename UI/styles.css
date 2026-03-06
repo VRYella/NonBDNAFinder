@@ -60,10 +60,10 @@ section[data-testid="stSidebar"] {
     justify-content: space-evenly !important;
     overflow: visible !important;
     padding: 10px 8px !important;
-    background: #FFFFFF !important;
+    background: var(--bg-card, #F0F0FF) !important;
     border-radius: 18px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-    border: 2px solid #1e293b !important;
+    box-shadow: 0 2px 12px rgba(var(--primary-rgb, 79,70,229), 0.18) !important;
+    border: 2px solid var(--primary-color, #4F46E5) !important;
 }
 
 /* Main Tab Buttons — Base Styles */
@@ -231,10 +231,10 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 5px !important;
     padding: 7px !important;
-    background: #FFFFFF !important;
+    background: var(--bg-card, #F0F0FF) !important;
     border-radius: 14px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
-    border: 2px solid #1e293b !important;
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 79,70,229), 0.12) !important;
+    border: 2px solid var(--primary-color, #4F46E5) !important;
 }
 
 /* Sub-tab Base Style */
@@ -370,12 +370,12 @@ section[data-testid="stSidebar"] {
 
 /* ─── Deeper Nested Tabs (algorithm sub-tabs etc.) — Vibrant Light ─ */
 .stTabs .stTabs .stTabs [data-baseweb="tab-list"] {
-    background: #FFFFFF !important;
+    background: var(--bg-card, #F0F0FF) !important;
     border-radius: 10px !important;
     padding: 5px !important;
     gap: 3px !important;
-    border: 1.5px solid #1e293b !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+    border: 1.5px solid var(--primary-color, #4F46E5) !important;
+    box-shadow: 0 2px 6px rgba(var(--primary-rgb, 79,70,229), 0.10) !important;
 }
 .stTabs .stTabs .stTabs [data-baseweb="tab"] {
     background: rgba(99, 102, 241, 0.08) !important;
@@ -648,11 +648,12 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 8px;
     padding: 4px 8px;
-    background: #ffffff;
+    background: var(--bg-card, #DCFCE7);
     border-radius: 12px;
     margin: 8px 0;
     justify-content: space-between;
-    border: 1.5px solid #1e293b;
+    border: 1.5px solid var(--primary-color, #16A34A);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 22,163,74), 0.12);
 }
 
 /* Individual metric card - compact horizontal */
@@ -860,12 +861,13 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 10px;
     padding: 3px 12px;
-    background: #ffffff;
+    background: var(--bg-card, #CFFAFE);
     border-radius: 10px;
     margin-bottom: 10px;
     justify-content: center;
     align-items: center;
-    border: 1.5px solid #1e293b;
+    border: 1.5px solid var(--primary-color, #0EA5A4);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 14,165,164), 0.12);
 }
 
 .ribbon-item {
@@ -884,9 +886,10 @@ p, span, label, li, td, th {
     flex-wrap: wrap;
     gap: 5px;
     padding: 4px 12px;
-    background: #ffffff;
+    background: var(--bg-card, #CFFAFE);
     border-radius: 10px;
-    border: 1.5px solid #1e293b;
+    border: 1.5px solid var(--primary-color, #0EA5A4);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 14,165,164), 0.12);
     margin-bottom: 10px;
     justify-content: space-around;
 }
@@ -1093,14 +1096,15 @@ p, span, label, li, td, th {
 
 /* Streamlit expander (collapsible sections) — thick border + glow */
 [data-testid="stExpander"] {
-    border: 2px solid rgba(99, 102, 241, 0.35) !important;
+    border: 2px solid rgba(var(--primary-rgb, 99,102,241), 0.35) !important;
     border-radius: 14px !important;
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb, 99,102,241), 0.12), 0 0 0 1px rgba(var(--primary-rgb, 99,102,241), 0.08) !important;
     transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+    background: var(--bg-card, #e0e7ff) !important;
 }
 [data-testid="stExpander"]:hover {
-    border-color: rgba(99, 102, 241, 0.6) !important;
-    box-shadow: 0 6px 28px rgba(99, 102, 241, 0.2), 0 0 18px rgba(99, 102, 241, 0.1) !important;
+    border-color: rgba(var(--primary-rgb, 99,102,241), 0.6) !important;
+    box-shadow: 0 6px 28px rgba(var(--primary-rgb, 99,102,241), 0.2), 0 0 18px rgba(var(--primary-rgb, 99,102,241), 0.1) !important;
 }
 
 /* Streamlit containers/columns — enhanced separator */
@@ -1118,11 +1122,11 @@ p, span, label, li, td, th {
 
 /* Streamlit metric cards */
 [data-testid="stMetric"] {
-    background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%) !important;
-    border: 2px solid rgba(99, 102, 241, 0.25) !important;
+    background: linear-gradient(135deg, var(--bg-card, #e0e7ff) 0%, var(--bg-light, #eef2ff) 100%) !important;
+    border: 2px solid rgba(var(--primary-rgb, 79,70,229), 0.30) !important;
     border-radius: 14px !important;
     padding: 0.8rem 1rem !important;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1), 0 0 0 1px rgba(255,255,255,0.8) inset !important;
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb, 79,70,229), 0.10), 0 0 0 1px rgba(255,255,255,0.8) inset !important;
     transition: all 0.25s ease !important;
 }
 [data-testid="stMetric"]:hover {
@@ -1152,17 +1156,17 @@ p, span, label, li, td, th {
 
 /* File uploader — thick vibrant border */
 [data-testid="stFileUploader"] {
-    border: 3px dashed rgba(79, 70, 229, 0.5) !important;
+    border: 3px dashed rgba(var(--primary-rgb, 79,70,229), 0.5) !important;
     border-radius: 16px !important;
-    background: linear-gradient(135deg, #fafbff 0%, #f0f3ff 100%) !important;
-    box-shadow: 0 0 20px rgba(79, 70, 229, 0.08), inset 0 2px 8px rgba(79, 70, 229, 0.04) !important;
+    background: var(--bg-card, #e0e7ff) !important;
+    box-shadow: 0 0 20px rgba(var(--primary-rgb, 79,70,229), 0.08), inset 0 2px 8px rgba(var(--primary-rgb, 79,70,229), 0.04) !important;
     transition: all 0.3s ease !important;
     padding: 1rem !important;
 }
 [data-testid="stFileUploader"]:hover {
-    border-color: rgba(79, 70, 229, 0.75) !important;
-    box-shadow: 0 0 28px rgba(79, 70, 229, 0.18), 0 0 0 4px rgba(79, 70, 229, 0.06) !important;
-    background: linear-gradient(135deg, #f0f3ff 0%, #e8edff 100%) !important;
+    border-color: rgba(var(--primary-rgb, 79,70,229), 0.75) !important;
+    box-shadow: 0 0 28px rgba(var(--primary-rgb, 79,70,229), 0.18), 0 0 0 4px rgba(var(--primary-rgb, 79,70,229), 0.06) !important;
+    background: var(--bg-medium, #c7d2fe) !important;
 }
 
 /* Primary buttons — vibrant gradient */
