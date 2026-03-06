@@ -475,8 +475,8 @@ button[kind="secondary"]:hover {
 
 @media (prefers-reduced-motion: reduce) {
     * {
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
     }
 
     [data-baseweb="tab"]:hover,
