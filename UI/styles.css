@@ -22,17 +22,40 @@
     --sci-cyan: #56B4E9;
     --sci-dark: #1e293b;
     --sci-gray: #64748b;
-    
+
+    /* Global neutral surfaces — shared across all pages */
+    --bg-main: #F6F7FB;
+    --bg-surface: #FFFFFF;
+    --bg-muted: #EEF2F7;
+
+    /* Borders */
+    --border-subtle: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.16);
+
+    /* Text hierarchy */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+
+    /* Shadows */
+    --shadow-soft: 0 6px 16px rgba(0,0,0,0.08);
+
+    /* Metric / semantic indicator colors (color-blind safe) */
+    --metric-good: #059669;
+    --metric-warning: #D97706;
+    --metric-bad: #DC2626;
+    --metric-info: #0284C7;
+
     /* UI colors */
-    --gradient-primary: linear-gradient(135deg, #EA580C 0%, #FBBF24 100%);
+    --gradient-primary: linear-gradient(135deg, #B91C1C 0%, #EF4444 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
     --gradient-accent: linear-gradient(135deg, #FB923C 0%, #FDE68A 100%);
-    
+
     /* Shadows for depth */
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 2px 4px rgba(0,0,0,0.08);
     --shadow-lg: 0 4px 12px rgba(0,0,0,0.10);
-    --shadow-glow: 0 2px 8px rgba(234, 88, 12, 0.08);
+    --shadow-glow: 0 2px 8px rgba(185, 28, 28, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -402,6 +425,48 @@ section[data-testid="stSidebar"] {
         transform: none !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   UNIVERSAL COMPONENT COLORS — Derived from page theme
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Primary button — uses page theme primary */
+.btn-primary, .stButton > button[kind="primary"] {
+    background: var(--primary-color) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: var(--border-radius-md, 8px) !important;
+    font-weight: 700 !important;
+    transition: background var(--transition-fast, 0.15s ease) !important;
+}
+
+.btn-primary:hover, .stButton > button[kind="primary"]:hover {
+    background: var(--theme-border, var(--primary-color)) !important;
+    filter: brightness(0.88) !important;
+}
+
+/* Input focus — page theme accent ring */
+input:focus, .stTextInput input:focus, .stTextArea textarea:focus,
+.stSelectbox [data-baseweb="select"]:focus-within {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 79,70,229), 0.20) !important;
+    outline: none !important;
+}
+
+/* Card — neutral surface with soft shadow */
+.card, [data-testid="stExpander"] > div:first-child,
+[data-testid="metric-container"] {
+    background: var(--bg-surface, #FFFFFF) !important;
+    border: 1px solid var(--border-subtle, rgba(0,0,0,0.08)) !important;
+    box-shadow: var(--shadow-soft, 0 6px 16px rgba(0,0,0,0.08)) !important;
+    border-radius: var(--border-radius-md, 8px) !important;
+}
+
+/* Metric indicator classes */
+.metric-good { color: var(--metric-good, #059669) !important; }
+.metric-warning { color: var(--metric-warning, #D97706) !important; }
+.metric-bad { color: var(--metric-bad, #DC2626) !important; }
+.metric-info { color: var(--metric-info, #0284C7) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
    HEADING STYLING - BOLD, ENLARGED, AND VIBRANT

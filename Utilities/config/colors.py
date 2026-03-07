@@ -8,44 +8,80 @@ All variable names and structure preserved.
 # ==================== GLOBAL BASE COLORS ====================
 GLOBAL_COLORS = {
     # Neutral backgrounds - Light mode foundation
-    'neutral_50': '#FAFAF9',
-    'neutral_100': '#F4F4F5',
+    'neutral_50': '#F6F7FB',
+    'neutral_100': '#EEF2F7',
     'neutral_200': '#E4E4E7',
     'neutral_300': '#D4D4D8',
     'neutral_400': '#A1A1AA',
-    'neutral_500': '#71717A',
-    'neutral_600': '#52525B',
-    'neutral_700': '#3F3F46',
+    'neutral_500': '#64748B',
+    'neutral_600': '#475569',
+    'neutral_700': '#0F172A',
     'neutral_800': '#27272A',
     'neutral_900': '#18181B',
-    
+
     # Dark mode backgrounds (more atmospheric, less blue-tinted)
     'dark_50': '#18181B',
     'dark_100': '#1F1F23',
     'dark_200': '#27272A',
     'dark_300': '#3F3F46',
     'dark_400': '#52525B',
-    
+
     'white': '#FFFFFF',
     'black': '#000000',
+}
+
+# ==================== GLOBAL NEUTRAL SYSTEM ====================
+
+NEUTRAL_SYSTEM = {
+    # Surfaces
+    'bg_main': '#F6F7FB',
+    'bg_surface': '#FFFFFF',
+    'bg_muted': '#EEF2F7',
+
+    # Borders
+    'border_subtle': 'rgba(0,0,0,0.08)',
+    'border_strong': 'rgba(0,0,0,0.16)',
+
+    # Text
+    'text_primary': '#0F172A',
+    'text_secondary': '#475569',
+    'text_muted': '#64748B',
+
+    # Shadows
+    'shadow_soft': '0 6px 16px rgba(0,0,0,0.08)',
+}
+
+# ==================== METRIC / SEMANTIC INDICATOR COLORS ====================
+
+METRIC_COLORS = {
+    'good': '#059669',
+    'warning': '#D97706',
+    'bad': '#DC2626',
+    'info': '#0284C7',
 }
 
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#EA580C',      # Vibrant Deep Orange
-    'secondary': '#FB923C',    # Bright Orange
-    'accent': '#FBBF24',       # Vivid Amber/Yellow accent
-    'light': '#FFF3E0',        # Orange-50 light background
-    'lighter': '#FFFAF5',      # Near-white orange background
-    'medium': '#FFEDD5',       # Orange-100 medium background
-    'border': '#FDBA74',       # Orange border
-    'text': '#7C2D12',         # Deep burnt orange text
-    'shadow': 'rgba(234, 88, 12, 0.18)',
+    'primary': '#B91C1C',      # Academic Crimson
+    'primary_light': '#EF4444',
+    'primary_dark': '#7F1D1D',
+    'primary_soft': '#FEE2E2',
+    'secondary': '#EF4444',    # Crimson Light
+    'accent': '#FCA5A5',       # Crimson Accent
+    'light': '#FEF2F2',        # Crimson-50 light background
+    'lighter': '#FFF5F5',      # Near-white crimson background
+    'medium': '#FEE2E2',       # Crimson-100 medium background
+    'border': '#FECACA',       # Crimson border
+    'text': '#7F1D1D',         # Deep crimson text
+    'shadow': 'rgba(185, 28, 28, 0.18)',
 }
 
 INPUT_COLORS = {
     'primary': '#4F46E5',      # Royal Indigo
+    'primary_light': '#6366F1',
+    'primary_dark': '#3730A3',
+    'primary_soft': '#E0E7FF',
     'secondary': '#6366F1',    # Bright Indigo
     'accent': '#818CF8',       # Light Indigo accent
     'light': '#EEF2FF',        # Indigo-50 light background
@@ -58,6 +94,9 @@ INPUT_COLORS = {
 
 ANALYSIS_COLORS = {
     'primary': '#D97706',
+    'primary_light': '#F59E0B',
+    'primary_dark': '#92400E',
+    'primary_soft': '#FEF3C7',
     'secondary': '#F59E0B',
     'accent': '#FBBF24',
     'light': '#FFFBEB',        # Amber-50 light background
@@ -69,7 +108,10 @@ ANALYSIS_COLORS = {
 }
 
 RESULTS_COLORS = {
-    'primary': '#0EA5A4',      # Teal-Cyan
+    'primary': '#0EA5A4',      # Scientific Teal
+    'primary_light': '#2DD4BF',
+    'primary_dark': '#0F766E',
+    'primary_soft': '#CCFBF1',
     'secondary': '#06B6D4',
     'accent': '#22D3EE',
     'light': '#ECFEFF',        # Cyan-50 light background
@@ -82,6 +124,9 @@ RESULTS_COLORS = {
 
 VISUALIZATION_COLORS = {
     'primary': '#0F766E',
+    'primary_light': '#14B8A6',
+    'primary_dark': '#134E4A',
+    'primary_soft': '#CCFBF1',
     'secondary': '#14B8A6',
     'accent': '#5EEAD4',
     'light': '#F0FDFA',        # Teal-50 light background
@@ -94,6 +139,9 @@ VISUALIZATION_COLORS = {
 
 DOWNLOAD_COLORS = {
     'primary': '#16A34A',      # Emerald Green
+    'primary_light': '#22C55E',
+    'primary_dark': '#166534',
+    'primary_soft': '#DCFCE7',
     'secondary': '#22C55E',
     'accent': '#4ADE80',
     'light': '#ECFDF5',        # Green-50 light background
@@ -105,15 +153,18 @@ DOWNLOAD_COLORS = {
 }
 
 DOCUMENTATION_COLORS = {
-    'primary': '#B91C1C',      # Academic Crimson
-    'secondary': '#DC2626',
-    'accent': '#FCA5A5',
-    'light': '#FEF2F2',        # Red-50 light background
-    'lighter': '#FFF5F5',      # Near-white red background
-    'medium': '#FEE2E2',       # Red-100 medium background
-    'border': '#FECACA',
-    'text': '#1E293B',
-    'shadow': 'rgba(185, 28, 28, 0.15)',
+    'primary': '#EA580C',      # Amber/Orange
+    'primary_light': '#FB923C',
+    'primary_dark': '#9A3412',
+    'primary_soft': '#FFEDD5',
+    'secondary': '#FB923C',    # Bright Orange
+    'accent': '#FBBF24',       # Amber accent
+    'light': '#FFF7ED',        # Orange-50 light background
+    'lighter': '#FFFAF5',      # Near-white orange background
+    'medium': '#FFEDD5',       # Orange-100 medium background
+    'border': '#FDBA74',       # Orange border
+    'text': '#7C2D12',         # Deep burnt orange text
+    'shadow': 'rgba(234, 88, 12, 0.18)',
 }
 
 # ==================== SEMANTIC STATUS COLORS ====================
@@ -230,11 +281,11 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#EA580C', 'hover': '#C2410C', 'text': '#FFF7ED', 'glow': 'rgba(251, 146, 60, 0.70)'},
-    'Upload & Analyze': {'bg': '#CA8A04', 'hover': '#A16207', 'text': '#FFFEF5', 'glow': 'rgba(234, 179, 8, 0.65)'},
+    'Home': {'bg': '#B91C1C', 'hover': '#991B1B', 'text': '#FEF2F2', 'glow': 'rgba(185, 28, 28, 0.70)'},
+    'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#3730A3', 'text': '#EEF2FF', 'glow': 'rgba(99, 102, 241, 0.65)'},
     'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
     'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
-    'Documentation': {'bg': '#B91C1C', 'hover': '#991B1B', 'text': '#FFFFFF', 'glow': 'rgba(220, 38, 38, 0.55)'},
+    'Documentation': {'bg': '#EA580C', 'hover': '#C2410C', 'text': '#FFF7ED', 'glow': 'rgba(251, 146, 60, 0.65)'},
 }
 
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================

@@ -5675,7 +5675,7 @@ def plot_class_comparison(results: Dict[str, List[Dict[str, Any]]],
     # Create heatmap
     fig, ax = plt.subplots(figsize=figsize)
     
-    sns.heatmap(pivot_df, annot=True, fmt='.1f', cmap='YlOrRd', 
+    sns.heatmap(pivot_df, annot=True, fmt='.1f', cmap='viridis', 
                 ax=ax, cbar_kws={'label': f'Motif {metric.title()}'})
     
     ax.set_title(title or f'Motif Class Comparison by {metric.title()}')
@@ -7748,8 +7748,8 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     ax_left.set_ylim(0, n_classes)
     ax_left.axis('off')
 
-    # Elegant colormap: white for zero (masked), then blue-red gradient
-    cmap = plt.cm.get_cmap('YlOrRd').copy()
+    # Scientific sequential colormap: viridis for accessibility and monotonic lightness
+    cmap = plt.cm.get_cmap('viridis').copy()
     cmap.set_bad(color='#f8fafc')   # very light grey for masked (zero) cells
     im = ax_main.imshow(masked_matrix, cmap=cmap, aspect='auto',
                         interpolation='nearest', vmin=1)
@@ -8539,7 +8539,7 @@ def plot_structural_heatmap(motifs: List[Dict[str, Any]],
     fig, ax = plt.subplots(figsize=figsize, dpi=PUBLICATION_DPI)
     
     # Create heatmap
-    im = ax.imshow(density_matrix, aspect='auto', cmap='YlOrRd', 
+    im = ax.imshow(density_matrix, aspect='auto', cmap='viridis', 
                    interpolation='nearest', vmin=0, vmax=1)
     
     # Format axis labels
@@ -9201,7 +9201,7 @@ def plot_structural_competition_upset(motifs: List[Dict[str, Any]],
             if cls in all_classes:
                 matrix[i, all_classes.index(cls)] = 1
     
-    ax_matrix.imshow(matrix.T, aspect='auto', cmap='Blues', interpolation='nearest')
+    ax_matrix.imshow(matrix.T, aspect='auto', cmap='Greys', interpolation='nearest')
     ax_matrix.set_xticks(range(len(top_combos)))
     ax_matrix.set_xticklabels([])
     ax_matrix.set_yticks(range(len(all_classes)))
@@ -9423,7 +9423,7 @@ def plot_sliding_window_heat_ribbon(motifs: List[Dict[str, Any]],
     density_array = np.array(density_values).reshape(1, -1)
     
     # Plot heatmap
-    im = ax1.imshow(density_array, cmap='YlOrRd', aspect='auto', 
+    im = ax1.imshow(density_array, cmap='viridis', aspect='auto', 
                     extent=[0, sequence_length / 1000, 0, 1],
                     interpolation='bilinear')
     
