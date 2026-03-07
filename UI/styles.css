@@ -86,118 +86,108 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
-/* ─── Tab 1: Home — Crimson (swapped with Documentation) ──── */
+/* ─── Tab 1: Home — Dark Slate Blue ─────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #B91C1C 0%, #DC2626 60%, #EF4444 100%) !important;
+    background-color: #2C3E50 !important;
     color: #FFFFFF !important;
-    border: 2px solid #7f1d1d !important;
+    border: 2px solid #1a252f !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
-    color: #FFFFFF !important;
+    filter: brightness(0.85) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
-    border-color: #7f1d1d !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%) !important;
+    background-color: #2C3E50 !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
-    border: 2px solid #7f1d1d !important;
+    border: 2px solid #1a252f !important;
     text-shadow: none !important;
 }
 
-/* ─── Tab 2: Upload & Analyze — Royal Indigo ─────────────── */
+/* ─── Tab 2: Upload & Analyze — Medium Purple ────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
+    background-color: #6B63FF !important;
     color: #FFFFFF !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4a43cc !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #3730a3 0%, #4338CA 100%) !important;
-    color: #FFFFFF !important;
+    filter: brightness(0.85) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
-    border-color: #312e81 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
+    background-color: #6B63FF !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4a43cc !important;
     text-shadow: none !important;
 }
 
-/* ─── Tab 3: Results — Vibrant Teal-Cyan ─────────────────── */
+/* ─── Tab 3: Results — Cadet Blue ───────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #0EA5A4 0%, #06B6D4 60%, #22D3EE 100%) !important;
+    background-color: #5B8E7D !important;
     color: #FFFFFF !important;
-    border: 2px solid #0e7490 !important;
+    border: 2px solid #3d6358 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #0D9488 0%, #0EA5A4 100%) !important;
-    color: #FFFFFF !important;
+    filter: brightness(0.85) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
-    border-color: #0e7490 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
-    background: linear-gradient(135deg, #0D9488 0%, #06B6D4 100%) !important;
+    background-color: #5B8E7D !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
-    border: 2px solid #0e7490 !important;
+    border: 2px solid #3d6358 !important;
     text-shadow: none !important;
 }
 
-/* ─── Tab 4: Download — Vibrant Emerald Green ────────────── */
+/* ─── Tab 4: Download — Medium Sea Green ────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #16A34A 0%, #22C55E 60%, #4ADE80 100%) !important;
+    background-color: #3A9D8F !important;
     color: #FFFFFF !important;
-    border: 2px solid #166534 !important;
+    border: 2px solid #277066 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #15803D 0%, #22C55E 100%) !important;
-    color: #FFFFFF !important;
+    filter: brightness(0.85) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
-    border-color: #166534 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
-    background: linear-gradient(135deg, #15803D 0%, #22C55E 100%) !important;
+    background-color: #3A9D8F !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
-    border: 2px solid #166534 !important;
+    border: 2px solid #277066 !important;
     text-shadow: none !important;
 }
 
-/* ─── Tab 5: Documentation — Orange-Amber (swapped with Home) ─── */
+/* ─── Tab 5: Documentation — Warm Gray ──────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #C2410C 0%, #EA580C 50%, #FB923C 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #7c2d12 !important;
+    background-color: #A7A9AC !important;
+    color: #2C3E50 !important;
+    border: 2px solid #888b8f !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
-    color: #FFFFFF !important;
+    filter: brightness(0.85) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
-    border-color: #7c2d12 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #9A3412 0%, #EA580C 60%, #FBBF24 100%) !important;
-    color: #FFFFFF !important;
+    background-color: #A7A9AC !important;
+    color: #2C3E50 !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.20) !important;
-    border: 2px solid #7c2d12 !important;
+    border: 2px solid #888b8f !important;
     text-shadow: none !important;
 }
 
