@@ -10,7 +10,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 import os
 import streamlit as st
-from Utilities.config.colors import GLOBAL_COLORS, HOME_COLORS, INPUT_COLORS, ANALYSIS_COLORS, RESULTS_COLORS, VISUALIZATION_COLORS, DOWNLOAD_COLORS, DOCUMENTATION_COLORS, SEMANTIC_COLORS
+from Utilities.config.colors import GLOBAL_COLORS, HOME_COLORS, INPUT_COLORS, ANALYSIS_COLORS, RESULTS_COLORS, VISUALIZATION_COLORS, DOWNLOAD_COLORS, DOCUMENTATION_COLORS, SEMANTIC_COLORS, NEUTRAL_SYSTEM, METRIC_COLORS
 from Utilities.config.themes import COLOR_THEMES
 from Utilities.config.typography import FONT_CONFIG
 from Utilities.config.layout import LAYOUT_CONFIG
@@ -40,7 +40,39 @@ def load_css(theme_name=None):
     except: css_content = ""
     p_rgb, s_rgb = hex_to_rgb(t["primary"]), hex_to_rgb(t["secondary"]); dna_svg = get_dna_pattern_svg("C2410C" if is_dark else "FDBA74")
     bg_medium = t.get('bg_medium', t['bg_card']); theme_border = t.get('border', t['accent'])
-    theme_vars = f"""<style>:root{{--primary-color:{t['primary']};--secondary-color:{t['secondary']};--accent-color:{t['accent']};--bg-light:{t['bg_light']};--bg-card:{t['bg_card']};--bg-medium:{bg_medium};--theme-border:{theme_border};--text-color:{t['text']};--shadow-color:{t['shadow']};--primary-rgb:{p_rgb[0]},{p_rgb[1]},{p_rgb[2]};--secondary-rgb:{s_rgb[0]},{s_rgb[1]},{s_rgb[2]};--font-primary:{FONT_CONFIG['primary_font']};--font-monospace:{FONT_CONFIG['monospace_font']};--font-h1:calc({FONT_CONFIG['h1_size']}*0.95);--font-h2:calc({FONT_CONFIG['h2_size']}*0.95);--font-h3:calc({FONT_CONFIG['h3_size']}*0.96);--font-h4:calc({FONT_CONFIG['h4_size']}*0.97);--font-body:calc({FONT_CONFIG['body_size']}*0.97);--font-small:calc({FONT_CONFIG['small_size']}*0.95);--font-weight-light:400;--font-weight-normal:600;--font-weight-medium:700;--font-weight-semibold:800;--font-weight-bold:900;--font-weight-extrabold:950;--line-height-tight:1.15;--line-height-normal:1.25;--letter-spacing-tight:-0.015em;--letter-spacing-normal:-0.01em;--text-glow:0 1px 3px rgba(0,0,0,0.25);--accent-glow:0 1px 3px rgba(0,0,0,0.20);--border-radius-sm:{LAYOUT_CONFIG['border_radius']['small']};--border-radius-md:{LAYOUT_CONFIG['border_radius']['medium']};--border-radius-lg:{LAYOUT_CONFIG['border_radius']['large']};--spacing-sm:{LAYOUT_CONFIG['padding']['small']};--spacing-md:{LAYOUT_CONFIG['padding']['medium']};--spacing-lg:{LAYOUT_CONFIG['padding']['large']};--transition-fast:{ANIMATION_CONFIG['transition_fast']} {ANIMATION_CONFIG['easing_smooth']};--transition-normal:{ANIMATION_CONFIG['transition_normal']} {ANIMATION_CONFIG['easing_smooth']};--dark-mode:{1 if is_dark else 0};--dna-pattern:{dna_svg};}}body,.stApp{{font-family:var(--font-primary);font-weight:var(--font-weight-normal);line-height:var(--line-height-normal);letter-spacing:var(--letter-spacing-normal);color:var(--text-color);}}h1,h2,h3,h4{{font-weight:900;letter-spacing:var(--letter-spacing-tight);line-height:var(--line-height-tight);margin-bottom:0.35em;}}h1{{font-size:var(--font-h1);}}h2{{font-size:var(--font-h2);}}h3{{font-size:var(--font-h3);}}h4{{font-size:var(--font-h4);}}p,span,label{{font-weight:var(--font-weight-medium);line-height:var(--line-height-normal);}}.stat-card__value{{font-weight:var(--font-weight-extrabold);letter-spacing:-0.02em;text-shadow:none;}}.stDataFrame td,.stDataFrame th{{font-weight:600;font-size:0.82rem;line-height:1.2;}}button[data-baseweb="tab"]{{font-weight:900;letter-spacing:0.01em;}}{css_content}</style>"""
+    n = NEUTRAL_SYSTEM; m = METRIC_COLORS
+    theme_vars = f"""<style>:root{{
+        --primary-color:{t['primary']};--secondary-color:{t['secondary']};--accent-color:{t['accent']};
+        --bg-light:{t['bg_light']};--bg-card:{t['bg_card']};--bg-medium:{bg_medium};
+        --theme-border:{theme_border};--text-color:{t['text']};--shadow-color:{t['shadow']};
+        --primary-rgb:{p_rgb[0]},{p_rgb[1]},{p_rgb[2]};--secondary-rgb:{s_rgb[0]},{s_rgb[1]},{s_rgb[2]};
+        --font-primary:{FONT_CONFIG['primary_font']};--font-monospace:{FONT_CONFIG['monospace_font']};
+        --font-h1:calc({FONT_CONFIG['h1_size']}*0.95);--font-h2:calc({FONT_CONFIG['h2_size']}*0.95);
+        --font-h3:calc({FONT_CONFIG['h3_size']}*0.96);--font-h4:calc({FONT_CONFIG['h4_size']}*0.97);
+        --font-body:calc({FONT_CONFIG['body_size']}*0.97);--font-small:calc({FONT_CONFIG['small_size']}*0.95);
+        --font-weight-light:400;--font-weight-normal:600;--font-weight-medium:700;
+        --font-weight-semibold:800;--font-weight-bold:900;--font-weight-extrabold:950;
+        --line-height-tight:1.15;--line-height-normal:1.25;
+        --letter-spacing-tight:-0.015em;--letter-spacing-normal:-0.01em;
+        --text-glow:0 1px 3px rgba(0,0,0,0.25);--accent-glow:0 1px 3px rgba(0,0,0,0.20);
+        --border-radius-sm:{LAYOUT_CONFIG['border_radius']['small']};
+        --border-radius-md:{LAYOUT_CONFIG['border_radius']['medium']};
+        --border-radius-lg:{LAYOUT_CONFIG['border_radius']['large']};
+        --spacing-sm:{LAYOUT_CONFIG['padding']['small']};--spacing-md:{LAYOUT_CONFIG['padding']['medium']};
+        --spacing-lg:{LAYOUT_CONFIG['padding']['large']};
+        --transition-fast:{ANIMATION_CONFIG['transition_fast']} {ANIMATION_CONFIG['easing_smooth']};
+        --transition-normal:{ANIMATION_CONFIG['transition_normal']} {ANIMATION_CONFIG['easing_smooth']};
+        --dark-mode:{1 if is_dark else 0};--dna-pattern:{dna_svg};
+        --bg-main:{n['bg_main']};--bg-surface:{n['bg_surface']};--bg-muted:{n['bg_muted']};
+        --border-subtle:{n['border_subtle']};--border-strong:{n['border_strong']};
+        --text-primary:{n['text_primary']};--text-secondary:{n['text_secondary']};--text-muted:{n['text_muted']};
+        --shadow-soft:{n['shadow_soft']};
+        --metric-good:{m['good']};--metric-warning:{m['warning']};
+        --metric-bad:{m['bad']};--metric-info:{m['info']};}}
+        body,.stApp{{font-family:var(--font-primary);font-weight:var(--font-weight-normal);line-height:var(--line-height-normal);letter-spacing:var(--letter-spacing-normal);color:var(--text-color);}}
+        h1,h2,h3,h4{{font-weight:900;letter-spacing:var(--letter-spacing-tight);line-height:var(--line-height-tight);margin-bottom:0.35em;}}
+        h1{{font-size:var(--font-h1);}}h2{{font-size:var(--font-h2);}}h3{{font-size:var(--font-h3);}}h4{{font-size:var(--font-h4);}}
+        p,span,label{{font-weight:var(--font-weight-medium);line-height:var(--line-height-normal);}}.stat-card__value{{font-weight:var(--font-weight-extrabold);letter-spacing:-0.02em;text-shadow:none;}}.stDataFrame td,.stDataFrame th{{font-weight:600;font-size:0.82rem;line-height:1.2;}}button[data-baseweb="tab"]{{font-weight:900;letter-spacing:0.01em;}}{css_content}</style>"""
     st.markdown(theme_vars, unsafe_allow_html=True)
 
 def get_page_colors(page_name="Home"):

@@ -301,7 +301,7 @@ class MultiFastaVisualizer:
         
         # Plot heatmap
         fig, ax = plt.subplots(figsize=figsize)
-        sns.heatmap(pivot_df, annot=True, fmt='.2f', cmap='YlOrRd', ax=ax, cbar_kws={'label': 'Motifs/kb'})
+        sns.heatmap(pivot_df, annot=True, fmt='.2f', cmap='viridis', ax=ax, cbar_kws={'label': 'Motifs/kb'})
         
         ax.set_xlabel('Motif Class', fontsize=12, fontweight='bold')
         ax.set_ylabel('Sequence', fontsize=12, fontweight='bold')

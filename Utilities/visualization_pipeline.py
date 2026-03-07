@@ -256,10 +256,10 @@ class VisualizationPipeline:
 
         import matplotlib
         try:
-            cmap = matplotlib.colormaps.get_cmap("tab20").resampled(len(labels))
+            cmap = matplotlib.colormaps.get_cmap("cividis").resampled(len(labels))
         except AttributeError:
             # Fallback for matplotlib < 3.7
-            cmap = matplotlib.cm.get_cmap("tab20", len(labels))
+            cmap = matplotlib.cm.get_cmap("cividis", len(labels))
         colors = [cmap(i) for i in range(len(labels))]
 
         fig, ax = plt.subplots(figsize=figsize)
@@ -311,7 +311,7 @@ class VisualizationPipeline:
             yticklabels=classes,
             annot=n <= 15,
             fmt="d",
-            cmap="YlOrRd",
+            cmap="viridis",
             ax=ax,
             cbar_kws={"label": "Co-occurrence count"},
         )
