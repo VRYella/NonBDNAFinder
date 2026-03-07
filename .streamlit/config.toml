@@ -16,11 +16,11 @@ maxMessageSize = 200
 gatherUsageStats = false
 
 [theme]
-# Vibrant orange/yellow scientific theme for home page
+# Light sky blue scientific theme
 base = "light"
-primaryColor = "#EA580C"
-backgroundColor = "#fff7ed"
-secondaryBackgroundColor = "#ffedd5"
+primaryColor = "#0284C7"
+backgroundColor = "#F6F7FB"
+secondaryBackgroundColor = "#E0F2FE"
 textColor = "#1e293b"
 font = "sans serif"
 

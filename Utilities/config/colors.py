@@ -63,18 +63,18 @@ METRIC_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#B91C1C',      # Academic Crimson
-    'primary_light': '#EF4444',
-    'primary_dark': '#7F1D1D',
-    'primary_soft': '#FEE2E2',
-    'secondary': '#EF4444',    # Crimson Light
-    'accent': '#FCA5A5',       # Crimson Accent
-    'light': '#FEF2F2',        # Crimson-50 light background
-    'lighter': '#FFF5F5',      # Near-white crimson background
-    'medium': '#FEE2E2',       # Crimson-100 medium background
-    'border': '#FECACA',       # Crimson border
-    'text': '#7F1D1D',         # Deep crimson text
-    'shadow': 'rgba(185, 28, 28, 0.18)',
+    'primary': '#0284C7',      # Sky Blue
+    'primary_light': '#38BDF8',
+    'primary_dark': '#0369A1',
+    'primary_soft': '#E0F2FE',
+    'secondary': '#38BDF8',    # Sky Blue Light
+    'accent': '#7DD3FC',       # Sky Blue Accent
+    'light': '#F0F9FF',        # Sky-50 light background
+    'lighter': '#F7FCFF',      # Near-white sky background
+    'medium': '#E0F2FE',       # Sky-100 medium background
+    'border': '#BAE6FD',       # Sky border
+    'text': '#0C4A6E',         # Deep sky text
+    'shadow': 'rgba(2, 132, 199, 0.18)',
 }
 
 INPUT_COLORS = {
@@ -153,18 +153,18 @@ DOWNLOAD_COLORS = {
 }
 
 DOCUMENTATION_COLORS = {
-    'primary': '#EA580C',      # Amber/Orange
-    'primary_light': '#FB923C',
-    'primary_dark': '#9A3412',
-    'primary_soft': '#FFEDD5',
-    'secondary': '#FB923C',    # Bright Orange
-    'accent': '#FBBF24',       # Amber accent
-    'light': '#FFF7ED',        # Orange-50 light background
-    'lighter': '#FFFAF5',      # Near-white orange background
-    'medium': '#FFEDD5',       # Orange-100 medium background
-    'border': '#FDBA74',       # Orange border
-    'text': '#7C2D12',         # Deep burnt orange text
-    'shadow': 'rgba(234, 88, 12, 0.18)',
+    'primary': '#7C3AED',      # Violet/Purple
+    'primary_light': '#A78BFA',
+    'primary_dark': '#6D28D9',
+    'primary_soft': '#EDE9FE',
+    'secondary': '#A78BFA',    # Bright Violet
+    'accent': '#C4B5FD',       # Violet accent
+    'light': '#F5F3FF',        # Violet-50 light background
+    'lighter': '#FAF9FF',      # Near-white violet background
+    'medium': '#EDE9FE',       # Violet-100 medium background
+    'border': '#DDD6FE',       # Violet border
+    'text': '#4C1D95',         # Deep violet text
+    'shadow': 'rgba(124, 58, 237, 0.18)',
 }
 
 # ==================== SEMANTIC STATUS COLORS ====================
@@ -281,21 +281,21 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#B91C1C', 'hover': '#991B1B', 'text': '#FEF2F2', 'glow': 'rgba(185, 28, 28, 0.70)'},
+    'Home': {'bg': '#0284C7', 'hover': '#0369A1', 'text': '#E0F2FE', 'glow': 'rgba(2, 132, 199, 0.70)'},
     'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#3730A3', 'text': '#EEF2FF', 'glow': 'rgba(99, 102, 241, 0.65)'},
     'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
     'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
-    'Documentation': {'bg': '#EA580C', 'hover': '#C2410C', 'text': '#FFF7ED', 'glow': 'rgba(251, 146, 60, 0.65)'},
+    'Documentation': {'bg': '#7C3AED', 'hover': '#6D28D9', 'text': '#F5F3FF', 'glow': 'rgba(167, 139, 250, 0.65)'},
 }
 
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
 
 DOC_SUBTAB_COLORS = {
-    'Overview & Architecture': {'bg': '#6366F1', 'hover': '#4F46E5', 'text': '#EEF2FF'},
-    'Motif Library & Algorithms': {'bg': '#6366F1', 'hover': '#4F46E5', 'text': '#EEF2FF'},
+    'Overview & Architecture': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#EEF2FF'},
+    'Motif Library & Algorithms': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#EEF2FF'},
     'Scoring & Analysis': {'bg': '#0F766E', 'hover': '#14B8A6', 'text': '#F0FDFA'},
     'Statistics Guide': {'bg': '#10B981', 'hover': '#059669', 'text': '#ECFDF5'},
-    'References & Citation': {'bg': '#7F1D1D', 'hover': '#991B1B', 'text': '#FEF2F2'},
+    'References & Citation': {'bg': '#0284C7', 'hover': '#0369A1', 'text': '#E0F2FE'},
 }
 
 def get_motif_card_style(class_key: str) -> dict:
