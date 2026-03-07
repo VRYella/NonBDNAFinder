@@ -9201,7 +9201,7 @@ def plot_structural_competition_upset(motifs: List[Dict[str, Any]],
             if cls in all_classes:
                 matrix[i, all_classes.index(cls)] = 1
     
-    ax_matrix.imshow(matrix.T, aspect='auto', cmap='viridis', interpolation='nearest')
+    ax_matrix.imshow(matrix.T, aspect='auto', cmap='Greys', interpolation='nearest')
     ax_matrix.set_xticks(range(len(top_combos)))
     ax_matrix.set_xticklabels([])
     ax_matrix.set_yticks(range(len(all_classes)))
