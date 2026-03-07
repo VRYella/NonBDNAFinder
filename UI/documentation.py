@@ -28,8 +28,18 @@ MOTIF_DESCRIPTIONS = {'Curved_DNA': "Intrinsic DNA curvature from phased A-tract
 _PIPELINE_IMAGE = os.path.join(os.path.dirname(__file__), "pipelines.png")
 
 _PROSE_STYLE = "font-family:Georgia,serif;line-height:1.8;color:#1e293b;font-size:1.0rem;"
-_H3_STYLE = "color:#1e40af;font-size:1.2rem;margin-top:1.4rem;margin-bottom:0.4rem;"
-_H4_STYLE = "color:#334155;font-size:1.05rem;margin-top:1.1rem;margin-bottom:0.3rem;"
+
+def _get_doc_colors():
+    from UI.css import get_page_colors
+    return get_page_colors('Documentation')
+
+def _h3_style():
+    dc = _get_doc_colors()
+    return f"color:{dc['primary']};font-size:1.2rem;margin-top:1.4rem;margin-bottom:0.4rem;"
+
+def _h4_style():
+    dc = _get_doc_colors()
+    return f"color:{dc['text']};font-size:1.05rem;margin-top:1.1rem;margin-bottom:0.3rem;"
 
 # ─── Flow diagram builder ──────────────────────────────────────────────────────
 
@@ -102,20 +112,21 @@ def _build_motif_card(n, sub, col, desc):
 
 
 def _build_reference_card(r):
+    dc = _get_doc_colors()
     return (
-        f"<div style='padding:0.65rem 0;border-bottom:1px solid #e2e8f0;'>"
+        f"<div style='padding:0.65rem 0;border-bottom:1px solid {dc['border']};'>"
         f"<div style='font-weight:600;color:#1e293b;font-size:0.95rem;margin-bottom:0.1rem;'>"
         f"{r['authors']} ({r['year']})</div>"
         f"<div style='color:#334155;font-size:0.9rem;font-style:italic;margin-bottom:0.1rem;'>{r['title']}</div>"
         f"<div style='color:#64748b;font-size:0.85rem;'><strong>{r['journal']}</strong> {r['volume']} · "
-        f"<a href=\"https://doi.org/{r['doi']}\" target=\"_blank\" style=\"color:#2563eb;\">DOI: {r['doi']}</a>"
+        f"<a href=\"https://doi.org/{r['doi']}\" target=\"_blank\" style=\"color:{dc['primary']};\">DOI: {r['doi']}</a>"
         f"</div></div>"
     )
 
 
 def _section_heading(text):
     st.markdown(
-        f"<h3 style='{_H3_STYLE}'>{text}</h3>",
+        f"<h3 style='{_h3_style()}'>{text}</h3>",
         unsafe_allow_html=True,
     )
 
@@ -130,6 +141,7 @@ def _prose(html):
 # ─── Tab renderers ────────────────────────────────────────────────────────────
 
 def _tab_overview():
+    dc = _get_doc_colors()
     st.markdown(
         "<p style='color:#334155;font-size:1.05rem;line-height:1.7;margin-bottom:1rem;'>"
         "Comprehensive platform for <strong>genome-wide detection</strong> of Non-B DNA structures. "
@@ -137,13 +149,15 @@ def _tab_overview():
         "validated against G4Hunter, QmRLFS, and Z-Seeker.</p>",
         unsafe_allow_html=True,
     )
+    badge_bg = dc['light']
+    badge_color = dc['primary']
     st.markdown(
-        "<div style='display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;'>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>24,674 bp/s</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>200MB+ sequences</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>25+ visualizations</span>"
-        "<span style='background:#dbeafe;color:#1d4ed8;padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;'>Structured output</span>"
-        "</div>",
+        f"<div style='display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;'>"
+        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>24,674 bp/s</span>"
+        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>200MB+ sequences</span>"
+        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>25+ visualizations</span>"
+        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>Structured output</span>"
+        f"</div>",
         unsafe_allow_html=True,
     )
     _section_heading("Detected Non-B DNA Motif Classes")
@@ -198,6 +212,7 @@ def _tab_architecture():
 
 
 def _tab_motif_library():
+    dc = _get_doc_colors()
     _section_heading("2.2 Motif Library and Structural Classification")
     _prose(
         "<p>The motif library was curated through systematic literature review and organized into nine "
@@ -224,7 +239,7 @@ def _tab_motif_library():
         f"</tr>"
         for motif, p in MOTIF_PARAMETERS.items()
     )
-    th = "text-align:left;padding:0.5rem 0.6rem;border-bottom:2px solid #cbd5e1;background:#f1f5f9;"
+    th = f"text-align:left;padding:0.5rem 0.6rem;border-bottom:2px solid {dc['primary']};background:{dc['light']};color:{dc['text']};"
     table_html = (
         "<table style='width:100%;border-collapse:collapse;font-size:0.8rem;font-family:Georgia,serif;'>"
         "<thead><tr>"
@@ -580,6 +595,7 @@ def _tab_optimization():
 
 
 def _tab_validation():
+    dc = _get_doc_colors()
     _section_heading("2.6 Output Structure and Implementation")
     _prose(
         "<p>For each sequence, NBDFinder reports a tabular record for every detected motif containing: "
@@ -595,7 +611,7 @@ def _tab_validation():
         "regex library. Optional acceleration dependencies include Numba (≥0.56.0) for JIT compilation, "
         "Hyperscan for high-performance pattern matching, and PyFastx for accelerated FASTA parsing. "
         "The application is open-source and available at "
-        "<a href='https://github.com/VRYella/NonBDNAFinder' target='_blank' style='color:#1e40af;'>"
+        f"<a href='https://github.com/VRYella/NonBDNAFinder' target='_blank' style='color:{dc['primary']};'>"
         "https://github.com/VRYella/NonBDNAFinder</a>.</p>"
     )
 
@@ -1208,14 +1224,15 @@ def _tab_references():
 
 
 def _tab_citation():
+    dc = _get_doc_colors()
     _section_heading("How to Cite")
     st.markdown(
-        "<div style='font-family:\"Courier New\",monospace;font-size:0.78rem;line-height:1.5;"
-        "color:#334155;background:#f8fafc;padding:0.4rem 1rem;border-left:4px solid #2563eb;"
-        "border-radius:4px;margin-bottom:1rem;'>"
+        f"<div style='font-family:\"Courier New\",monospace;font-size:0.78rem;line-height:1.5;"
+        f"color:{dc['text']};background:{dc['light']};padding:0.4rem 1rem;border-left:4px solid {dc['primary']};"
+        f"border-radius:4px;margin-bottom:1rem;border:1px solid {dc['border']};'>"
         "<strong>Yella VR</strong> (2025). NonBDNAFinder: Comprehensive Detection and Analysis of "
         "Non-B DNA Forming Motifs.<br>"
-        "GitHub: <a href='https://github.com/VRYella/NonBDNAFinder' style='color:#2563eb;'>"
+        f"GitHub: <a href='https://github.com/VRYella/NonBDNAFinder' style='color:{dc['primary']};'>"
         "https://github.com/VRYella/NonBDNAFinder</a></div>",
         unsafe_allow_html=True,
     )
@@ -1223,9 +1240,9 @@ def _tab_citation():
     st.markdown(
         f"<p style='font-size:0.85rem;color:#334155;line-height:1.7;'>"
         f"<strong>{UI_TEXT['author']}</strong><br>"
-        f"Email: <a href='mailto:{UI_TEXT['author_email']}' style='color:#2563eb;'>"
+        f"Email: <a href='mailto:{UI_TEXT['author_email']}' style='color:{dc['primary']};'>"
         f"{UI_TEXT['author_email']}</a><br>"
-        f"<a href='https://github.com/VRYella' target='_blank' style='color:#2563eb;'>"
+        f"<a href='https://github.com/VRYella' target='_blank' style='color:{dc['primary']};'>"
         f"GitHub: VRYella</a></p>",
         unsafe_allow_html=True,
     )
