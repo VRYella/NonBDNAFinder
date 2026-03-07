@@ -47,15 +47,15 @@
     --metric-info: #0284C7;
 
     /* UI colors */
-    --gradient-primary: linear-gradient(135deg, #B91C1C 0%, #EF4444 100%);
+    --gradient-primary: linear-gradient(135deg, #0284C7 0%, #38BDF8 100%);
     --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --gradient-accent: linear-gradient(135deg, #FB923C 0%, #FDE68A 100%);
+    --gradient-accent: linear-gradient(135deg, #38BDF8 0%, #7DD3FC 100%);
 
     /* Shadows for depth */
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
     --shadow-md: 0 2px 4px rgba(0,0,0,0.08);
     --shadow-lg: 0 4px 12px rgba(0,0,0,0.10);
-    --shadow-glow: 0 2px 8px rgba(185, 28, 28, 0.08);
+    --shadow-glow: 0 2px 8px rgba(2, 132, 199, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -109,40 +109,40 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
-/* ─── Tab 1: Home — Academic Crimson ─────────────────────── */
+/* ─── Tab 1: Home — Sky Blue ─────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #7f1d1d 0%, #B91C1C 60%, #DC2626 100%) !important;
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #38BDF8 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #7f1d1d !important;
+    border: 2px solid #0369A1 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #7f1d1d 0%, #991B1B 60%, #B91C1C 100%) !important;
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #0EA5E9 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #7f1d1d 0%, #B91C1C 50%, #EF4444 100%) !important;
+    background: linear-gradient(135deg, #0284C7 0%, #38BDF8 50%, #7DD3FC 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(185, 28, 28, 0.55), 0 0 12px rgba(239, 68, 68, 0.3) !important;
-    border: 2px solid #fca5a5 !important;
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.55), 0 0 12px rgba(56, 189, 248, 0.3) !important;
+    border: 2px solid #BAE6FD !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
 /* ─── Tab 2: Upload & Analyze — Royal Indigo ────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #1e1b4b 0%, #4F46E5 60%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #1e1b4b !important;
+    border: 2px solid #4338CA !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #1e1b4b 0%, #3730A3 60%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #818CF8 100%) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #1e1b4b 0%, #4F46E5 50%, #818CF8 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 50%, #818CF8 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
@@ -153,17 +153,17 @@ section[data-testid="stSidebar"] {
 
 /* ─── Tab 3: Results — Teal Cyan ───────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #164e63 0%, #0EA5A4 60%, #06B6D4 100%) !important;
+    background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 60%, #06B6D4 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #164e63 !important;
+    border: 2px solid #0E7490 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #164e63 0%, #0891B2 60%, #0EA5A4 100%) !important;
+    background: linear-gradient(135deg, #0E7490 0%, #0891B2 60%, #0EA5A4 100%) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 14px rgba(14, 165, 164, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
-    background: linear-gradient(135deg, #164e63 0%, #0EA5A4 50%, #22D3EE 100%) !important;
+    background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 50%, #22D3EE 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
@@ -174,17 +174,17 @@ section[data-testid="stSidebar"] {
 
 /* ─── Tab 4: Download — Emerald Green ────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #14532d 0%, #16A34A 60%, #22C55E 100%) !important;
+    background: linear-gradient(135deg, #15803D 0%, #16A34A 60%, #22C55E 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #14532d !important;
+    border: 2px solid #15803D !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #14532d 0%, #15803D 60%, #16A34A 100%) !important;
+    background: linear-gradient(135deg, #15803D 0%, #16A34A 60%, #4ADE80 100%) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 14px rgba(22, 163, 74, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
-    background: linear-gradient(135deg, #14532d 0%, #16A34A 50%, #4ADE80 100%) !important;
+    background: linear-gradient(135deg, #15803D 0%, #16A34A 50%, #4ADE80 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
@@ -193,24 +193,24 @@ section[data-testid="stSidebar"] {
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
-/* ─── Tab 5: Documentation — Amber Orange ──────────────── */
+/* ─── Tab 5: Documentation — Soft Violet ──────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #7c2d12 0%, #EA580C 60%, #FB923C 100%) !important;
+    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 60%, #A78BFA 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #7c2d12 !important;
+    border: 2px solid #6D28D9 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #7c2d12 0%, #C2410C 60%, #EA580C 100%) !important;
+    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 60%, #8B5CF6 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #7c2d12 0%, #EA580C 50%, #FBBF24 100%) !important;
+    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 50%, #A78BFA 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(234, 88, 12, 0.55), 0 0 12px rgba(251, 191, 36, 0.3) !important;
-    border: 2px solid #fdba74 !important;
+    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.55), 0 0 12px rgba(167, 139, 250, 0.3) !important;
+    border: 2px solid #DDD6FE !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
@@ -266,42 +266,42 @@ section[data-testid="stSidebar"] {
 
 /* Sub-tab 1: Overview & Architecture — Vibrant Indigo */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #EEF2FF !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4338CA !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #3730a3 0%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4338CA !important;
     text-shadow: none !important;
 }
 
 /* Sub-tab 2: Motif Library & Algorithms — Muted Indigo */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 60%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
     color: #EEF2FF !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4338CA !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #3730a3 0%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #3730a3 0%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #312e81 !important;
+    border: 2px solid #4338CA !important;
     opacity: 1 !important;
     text-shadow: none !important;
 }
@@ -348,24 +348,24 @@ section[data-testid="stSidebar"] {
     text-shadow: none !important;
 }
 
-/* Sub-tab 5: References & Citation — Vibrant Crimson */
+/* Sub-tab 5: References & Citation — Sky Blue */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #B91C1C 0%, #DC2626 60%, #EF4444 100%) !important;
-    color: #FEF2F2 !important;
-    border: 2px solid #7f1d1d !important;
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #38BDF8 100%) !important;
+    color: #E0F2FE !important;
+    border: 2px solid #0369A1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%) !important;
+    background: linear-gradient(135deg, #0369A1 0%, #38BDF8 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #7f1d1d !important;
+    border: 2px solid #0369A1 !important;
     opacity: 1 !important;
     text-shadow: none !important;
 }
@@ -1352,7 +1352,7 @@ button[kind="secondary"]:hover {
 
 /* ── Direct Tab Panel Backgrounds (primary mechanism) ─────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3) {
-    background: linear-gradient(160deg, #fff9f9 0%, #fff0f0 50%, #fffcfc 100%) !important;
+    background: linear-gradient(160deg, #F0F9FF 0%, #E0F2FE 50%, #F7FCFF 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4) {
     background: linear-gradient(160deg, #f5f7ff 0%, #eef2ff 50%, #f8f8ff 100%) !important;
@@ -1364,12 +1364,12 @@ button[kind="secondary"]:hover {
     background: linear-gradient(160deg, #f5fef8 0%, #ecfdf4 50%, #f2fef6 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7) {
-    background: linear-gradient(160deg, #fffbf7 0%, #fff5e8 50%, #fff9f3 100%) !important;
+    background: linear-gradient(160deg, #F5F3FF 0%, #EDE9FE 50%, #FAF9FF 100%) !important;
 }
 
 /* ── App Background Tints — CSS :has() (modern browsers) ──── */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #fff9f9 0%, #fff2f2 40%, #fffcfc 100%) !important;
+    background: linear-gradient(160deg, #F0F9FF 0%, #E0F2FE 40%, #F7FCFF 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) .stApp {
     background: linear-gradient(160deg, #f5f7ff 0%, #eef2ff 40%, #f8f8ff 100%) !important;
@@ -1381,39 +1381,39 @@ body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):no
     background: linear-gradient(160deg, #f5fef8 0%, #ecfdf4 40%, #f2fef6 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #fffbf7 0%, #fff5e8 40%, #fff9f3 100%) !important;
+    background: linear-gradient(160deg, #F5F3FF 0%, #EDE9FE 40%, #FAF9FF 100%) !important;
 }
 
 /* ── Streamlit Top Header Bar — Per-Tab CSS :has() ────────── */
-/* Tab 1: Home — Crimson Red */
+/* Tab 1: Home — Sky Blue */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #7f1d1d 0%, #B91C1C 35%, #DC2626 65%, #EF4444 100%) !important;
-    box-shadow: 0 4px 20px rgba(185, 28, 28, 0.40) !important;
-    border-bottom: 3px solid rgba(252, 165, 165, 0.45) !important;
+    background: linear-gradient(90deg, #0369A1 0%, #0284C7 35%, #38BDF8 65%, #7DD3FC 100%) !important;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.40) !important;
+    border-bottom: 3px solid rgba(186, 230, 253, 0.45) !important;
 }
 /* Tab 2: Upload & Analyze — Royal Indigo */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #1e1b4b 0%, #3730a3 35%, #4F46E5 65%, #818CF8 100%) !important;
+    background: linear-gradient(90deg, #4338CA 0%, #4F46E5 35%, #6366F1 65%, #818CF8 100%) !important;
     box-shadow: 0 4px 20px rgba(79, 70, 229, 0.40) !important;
     border-bottom: 3px solid rgba(199, 210, 254, 0.45) !important;
 }
 /* Tab 3: Results — Teal Cyan */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #164e63 0%, #0891b2 35%, #0EA5A4 65%, #22D3EE 100%) !important;
+    background: linear-gradient(90deg, #0E7490 0%, #0891b2 35%, #0EA5A4 65%, #22D3EE 100%) !important;
     box-shadow: 0 4px 20px rgba(14, 165, 164, 0.40) !important;
     border-bottom: 3px solid rgba(103, 232, 249, 0.45) !important;
 }
 /* Tab 4: Download — Emerald Green */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #14532d 0%, #16A34A 35%, #22C55E 65%, #4ADE80 100%) !important;
+    background: linear-gradient(90deg, #15803D 0%, #16A34A 35%, #22C55E 65%, #4ADE80 100%) !important;
     box-shadow: 0 4px 20px rgba(22, 163, 74, 0.40) !important;
     border-bottom: 3px solid rgba(134, 239, 172, 0.45) !important;
 }
-/* Tab 5: Documentation — Amber Orange */
+/* Tab 5: Documentation — Soft Violet */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #7c2d12 0%, #EA580C 35%, #FB923C 65%, #FBBF24 100%) !important;
-    box-shadow: 0 4px 20px rgba(234, 88, 12, 0.40) !important;
-    border-bottom: 3px solid rgba(253, 186, 116, 0.45) !important;
+    background: linear-gradient(90deg, #6D28D9 0%, #7C3AED 35%, #8B5CF6 65%, #A78BFA 100%) !important;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.40) !important;
+    border-bottom: 3px solid rgba(221, 214, 254, 0.45) !important;
 }
 
 /* ── Header Icons & Buttons — white text on all colored headers */
@@ -1439,7 +1439,7 @@ body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) 
 /* ── Fallback header when no tab is detected ───────────────── */
 header[data-testid="stHeader"] {
     border-bottom: 3px solid rgba(255, 255, 255, 0.35) !important;
-    background: linear-gradient(90deg, #EA580C 0%, #FB923C 30%, #FBBF24 65%, #FDE68A 100%);
+    background: linear-gradient(90deg, #0369A1 0%, #0284C7 30%, #38BDF8 65%, #7DD3FC 100%);
 }
 
 /* ═══════════════════════════════════════════════════════════════
