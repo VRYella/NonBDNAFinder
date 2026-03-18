@@ -109,108 +109,108 @@ section[data-testid="stSidebar"] {
     position: relative !important;
 }
 
-/* ─── Tab 1: Home — Sky Blue ─────────────────────── */
+/* ─── Tab 1: Home — Vibrant Maroon ─────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #38BDF8 100%) !important;
+    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 60%, #BE2A45 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #0369A1 !important;
+    border: 2px solid #7A1525 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #0EA5E9 100%) !important;
+    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 60%, #C43856 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(155, 27, 48, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #0284C7 0%, #38BDF8 50%, #7DD3FC 100%) !important;
+    background: linear-gradient(135deg, #9B1B30 0%, #BE2A45 50%, #E87080 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.55), 0 0 12px rgba(56, 189, 248, 0.3) !important;
-    border: 2px solid #BAE6FD !important;
+    box-shadow: 0 4px 18px rgba(155, 27, 48, 0.55), 0 0 12px rgba(232, 112, 128, 0.3) !important;
+    border: 2px solid #F9C5CB !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
-/* ─── Tab 2: Upload & Analyze — Royal Indigo ────────────── */
+/* ─── Tab 2: Upload & Analyze — Deep Scientific Purple ────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #581C87 0%, #6B21A8 60%, #9333EA 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #4338CA !important;
+    border: 2px solid #581C87 !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #818CF8 100%) !important;
+    background: linear-gradient(135deg, #581C87 0%, #6B21A8 60%, #7E22CE 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(107, 33, 168, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 50%, #818CF8 100%) !important;
+    background: linear-gradient(135deg, #6B21A8 0%, #9333EA 50%, #C084FC 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(79, 70, 229, 0.55), 0 0 12px rgba(129, 140, 248, 0.3) !important;
-    border: 2px solid #c7d2fe !important;
+    box-shadow: 0 4px 18px rgba(107, 33, 168, 0.55), 0 0 12px rgba(192, 132, 252, 0.3) !important;
+    border: 2px solid #E9D5FF !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
-/* ─── Tab 3: Results — Teal Cyan ───────────────────────── */
+/* ─── Tab 3: Results — Forest Emerald Green ───────────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 60%, #06B6D4 100%) !important;
+    background: linear-gradient(135deg, #14532D 0%, #15803D 60%, #22C55E 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #0E7490 !important;
+    border: 2px solid #14532D !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #0E7490 0%, #0891B2 60%, #0EA5A4 100%) !important;
+    background: linear-gradient(135deg, #14532D 0%, #15803D 60%, #4ADE80 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(14, 165, 164, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(21, 128, 61, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
-    background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 50%, #22D3EE 100%) !important;
+    background: linear-gradient(135deg, #15803D 0%, #22C55E 50%, #4ADE80 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(14, 165, 164, 0.55), 0 0 12px rgba(34, 211, 238, 0.3) !important;
-    border: 2px solid #67e8f9 !important;
+    box-shadow: 0 4px 18px rgba(21, 128, 61, 0.55), 0 0 12px rgba(74, 222, 128, 0.3) !important;
+    border: 2px solid #BBF7D0 !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
-/* ─── Tab 4: Download — Emerald Green ────────────────── */
+/* ─── Tab 4: Download — Rich Amber Mustard ────────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #15803D 0%, #16A34A 60%, #22C55E 100%) !important;
+    background: linear-gradient(135deg, #92400E 0%, #B45309 60%, #D97706 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #15803D !important;
+    border: 2px solid #92400E !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #15803D 0%, #16A34A 60%, #4ADE80 100%) !important;
+    background: linear-gradient(135deg, #92400E 0%, #B45309 60%, #F59E0B 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
-    background: linear-gradient(135deg, #15803D 0%, #16A34A 50%, #4ADE80 100%) !important;
+    background: linear-gradient(135deg, #B45309 0%, #D97706 50%, #FBBF24 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(22, 163, 74, 0.55), 0 0 12px rgba(74, 222, 128, 0.3) !important;
-    border: 2px solid #86efac !important;
+    box-shadow: 0 4px 18px rgba(180, 83, 9, 0.55), 0 0 12px rgba(251, 191, 36, 0.3) !important;
+    border: 2px solid #FDE68A !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
-/* ─── Tab 5: Documentation — Soft Violet ──────────────── */
+/* ─── Tab 5: Documentation — Vibrant Orchid ──────────────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 60%, #A78BFA 100%) !important;
+    background: linear-gradient(135deg, #A21CAF 0%, #C026D3 60%, #E879F9 100%) !important;
     color: #FFFFFF !important;
-    border: 2px solid #6D28D9 !important;
+    border: 2px solid #A21CAF !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 60%, #8B5CF6 100%) !important;
+    background: linear-gradient(135deg, #A21CAF 0%, #C026D3 60%, #D946EF 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(192, 38, 211, 0.45) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 50%, #A78BFA 100%) !important;
+    background: linear-gradient(135deg, #C026D3 0%, #E879F9 50%, #F0ABFC 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(124, 58, 237, 0.55), 0 0 12px rgba(167, 139, 250, 0.3) !important;
-    border: 2px solid #DDD6FE !important;
+    box-shadow: 0 4px 18px rgba(192, 38, 211, 0.55), 0 0 12px rgba(240, 171, 252, 0.3) !important;
+    border: 2px solid #F5D0FE !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
 }
 
@@ -264,108 +264,108 @@ section[data-testid="stSidebar"] {
     text-shadow: none !important;
 }
 
-/* Sub-tab 1: Overview & Architecture — Vibrant Indigo */
+/* Sub-tab 1: Overview & Architecture — Maroon */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
-    color: #EEF2FF !important;
-    border: 2px solid #4338CA !important;
+    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 60%, #BE2A45 100%) !important;
+    color: #FCEAED !important;
+    border: 2px solid #7A1525 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #7A1525 0%, #BE2A45 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #4338CA !important;
+    border: 2px solid #7A1525 !important;
     text-shadow: none !important;
 }
 
-/* Sub-tab 2: Motif Library & Algorithms — Muted Indigo */
+/* Sub-tab 2: Motif Library & Algorithms — Deep Purple */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 60%, #6366F1 100%) !important;
-    color: #EEF2FF !important;
-    border: 2px solid #4338CA !important;
+    background: linear-gradient(135deg, #581C87 0%, #6B21A8 60%, #9333EA 100%) !important;
+    color: #F3E8FF !important;
+    border: 2px solid #581C87 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #4338CA 0%, #4F46E5 100%) !important;
+    background: linear-gradient(135deg, #581C87 0%, #6B21A8 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;
+    background: linear-gradient(135deg, #581C87 0%, #9333EA 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #4338CA !important;
+    border: 2px solid #581C87 !important;
     opacity: 1 !important;
     text-shadow: none !important;
 }
 
-/* Sub-tab 3: Scoring & Analysis — Vibrant Teal */
+/* Sub-tab 3: Scoring & Analysis — Forest Green */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #0E7490 0%, #0EA5A4 60%, #06B6D4 100%) !important;
-    color: #F0FDFA !important;
-    border: 2px solid #0c4a6e !important;
+    background: linear-gradient(135deg, #14532D 0%, #15803D 60%, #22C55E 100%) !important;
+    color: #F0FDF4 !important;
+    border: 2px solid #14532D !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #0E7490 0%, #14B8A6 100%) !important;
+    background: linear-gradient(135deg, #14532D 0%, #15803D 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
-    background: linear-gradient(135deg, #0E7490 0%, #0D9488 100%) !important;
+    background: linear-gradient(135deg, #14532D 0%, #22C55E 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #0c4a6e !important;
+    border: 2px solid #14532D !important;
     opacity: 1 !important;
     text-shadow: none !important;
 }
 
-/* Sub-tab 4: Statistics Guide — Vibrant Emerald */
+/* Sub-tab 4: Statistics Guide — Amber Mustard */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #059669 0%, #10B981 60%, #34D399 100%) !important;
-    color: #ECFDF5 !important;
-    border: 2px solid #065f46 !important;
+    background: linear-gradient(135deg, #92400E 0%, #B45309 60%, #D97706 100%) !important;
+    color: #FFFBEB !important;
+    border: 2px solid #92400E !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #047857 0%, #10B981 100%) !important;
+    background: linear-gradient(135deg, #92400E 0%, #B45309 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
-    background: linear-gradient(135deg, #047857 0%, #34D399 100%) !important;
+    background: linear-gradient(135deg, #92400E 0%, #D97706 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #065f46 !important;
+    border: 2px solid #92400E !important;
     text-shadow: none !important;
 }
 
-/* Sub-tab 5: References & Citation — Sky Blue */
+/* Sub-tab 5: References & Citation — Vibrant Orchid */
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #0369A1 0%, #0284C7 60%, #38BDF8 100%) !important;
-    color: #E0F2FE !important;
-    border: 2px solid #0369A1 !important;
+    background: linear-gradient(135deg, #A21CAF 0%, #C026D3 60%, #E879F9 100%) !important;
+    color: #FDF4FF !important;
+    border: 2px solid #A21CAF !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #0369A1 0%, #0284C7 100%) !important;
+    background: linear-gradient(135deg, #A21CAF 0%, #C026D3 100%) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
     opacity: 1 !important;
 }
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #0369A1 0%, #38BDF8 100%) !important;
+    background: linear-gradient(135deg, #A21CAF 0%, #E879F9 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 3px 8px rgba(0,0,0,0.18) !important;
-    border: 2px solid #0369A1 !important;
+    border: 2px solid #A21CAF !important;
     opacity: 1 !important;
     text-shadow: none !important;
 }
@@ -391,23 +391,23 @@ section[data-testid="stSidebar"] {
     box-shadow: 0 2px 6px rgba(var(--primary-rgb, 79,70,229), 0.10) !important;
 }
 .stTabs .stTabs .stTabs [data-baseweb="tab"] {
-    background: rgba(99, 102, 241, 0.08) !important;
-    color: #3730a3 !important;
-    border: 1px solid #4338ca !important;
+    background: rgba(107, 33, 168, 0.08) !important;
+    color: #3B0764 !important;
+    border: 1px solid #6B21A8 !important;
     border-radius: 7px !important;
     font-size: 0.88rem !important;
     font-weight: 600 !important;
 }
 .stTabs .stTabs .stTabs [data-baseweb="tab"]:hover {
-    background: rgba(99, 102, 241, 0.18) !important;
-    color: #1e1b4b !important;
+    background: rgba(107, 33, 168, 0.18) !important;
+    color: #3B0764 !important;
     transform: translateY(-1px) !important;
 }
 .stTabs .stTabs .stTabs [data-baseweb="tab"][aria-selected="true"] {
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
+    background: linear-gradient(135deg, #6B21A8 0%, #C026D3 100%) !important;
     color: #FFFFFF !important;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-    border: 1px solid #312e81 !important;
+    border: 1px solid #581C87 !important;
 }
 
 /* Accessibility: Reduced Motion Support for Vestibular Disorders */

@@ -339,7 +339,7 @@ AAAAAAAAAAAGATCTAGATCTAGATCTAGATCTAGATCTAGATCTGAAAGAAAGAAAGAAAGAAAGAAAGAAA
 def render():
     """Render the Upload & Analyze tab content."""
     # Apply Upload tab theme based on configuration
-    load_css(TAB_THEMES.get('Upload & Analyze', 'nature_green'))
+    load_css(TAB_THEMES.get('Upload & Analyze', 'purple_upload'))
     
     # ============================================================
     # INITIALIZE CRITICAL SESSION STATE VARIABLES

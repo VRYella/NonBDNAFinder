@@ -63,108 +63,108 @@ METRIC_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#0284C7',      # Sky Blue
-    'primary_light': '#38BDF8',
-    'primary_dark': '#0369A1',
-    'primary_soft': '#E0F2FE',
-    'secondary': '#38BDF8',    # Sky Blue Light
-    'accent': '#7DD3FC',       # Sky Blue Accent
-    'light': '#F0F9FF',        # Sky-50 light background
-    'lighter': '#F7FCFF',      # Near-white sky background
-    'medium': '#E0F2FE',       # Sky-100 medium background
-    'border': '#BAE6FD',       # Sky border
-    'text': '#0C4A6E',         # Deep sky text
-    'shadow': 'rgba(2, 132, 199, 0.18)',
+    'primary': '#9B1B30',      # Vibrant Maroon
+    'primary_light': '#BE2A45',
+    'primary_dark': '#7A1525',
+    'primary_soft': '#FCEAED',
+    'secondary': '#BE2A45',    # Crimson
+    'accent': '#E87080',       # Light Crimson accent
+    'light': '#FFF1F3',        # Maroon-50 light background
+    'lighter': '#FFF8F9',      # Near-white maroon background
+    'medium': '#FCEAED',       # Maroon-100 medium background
+    'border': '#F9C5CB',       # Maroon border
+    'text': '#500D18',         # Deep maroon text
+    'shadow': 'rgba(155, 27, 48, 0.18)',
 }
 
 INPUT_COLORS = {
-    'primary': '#4F46E5',      # Royal Indigo
-    'primary_light': '#6366F1',
-    'primary_dark': '#3730A3',
-    'primary_soft': '#E0E7FF',
-    'secondary': '#6366F1',    # Bright Indigo
-    'accent': '#818CF8',       # Light Indigo accent
-    'light': '#EEF2FF',        # Indigo-50 light background
-    'lighter': '#F5F7FF',      # Near-white indigo background
-    'medium': '#E0E7FF',       # Indigo-100 medium background
-    'border': '#C7D2FE',       # Indigo border
-    'text': '#1e1b4b',         # Deep navy text
-    'shadow': 'rgba(79, 70, 229, 0.18)',
+    'primary': '#6B21A8',      # Deep Scientific Purple
+    'primary_light': '#9333EA',
+    'primary_dark': '#581C87',
+    'primary_soft': '#F3E8FF',
+    'secondary': '#9333EA',    # Bright Purple
+    'accent': '#C084FC',       # Light Purple accent
+    'light': '#FAF5FF',        # Purple-50 light background
+    'lighter': '#FDFAFF',      # Near-white purple background
+    'medium': '#F3E8FF',       # Purple-100 medium background
+    'border': '#E9D5FF',       # Purple border
+    'text': '#3B0764',         # Deep violet text
+    'shadow': 'rgba(107, 33, 168, 0.18)',
 }
 
 ANALYSIS_COLORS = {
-    'primary': '#D97706',
-    'primary_light': '#F59E0B',
-    'primary_dark': '#92400E',
-    'primary_soft': '#FEF3C7',
-    'secondary': '#F59E0B',
-    'accent': '#FBBF24',
-    'light': '#FFFBEB',        # Amber-50 light background
-    'lighter': '#FFFDF5',      # Near-white amber background
-    'medium': '#FEF3C7',       # Amber-100 medium background
-    'border': '#FDE68A',
-    'text': '#7C2D12',
-    'shadow': 'rgba(217, 119, 6, 0.12)',
+    'primary': '#7E22CE',      # Medium Scientific Purple (analysis variant)
+    'primary_light': '#A855F7',
+    'primary_dark': '#6B21A8',
+    'primary_soft': '#F3E8FF',
+    'secondary': '#A855F7',
+    'accent': '#D8B4FE',
+    'light': '#FAF5FF',        # Purple-50 light background
+    'lighter': '#FDFAFF',      # Near-white purple background
+    'medium': '#F3E8FF',       # Purple-100 medium background
+    'border': '#E9D5FF',
+    'text': '#4C1D95',
+    'shadow': 'rgba(126, 34, 206, 0.12)',
 }
 
 RESULTS_COLORS = {
-    'primary': '#0EA5A4',      # Scientific Teal
-    'primary_light': '#2DD4BF',
-    'primary_dark': '#0F766E',
-    'primary_soft': '#CCFBF1',
-    'secondary': '#06B6D4',
-    'accent': '#22D3EE',
-    'light': '#ECFEFF',        # Cyan-50 light background
-    'lighter': '#F5FEFF',      # Near-white cyan background
-    'medium': '#CFFAFE',       # Cyan-100 medium background
-    'border': '#A5F3FC',
-    'text': '#164E63',
-    'shadow': 'rgba(14, 165, 164, 0.12)',
+    'primary': '#15803D',      # Forest Emerald Green
+    'primary_light': '#22C55E',
+    'primary_dark': '#14532D',
+    'primary_soft': '#DCFCE7',
+    'secondary': '#22C55E',    # Bright Green
+    'accent': '#4ADE80',       # Light Green accent
+    'light': '#F0FDF4',        # Green-50 light background
+    'lighter': '#F7FEFA',      # Near-white green background
+    'medium': '#DCFCE7',       # Green-100 medium background
+    'border': '#BBF7D0',       # Green border
+    'text': '#052E16',         # Deep forest text
+    'shadow': 'rgba(21, 128, 61, 0.18)',
 }
 
 VISUALIZATION_COLORS = {
-    'primary': '#0F766E',
-    'primary_light': '#14B8A6',
-    'primary_dark': '#134E4A',
-    'primary_soft': '#CCFBF1',
-    'secondary': '#14B8A6',
-    'accent': '#5EEAD4',
-    'light': '#F0FDFA',        # Teal-50 light background
-    'lighter': '#F7FFFD',      # Near-white teal background
-    'medium': '#CCFBF1',       # Teal-100 medium background
-    'border': '#99F6E4',
-    'text': '#134E4A',
-    'shadow': 'rgba(15, 118, 110, 0.12)',
+    'primary': '#166534',      # Deep Forest Green (visualization variant)
+    'primary_light': '#15803D',
+    'primary_dark': '#14532D',
+    'primary_soft': '#DCFCE7',
+    'secondary': '#15803D',
+    'accent': '#4ADE80',
+    'light': '#F0FDF4',        # Green-50 light background
+    'lighter': '#F7FEFA',      # Near-white green background
+    'medium': '#DCFCE7',       # Green-100 medium background
+    'border': '#BBF7D0',
+    'text': '#052E16',
+    'shadow': 'rgba(22, 101, 52, 0.12)',
 }
 
 DOWNLOAD_COLORS = {
-    'primary': '#16A34A',      # Emerald Green
-    'primary_light': '#22C55E',
-    'primary_dark': '#166534',
-    'primary_soft': '#DCFCE7',
-    'secondary': '#22C55E',
-    'accent': '#4ADE80',
-    'light': '#ECFDF5',        # Green-50 light background
-    'lighter': '#F5FEF8',      # Near-white green background
-    'medium': '#DCFCE7',       # Green-100 medium background
-    'border': '#BBF7D0',
-    'text': '#14532D',
-    'shadow': 'rgba(22, 163, 74, 0.12)',
+    'primary': '#B45309',      # Rich Amber Mustard
+    'primary_light': '#D97706',
+    'primary_dark': '#92400E',
+    'primary_soft': '#FEF3C7',
+    'secondary': '#D97706',    # Golden Amber
+    'accent': '#FBBF24',       # Light Mustard accent
+    'light': '#FFFBEB',        # Amber-50 light background
+    'lighter': '#FFFDF5',      # Near-white amber background
+    'medium': '#FEF3C7',       # Amber-100 medium background
+    'border': '#FDE68A',       # Amber border
+    'text': '#451A03',         # Deep amber text
+    'shadow': 'rgba(180, 83, 9, 0.18)',
 }
 
 DOCUMENTATION_COLORS = {
-    'primary': '#7C3AED',      # Violet/Purple
-    'primary_light': '#A78BFA',
-    'primary_dark': '#6D28D9',
-    'primary_soft': '#EDE9FE',
-    'secondary': '#A78BFA',    # Bright Violet
-    'accent': '#C4B5FD',       # Violet accent
-    'light': '#F5F3FF',        # Violet-50 light background
-    'lighter': '#FAF9FF',      # Near-white violet background
-    'medium': '#EDE9FE',       # Violet-100 medium background
-    'border': '#DDD6FE',       # Violet border
-    'text': '#4C1D95',         # Deep violet text
-    'shadow': 'rgba(124, 58, 237, 0.18)',
+    'primary': '#C026D3',      # Vibrant Orchid
+    'primary_light': '#E879F9',
+    'primary_dark': '#A21CAF',
+    'primary_soft': '#FDF4FF',
+    'secondary': '#E879F9',    # Bright Orchid
+    'accent': '#F0ABFC',       # Light Orchid accent
+    'light': '#FDF4FF',        # Orchid-50 light background
+    'lighter': '#FEF9FF',      # Near-white orchid background
+    'medium': '#FAE8FF',       # Orchid-100 medium background
+    'border': '#F5D0FE',       # Orchid border
+    'text': '#701A75',         # Deep orchid text
+    'shadow': 'rgba(192, 38, 211, 0.18)',
 }
 
 # ==================== SEMANTIC STATUS COLORS ====================
@@ -281,21 +281,21 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#0284C7', 'hover': '#0369A1', 'text': '#E0F2FE', 'glow': 'rgba(2, 132, 199, 0.70)'},
-    'Upload & Analyze': {'bg': '#4F46E5', 'hover': '#3730A3', 'text': '#EEF2FF', 'glow': 'rgba(99, 102, 241, 0.65)'},
-    'Results': {'bg': '#0EA5A4', 'hover': '#0D9488', 'text': '#FFFFFF', 'glow': 'rgba(34, 211, 238, 0.65)'},
-    'Download': {'bg': '#16A34A', 'hover': '#15803D', 'text': '#FFFFFF', 'glow': 'rgba(74, 222, 128, 0.65)'},
-    'Documentation': {'bg': '#7C3AED', 'hover': '#6D28D9', 'text': '#F5F3FF', 'glow': 'rgba(167, 139, 250, 0.65)'},
+    'Home': {'bg': '#9B1B30', 'hover': '#7A1525', 'text': '#FCEAED', 'glow': 'rgba(155, 27, 48, 0.70)'},
+    'Upload & Analyze': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF', 'glow': 'rgba(107, 33, 168, 0.65)'},
+    'Results': {'bg': '#15803D', 'hover': '#14532D', 'text': '#FFFFFF', 'glow': 'rgba(21, 128, 61, 0.65)'},
+    'Download': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FEF3C7', 'glow': 'rgba(180, 83, 9, 0.65)'},
+    'Documentation': {'bg': '#C026D3', 'hover': '#A21CAF', 'text': '#FDF4FF', 'glow': 'rgba(192, 38, 211, 0.65)'},
 }
 
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
 
 DOC_SUBTAB_COLORS = {
-    'Overview & Architecture': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#EEF2FF'},
-    'Motif Library & Algorithms': {'bg': '#4F46E5', 'hover': '#4338CA', 'text': '#EEF2FF'},
-    'Scoring & Analysis': {'bg': '#0F766E', 'hover': '#14B8A6', 'text': '#F0FDFA'},
-    'Statistics Guide': {'bg': '#10B981', 'hover': '#059669', 'text': '#ECFDF5'},
-    'References & Citation': {'bg': '#0284C7', 'hover': '#0369A1', 'text': '#E0F2FE'},
+    'Overview & Architecture': {'bg': '#9B1B30', 'hover': '#7A1525', 'text': '#FCEAED'},
+    'Motif Library & Algorithms': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF'},
+    'Scoring & Analysis': {'bg': '#15803D', 'hover': '#14532D', 'text': '#F0FDF4'},
+    'Statistics Guide': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FFFBEB'},
+    'References & Citation': {'bg': '#C026D3', 'hover': '#A21CAF', 'text': '#FDF4FF'},
 }
 
 def get_motif_card_style(class_key: str) -> dict:

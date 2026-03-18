@@ -1251,7 +1251,7 @@ def _tab_citation():
 # ─── Public entry point ───────────────────────────────────────────────────────
 
 def render():
-    load_css(TAB_THEMES.get('Documentation', 'scientific_blue'))
+    load_css(TAB_THEMES.get('Documentation', 'orchid_docs'))
     render_section_heading("Scientific Documentation & References", page="Documentation")
 
     tabs = st.tabs([
