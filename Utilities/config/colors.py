@@ -63,18 +63,18 @@ METRIC_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#9B1B30',      # Vibrant Maroon
-    'primary_light': '#BE2A45',
-    'primary_dark': '#7A1525',
-    'primary_soft': '#FCEAED',
-    'secondary': '#BE2A45',    # Crimson
-    'accent': '#E87080',       # Light Crimson accent
-    'light': '#FFF1F3',        # Maroon-50 light background
-    'lighter': '#FFF8F9',      # Near-white maroon background
-    'medium': '#FCEAED',       # Maroon-100 medium background
-    'border': '#F9C5CB',       # Maroon border
-    'text': '#500D18',         # Deep maroon text
-    'shadow': 'rgba(155, 27, 48, 0.18)',
+    'primary': '#E53935',      # Medium Bright Red
+    'primary_light': '#EF5350',
+    'primary_dark': '#C62828',
+    'primary_soft': '#FFEBEE',
+    'secondary': '#EF5350',    # Bright Red
+    'accent': '#FF8A80',       # Light Red accent
+    'light': '#FFF5F5',        # Red-50 light background
+    'lighter': '#FFF9F9',      # Near-white red background
+    'medium': '#FFEBEE',       # Red-100 medium background
+    'border': '#FFCDD2',       # Red border
+    'text': '#B71C1C',         # Deep red text
+    'shadow': 'rgba(229, 57, 53, 0.18)',
 }
 
 INPUT_COLORS = {
@@ -281,7 +281,7 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#9B1B30', 'hover': '#7A1525', 'text': '#FCEAED', 'glow': 'rgba(155, 27, 48, 0.70)'},
+    'Home': {'bg': '#E53935', 'hover': '#C62828', 'text': '#FFEBEE', 'glow': 'rgba(229, 57, 53, 0.70)'},
     'Upload & Analyze': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF', 'glow': 'rgba(107, 33, 168, 0.65)'},
     'Results': {'bg': '#15803D', 'hover': '#14532D', 'text': '#FFFFFF', 'glow': 'rgba(21, 128, 61, 0.65)'},
     'Download': {'bg': '#C68642', 'hover': '#A0632A', 'text': '#FEF9F0', 'glow': 'rgba(198, 134, 66, 0.65)'},
@@ -291,7 +291,7 @@ TAB_NAV_COLORS = {
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
 
 DOC_SUBTAB_COLORS = {
-    'Overview & Architecture': {'bg': '#9B1B30', 'hover': '#7A1525', 'text': '#FCEAED'},
+    'Overview & Architecture': {'bg': '#E53935', 'hover': '#C62828', 'text': '#FFEBEE'},
     'Motif Library & Algorithms': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF'},
     'Scoring & Analysis': {'bg': '#15803D', 'hover': '#14532D', 'text': '#F0FDF4'},
     'Statistics Guide': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FFFBEB'},
