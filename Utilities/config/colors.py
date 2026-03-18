@@ -138,33 +138,33 @@ VISUALIZATION_COLORS = {
 }
 
 DOWNLOAD_COLORS = {
-    'primary': '#B45309',      # Rich Amber Mustard
-    'primary_light': '#D97706',
-    'primary_dark': '#92400E',
-    'primary_soft': '#FEF3C7',
-    'secondary': '#D97706',    # Golden Amber
-    'accent': '#FBBF24',       # Light Mustard accent
-    'light': '#FFFBEB',        # Amber-50 light background
-    'lighter': '#FFFDF5',      # Near-white amber background
-    'medium': '#FEF3C7',       # Amber-100 medium background
-    'border': '#FDE68A',       # Amber border
-    'text': '#451A03',         # Deep amber text
-    'shadow': 'rgba(180, 83, 9, 0.18)',
+    'primary': '#C68642',      # Sandy Brown
+    'primary_light': '#D4935E',
+    'primary_dark': '#A0632A',
+    'primary_soft': '#FEF9F0',
+    'secondary': '#D4935E',    # Medium Sandy Brown
+    'accent': '#F4A460',       # Sandy Brown accent
+    'light': '#FEF6E8',        # Sandy-50 light background
+    'lighter': '#FFFDF8',      # Near-white sandy background
+    'medium': '#FDF0DC',       # Sandy-100 medium background
+    'border': '#F7D9B0',       # Sandy border
+    'text': '#5C3A1E',         # Deep sandy text
+    'shadow': 'rgba(198, 134, 66, 0.18)',
 }
 
 DOCUMENTATION_COLORS = {
-    'primary': '#C026D3',      # Vibrant Orchid
-    'primary_light': '#E879F9',
-    'primary_dark': '#A21CAF',
-    'primary_soft': '#FDF4FF',
-    'secondary': '#E879F9',    # Bright Orchid
-    'accent': '#F0ABFC',       # Light Orchid accent
-    'light': '#FDF4FF',        # Orchid-50 light background
-    'lighter': '#FEF9FF',      # Near-white orchid background
-    'medium': '#FAE8FF',       # Orchid-100 medium background
-    'border': '#F5D0FE',       # Orchid border
-    'text': '#701A75',         # Deep orchid text
-    'shadow': 'rgba(192, 38, 211, 0.18)',
+    'primary': '#0EA5E9',      # Sky Blue
+    'primary_light': '#38BDF8',
+    'primary_dark': '#0369A1',
+    'primary_soft': '#F0F9FF',
+    'secondary': '#38BDF8',    # Bright Sky Blue
+    'accent': '#7DD3FC',       # Light Sky Blue accent
+    'light': '#F0F9FF',        # Sky-50 light background
+    'lighter': '#F8FBFF',      # Near-white sky background
+    'medium': '#E0F2FE',       # Sky-100 medium background
+    'border': '#BAE6FD',       # Sky border
+    'text': '#0C4A6E',         # Deep sky text
+    'shadow': 'rgba(14, 165, 233, 0.18)',
 }
 
 # ==================== SEMANTIC STATUS COLORS ====================
@@ -284,8 +284,8 @@ TAB_NAV_COLORS = {
     'Home': {'bg': '#9B1B30', 'hover': '#7A1525', 'text': '#FCEAED', 'glow': 'rgba(155, 27, 48, 0.70)'},
     'Upload & Analyze': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF', 'glow': 'rgba(107, 33, 168, 0.65)'},
     'Results': {'bg': '#15803D', 'hover': '#14532D', 'text': '#FFFFFF', 'glow': 'rgba(21, 128, 61, 0.65)'},
-    'Download': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FEF3C7', 'glow': 'rgba(180, 83, 9, 0.65)'},
-    'Documentation': {'bg': '#C026D3', 'hover': '#A21CAF', 'text': '#FDF4FF', 'glow': 'rgba(192, 38, 211, 0.65)'},
+    'Download': {'bg': '#C68642', 'hover': '#A0632A', 'text': '#FEF9F0', 'glow': 'rgba(198, 134, 66, 0.65)'},
+    'Documentation': {'bg': '#0EA5E9', 'hover': '#0369A1', 'text': '#F0F9FF', 'glow': 'rgba(14, 165, 233, 0.65)'},
 }
 
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
@@ -295,7 +295,7 @@ DOC_SUBTAB_COLORS = {
     'Motif Library & Algorithms': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF'},
     'Scoring & Analysis': {'bg': '#15803D', 'hover': '#14532D', 'text': '#F0FDF4'},
     'Statistics Guide': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FFFBEB'},
-    'References & Citation': {'bg': '#C026D3', 'hover': '#A21CAF', 'text': '#FDF4FF'},
+    'References & Citation': {'bg': '#0EA5E9', 'hover': '#0369A1', 'text': '#F0F9FF'},
 }
 
 def get_motif_card_style(class_key: str) -> dict:
