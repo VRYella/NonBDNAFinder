@@ -20,8 +20,8 @@ PAGE_HEADING_COLORS = {
     'Home': {'primary': '#9B1B30', 'border': '#F9C5CB', 'pattern': 'linear-gradient(135deg, #7A1525 0%, #9B1B30 40%, #BE2A45 75%, #E87080 100%)'},
     'Upload & Analyze': {'primary': '#6B21A8', 'border': '#E9D5FF', 'pattern': 'linear-gradient(135deg, #581C87 0%, #6B21A8 40%, #9333EA 75%, #C084FC 100%)'},
     'Results': {'primary': '#15803D', 'border': '#BBF7D0', 'pattern': 'linear-gradient(135deg, #14532D 0%, #15803D 40%, #22C55E 75%, #4ADE80 100%)'},
-    'Downloads': {'primary': '#B45309', 'border': '#FDE68A', 'pattern': 'linear-gradient(135deg, #92400E 0%, #B45309 40%, #D97706 75%, #FBBF24 100%)'},
-    'Documentation': {'primary': '#C026D3', 'border': '#F5D0FE', 'pattern': 'linear-gradient(135deg, #A21CAF 0%, #C026D3 40%, #E879F9 75%, #F0ABFC 100%)'},
+    'Downloads': {'primary': '#C68642', 'border': '#F7D9B0', 'pattern': 'linear-gradient(135deg, #A0632A 0%, #C68642 40%, #D4935E 75%, #F4A460 100%)'},
+    'Documentation': {'primary': '#0EA5E9', 'border': '#BAE6FD', 'pattern': 'linear-gradient(135deg, #0369A1 0%, #0EA5E9 40%, #38BDF8 75%, #7DD3FC 100%)'},
 }
 HEADING_PADDING = "0.25rem 1.4rem"; HEADING_FONT_SIZE = "1.65rem"; HEADING_BORDER_RADIUS = "12px"
 # ═══════════════════════════════════════════════════════════════════════════════
