@@ -184,7 +184,7 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
     }
 
 def render():
-    load_css(TAB_THEMES.get('Download', 'clinical_teal')); render_section_heading("Download & Export Results", page="Downloads")
+    load_css(TAB_THEMES.get('Download', 'mustard_download')); render_section_heading("Download & Export Results", page="Downloads")
     c = get_page_colors('Download')
     if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown(f"<div style='background:{c['light']};padding:0.35rem 1rem;border-radius:10px;margin-top:0.6rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};text-align:center;'><h3 style='color:{c['primary']};margin:0 0 0.4rem 0;font-size:1.2rem;'>Export Formats Available</h3><p style='color:{c['text']};margin:0 0 0.4rem 0;font-size:0.95rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;'><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>CSV</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>Excel</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>JSON</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>BED</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
     

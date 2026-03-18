@@ -17,11 +17,11 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#0284C7', 'border': '#BAE6FD', 'pattern': 'linear-gradient(135deg, #0369A1 0%, #0284C7 40%, #38BDF8 75%, #7DD3FC 100%)'},
-    'Upload & Analyze': {'primary': '#4F46E5', 'border': '#C7D2FE', 'pattern': 'linear-gradient(135deg, #4338CA 0%, #4F46E5 40%, #6366F1 75%, #818CF8 100%)'},
-    'Results': {'primary': '#0EA5A4', 'border': '#67e8f9', 'pattern': 'linear-gradient(135deg, #0E7490 0%, #0891B2 40%, #0EA5A4 75%, #22D3EE 100%)'},
-    'Downloads': {'primary': '#16A34A', 'border': '#86efac', 'pattern': 'linear-gradient(135deg, #15803D 0%, #16A34A 40%, #22C55E 75%, #4ADE80 100%)'},
-    'Documentation': {'primary': '#7C3AED', 'border': '#DDD6FE', 'pattern': 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 40%, #A78BFA 75%, #C4B5FD 100%)'},
+    'Home': {'primary': '#9B1B30', 'border': '#F9C5CB', 'pattern': 'linear-gradient(135deg, #7A1525 0%, #9B1B30 40%, #BE2A45 75%, #E87080 100%)'},
+    'Upload & Analyze': {'primary': '#6B21A8', 'border': '#E9D5FF', 'pattern': 'linear-gradient(135deg, #581C87 0%, #6B21A8 40%, #9333EA 75%, #C084FC 100%)'},
+    'Results': {'primary': '#15803D', 'border': '#BBF7D0', 'pattern': 'linear-gradient(135deg, #14532D 0%, #15803D 40%, #22C55E 75%, #4ADE80 100%)'},
+    'Downloads': {'primary': '#B45309', 'border': '#FDE68A', 'pattern': 'linear-gradient(135deg, #92400E 0%, #B45309 40%, #D97706 75%, #FBBF24 100%)'},
+    'Documentation': {'primary': '#C026D3', 'border': '#F5D0FE', 'pattern': 'linear-gradient(135deg, #A21CAF 0%, #C026D3 40%, #E879F9 75%, #F0ABFC 100%)'},
 }
 HEADING_PADDING = "0.25rem 1.4rem"; HEADING_FONT_SIZE = "1.65rem"; HEADING_BORDER_RADIUS = "12px"
 # ═══════════════════════════════════════════════════════════════════════════════
