@@ -28,7 +28,7 @@ def _build_motif_class_card(info):
     return f"<div style='padding:0.3rem 0.6rem;background:{s['background']};border-radius:10px;border:1px solid #1e293b;border-left:4px solid {s['border']};box-shadow:0 1px 4px rgba(0,0,0,0.07);transition:all 0.2s ease;'><div style='font-weight:700;color:{s['text']};font-size:0.87rem;line-height:1.3;'>{info['num']}. {info['name']}</div><div style='color:{s['text']};font-size:0.79rem;margin-top:0.05rem;line-height:1.2;opacity:0.85;'>{info['subtitle']}</div></div>"
 
 def render():
-    load_css(TAB_THEMES.get('Home', 'scientific_blue')); c = get_page_colors('Home')
+    load_css(TAB_THEMES.get('Home', 'red_home')); c = get_page_colors('Home')
     render_section_heading("Non-B DNA Finder", page="Home")
     col_nbd, col_science = st.columns([1, 1], gap="large")
     with col_nbd:
