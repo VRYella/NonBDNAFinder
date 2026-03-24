@@ -17,7 +17,7 @@ from Utilities.config.colors import HOME_COLORS, GLOBAL_COLORS
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 PAGE_HEADING_COLORS = {
-    'Home': {'primary': '#E53935', 'border': '#FFCDD2', 'pattern': 'linear-gradient(135deg, #C62828 0%, #E53935 40%, #EF5350 75%, #FF8A80 100%)'},
+    'Home': {'primary': '#AC0808', 'border': '#FFCDD2', 'pattern': 'linear-gradient(135deg, #7B0000 0%, #AC0808 40%, #D32F2F 75%, #EF9A9A 100%)'},
     'Upload & Analyze': {'primary': '#6B21A8', 'border': '#E9D5FF', 'pattern': 'linear-gradient(135deg, #581C87 0%, #6B21A8 40%, #9333EA 75%, #C084FC 100%)'},
     'Results': {'primary': '#15803D', 'border': '#BBF7D0', 'pattern': 'linear-gradient(135deg, #14532D 0%, #15803D 40%, #22C55E 75%, #4ADE80 100%)'},
     'Downloads': {'primary': '#C68642', 'border': '#F7D9B0', 'pattern': 'linear-gradient(135deg, #A0632A 0%, #C68642 40%, #D4935E 75%, #F4A460 100%)'},
