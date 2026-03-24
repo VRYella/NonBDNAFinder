@@ -33,8 +33,10 @@ def get_dna_pattern_svg(stroke_color):
     return f"url(\"data:image/svg+xml,{svg}\")"
 
 def load_css(theme_name=None):
-    t = COLOR_THEMES.get(theme_name, COLOR_THEMES.get(st.session_state.color_theme, COLOR_THEMES["scientific_blue"]))
-    is_dark = st.session_state.theme_mode == "dark"; css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+    color_theme = st.session_state.get('color_theme', 'scientific_blue')
+    theme_mode = st.session_state.get('theme_mode', 'light')
+    t = COLOR_THEMES.get(theme_name, COLOR_THEMES.get(color_theme, COLOR_THEMES["scientific_blue"]))
+    is_dark = theme_mode == "dark"; css_path = os.path.join(os.path.dirname(__file__), "styles.css")
     try:
         with open(css_path, "r") as f: css_content = f.read()
     except: css_content = ""
