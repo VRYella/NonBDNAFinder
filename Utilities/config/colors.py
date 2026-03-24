@@ -63,18 +63,18 @@ METRIC_COLORS = {
 # ==================== PAGE-SPECIFIC ACCENT PALETTES ====================
 
 HOME_COLORS = {
-    'primary': '#E53935',      # Medium Bright Red
-    'primary_light': '#EF5350',
-    'primary_dark': '#C62828',
+    'primary': '#AC0808',      # Deep Crimson Red
+    'primary_light': '#D32F2F',
+    'primary_dark': '#7B0000',
     'primary_soft': '#FFEBEE',
-    'secondary': '#EF5350',    # Bright Red
-    'accent': '#FF8A80',       # Light Red accent
+    'secondary': '#C62828',    # Dark Red
+    'accent': '#EF9A9A',       # Light Red accent
     'light': '#FFF5F5',        # Red-50 light background
     'lighter': '#FFF9F9',      # Near-white red background
     'medium': '#FFEBEE',       # Red-100 medium background
     'border': '#FFCDD2',       # Red border
-    'text': '#B71C1C',         # Deep red text
-    'shadow': 'rgba(229, 57, 53, 0.18)',
+    'text': '#7B0000',         # Deep red text
+    'shadow': 'rgba(172, 8, 8, 0.18)',
 }
 
 INPUT_COLORS = {
@@ -281,7 +281,7 @@ MOTIF_CLASS_INFO = [
 # ==================== TOP NAVIGATION TAB COLORS ====================
 
 TAB_NAV_COLORS = {
-    'Home': {'bg': '#E53935', 'hover': '#C62828', 'text': '#FFEBEE', 'glow': 'rgba(229, 57, 53, 0.70)'},
+    'Home': {'bg': '#AC0808', 'hover': '#7B0000', 'text': '#FFEBEE', 'glow': 'rgba(172, 8, 8, 0.70)'},
     'Upload & Analyze': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF', 'glow': 'rgba(107, 33, 168, 0.65)'},
     'Results': {'bg': '#15803D', 'hover': '#14532D', 'text': '#FFFFFF', 'glow': 'rgba(21, 128, 61, 0.65)'},
     'Download': {'bg': '#C68642', 'hover': '#A0632A', 'text': '#FEF9F0', 'glow': 'rgba(198, 134, 66, 0.65)'},
@@ -291,7 +291,7 @@ TAB_NAV_COLORS = {
 # ==================== DOCUMENTATION SUB-TAB COLORS ====================
 
 DOC_SUBTAB_COLORS = {
-    'Overview & Architecture': {'bg': '#E53935', 'hover': '#C62828', 'text': '#FFEBEE'},
+    'Overview & Architecture': {'bg': '#AC0808', 'hover': '#7B0000', 'text': '#FFEBEE'},
     'Motif Library & Algorithms': {'bg': '#6B21A8', 'hover': '#581C87', 'text': '#F3E8FF'},
     'Scoring & Analysis': {'bg': '#15803D', 'hover': '#14532D', 'text': '#F0FDF4'},
     'Statistics Guide': {'bg': '#B45309', 'hover': '#92400E', 'text': '#FFFBEB'},
