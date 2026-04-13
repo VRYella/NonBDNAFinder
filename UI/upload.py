@@ -113,7 +113,7 @@ def _fig_to_bytes(fig) -> bytes:
     """
     import matplotlib.pyplot as _plt
     buf = _io.BytesIO()
-    fig.savefig(buf, format='png', dpi=80, bbox_inches='tight')
+    fig.savefig(buf, format='png', dpi=150, bbox_inches='tight')
     _plt.close(fig)
     buf.seek(0)
     return buf.getvalue()

@@ -23,7 +23,7 @@ PAGE_HEADING_COLORS = {
     'Downloads': {'primary': '#C68642', 'border': '#F7D9B0', 'pattern': 'linear-gradient(135deg, #A0632A 0%, #C68642 40%, #D4935E 75%, #F4A460 100%)'},
     'Documentation': {'primary': '#0EA5E9', 'border': '#BAE6FD', 'pattern': 'linear-gradient(135deg, #0369A1 0%, #0EA5E9 40%, #38BDF8 75%, #7DD3FC 100%)'},
 }
-HEADING_PADDING = "0.25rem 1.4rem"; HEADING_FONT_SIZE = "1.65rem"; HEADING_BORDER_RADIUS = "12px"
+HEADING_PADDING = "0.3rem 1.6rem"; HEADING_FONT_SIZE = "1.75rem"; HEADING_BORDER_RADIUS = "14px"
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
