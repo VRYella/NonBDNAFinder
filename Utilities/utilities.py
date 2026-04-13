@@ -4829,7 +4829,7 @@ FEATURES:
 # - Clean, minimal design with proper spacing
 # - Colorblind-friendly palettes
 
-# Default DPI for visualization (reduced to 72 for screen display)
+# Default DPI for visualization (150 for crisp screen and export quality)
 # 72 DPI matches standard screen resolution and minimizes rendering time/memory
 # For print/standard quality, 300 DPI is typically required for print
 # but we prioritize performance and memory savings for web application display
