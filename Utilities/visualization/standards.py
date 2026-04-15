@@ -334,7 +334,7 @@ class ValidationThresholds:
     
     MAX_COLORS_PER_FIGURE = 6           # Color count guideline
     MAX_TEXT_OVERLAP_PCT = 0.0          # Zero tolerance
-    MIN_DPI = 72                        # Screen display quality
+    MIN_DPI = 150                       # Screen display quality
     REQUIRED_FORMATS = ['png', 'pdf']   # Raster + vector
     
     @classmethod
@@ -449,9 +449,9 @@ def get_scientific_style_params() -> Dict[str, any]:
         'legend.borderpad': 0.4,
         
         # Figure
-        'figure.dpi': 72,
+        'figure.dpi': 150,
         'figure.facecolor': 'white',
-        'savefig.dpi': 72,
+        'savefig.dpi': 150,
         'savefig.format': 'pdf',
         'savefig.bbox': 'tight',
         'savefig.pad_inches': 0.05

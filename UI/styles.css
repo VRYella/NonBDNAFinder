@@ -10,7 +10,7 @@
    Reference: Nature Methods style guidelines
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
     /* Scientific color palette - colorblind-safe */
@@ -83,10 +83,10 @@ section[data-testid="stSidebar"] {
     justify-content: space-evenly !important;
     overflow: visible !important;
     padding: 10px 8px !important;
-    background: var(--bg-card, #F0F0FF) !important;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%) !important;
     border-radius: 18px !important;
-    box-shadow: 0 2px 12px rgba(var(--primary-rgb, 79,70,229), 0.18) !important;
-    border: 2px solid var(--primary-color, #4F46E5) !important;
+    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.45), 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+    border: 2px solid #1e1b4b !important;
 }
 
 /* Main Tab Buttons — Base Styles */
@@ -247,10 +247,10 @@ section[data-testid="stSidebar"] {
 .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"] {
     gap: 5px !important;
     padding: 7px !important;
-    background: var(--bg-card, #F0F0FF) !important;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%) !important;
     border-radius: 14px !important;
-    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 79,70,229), 0.12) !important;
-    border: 2px solid var(--primary-color, #4F46E5) !important;
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.40), 0 0 0 1px rgba(255,255,255,0.10) inset !important;
+    border: 2px solid #0f172a !important;
 }
 
 /* Sub-tab Base Style */
@@ -489,7 +489,7 @@ h1 {
     font-size: 3.0rem !important;
     font-weight: 900 !important;
     color: #1e293b;
-    background: linear-gradient(135deg, #6366f1 0%, #ec4899 40%, #f97316 70%, #22c55e 100%);
+    background: linear-gradient(135deg, #9B1B30 0%, #6B21A8 35%, #15803D 65%, #0EA5E9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -500,9 +500,9 @@ h2 {
     font-size: 2.6rem !important;
     font-weight: 900 !important;
     color: #1e293b !important;
-    border-left: 5px solid var(--primary-color, #00C9FF);
+    border-left: 5px solid var(--primary-color, #9B1B30);
     padding-left: 1rem !important;
-    text-shadow: 0 0 1px rgba(0,0,0,0.1);
+    text-shadow: 0 0 1px rgba(0,0,0,0.08);
 }
 
 /* H3 - Subsection Headers */
@@ -531,8 +531,10 @@ h4 {
 
 /* Reduce Streamlit Default Padding - Combined rules for clarity */
 .main .block-container {
-    max-width: 100% !important;
-    padding: 0.8rem 1.6rem 0.5rem 1.6rem !important;
+    max-width: 1380px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0.8rem 2.8rem 0.5rem 2.8rem !important;
 }
 
 /* Compact Element Spacing */
@@ -542,8 +544,8 @@ h4 {
 
 /* Global body text size increase for all pages */
 p, span, label, li, td, th {
-    font-size: 1.0rem !important;
-    line-height: 1.6 !important;
+    font-size: 1.02rem !important;
+    line-height: 1.65 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1138,13 +1140,15 @@ p, span, label, li, td, th {
 
 /* Subtle gradient background for the main app area */
 .stApp {
-    background: linear-gradient(160deg, #f7f9ff 0%, #fdfeff 40%, #f5fff8 100%) !important;
+    background: linear-gradient(160deg, #EFF6FF 0%, #F5F0FF 30%, #F0FDF4 70%, #FFF9EB 100%) !important;
 }
 
 /* Main block container — subtle inner glow border */
 .main .block-container {
-    max-width: 100% !important;
-    padding: 0.8rem 1.6rem 0.5rem 1.6rem !important;
+    max-width: 1380px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0.8rem 2.8rem 0.5rem 2.8rem !important;
     border-radius: 0 !important;
 }
 
@@ -1154,15 +1158,15 @@ p, span, label, li, td, th {
 
 /* Streamlit expander (collapsible sections) — thick border + glow */
 [data-testid="stExpander"] {
-    border: 2px solid rgba(var(--primary-rgb, 99,102,241), 0.35) !important;
+    border: 2px solid rgba(var(--primary-rgb, 99,102,241), 0.40) !important;
     border-radius: 14px !important;
-    box-shadow: 0 4px 20px rgba(var(--primary-rgb, 99,102,241), 0.12), 0 0 0 1px rgba(var(--primary-rgb, 99,102,241), 0.08) !important;
+    box-shadow: 0 4px 24px rgba(var(--primary-rgb, 99,102,241), 0.14), 0 0 0 1px rgba(var(--primary-rgb, 99,102,241), 0.06) !important;
     transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
-    background: var(--bg-card, #e0e7ff) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
 }
 [data-testid="stExpander"]:hover {
-    border-color: rgba(var(--primary-rgb, 99,102,241), 0.6) !important;
-    box-shadow: 0 6px 28px rgba(var(--primary-rgb, 99,102,241), 0.2), 0 0 18px rgba(var(--primary-rgb, 99,102,241), 0.1) !important;
+    border-color: rgba(var(--primary-rgb, 99,102,241), 0.70) !important;
+    box-shadow: 0 6px 32px rgba(var(--primary-rgb, 99,102,241), 0.22), 0 0 20px rgba(var(--primary-rgb, 99,102,241), 0.10) !important;
 }
 
 /* Streamlit containers/columns — enhanced separator */
@@ -1180,17 +1184,17 @@ p, span, label, li, td, th {
 
 /* Streamlit metric cards */
 [data-testid="stMetric"] {
-    background: linear-gradient(135deg, var(--bg-card, #e0e7ff) 0%, var(--bg-light, #eef2ff) 100%) !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, var(--bg-card, #e0e7ff) 100%) !important;
     border: 2px solid rgba(var(--primary-rgb, 79,70,229), 0.30) !important;
-    border-radius: 14px !important;
+    border-radius: 16px !important;
     padding: 0.8rem 1rem !important;
-    box-shadow: 0 4px 16px rgba(var(--primary-rgb, 79,70,229), 0.10), 0 0 0 1px rgba(255,255,255,0.8) inset !important;
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb, 79,70,229), 0.12), 0 0 0 1px rgba(255,255,255,0.9) inset !important;
     transition: all 0.25s ease !important;
 }
 [data-testid="stMetric"]:hover {
-    border-color: rgba(99, 102, 241, 0.5) !important;
-    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.18), 0 0 16px rgba(99, 102, 241, 0.08) !important;
-    transform: translateY(-1px) !important;
+    border-color: rgba(var(--primary-rgb, 79,70,229), 0.55) !important;
+    box-shadow: 0 8px 28px rgba(var(--primary-rgb, 79,70,229), 0.20), 0 0 18px rgba(var(--primary-rgb, 79,70,229), 0.10) !important;
+    transform: translateY(-2px) !important;
 }
 
 /* Metric value — vibrant gradient text */
@@ -1310,7 +1314,8 @@ button[kind="secondary"]:hover {
 .section-heading-box {
     height: auto !important;
     min-height: unset !important;
-    animation: subtle-glow-pulse 4s ease-in-out infinite !important;
+    animation: subtle-glow-pulse 3.5s ease-in-out infinite !important;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1355,44 +1360,44 @@ button[kind="secondary"]:hover {
 
 /* ── Direct Tab Panel Backgrounds (primary mechanism) ─────── */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3) {
-    background: linear-gradient(160deg, #F0F9FF 0%, #E0F2FE 50%, #F7FCFF 100%) !important;
+    background: linear-gradient(160deg, #FFF5F5 0%, #FFEBEE 55%, #FFF9FA 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4) {
-    background: linear-gradient(160deg, #f5f7ff 0%, #eef2ff 50%, #f8f8ff 100%) !important;
+    background: linear-gradient(160deg, #FAF5FF 0%, #F3E8FF 55%, #FDFAFF 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5) {
-    background: linear-gradient(160deg, #f5feff 0%, #e8feff 50%, #f2feff 100%) !important;
+    background: linear-gradient(160deg, #F0FDF4 0%, #DCFCE7 55%, #F7FEFA 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6) {
-    background: linear-gradient(160deg, #f5fef8 0%, #ecfdf4 50%, #f2fef6 100%) !important;
+    background: linear-gradient(160deg, #FEF6E8 0%, #FEF3C7 55%, #FFFBF0 100%) !important;
 }
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7) {
-    background: linear-gradient(160deg, #F5F3FF 0%, #EDE9FE 50%, #FAF9FF 100%) !important;
+    background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 55%, #F5F9FF 100%) !important;
 }
 
 /* ── App Background Tints — CSS :has() (modern browsers) ──── */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #F0F9FF 0%, #E0F2FE 40%, #F7FCFF 100%) !important;
+    background: linear-gradient(160deg, #FFF5F5 0%, #FFEBEE 45%, #FFF9FA 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #f5f7ff 0%, #eef2ff 40%, #f8f8ff 100%) !important;
+    background: linear-gradient(160deg, #FAF5FF 0%, #F3E8FF 45%, #FDFAFF 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #f2feff 0%, #e8feff 40%, #f5feff 100%) !important;
+    background: linear-gradient(160deg, #F0FDF4 0%, #DCFCE7 45%, #F7FEFA 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #f5fef8 0%, #ecfdf4 40%, #f2fef6 100%) !important;
+    background: linear-gradient(160deg, #FEF6E8 0%, #FEF3C7 45%, #FFFBF0 100%) !important;
 }
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(7):not([hidden])) .stApp {
-    background: linear-gradient(160deg, #F5F3FF 0%, #EDE9FE 40%, #FAF9FF 100%) !important;
+    background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 45%, #F5F9FF 100%) !important;
 }
 
 /* ── Streamlit Top Header Bar — Per-Tab CSS :has() ────────── */
-/* Tab 1: Home — Sky Blue */
+/* Tab 1: Home — Crimson Red */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(3):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #0369A1 0%, #0284C7 35%, #38BDF8 65%, #7DD3FC 100%) !important;
-    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.40) !important;
-    border-bottom: 3px solid rgba(186, 230, 253, 0.45) !important;
+    background: linear-gradient(90deg, #7A1525 0%, #9B1B30 35%, #BE2A45 65%, #D4677A 100%) !important;
+    box-shadow: 0 4px 20px rgba(155, 27, 48, 0.45) !important;
+    border-bottom: 3px solid rgba(249, 197, 203, 0.45) !important;
 }
 /* Tab 2: Upload & Analyze — Royal Indigo */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):not([hidden])) header[data-testid="stHeader"] {
@@ -1400,11 +1405,11 @@ body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(4):no
     box-shadow: 0 4px 20px rgba(79, 70, 229, 0.40) !important;
     border-bottom: 3px solid rgba(199, 210, 254, 0.45) !important;
 }
-/* Tab 3: Results — Teal Cyan */
+/* Tab 3: Results — Forest Emerald Green */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(5):not([hidden])) header[data-testid="stHeader"] {
-    background: linear-gradient(90deg, #0E7490 0%, #0891b2 35%, #0EA5A4 65%, #22D3EE 100%) !important;
-    box-shadow: 0 4px 20px rgba(14, 165, 164, 0.40) !important;
-    border-bottom: 3px solid rgba(103, 232, 249, 0.45) !important;
+    background: linear-gradient(90deg, #14532D 0%, #15803D 35%, #22C55E 65%, #4ADE80 100%) !important;
+    box-shadow: 0 4px 20px rgba(21, 128, 61, 0.45) !important;
+    border-bottom: 3px solid rgba(187, 247, 208, 0.45) !important;
 }
 /* Tab 4: Download — Sandy Brown */
 body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:nth-child(6):not([hidden])) header[data-testid="stHeader"] {
@@ -1443,7 +1448,7 @@ body:has(.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"]:not([hidden])) 
 /* ── Fallback header when no tab is detected ───────────────── */
 header[data-testid="stHeader"] {
     border-bottom: 3px solid rgba(255, 255, 255, 0.35) !important;
-    background: linear-gradient(90deg, #0369A1 0%, #0284C7 30%, #38BDF8 65%, #7DD3FC 100%);
+    background: linear-gradient(90deg, #7A1525 0%, #9B1B30 30%, #6B21A8 65%, #4B0082 100%);
 }
 
 /* ═══════════════════════════════════════════════════════════════

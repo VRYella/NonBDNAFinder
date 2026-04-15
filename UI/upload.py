@@ -36,6 +36,7 @@ from UI.performance_stats import PerformanceTracker, format_performance_summary,
 import io as _io
 
 from Utilities.utilities import (
+    PUBLICATION_DPI,
     parse_fasta_chunked,
     get_file_preview,
     get_basic_stats,
@@ -113,7 +114,7 @@ def _fig_to_bytes(fig) -> bytes:
     """
     import matplotlib.pyplot as _plt
     buf = _io.BytesIO()
-    fig.savefig(buf, format='png', dpi=80, bbox_inches='tight')
+    fig.savefig(buf, format='png', dpi=PUBLICATION_DPI, bbox_inches='tight')
     _plt.close(fig)
     buf.seek(0)
     return buf.getvalue()

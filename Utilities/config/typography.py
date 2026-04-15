@@ -9,7 +9,7 @@ Optimized for hierarchy and long-form scientific readability.
 FONT_CONFIG = {
     # ==================== FONT FAMILIES ====================
     # Clean, modern, highly legible for scientific interfaces
-    'primary_font': "'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif",
+    'primary_font': "'Plus Jakarta Sans', 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif",
     'monospace_font': "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Consolas', monospace",
     
     # ==================== FONT SIZES ====================

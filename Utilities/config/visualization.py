@@ -19,7 +19,7 @@ VISUALIZATION_CONFIG = {
     # 150: Good for screen viewing
     # 300: High resolution (suitable for print)
     # 600: High-quality print (posters, large format)
-    'dpi': 72,
+    'dpi': 150,
     
     # Default figure sizes (width, height) in inches
     # 1 inch ≈ 2.54 cm; figures scale proportionally
