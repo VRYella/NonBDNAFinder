@@ -4,8 +4,8 @@ This comparison is based on the provided `comparison_summary.tsv` and `subclass_
 
 ## Overall concordance
 - Total matched calls (TP across mapped classes): **27**
-- Total NBDFinder-only calls (FP relative to NBST): **220**
-- Total NBST-only calls (FN relative to NBDFinder): **69**
+- Total NBDFinder-unique calls (not matched to NBST): **220**
+- Total NBST-unique calls (not matched to NBDFinder): **69**
 - Micro-precision: **0.109**
 - Micro-recall: **0.281**
 - Micro-F1: **0.157**
