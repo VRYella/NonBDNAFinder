@@ -7749,7 +7749,11 @@ def plot_motif_cooccurrence_matrix(motifs: List[Dict[str, Any]],
     ax_left.axis('off')
 
     # Scientific sequential colormap: viridis for accessibility and monotonic lightness
-    cmap = plt.cm.get_cmap('viridis').copy()
+    import matplotlib
+    try:
+        cmap = matplotlib.colormaps['viridis'].copy()
+    except AttributeError:
+        cmap = plt.cm.get_cmap('viridis').copy()
     cmap.set_bad(color='#f8fafc')   # very light grey for masked (zero) cells
     im = ax_main.imshow(masked_matrix, cmap=cmap, aspect='auto',
                         interpolation='nearest', vmin=1)

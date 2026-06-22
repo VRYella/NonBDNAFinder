@@ -256,9 +256,9 @@ class VisualizationPipeline:
 
         import matplotlib
         try:
-            cmap = matplotlib.colormaps.get_cmap("cividis").resampled(len(labels))
-        except AttributeError:
-            # Fallback for matplotlib < 3.7
+            cmap = matplotlib.colormaps["cividis"].resampled(len(labels))
+        except (AttributeError, KeyError):
+            # Fallback for matplotlib < 3.5
             cmap = matplotlib.cm.get_cmap("cividis", len(labels))
         colors = [cmap(i) for i in range(len(labels))]
 

@@ -15,6 +15,7 @@ from Utilities.config.themes import TAB_THEMES
 from Utilities.config.colors import MOTIF_CLASS_INFO, get_motif_card_style
 from UI.css import load_css, get_page_colors
 from UI.headers import render_section_heading
+from UI.visitor_tracker import record_visit, render_visitor_map
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TUNABLE PARAMETERS
@@ -42,4 +43,6 @@ def render():
     st.markdown(f"<div style='background:{c['light']};padding:0.5rem 1rem 0.7rem 1rem;border-radius:14px;box-shadow:0 2px 12px {c['shadow']};border:2px solid {c['primary']};margin-top:0.75rem;'><h2 style='color:{c['text']};font-size:1.35rem;margin:0 0 0.45rem 0;font-weight:700;border-left:4px solid {c['accent']};padding-left:0.6rem;'>Detected Motif Classes</h2><div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:0.45rem;margin-top:0.4rem;'>{cards_html}</div></div>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"<div style='background:{c['light']};padding:0.5rem 1rem 0.7rem 1rem;border-radius:14px;box-shadow:0 2px 12px {c['shadow']};border:2px solid {c['primary']};margin-top:0.75rem;'><h2 style='color:{c['primary']};font-size:1.35rem;margin:0 0 0.45rem 0;font-weight:700;border-left:4px solid {c['primary']};padding-left:0.6rem;'>How to Cite</h2><div style='background:{c['medium']};padding:0.4rem 0.9rem;border-radius:10px;border-left:4px solid {c['primary']};font-family:\"Courier New\",monospace;font-size:0.9rem;line-height:1.55;color:{c['neutral_700']};box-shadow:0 1px 4px rgba(0,0,0,0.06);'><b>NonBFinder: Comprehensive Detection and Analysis of Non-B DNA Motifs</b><br>Dr. Venkata Rajesh Yella<br>GitHub: <a href=\"https://github.com/VRYella/NonBFinder\" style=\"color:{c['primary']};font-weight:700;\">https://github.com/VRYella/NonBFinder</a><br>Email: yvrajesh_bt@kluniversity.in</div><p style='color:{c['neutral_600']};font-size:0.9rem;margin-top:0.45rem;line-height:1.5;'>If you use NonBFinder in your research, please cite this resource. For methodology references, see the <b>Documentation</b> tab.</p></div>", unsafe_allow_html=True)
+    record_visit()
+    render_visitor_map()
 
