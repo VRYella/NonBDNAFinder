@@ -1204,24 +1204,32 @@ def render():
         # ============================================================
         # PROGRESS DISPLAY AREA - Within Detection Scope
         # ============================================================
-        # Create a vibrant container for progress display below the buttons
-        with st.container():
-            st.markdown("""
-            <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); 
-                        padding: 0.35rem 1rem; border-radius: 8px; margin-top: 1rem;
-                        border-left: 4px solid #ca8a04;
-                        box-shadow: 0 2px 8px rgba(202, 138, 4, 0.15);'>
-                <div style='color: #713f12; font-weight: 600; font-size: 0.9rem;'>
-                    📊 Analysis Progress
+        # Show progress panel only while analysis is actively running.
+        show_progress_panel = bool(
+            run_button or st.session_state.get('analysis_status') == "Running"
+        )
+        progress_placeholder = None
+        status_placeholder = None
+        detailed_progress_placeholder = None
+        timer_placeholder = None
+        if show_progress_panel:
+            with st.container():
+                st.markdown("""
+                <div style='background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); 
+                            padding: 0.35rem 1rem; border-radius: 8px; margin-top: 1rem;
+                            border-left: 4px solid #ca8a04;
+                            box-shadow: 0 2px 8px rgba(202, 138, 4, 0.15);'>
+                    <div style='color: #713f12; font-weight: 600; font-size: 0.9rem;'>
+                        📊 Analysis Progress
+                    </div>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Create placeholders for progress tracking within the container
-            progress_placeholder = st.empty()
-            status_placeholder = st.empty()
-            detailed_progress_placeholder = st.empty()
-            timer_placeholder = st.empty()
+                """, unsafe_allow_html=True)
+
+                # Create placeholders for progress tracking within the container
+                progress_placeholder = st.empty()
+                status_placeholder = st.empty()
+                detailed_progress_placeholder = st.empty()
+                timer_placeholder = st.empty()
 
     
         # ============================================================

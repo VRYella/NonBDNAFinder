@@ -199,14 +199,22 @@ def render_visitor_map() -> None:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Top-10 table
-    with st.expander("📊 Top Countries (detailed)", expanded=False):
-        top10 = df.head(10).copy()
-        top10.index = range(1, len(top10) + 1)
-        top10["share (%)"] = (top10["visits"] / total * 100).round(1)
-        top10 = top10.rename(columns={"country": "Country", "visits": "Visits"})
-        st.dataframe(
-            top10[["Country", "Visits", "share (%)"]],
+    # Country-wise visitor statistics (all countries)
+    country_stats = df.copy()
+    country_stats["share (%)"] = (country_stats["visits"] / total * 100).round(1)
+    country_stats = country_stats.rename(columns={"country": "Country", "visits": "Visitors"})
+    country_stats.insert(0, "Rank", range(1, len(country_stats) + 1))
+
+    st.markdown("#### 📊 Country-wise Visitor Counts")
+    st.dataframe(
+        country_stats[["Rank", "Country", "Visitors", "share (%)"]],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    if len(country_stats) > 1:
+        st.caption("Top countries by visitors")
+        st.bar_chart(
+            country_stats.head(10).set_index("Country")["Visitors"],
             use_container_width=True,
-            hide_index=False,
         )
