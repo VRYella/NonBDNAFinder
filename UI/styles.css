@@ -1,4 +1,4 @@
-/* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2025.1 */
+/* styles.css - Publication-Quality Scientific UI for NonBDNAFinder 2026.1 */
 /* Designed to meet Nature/Science/Cell journal visualization standards */
 
 /* NOTE: !important declarations are required throughout this file to override
@@ -56,6 +56,26 @@
     --shadow-md: 0 2px 4px rgba(0,0,0,0.08);
     --shadow-lg: 0 4px 12px rgba(0,0,0,0.10);
     --shadow-glow: 0 2px 8px rgba(2, 132, 199, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FULL-WIDTH LAYOUT — Navigation spans the entire app width
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Ensure the main block container uses all available width */
+.stMainBlockContainer,
+[data-testid="stMainBlockContainer"],
+div[class*="main"] > div[class*="block-container"],
+.block-container {
+    max-width: 100% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    width: 100% !important;
+}
+
+/* Top-level tab wrapper — stretch to full viewport width */
+.stTabs:not(.stTabs .stTabs) {
+    width: 100% !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
