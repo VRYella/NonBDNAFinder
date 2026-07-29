@@ -89,6 +89,44 @@ UI_TEXT = {
     'upload_ncbi_error': 'NCBI retrieval failed: {error}',
     'upload_ncbi_empty_warning': 'Please provide a valid query before fetching.',
 
+    # ── NCBI Fetch — query mode labels ──────────────────────────────────────
+    'upload_ncbi_mode_prompt': 'Query mode',
+    'upload_ncbi_mode_accession': 'Accession',
+    'upload_ncbi_mode_gene': 'Gene',
+    'upload_ncbi_mode_interval': 'Genome Interval',
+
+    # ── Genome Interval mode ─────────────────────────────────────────────────
+    'upload_interval_accession_prompt': 'Accession (RefSeq / GenBank)',
+    'upload_interval_accession_help':
+        'Reference sequence accession, e.g. NC_000913.3 or NM_001234.5',
+    'upload_interval_accession_placeholder': 'e.g. NC_000913.3',
+
+    'upload_interval_compact_prompt': 'Compact interval (optional)',
+    'upload_interval_compact_help':
+        'Enter the interval in compact form (ACCESSION:START-END) to auto-fill the '
+        'fields above, e.g. NC_000913.3:100000-150000',
+    'upload_interval_compact_placeholder': 'e.g. NC_000913.3:100000-150000',
+
+    'upload_interval_start_prompt': 'Start coordinate (1-based)',
+    'upload_interval_start_help': '1-based genomic start position (inclusive)',
+
+    'upload_interval_end_prompt': 'End coordinate (1-based)',
+    'upload_interval_end_help': '1-based genomic end position (inclusive)',
+
+    'upload_interval_fetch_button': 'Fetch Genome Interval',
+
+    'upload_interval_success':
+        'Retrieved {length:,} bp from {accession} [{start:,}–{end:,}].',
+    'upload_interval_error': 'Genome interval fetch failed: {error}',
+    'upload_interval_empty_warning':
+        'Provide an accession and valid coordinates before fetching.',
+    'upload_interval_validation_error':
+        'Please correct the following errors before fetching:',
+    'upload_interval_parse_success':
+        'Parsed compact interval — fields populated below.',
+    'upload_interval_parse_error':
+        'Could not parse compact interval: {error}',
+
     'upload_quick_options_note':
         'All supported motif classes and subclasses are scanned by default',
 

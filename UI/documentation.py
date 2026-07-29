@@ -1200,6 +1200,305 @@ def _tab_novelty_scope():
         )
 
 
+def _tab_user_guide():
+    """User Guide tab — input formats, Genome Interval, coordinates, hardware, FAQ."""
+
+    dc = _get_doc_colors()
+
+    # ── 1. Supported Input Formats ────────────────────────────────────────────
+    _section_heading("1. Supported Input Formats")
+    _prose(
+        "<p>NonBDNAFinder accepts DNA sequences through four input modes:</p>"
+        "<ul style='line-height:1.9;'>"
+        "<li><strong>Upload FASTA File</strong> — Upload any FASTA or multi-FASTA file "
+        "(<code>.fa</code>, <code>.fasta</code>, <code>.fna</code>, <code>.txt</code>). "
+        "Single-sequence and multi-sequence files are both supported. There is no hard "
+        "limit on file size; sequences larger than 50 Kbp are processed in overlapping "
+        "50 Kbp / 2 Kbp chunks to keep memory usage constant.</li>"
+        "<li><strong>Paste FASTA Sequence</strong> — Paste one or more FASTA-formatted "
+        "records directly into the text area. The first character of each record must be "
+        "&gt; (the FASTA header character).</li>"
+        "<li><strong>Example Data</strong> — Load a built-in single or multi-FASTA example "
+        "for demonstration and validation purposes.</li>"
+        "<li><strong>NCBI Fetch</strong> — Retrieve sequences directly from NCBI Entrez "
+        "(requires an internet connection). Three query modes are available: "
+        "<em>Accession</em>, <em>Gene</em>, and <em>Genome Interval</em>.</li>"
+        "</ul>"
+    )
+
+    st.markdown(
+        f"<div style='background:{dc['light']};border:1px solid {dc['border']};"
+        "border-left:4px solid #0284c7;border-radius:8px;padding:0.8rem 1rem;margin:0.5rem 0;'>"
+        "<strong>FASTA format requirements:</strong>"
+        "<ul style='margin:0.4rem 0 0 1rem;line-height:1.7;font-size:0.92rem;'>"
+        "<li>Each record begins with a header line starting with <code>&gt;</code>.</li>"
+        "<li>The sequence on subsequent lines must contain only IUPAC nucleotide characters "
+        "(A, T, G, C, N, R, Y, S, W, K, M, B, D, H, V).</li>"
+        "<li>RNA sequences are accepted; U is automatically replaced with T.</li>"
+        "<li>Sequence names are extracted from the header line up to the first whitespace.</li>"
+        "</ul>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    # ── 2. Genome Interval Mode ───────────────────────────────────────────────
+    _section_heading("2. Genome Interval Mode (NCBI Fetch)")
+    _prose(
+        "<p>The <strong>Genome Interval</strong> mode allows analysis of a specific "
+        "chromosomal or contig locus without retrieving the full reference sequence. "
+        "This is especially useful for large genomes (human, mouse, plant) where only "
+        "a region of interest needs to be scanned.</p>"
+    )
+
+    # How to use
+    st.markdown(
+        f"<h4 style='{_h4_style()}'>How to use Genome Interval mode</h4>",
+        unsafe_allow_html=True,
+    )
+    _prose(
+        "<ol style='line-height:1.9;'>"
+        "<li>Navigate to <strong>Upload &amp; Analyze → NCBI Fetch</strong>.</li>"
+        "<li>Select <strong>Genome Interval</strong> as the query mode.</li>"
+        "<li>Either enter the interval in compact form "
+        "(<code>ACCESSION:START-END</code>) to auto-populate the fields, "
+        "or fill the accession, start, and end fields directly.</li>"
+        "<li>Click <strong>Fetch Genome Interval</strong>.</li>"
+        "<li>Run the analysis as normal.</li>"
+        "</ol>"
+    )
+
+    # Compact interval examples
+    st.markdown(
+        f"<h4 style='{_h4_style()}'>Compact interval format</h4>",
+        unsafe_allow_html=True,
+    )
+    st.code(
+        "# E. coli K-12 MG1655 — 50 kbp around oriC\n"
+        "NC_000913.3:3920000-3970000\n\n"
+        "# Human chromosome 17 BRCA1 locus\n"
+        "NC_000017.11:43000000-43200000\n\n"
+        "# Mouse chromosome 11 Myc locus\n"
+        "NC_000077.7:59400000-59450000",
+        language="text",
+    )
+
+    # Structured fields example
+    st.markdown(
+        f"<h4 style='{_h4_style()}'>Structured field entry</h4>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"<div style='background:{dc['light']};border:1px solid {dc['border']};"
+        "border-radius:8px;padding:0.8rem 1rem;font-family:monospace;font-size:0.88rem;'>"
+        "<table style='border-collapse:collapse;width:100%;'>"
+        "<tr><td style='padding:0.2rem 0.6rem 0.2rem 0;color:#64748b;'>Accession</td>"
+        "<td style='font-weight:700;'>NC_000913.3</td></tr>"
+        "<tr><td style='padding:0.2rem 0.6rem 0.2rem 0;color:#64748b;'>Start (1-based)</td>"
+        "<td style='font-weight:700;'>100000</td></tr>"
+        "<tr><td style='padding:0.2rem 0.6rem 0.2rem 0;color:#64748b;'>End (1-based)</td>"
+        "<td style='font-weight:700;'>150000</td></tr>"
+        "</table></div>",
+        unsafe_allow_html=True,
+    )
+
+    # ── 3. Coordinate Conventions ─────────────────────────────────────────────
+    _section_heading("3. Coordinate Conventions")
+    _prose(
+        "<p>NonBDNAFinder uses a <strong>1-based, fully-closed</strong> coordinate "
+        "convention throughout — the same system used by NCBI GenBank, GFF3, and "
+        "the Ensembl browser:</p>"
+        "<ul style='line-height:1.9;'>"
+        "<li><strong>Start ≥ 1</strong> — the first base of a chromosome or contig "
+        "is position 1 (not 0).</li>"
+        "<li><strong>Closed interval [start, end]</strong> — both endpoints are "
+        "included in the interval. An interval spanning bases 100 to 200 has length "
+        "101 bp.</li>"
+        "</ul>"
+    )
+
+    th_c = "text-align:left;padding:0.5rem 0.75rem;border-bottom:2px solid #cbd5e1;background:#f1f5f9;font-size:0.82rem;color:#334155;font-weight:700;"
+    td_c = "padding:0.4rem 0.75rem;border-bottom:1px solid #e2e8f0;font-size:0.82rem;vertical-align:top;"
+
+    st.markdown(
+        f"<table style='width:100%;border-collapse:collapse;'>"
+        f"<thead><tr>"
+        f"<th style='{th_c}'>Column</th>"
+        f"<th style='{th_c}'>Description</th>"
+        f"<th style='{th_c}'>Convention</th>"
+        f"</tr></thead><tbody>"
+        f"<tr><td style='{td_c}'><code>Organism</code></td><td style='{td_c}'>Source organism name</td><td style='{td_c}'>String</td></tr>"
+        f"<tr><td style='{td_c}'><code>Accession</code></td><td style='{td_c}'>RefSeq/GenBank accession</td><td style='{td_c}'>e.g. NC_000913.3</td></tr>"
+        f"<tr><td style='{td_c}'><code>Chromosome</code></td><td style='{td_c}'>Chromosome or contig label</td><td style='{td_c}'>String</td></tr>"
+        f"<tr><td style='{td_c}'><code>Interval_Start</code></td><td style='{td_c}'>Genomic start of the fetched interval</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"<tr><td style='{td_c}'><code>Interval_End</code></td><td style='{td_c}'>Genomic end of the fetched interval</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"<tr><td style='{td_c}'><code>Relative_Start</code></td><td style='{td_c}'>Motif start within the fetched sub-sequence</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"<tr><td style='{td_c}'><code>Relative_End</code></td><td style='{td_c}'>Motif end within the fetched sub-sequence</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"<tr><td style='{td_c}'><code>Absolute_Start</code></td><td style='{td_c}'>Absolute genomic start of motif</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"<tr><td style='{td_c}'><code>Absolute_End</code></td><td style='{td_c}'>Absolute genomic end of motif</td><td style='{td_c}'>1-based, inclusive</td></tr>"
+        f"</tbody></table>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"<p style='color:#64748b;font-size:0.82rem;margin-top:0.5rem;'>"
+        "Absolute coordinates are populated only when sequences were retrieved via "
+        "Genome Interval mode.  For FASTA uploads, only Relative_Start and Relative_End "
+        "are available.</p>",
+        unsafe_allow_html=True,
+    )
+
+    # ── 4. Output Formats ─────────────────────────────────────────────────────
+    _section_heading("4. Output Formats")
+    _prose(
+        "<ul style='line-height:1.9;'>"
+        "<li><strong>CSV</strong> — Tab-separated values with all motif fields. "
+        "Compatible with Excel, R, and Python (pandas).</li>"
+        "<li><strong>Excel (XLSX)</strong> — Multi-sheet workbook with motifs, "
+        "class statistics, and subclass statistics.</li>"
+        "<li><strong>BED</strong> — 6-column BED format for genome browser "
+        "visualisation (IGV, UCSC). Chromosome name is taken from the sequence "
+        "header or accession.</li>"
+        "<li><strong>GFF3</strong> — Generic Feature Format version 3 suitable "
+        "for genome annotation pipelines.</li>"
+        "<li><strong>JSON</strong> — Machine-readable structured format "
+        "preserving all motif fields including scores.</li>"
+        "<li><strong>PDF Report</strong> — Summary report with motif tables "
+        "and distribution charts (single-sequence mode only).</li>"
+        "</ul>"
+    )
+
+    # ── 5. Hardware Recommendations ───────────────────────────────────────────
+    _section_heading("5. Hardware Recommendations and Runtime Estimates")
+
+    st.markdown(
+        f"<table style='width:100%;border-collapse:collapse;'>"
+        f"<thead><tr>"
+        f"<th style='{th_c}'>Sequence Size</th>"
+        f"<th style='{th_c}'>RAM Required</th>"
+        f"<th style='{th_c}'>Typical Runtime</th>"
+        f"<th style='{th_c}'>Recommended Mode</th>"
+        f"</tr></thead><tbody>"
+        f"<tr><td style='{td_c}'>≤ 100 Kbp</td><td style='{td_c}'>~200 MB</td><td style='{td_c}'>&lt; 10 s</td><td style='{td_c}'>Standard</td></tr>"
+        f"<tr><td style='{td_c}'>100 Kbp – 1 Mbp</td><td style='{td_c}'>~500 MB</td><td style='{td_c}'>10–60 s</td><td style='{td_c}'>Standard</td></tr>"
+        f"<tr><td style='{td_c}'>1 Mbp – 10 Mbp</td><td style='{td_c}'>~1 GB</td><td style='{td_c}'>1–10 min</td><td style='{td_c}'>Chunked (automatic)</td></tr>"
+        f"<tr><td style='{td_c}'>10 Mbp – 100 Mbp</td><td style='{td_c}'>~2 GB</td><td style='{td_c}'>10–90 min</td><td style='{td_c}'>Chunked + Parallel</td></tr>"
+        f"<tr><td style='{td_c}'>&gt; 100 Mbp</td><td style='{td_c}'>~4 GB+</td><td style='{td_c}'>90 min+</td><td style='{td_c}'>Parallel (recommended)</td></tr>"
+        f"</tbody></table>",
+        unsafe_allow_html=True,
+    )
+
+    _prose(
+        "<p style='margin-top:0.6rem;font-size:0.9rem;color:#475569;'>"
+        "<strong>Notes:</strong> RAM figures are peak estimates for single-sequence analysis. "
+        "Multi-FASTA analysis with parallel processing uses additional RAM proportional to "
+        "the number of worker threads. Sequences are always processed in 50 Kbp chunks with "
+        "2 Kbp overlap, so peak RAM does not grow with sequence length. Runtime scales "
+        "roughly linearly with sequence length.</p>"
+        "<p style='font-size:0.9rem;color:#475569;'>"
+        "<strong>Tested limits:</strong> up to 200 Mbp single sequence (E. coli + human "
+        "chr22); up to 50 sequences per multi-FASTA run in continuous testing.</p>"
+    )
+
+    # ── 6. Troubleshooting ────────────────────────────────────────────────────
+    _section_heading("6. Troubleshooting")
+
+    troubles = [
+        (
+            "No motifs detected",
+            "Check that the input is valid DNA (not protein or RNA without U→T conversion). "
+            "Very short sequences (&lt; 50 bp) may not contain statistically significant "
+            "non-B motifs. Ensure GC content is within 20–80 %.",
+        ),
+        (
+            "NCBI Fetch fails with 'HTTPError'",
+            "NCBI rate-limits unauthenticated requests to 3/second. Wait a few seconds and "
+            "retry. For high-volume usage, set an NCBI API key in <code>app.py</code> "
+            "(<code>ENTREZ_API_KEY</code>) to raise the limit to 10/second.",
+        ),
+        (
+            "Genome Interval returns an empty sequence",
+            "Verify that the accession and coordinates are correct. Coordinates must be "
+            "within the length of the referenced sequence. Use the "
+            "<a href='https://www.ncbi.nlm.nih.gov/nuccore/' target='_blank'>NCBI Nucleotide</a> "
+            "database to confirm accession details and sequence length.",
+        ),
+        (
+            "Analysis is very slow for large sequences",
+            "Enable the <em>Parallel</em> option in the Analysis Options panel. For very "
+            "large genomes, consider splitting the sequence into chromosomes or using the "
+            "Genome Interval feature to analyse targeted loci.",
+        ),
+        (
+            "Export buttons do not respond",
+            "This is typically caused by a Streamlit session timeout. Reload the page and "
+            "re-run the analysis. Download files are generated on demand and are not "
+            "cached across sessions.",
+        ),
+        (
+            "Memory error / 'Killed' message",
+            "Reduce the interval size (e.g., use Genome Interval to fetch smaller regions), "
+            "or increase the server RAM. The 50 Kbp chunk size is chosen to keep peak memory "
+            "under 1 GB for most analyses.",
+        ),
+    ]
+
+    for title, body in troubles:
+        with st.expander(title, expanded=False):
+            st.markdown(
+                f"<p style='line-height:1.7;font-size:0.92rem;'>{body}</p>",
+                unsafe_allow_html=True,
+            )
+
+    # ── 7. FAQ ────────────────────────────────────────────────────────────────
+    _section_heading("7. Frequently Asked Questions")
+
+    faqs = [
+        (
+            "Is there a maximum sequence length?",
+            "No hard limit is imposed. Sequences are processed in 50 Kbp chunks, so "
+            "arbitrarily long sequences can be analysed given sufficient time. "
+            "Whole human chromosomes have been analysed successfully.",
+        ),
+        (
+            "Does the tool support RNA sequences?",
+            "Yes. Uracil (U) is automatically converted to thymine (T) before analysis.",
+        ),
+        (
+            "Can I analyse multiple sequences at once?",
+            "Yes. Upload a multi-FASTA file or paste multiple FASTA records. "
+            "Parallel processing is used automatically for two or more sequences.",
+        ),
+        (
+            "What are the supported accession formats for Genome Interval?",
+            "RefSeq accessions (NC_, NM_, NR_, NG_, NW_, NZ_, XM_, XR_, XP_) and standard "
+            "GenBank/EMBL/DDBJ accessions (1–2 letters + 5–8 digits) are recognised. "
+            "Version numbers (e.g. .1, .3) are optional but recommended for reproducibility.",
+        ),
+        (
+            "Are the results reproducible?",
+            "Yes. All detection algorithms are deterministic. Given the same input sequence "
+            "and parameters, results are identical across runs.",
+        ),
+        (
+            "How do I cite NonBDNAFinder?",
+            "See the <strong>References &amp; Citation</strong> tab for the full citation.",
+        ),
+        (
+            "Can I add my own motif detector?",
+            "Yes. Create a new Python module in <code>Detectors/</code> following the "
+            "structure of an existing detector, then register it in "
+            "<code>Utilities/config/motif_taxonomy.py</code>.",
+        ),
+    ]
+
+    for q, a in faqs:
+        with st.expander(q, expanded=False):
+            st.markdown(
+                f"<p style='line-height:1.7;font-size:0.92rem;'>{a}</p>",
+                unsafe_allow_html=True,
+            )
+
+
 def _tab_references():
     _prose(
         "<p style='margin-bottom:0.8rem;'>NonBDNAFinder implements algorithms validated in peer-reviewed "
@@ -1259,6 +1558,7 @@ def render():
         "🧬 Motif Library & Algorithms",
         "📊 Scoring & Analysis",
         "📈 Statistics Guide",
+        "📖 User Guide & FAQ",
         "📚 References & Citation",
     ])
 
@@ -1285,6 +1585,9 @@ def render():
         _tab_statistical_guide()
 
     with tabs[4]:
+        _tab_user_guide()
+
+    with tabs[5]:
         _tab_references()
         st.markdown("<hr style='border:1px solid #e2e8f0;margin:1.5rem 0;'>", unsafe_allow_html=True)
         _tab_citation()

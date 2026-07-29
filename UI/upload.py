@@ -723,26 +723,188 @@ def render():
                     st.success(UI_TEXT['upload_example_multi_success'].format(count=len(seqs)))
 
         elif input_method == "NCBI Fetch":
-            db = st.radio("NCBI Database", ["nucleotide", "gene"], horizontal=True,
-                          help="Only nucleotide and gene databases are applicable for DNA motif analysis")
-            query = st.text_input("Enter query (accession, gene, etc.):", 
-                                help="e.g., NR_003287.2 or gene name")
-            retmax = st.number_input("Max Records", min_value=1, max_value=20, value=3)
-            if st.button("Fetch from NCBI", use_container_width=True):
-                if query:
-                    with st.spinner("Contacting NCBI..."):
-                        try:
-                            handle = Entrez.efetch(db=db, id=query, rettype="fasta", retmode="text")
-                            records = list(SeqIO.parse(handle, "fasta"))
-                            handle.close()
-                            seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
-                            names = [rec.id for rec in records]
-                            if seqs:
-                                st.success(UI_TEXT['upload_ncbi_success'].format(count=len(seqs)))
-                        except Exception as e:
-                            st.error(UI_TEXT['upload_ncbi_error'].format(error=e))
+            # ── Query mode selector ──────────────────────────────────────────
+            ncbi_mode = st.radio(
+                UI_TEXT['upload_ncbi_mode_prompt'],
+                [
+                    UI_TEXT['upload_ncbi_mode_accession'],
+                    UI_TEXT['upload_ncbi_mode_gene'],
+                    UI_TEXT['upload_ncbi_mode_interval'],
+                ],
+                horizontal=True,
+                help=(
+                    "**Accession** — fetch by RefSeq/GenBank ID.  "
+                    "**Gene** — search the NCBI gene database.  "
+                    "**Genome Interval** — fetch a specific genomic locus "
+                    "by coordinate range."
+                ),
+                key="ncbi_query_mode",
+            )
+
+            # ── Accession / Gene mode ────────────────────────────────────────
+            if ncbi_mode in (
+                UI_TEXT['upload_ncbi_mode_accession'],
+                UI_TEXT['upload_ncbi_mode_gene'],
+            ):
+                db = "nucleotide" if ncbi_mode == UI_TEXT['upload_ncbi_mode_accession'] else "gene"
+                query = st.text_input(
+                    UI_TEXT['upload_ncbi_query_prompt'],
+                    help="e.g., NR_003287.2 (Accession) or TP53 (Gene)",
+                    placeholder="NR_003287.2" if ncbi_mode == UI_TEXT['upload_ncbi_mode_accession'] else "TP53",
+                    key="ncbi_query_text",
+                )
+                retmax = st.number_input(
+                    UI_TEXT['upload_ncbi_max_records'],
+                    min_value=1,
+                    max_value=20,
+                    value=3,
+                    key="ncbi_retmax",
+                )
+                if st.button(UI_TEXT['upload_ncbi_fetch_button'], use_container_width=True, key="ncbi_fetch_btn"):
+                    if query:
+                        with st.spinner("Contacting NCBI..."):
+                            try:
+                                handle = Entrez.efetch(db=db, id=query, rettype="fasta", retmode="text")
+                                records = list(SeqIO.parse(handle, "fasta"))
+                                handle.close()
+                                seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
+                                names = [rec.id for rec in records]
+                                if seqs:
+                                    st.success(UI_TEXT['upload_ncbi_success'].format(count=len(seqs)))
+                            except Exception as e:
+                                st.error(UI_TEXT['upload_ncbi_error'].format(error=e))
+                    else:
+                        st.warning(UI_TEXT['upload_ncbi_empty_warning'])
+
+            # ── Genome Interval mode ─────────────────────────────────────────
+            else:
+                try:
+                    from Utilities.genome_interval import (
+                        parse_interval_string,
+                        build_interval,
+                        validate_interval_inputs,
+                        fetch_genome_interval,
+                    )
+                    _GI_AVAILABLE = True
+                except ImportError:
+                    _GI_AVAILABLE = False
+
+                if not _GI_AVAILABLE:
+                    st.error(
+                        "Genome Interval module not available. "
+                        "Please check the installation."
+                    )
+                elif not BIO_AVAILABLE:
+                    st.error(
+                        "BioPython is required for Genome Interval fetch. "
+                        "Install it with: pip install biopython"
+                    )
                 else:
-                    st.warning(UI_TEXT['upload_ncbi_empty_warning'])
+                    # Compact interval string helper
+                    compact_input = st.text_input(
+                        UI_TEXT['upload_interval_compact_prompt'],
+                        help=UI_TEXT['upload_interval_compact_help'],
+                        placeholder=UI_TEXT['upload_interval_compact_placeholder'],
+                        key="gi_compact",
+                    )
+
+                    # Auto-populate structured fields from compact string
+                    _gi_acc_default = ""
+                    _gi_start_default = 1
+                    _gi_end_default = 10000
+                    if compact_input and compact_input.strip():
+                        try:
+                            _parsed = parse_interval_string(compact_input.strip())
+                            _gi_acc_default = _parsed.accession
+                            _gi_start_default = _parsed.start
+                            _gi_end_default = _parsed.end
+                            st.info(UI_TEXT['upload_interval_parse_success'])
+                        except ValueError as _pe:
+                            st.warning(
+                                UI_TEXT['upload_interval_parse_error'].format(error=_pe)
+                            )
+
+                    # Structured fields
+                    gi_accession = st.text_input(
+                        UI_TEXT['upload_interval_accession_prompt'],
+                        value=_gi_acc_default,
+                        help=UI_TEXT['upload_interval_accession_help'],
+                        placeholder=UI_TEXT['upload_interval_accession_placeholder'],
+                        key="gi_accession",
+                    )
+                    gi_col1, gi_col2 = st.columns(2)
+                    with gi_col1:
+                        gi_start = st.number_input(
+                            UI_TEXT['upload_interval_start_prompt'],
+                            min_value=1,
+                            value=_gi_start_default,
+                            step=1,
+                            help=UI_TEXT['upload_interval_start_help'],
+                            key="gi_start",
+                        )
+                    with gi_col2:
+                        gi_end = st.number_input(
+                            UI_TEXT['upload_interval_end_prompt'],
+                            min_value=1,
+                            value=_gi_end_default,
+                            step=1,
+                            help=UI_TEXT['upload_interval_end_help'],
+                            key="gi_end",
+                        )
+
+                    # Interval length preview
+                    if gi_accession and gi_start and gi_end and gi_end >= gi_start:
+                        _preview_len = int(gi_end) - int(gi_start) + 1
+                        st.caption(
+                            f"Interval length: **{_preview_len:,} bp** · "
+                            f"{gi_accession}:{int(gi_start):,}–{int(gi_end):,}"
+                        )
+
+                    if st.button(
+                        UI_TEXT['upload_interval_fetch_button'],
+                        use_container_width=True,
+                        key="gi_fetch_btn",
+                    ):
+                        _errors = validate_interval_inputs(
+                            gi_accession,
+                            int(gi_start) if gi_start else None,
+                            int(gi_end) if gi_end else None,
+                        )
+                        if _errors:
+                            st.error(UI_TEXT['upload_interval_validation_error'])
+                            for _err in _errors:
+                                st.markdown(f"- {_err}")
+                        else:
+                            with st.spinner("Fetching genome interval from NCBI…"):
+                                try:
+                                    _interval = build_interval(
+                                        accession=gi_accession.strip(),
+                                        start=int(gi_start),
+                                        end=int(gi_end),
+                                    )
+                                    # Store interval metadata in session state
+                                    st.session_state['genome_interval'] = _interval
+                                    _seq, _rec_id = fetch_genome_interval(
+                                        _interval,
+                                        email=getattr(Entrez, 'email', ''),
+                                        api_key=getattr(Entrez, 'api_key', None),
+                                    )
+                                    seqs = [_seq]
+                                    names = [_rec_id]
+                                    st.success(
+                                        UI_TEXT['upload_interval_success'].format(
+                                            length=len(_seq),
+                                            accession=_interval.accession,
+                                            start=_interval.start,
+                                            end=_interval.end,
+                                        )
+                                    )
+                                except Exception as _gi_err:
+                                    st.error(
+                                        UI_TEXT['upload_interval_error'].format(
+                                            error=_gi_err
+                                        )
+                                    )
 
         # Persist sequences to session state if any found from input.
         # Guard: never overwrite analysis results during Streamlit reruns
