@@ -101,12 +101,6 @@ UI_TEXT = {
         'Reference sequence accession, e.g. NC_000913.3 or NM_001234.5',
     'upload_interval_accession_placeholder': 'e.g. NC_000913.3',
 
-    'upload_interval_compact_prompt': 'Compact interval (optional)',
-    'upload_interval_compact_help':
-        'Enter the interval in compact form (ACCESSION:START-END) to auto-fill the '
-        'fields above, e.g. NC_000913.3:100000-150000',
-    'upload_interval_compact_placeholder': 'e.g. NC_000913.3:100000-150000',
-
     'upload_interval_start_prompt': 'Start coordinate (1-based)',
     'upload_interval_start_help': '1-based genomic start position (inclusive)',
 
@@ -122,10 +116,6 @@ UI_TEXT = {
         'Provide an accession and valid coordinates before fetching.',
     'upload_interval_validation_error':
         'Please correct the following errors before fetching:',
-    'upload_interval_parse_success':
-        'Parsed compact interval — fields populated below.',
-    'upload_interval_parse_error':
-        'Could not parse compact interval: {error}',
 
     'upload_quick_options_note':
         'All supported motif classes and subclasses are scanned by default',

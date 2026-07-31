@@ -551,7 +551,7 @@ h4 {
 
 /* Reduce Streamlit Default Padding - Combined rules for clarity */
 .main .block-container {
-    max-width: 1380px !important;
+    max-width: 100% !important;
     margin-left: auto !important;
     margin-right: auto !important;
     padding: 0.8rem 2.8rem 0.5rem 2.8rem !important;
@@ -1165,7 +1165,7 @@ p, span, label, li, td, th {
 
 /* Main block container — subtle inner glow border */
 .main .block-container {
-    max-width: 1380px !important;
+    max-width: 100% !important;
     margin-left: auto !important;
     margin-right: auto !important;
     padding: 0.8rem 2.8rem 0.5rem 2.8rem !important;

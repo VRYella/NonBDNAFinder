@@ -780,7 +780,6 @@ def render():
             else:
                 try:
                     from Utilities.genome_interval import (
-                        parse_interval_string,
                         build_interval,
                         validate_interval_inputs,
                         fetch_genome_interval,
@@ -800,31 +799,10 @@ def render():
                         "Install it with: pip install biopython"
                     )
                 else:
-                    # Compact interval string helper
-                    compact_input = st.text_input(
-                        UI_TEXT['upload_interval_compact_prompt'],
-                        help=UI_TEXT['upload_interval_compact_help'],
-                        placeholder=UI_TEXT['upload_interval_compact_placeholder'],
-                        key="gi_compact",
-                    )
-
-                    # Auto-populate structured fields from compact string
+                    # Structured fields
                     _gi_acc_default = ""
                     _gi_start_default = 1
                     _gi_end_default = 10000
-                    if compact_input and compact_input.strip():
-                        try:
-                            _parsed = parse_interval_string(compact_input.strip())
-                            _gi_acc_default = _parsed.accession
-                            _gi_start_default = _parsed.start
-                            _gi_end_default = _parsed.end
-                            st.info(UI_TEXT['upload_interval_parse_success'])
-                        except ValueError as _pe:
-                            st.warning(
-                                UI_TEXT['upload_interval_parse_error'].format(error=_pe)
-                            )
-
-                    # Structured fields
                     gi_accession = st.text_input(
                         UI_TEXT['upload_interval_accession_prompt'],
                         value=_gi_acc_default,
