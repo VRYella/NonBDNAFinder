@@ -97,36 +97,48 @@ section[data-testid="stSidebar"] {
 
 /* Main Tab Container — Light Neutral Scientific */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {
-    gap: 7px !important;
+    gap: 0 !important;
     width: 100% !important;
     display: flex !important;
-    justify-content: space-evenly !important;
-    overflow: visible !important;
-    padding: 10px 8px !important;
+    justify-content: stretch !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+    padding: 0 !important;
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%) !important;
-    border-radius: 18px !important;
+    border-radius: 16px 16px 0 0 !important;
     box-shadow: 0 4px 20px rgba(30, 27, 75, 0.45), 0 0 0 1px rgba(255,255,255,0.12) inset !important;
     border: 2px solid #1e1b4b !important;
+    border-bottom: 0 !important;
 }
 
 /* Main Tab Buttons — Base Styles */
 .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] {
-    height: auto !important;
-    padding: 10px 12px !important;
-    border-radius: 13px !important;
+    min-height: 56px !important;
+    padding: 10px 14px !important;
+    border-radius: 12px 12px 0 0 !important;
     font-size: 1.1rem !important;
     font-weight: 800 !important;
     letter-spacing: 0.01em !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     flex: 1 1 0 !important;
     min-width: 0 !important;
-    margin: 0 3px !important;
+    margin: 0 !important;
     white-space: normal !important;
     overflow: visible !important;
     text-align: center !important;
+    justify-content: center !important;
+    align-items: center !important;
     word-break: break-word !important;
     text-shadow: none !important;
     position: relative !important;
+}
+
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"] {
+    margin-bottom: -2px !important;
+    border-bottom-width: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    z-index: 2 !important;
 }
 
 /* ─── Tab 1: Home — Vibrant Maroon ─────────────────────── */
@@ -144,7 +156,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #9B1B30 0%, #BE2A45 50%, #E87080 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(0) !important;
     box-shadow: 0 4px 18px rgba(155, 27, 48, 0.55), 0 0 12px rgba(232, 112, 128, 0.3) !important;
     border: 2px solid #F9C5CB !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
@@ -165,7 +177,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #6B21A8 0%, #9333EA 50%, #C084FC 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(0) !important;
     box-shadow: 0 4px 18px rgba(107, 33, 168, 0.55), 0 0 12px rgba(192, 132, 252, 0.3) !important;
     border: 2px solid #E9D5FF !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
@@ -186,7 +198,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #15803D 0%, #22C55E 50%, #4ADE80 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(0) !important;
     box-shadow: 0 4px 18px rgba(21, 128, 61, 0.55), 0 0 12px rgba(74, 222, 128, 0.3) !important;
     border: 2px solid #BBF7D0 !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
@@ -207,7 +219,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #C68642 0%, #D4935E 50%, #F4A460 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(0) !important;
     box-shadow: 0 4px 18px rgba(198, 134, 66, 0.55), 0 0 12px rgba(244, 164, 96, 0.3) !important;
     border: 2px solid #F7D9B0 !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
@@ -230,7 +242,7 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 50%, #7DD3FC 100%) !important;
     color: #FFFFFF !important;
     font-weight: 900 !important;
-    transform: translateY(-2px) !important;
+    transform: translateY(0) !important;
     box-shadow: 0 4px 18px rgba(14, 165, 233, 0.55), 0 0 12px rgba(125, 211, 252, 0.3) !important;
     border: 2px solid #BAE6FD !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
@@ -249,8 +261,12 @@ section[data-testid="stSidebar"] {
 }
 
 /* Tab Panel - Minimal Top Padding for Compactness */
-.stTabs [data-baseweb="tab-panel"] {
-    padding-top: 0.5rem !important;
+.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"] {
+    padding: 0.15rem 1rem 1rem 1rem !important;
+    margin-top: 0 !important;
+    border-radius: 0 0 16px 16px !important;
+    border: 2px solid #1e1b4b !important;
+    border-top: 0 !important;
 }
 
 /* Tab Underline - Remove Default */
