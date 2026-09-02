@@ -43,6 +43,152 @@ def load_css(theme_name=None):
     p_rgb, s_rgb = hex_to_rgb(t["primary"]), hex_to_rgb(t["secondary"]); dna_svg = get_dna_pattern_svg("C2410C" if is_dark else "FDBA74")
     bg_medium = t.get('bg_medium', t['bg_card']); theme_border = t.get('border', t['accent'])
     n = NEUTRAL_SYSTEM; m = METRIC_COLORS
+    layout_css = f"""
+    .stApp [data-testid="stAppViewContainer"] > .main {{background:linear-gradient(180deg,#f8fbff 0%,#f6f7fb 100%) !important;}}
+    .stMainBlockContainer,
+    [data-testid="stMainBlockContainer"],
+    div[class*="main"] > div[class*="block-container"],
+    .main .block-container,
+    .block-container {{
+        max-width:{LAYOUT_CONFIG['container_max_width']} !important;
+        margin:0 auto !important;
+        width:100% !important;
+        padding:0.45rem 1.2rem 1.25rem 1.2rem !important;
+    }}
+    .element-container {{margin-bottom:0.35rem !important;}}
+    .stTabs {{margin-top:0.15rem !important;}}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:clamp(0.75rem,1.6vw,1.5rem) !important;
+        width:100% !important;
+        padding:0 0 0.2rem 0 !important;
+        margin:0 0 0.35rem 0 !important;
+        overflow-x:auto !important;
+        overflow-y:hidden !important;
+        background:transparent !important;
+        border:none !important;
+        border-bottom:1px solid rgba(148,163,184,0.35) !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        scrollbar-width:none;
+    }}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"]::-webkit-scrollbar {{display:none;}}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] {{
+        flex:0 0 auto !important;
+        min-height:46px !important;
+        padding:0.6rem 0.1rem 0.7rem 0.1rem !important;
+        margin:0 !important;
+        border:none !important;
+        border-bottom:2px solid transparent !important;
+        border-radius:0 !important;
+        background:transparent !important;
+        color:#475569 !important;
+        box-shadow:none !important;
+        white-space:nowrap !important;
+        word-break:normal !important;
+        text-align:center !important;
+        justify-content:center !important;
+        align-items:center !important;
+        font-size:1rem !important;
+        font-weight:700 !important;
+        transition:color 0.18s ease,border-color 0.18s ease !important;
+    }}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] p {{
+        margin:0 !important;
+        white-space:nowrap !important;
+        font-size:1rem !important;
+        line-height:1.2 !important;
+        color:inherit !important;
+    }}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:hover {{color:#0f172a !important;}}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"] {{
+        color:#0f172a !important;
+        border-bottom-color:var(--primary-color) !important;
+    }}
+    .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"] {{padding:0.25rem 0 0 0 !important; margin-top:0 !important; border:none !important;}}
+    .stTabs [data-baseweb="tab-highlight"] {{display:none !important;}}
+    .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"] {{
+        gap:0.45rem !important;
+        padding:0.35rem !important;
+        margin:0 0 0.9rem 0 !important;
+        overflow-x:auto !important;
+        overflow-y:hidden !important;
+        background:rgba(255,255,255,0.92) !important;
+        border:1px solid rgba(14,165,233,0.16) !important;
+        border-radius:14px !important;
+        box-shadow:0 8px 24px rgba(15,23,42,0.05) !important;
+        scrollbar-width:none;
+    }}
+    .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab-list"]::-webkit-scrollbar {{display:none;}}
+    .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"] {{
+        flex:0 0 auto !important;
+        min-height:40px !important;
+        padding:0.55rem 0.9rem !important;
+        border:none !important;
+        border-radius:10px !important;
+        background:transparent !important;
+        color:#475569 !important;
+        box-shadow:none !important;
+        font-size:0.92rem !important;
+        font-weight:600 !important;
+        white-space:nowrap !important;
+    }}
+    .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"] p {{font-size:0.92rem !important; white-space:nowrap !important; color:inherit !important;}}
+    .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"] {{
+        background:rgba(14,165,233,0.10) !important;
+        color:#0c4a6e !important;
+        border-bottom:0 !important;
+        box-shadow:inset 0 -2px 0 var(--primary-color) !important;
+    }}
+    .stTabs .stTabs .stTabs [data-baseweb="tab-list"] {{
+        gap:0.35rem !important;
+        padding:0.25rem !important;
+        margin-bottom:0.75rem !important;
+        background:#f8fafc !important;
+        border:1px solid #e2e8f0 !important;
+        border-radius:12px !important;
+        box-shadow:none !important;
+    }}
+    .stTabs .stTabs .stTabs [data-baseweb="tab"] {{
+        min-height:36px !important;
+        padding:0.45rem 0.7rem !important;
+        border:none !important;
+        border-radius:9px !important;
+        background:transparent !important;
+        color:#475569 !important;
+        font-size:0.86rem !important;
+        font-weight:600 !important;
+    }}
+    .stTabs .stTabs .stTabs [data-baseweb="tab"][aria-selected="true"] {{
+        background:rgba(var(--primary-rgb),0.08) !important;
+        color:#0f172a !important;
+        box-shadow:inset 0 -2px 0 var(--primary-color) !important;
+    }}
+    h1, h2, h3, h4, h5, h6 {{text-shadow:none !important;}}
+    h1 {{font-size:2.2rem !important;}}
+    h2 {{font-size:1.55rem !important; border-left:none !important; padding-left:0 !important;}}
+    h3 {{font-size:1.28rem !important;}}
+    h4 {{font-size:1.05rem !important;}}
+    p, span, label, li, td, th {{font-size:0.97rem !important; line-height:1.6 !important;}}
+    [data-testid="stDataFrame"] table,
+    [data-testid="stMarkdownContainer"] table {{font-size:0.9rem !important;}}
+    @media (max-width: 1024px) {{
+        .stMainBlockContainer, [data-testid="stMainBlockContainer"], .main .block-container, .block-container {{padding:0.35rem 1rem 1.1rem 1rem !important;}}
+        .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"], .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] p {{font-size:0.95rem !important;}}
+    }}
+    @media (max-width: 768px) {{
+        .stMainBlockContainer, [data-testid="stMainBlockContainer"], .main .block-container, .block-container {{padding:0.25rem 0.85rem 1rem 0.85rem !important;}}
+        .stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {{gap:1rem !important;}}
+        .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"], .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] p {{font-size:0.92rem !important;}}
+        .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"], .stTabs .stTabs:not(.stTabs .stTabs .stTabs) [data-baseweb="tab"] p {{font-size:0.88rem !important;}}
+    }}
+    @media (max-width: 600px) {{
+        .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] {{min-height:42px !important;}}
+        .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"], .stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] p {{font-size:0.88rem !important;}}
+    }}
+    """
     theme_vars = f"""<style>:root{{
         --primary-color:{t['primary']};--secondary-color:{t['secondary']};--accent-color:{t['accent']};
         --bg-light:{t['bg_light']};--bg-card:{t['bg_card']};--bg-medium:{bg_medium};
@@ -74,7 +220,7 @@ def load_css(theme_name=None):
         body,.stApp{{font-family:var(--font-primary);font-weight:var(--font-weight-normal);line-height:var(--line-height-normal);letter-spacing:var(--letter-spacing-normal);color:var(--text-color);}}
         h1,h2,h3,h4{{font-weight:900;letter-spacing:var(--letter-spacing-tight);line-height:var(--line-height-tight);margin-bottom:0.35em;}}
         h1{{font-size:var(--font-h1);}}h2{{font-size:var(--font-h2);}}h3{{font-size:var(--font-h3);}}h4{{font-size:var(--font-h4);}}
-        p,span,label{{font-weight:var(--font-weight-medium);line-height:var(--line-height-normal);}}.stat-card__value{{font-weight:var(--font-weight-extrabold);letter-spacing:-0.02em;text-shadow:none;}}.stDataFrame td,.stDataFrame th{{font-weight:600;font-size:0.82rem;line-height:1.2;}}button[data-baseweb="tab"]{{font-weight:900;letter-spacing:0.01em;}}{css_content}</style>"""
+        p,span,label{{font-weight:var(--font-weight-medium);line-height:var(--line-height-normal);}}.stat-card__value{{font-weight:var(--font-weight-extrabold);letter-spacing:-0.02em;text-shadow:none;}}.stDataFrame td,.stDataFrame th{{font-weight:600;font-size:0.82rem;line-height:1.2;}}button[data-baseweb="tab"]{{font-weight:900;letter-spacing:0.01em;}}{css_content}{layout_css}</style>"""
     st.markdown(theme_vars, unsafe_allow_html=True)
 
 def get_page_colors(page_name="Home"):

@@ -87,6 +87,9 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 CONFIG_AVAILABLE = False
 GRID_COLUMNS = 6; GRID_GAP = "0.10rem"; ROW_GAP = "0.10rem"; DOT_SIZE = 5; GLOW_SIZE = 5
+MAX_SEQUENCES_PER_UPLOAD = ANALYSIS_CONFIG.get('max_sequences_per_upload', 25)
+MAX_FILE_SIZE_MB = ANALYSIS_CONFIG.get('max_file_size_mb', 10)
+MAX_INPUT_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 # Chunk analysis threshold: always use ChunkAnalyzer for all sequences (0 = no minimum)
 CHUNK_ANALYSIS_THRESHOLD_BP = 0  # Always chunk with 50KB/2KB approach
 # Parallel processing threshold: multi-FASTA with >= this many sequences will use parallel processing
@@ -99,7 +102,7 @@ SUBMOTIF_ABBREVIATIONS = {
     'Canonical intramolecular G4': 'Intra G4', 'Extended-loop canonical': 'Ext. Loop G4',
     'Higher-order G4 array/G4-wire': 'G4 Array', 'Intramolecular G-triplex': 'G-triplex', 'Two-tetrad weak PQS': 'Weak PQS', 'Bulged G4': 'Bulged G4',
     'Canonical i-motif': 'i-Motif', 'Relaxed i-motif': 'Relaxed iM', 'AC-motif': 'AC Motif',
-    'Z-DNA': 'Z-DNA', 'eGZ': 'eGZ', 'A-philic DNA': 'A-DNA',
+    'Z-DNA': 'Z-DNA', 'eGZ': 'eGZ', 'A-philic DNA': 'A-philic',
     'Dynamic overlaps': 'Hybrid', 'Dynamic clusters': 'Cluster',
 }
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -504,6 +507,24 @@ def render():
         }
         </style>
         """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style='background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #0ea5e9;border-radius:10px;padding:0.75rem 0.95rem;margin:0 0 0.85rem 0;'>
+                <div style='font-weight:700;color:#0c4a6e;font-size:0.95rem;'>Application Limits</div>
+                <div style='color:#334155;font-size:0.86rem;line-height:1.55;margin-top:0.2rem;'>
+                    <strong>Maximum sequences per upload:</strong> {MAX_SEQUENCES_PER_UPLOAD}<br>
+                    <strong>Maximum genome/input size:</strong> {MAX_FILE_SIZE_MB} MB
+                </div>
+                <div style='color:#475569;font-size:0.82rem;line-height:1.5;margin-top:0.45rem;'>
+                    Need to analyze larger genomes or datasets?
+                    <a href="{UI_TEXT['github_url']}" target="_blank" style="color:#0369a1;font-weight:700;text-decoration:none;">
+                        Use the local workflows in the Non-B DNA Finder GitHub repository
+                    </a>.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         
         input_method = st.radio(UI_TEXT['upload_input_method_prompt'],
                             [UI_TEXT['upload_method_file'], UI_TEXT['upload_method_paste'], 
@@ -523,31 +544,44 @@ def render():
             if fasta_file:
                 # Compact file card after upload
                 file_size_mb = fasta_file.size / (1024 * 1024)
-            
-                # Memory-efficient processing with progress indicator
-                with st.spinner(f"{UI_TEXT['upload_processing']} {fasta_file.name}..."):
-                    # Get preview first (lightweight operation)
-                    preview_info = get_file_preview(fasta_file, max_sequences=3)
-                
-                    # Calculate aggregate QC stats for compact summary using ATGC-weighted GC%
-                    # GC% = (G+C)/(A+T+G+C)*100  — only ATGC bases in denominator
-                    total_atgc = sum(
-                        p['a_count'] + p['t_count'] + p['g_count'] + p['c_count']
-                        for p in preview_info['previews']
+                if fasta_file.size > MAX_INPUT_SIZE_BYTES:
+                    st.error(
+                        f"This upload is {file_size_mb:.2f} MB. The public web application accepts up to "
+                        f"{MAX_FILE_SIZE_MB} MB per upload. For larger datasets, use the local workflows in "
+                        f"{UI_TEXT['github_url']}."
                     )
-                    total_gc_bases = sum(
-                        p['g_count'] + p['c_count'] for p in preview_info['previews']
-                    )
-                    avg_gc = (total_gc_bases / total_atgc * 100) if total_atgc > 0 else 0.0
-                    # Aggregate character counts for display
-                    sum_a = sum(p['a_count'] for p in preview_info['previews'])
-                    sum_t = sum(p['t_count'] for p in preview_info['previews'])
-                    sum_g = sum(p['g_count'] for p in preview_info['previews'])
-                    sum_c = sum(p['c_count'] for p in preview_info['previews'])
-                    sum_n = sum(p['n_count'] for p in preview_info['previews'])
+                else:
+                    # Memory-efficient processing with progress indicator
+                    with st.spinner(f"{UI_TEXT['upload_processing']} {fasta_file.name}..."):
+                        # Get preview first (lightweight operation)
+                        preview_info = get_file_preview(fasta_file, max_sequences=3)
+                        if preview_info['num_sequences'] > MAX_SEQUENCES_PER_UPLOAD:
+                            st.error(
+                                f"This file contains {preview_info['num_sequences']} sequences. The public web "
+                                f"application accepts up to {MAX_SEQUENCES_PER_UPLOAD} sequences per upload. "
+                                f"For larger datasets, use the local workflows in {UI_TEXT['github_url']}."
+                            )
+                        else:
                 
-                    # Compact QC Summary Strip (replaces individual cards)
-                    st.markdown(f"""
+                            # Calculate aggregate QC stats for compact summary using ATGC-weighted GC%
+                            # GC% = (G+C)/(A+T+G+C)*100  — only ATGC bases in denominator
+                            total_atgc = sum(
+                                p['a_count'] + p['t_count'] + p['g_count'] + p['c_count']
+                                for p in preview_info['previews']
+                            )
+                            total_gc_bases = sum(
+                                p['g_count'] + p['c_count'] for p in preview_info['previews']
+                            )
+                            avg_gc = (total_gc_bases / total_atgc * 100) if total_atgc > 0 else 0.0
+                            # Aggregate character counts for display
+                            sum_a = sum(p['a_count'] for p in preview_info['previews'])
+                            sum_t = sum(p['t_count'] for p in preview_info['previews'])
+                            sum_g = sum(p['g_count'] for p in preview_info['previews'])
+                            sum_c = sum(p['c_count'] for p in preview_info['previews'])
+                            sum_n = sum(p['n_count'] for p in preview_info['previews'])
+                
+                            # Compact QC Summary Strip (replaces individual cards)
+                            st.markdown(f"""
                     <div style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                                 border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
                                 box-shadow: 0 2px 6px rgba(202, 138, 4, 0.2);'>
@@ -572,63 +606,63 @@ def render():
                             </span>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
+                            """, unsafe_allow_html=True)
                 
-                    # Now parse all sequences using chunked parsing for memory efficiency
-                    seqs, names = [], []
-                    has_large_sequences = False
-                    use_disk = (
-                        st.session_state.get('use_disk_storage') and
-                        st.session_state.get('seq_storage') is not None
-                    )
+                            # Now parse all sequences using chunked parsing for memory efficiency
+                            seqs, names = [], []
+                            has_large_sequences = False
+                            use_disk = (
+                                st.session_state.get('use_disk_storage') and
+                                st.session_state.get('seq_storage') is not None
+                            )
                 
-                    if preview_info['num_sequences'] > 10:
-                        # Show progress bar for files with many sequences
-                        progress_bar = st.progress(0)
-                        status_text = st.empty()
+                            if preview_info['num_sequences'] > 10:
+                                # Show progress bar for files with many sequences
+                                progress_bar = st.progress(0)
+                                status_text = st.empty()
                     
-                        for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
-                            if len(seq) > 10_000_000:
-                                has_large_sequences = True
-                            if use_disk:
-                                # Save directly to disk to avoid holding large sequences in RAM
-                                seq_id = st.session_state.seq_storage.save_sequence(seq, name)
-                                disk_seq_ids.append(seq_id)
-                                names.append(name)
-                                del seq  # Free RAM immediately
-                            else:
-                                names.append(name)
-                                seqs.append(seq)
+                                for idx, (name, seq) in enumerate(parse_fasta_chunked(fasta_file)):
+                                    if len(seq) > 10_000_000:
+                                        has_large_sequences = True
+                                    if use_disk:
+                                        # Save directly to disk to avoid holding large sequences in RAM
+                                        seq_id = st.session_state.seq_storage.save_sequence(seq, name)
+                                        disk_seq_ids.append(seq_id)
+                                        names.append(name)
+                                        del seq  # Free RAM immediately
+                                    else:
+                                        names.append(name)
+                                        seqs.append(seq)
                         
-                            # Update progress
-                            progress = (idx + 1) / preview_info['num_sequences']
-                            progress_bar.progress(progress)
-                            display_name = name[:50] + ('...' if len(name) > 50 else '')
-                            status_text.text(f"Loading {idx + 1}/{preview_info['num_sequences']}: {display_name}")
+                                    # Update progress
+                                    progress = (idx + 1) / preview_info['num_sequences']
+                                    progress_bar.progress(progress)
+                                    display_name = name[:50] + ('...' if len(name) > 50 else '')
+                                    status_text.text(f"Loading {idx + 1}/{preview_info['num_sequences']}: {display_name}")
                     
-                        progress_bar.empty()
-                        status_text.empty()
-                    else:
-                        # Fast path for small files
-                        for name, seq in parse_fasta_chunked(fasta_file):
-                            if len(seq) > 10_000_000:
-                                has_large_sequences = True
-                            if use_disk:
-                                # Save directly to disk to avoid holding large sequences in RAM
-                                seq_id = st.session_state.seq_storage.save_sequence(seq, name)
-                                disk_seq_ids.append(seq_id)
-                                names.append(name)
-                                del seq  # Free RAM immediately
+                                progress_bar.empty()
+                                status_text.empty()
                             else:
-                                names.append(name)
-                                seqs.append(seq)
+                                # Fast path for small files
+                                for name, seq in parse_fasta_chunked(fasta_file):
+                                    if len(seq) > 10_000_000:
+                                        has_large_sequences = True
+                                    if use_disk:
+                                        # Save directly to disk to avoid holding large sequences in RAM
+                                        seq_id = st.session_state.seq_storage.save_sequence(seq, name)
+                                        disk_seq_ids.append(seq_id)
+                                        names.append(name)
+                                        del seq  # Free RAM immediately
+                                    else:
+                                        names.append(name)
+                                        seqs.append(seq)
                 
-                    # Force garbage collection after loading all sequences if we had large ones
-                    if has_large_sequences:
-                        gc.collect()
+                            # Force garbage collection after loading all sequences if we had large ones
+                            if has_large_sequences:
+                                gc.collect()
                 
-                    if not seqs and not disk_seq_ids:
-                        st.warning(UI_TEXT['upload_no_sequences'])
+                            if not seqs and not disk_seq_ids:
+                                st.warning(UI_TEXT['upload_no_sequences'])
 
         elif input_method == UI_TEXT['upload_method_paste']:
             seq_input = st.text_area(UI_TEXT['upload_paste_prompt'], 
@@ -636,33 +670,46 @@ def render():
                                     placeholder=UI_TEXT['upload_paste_placeholder'],
                                     help=UI_TEXT['upload_paste_help'])
             if seq_input:
-                seqs, names = [], []
-                cur_seq, cur_name = "", ""
-                for line in seq_input.splitlines():
-                    if line.startswith(">"):
-                        if cur_seq:
-                            seqs.append(cur_seq)
-                            names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                        cur_name = line.strip().lstrip(">")
-                        cur_seq = ""
-                    else:
-                        # Uppercase, strip whitespace, then filter non-IUPAC characters
-                        cur_seq += _NON_IUPAC_RE.sub('', line.strip().upper())
-                if cur_seq:
-                    seqs.append(cur_seq)
-                    names.append(cur_name if cur_name else f"Seq{len(seqs)}")
-                if seqs:
-                    # Compact QC summary strip for pasted sequences
-                    # GC% = (G+C)/(A+T+G+C)*100 — only ATGC in denominator
-                    all_a = all_t = all_g = all_c = all_n = 0
-                    for s in seqs:
-                        a, t, g, c = _count_bases(s)
-                        all_a += a; all_t += t; all_g += g; all_c += c
-                        all_n += s.count('N')
-                    total_atgc = all_a + all_t + all_g + all_c
-                    avg_gc = (all_g + all_c) / total_atgc * 100 if total_atgc > 0 else 0.0
-                    total_bp = sum(len(s) for s in seqs)
-                    st.markdown(f"""
+                if len(seq_input.encode('utf-8')) > MAX_INPUT_SIZE_BYTES:
+                    st.error(
+                        f"Pasted input exceeds the {MAX_FILE_SIZE_MB} MB public web application limit. "
+                        f"For larger datasets, use the local workflows in {UI_TEXT['github_url']}."
+                    )
+                else:
+                    seqs, names = [], []
+                    cur_seq, cur_name = "", ""
+                    for line in seq_input.splitlines():
+                        if line.startswith(">"):
+                            if cur_seq:
+                                seqs.append(cur_seq)
+                                names.append(cur_name if cur_name else f"Seq{len(seqs)}")
+                            cur_name = line.strip().lstrip(">")
+                            cur_seq = ""
+                        else:
+                            # Uppercase, strip whitespace, then filter non-IUPAC characters
+                            cur_seq += _NON_IUPAC_RE.sub('', line.strip().upper())
+                    if cur_seq:
+                        seqs.append(cur_seq)
+                        names.append(cur_name if cur_name else f"Seq{len(seqs)}")
+                    if len(seqs) > MAX_SEQUENCES_PER_UPLOAD:
+                        st.error(
+                            f"This input contains {len(seqs)} sequences. The public web application accepts up to "
+                            f"{MAX_SEQUENCES_PER_UPLOAD} sequences per upload. For larger datasets, use the local "
+                            f"workflows in {UI_TEXT['github_url']}."
+                        )
+                        seqs, names = [], []
+                    if seqs:
+                        # Compact QC summary strip for pasted sequences
+                        # GC% = (G+C)/(A+T+G+C)*100 — only ATGC in denominator
+                        all_a = all_t = all_g = all_c = all_n = 0
+                        for s in seqs:
+                            a, t, g, c = _count_bases(s)
+                            all_a += a; all_t += t; all_g += g; all_c += c
+                            all_n += s.count('N')
+                        total_atgc = all_a + all_t + all_g + all_c
+                        avg_gc = (all_g + all_c) / total_atgc * 100 if total_atgc > 0 else 0.0
+                        total_bp = sum(len(s) for s in seqs)
+                        st.markdown(f"""
                     <div style='background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%); 
                                 border-radius: 8px; padding: 10px 14px; margin: 8px 0; color: white;
                                 box-shadow: 0 2px 6px rgba(202, 138, 4, 0.2);'>
@@ -687,9 +734,9 @@ def render():
                             </span>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.warning(UI_TEXT['analysis_no_sequences_warning'])
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.warning(UI_TEXT['analysis_no_sequences_warning'])
 
         elif input_method == "Example Data":
             ex_type = st.radio("Example Type:", 
@@ -756,7 +803,7 @@ def render():
                 retmax = st.number_input(
                     UI_TEXT['upload_ncbi_max_records'],
                     min_value=1,
-                    max_value=20,
+                    max_value=MAX_SEQUENCES_PER_UPLOAD,
                     value=3,
                     key="ncbi_retmax",
                 )
@@ -769,7 +816,21 @@ def render():
                                 handle.close()
                                 seqs = [str(rec.seq).upper().replace("U", "T") for rec in records]
                                 names = [rec.id for rec in records]
-                                if seqs:
+                                if len(seqs) > MAX_SEQUENCES_PER_UPLOAD:
+                                    st.error(
+                                        f"NCBI returned {len(seqs)} sequences. The public web application accepts up "
+                                        f"to {MAX_SEQUENCES_PER_UPLOAD} sequences per upload. For larger datasets, "
+                                        f"use the local workflows in {UI_TEXT['github_url']}."
+                                    )
+                                    seqs, names = [], []
+                                elif sum(len(seq) for seq in seqs) > MAX_INPUT_SIZE_BYTES:
+                                    st.error(
+                                        f"The fetched input exceeds the {MAX_FILE_SIZE_MB} MB public web application "
+                                        f"limit. For larger datasets, use the local workflows in "
+                                        f"{UI_TEXT['github_url']}."
+                                    )
+                                    seqs, names = [], []
+                                elif seqs:
                                     st.success(UI_TEXT['upload_ncbi_success'].format(count=len(seqs)))
                             except Exception as e:
                                 st.error(UI_TEXT['upload_ncbi_error'].format(error=e))
@@ -867,16 +928,23 @@ def render():
                                         email=getattr(Entrez, 'email', ''),
                                         api_key=getattr(Entrez, 'api_key', None),
                                     )
-                                    seqs = [_seq]
-                                    names = [_rec_id]
-                                    st.success(
-                                        UI_TEXT['upload_interval_success'].format(
-                                            length=len(_seq),
-                                            accession=_interval.accession,
-                                            start=_interval.start,
-                                            end=_interval.end,
+                                    if len(_seq.encode('utf-8')) > MAX_INPUT_SIZE_BYTES:
+                                        st.error(
+                                            f"The fetched interval is larger than the {MAX_FILE_SIZE_MB} MB public web "
+                                            f"application limit. For larger genomes or intervals, use the local "
+                                            f"workflows in {UI_TEXT['github_url']}."
                                         )
-                                    )
+                                    else:
+                                        seqs = [_seq]
+                                        names = [_rec_id]
+                                        st.success(
+                                            UI_TEXT['upload_interval_success'].format(
+                                                length=len(_seq),
+                                                accession=_interval.accession,
+                                                start=_interval.start,
+                                                end=_interval.end,
+                                            )
+                                        )
                                 except Exception as _gi_err:
                                     st.error(
                                         UI_TEXT['upload_interval_error'].format(
@@ -1496,7 +1564,7 @@ def render():
                 ("G-Quadruplex", "Four-stranded G-rich structure detection"),
                 ("i-Motif", "C-rich structure detection"),
                 ("Z-DNA", "Left-handed helix detection"),
-                ("A-philic DNA", "A-rich structural element detection")
+                ("A-philic DNA", "A-form propensity detection")
             ]
             
             # Constants for progress estimation

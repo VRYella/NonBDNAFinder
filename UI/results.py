@@ -335,7 +335,8 @@ def render():
         )
         st.markdown(
             "<div style='color:#334155;font-size:0.78rem;margin-bottom:8px;'>"
-            "Overall genome coverage excludes Hybrid and Cluster regions (reported individually below)."
+            "Overall genome coverage excludes Hybrid and Cluster regions (reported individually below). "
+            "Normalized confidence values are intended primarily for relative ranking within the relevant structural class or subclass."
             "</div>",
             unsafe_allow_html=True,
         )
@@ -447,7 +448,7 @@ def render():
             f"<thead><tr><th style='{hc_th}'>Metric</th><th style='{hc_th}'>Value</th></tr></thead>"
             f"<tbody>{hc_html}</tbody></table>"
             f"<p style='font-size:0.73rem;color:#334155;margin:4px 0 0 2px;font-style:italic;'>"
-            f"Hybrid/Cluster regions are excluded from primary genome coverage metrics.</p>"
+            f"Hybrid/Cluster regions are excluded from primary genome coverage metrics. Hybrid overlap indicates overlapping sequence-level prediction criteria and not direct evidence of simultaneous physical formation.</p>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -526,6 +527,7 @@ def render():
         _show_fig('length_kde', lambda: plot_motif_length_kde(motifs, by_class=True, title="Length Distribution"), "Length dist error")
         
         _render_section_divider("Score Distribution")
+        st.caption("Normalized confidence values are primarily for relative ranking within the relevant structural class or subclass and should not be interpreted as directly equivalent measures of structural stability across different motif classes.")
         _show_fig('score_violin', lambda: plot_score_violin(motifs, by_class=True, title="Score Distribution"), "Score error")
         
         _render_section_divider("Composition")

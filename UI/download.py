@@ -22,7 +22,7 @@ from UI.css import load_css, get_page_colors
 from UI.headers import render_section_heading
 from UI.guards import generate_excel_bytes, generate_multifasta_excel_bytes
 from UI.storage_helpers import has_results, get_sequences_info, get_results
-from Utilities.utilities import export_to_csv, export_to_json, export_to_excel, export_to_pdf, export_to_bed
+from Utilities.utilities import export_to_csv, export_to_json, export_to_excel, export_to_pdf, export_to_bed, export_to_gff3
 from Utilities.export.export_validator import validate_export_data
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -120,6 +120,7 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
     excel_fname = None
     json_data = None
     bed_data = None
+    gff3_data = None
     pdf_data = None
     excel_error = None
     pdf_error = None
@@ -163,6 +164,14 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
         pass
 
     try:
+        if names:
+            _t0 = time.time()
+            gff3_data = export_to_gff3(all_motifs, names[0]).encode('utf-8')
+            export_times['gff3'] = time.time() - _t0
+    except Exception:
+        pass
+
+    try:
         if lengths and lengths[0] > 0:
             _t0 = time.time()
             pdf_data = export_to_pdf(all_motifs, lengths[0], names[0])
@@ -177,6 +186,7 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
         'excel_fname': excel_fname,
         'json': json_data,
         'bed': bed_data,
+        'gff3': gff3_data,
         'pdf': pdf_data,
         'excel_error': excel_error,
         'pdf_error': pdf_error,
@@ -186,7 +196,7 @@ def generate_all_exports(all_motifs, names, lengths, seq_count):
 def render():
     load_css(TAB_THEMES.get('Download', 'mustard_download')); render_section_heading("Download & Export Results", page="Downloads")
     c = get_page_colors('Download')
-    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown(f"<div style='background:{c['light']};padding:0.35rem 1rem;border-radius:10px;margin-top:0.6rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};text-align:center;'><h3 style='color:{c['primary']};margin:0 0 0.4rem 0;font-size:1.2rem;'>Export Formats Available</h3><p style='color:{c['text']};margin:0 0 0.4rem 0;font-size:0.95rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;'><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>CSV</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>Excel</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>JSON</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>BED</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
+    if not has_results(): st.info(UI_TEXT['download_no_results']); st.markdown(f"<div style='background:{c['light']};padding:0.35rem 1rem;border-radius:10px;margin-top:0.6rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};text-align:center;'><h3 style='color:{c['primary']};margin:0 0 0.4rem 0;font-size:1.2rem;'>Export Formats Available</h3><p style='color:{c['text']};margin:0 0 0.4rem 0;font-size:0.95rem;'>Once you analyze a sequence, export results in:</p><div style='display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;'><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>CSV</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>Excel</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>JSON</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>BED</span><span style='background:{c['primary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>GFF3</span><span style='background:{c['secondary']};color:white;padding:0.35rem 0.8rem;border-radius:8px;font-weight:600;font-size:0.95rem;'>PDF</span></div></div>", unsafe_allow_html=True); return
     
     # Get sequence information
     names, lengths, seq_count = get_sequences_info()
@@ -217,13 +227,14 @@ def render():
     excel_fname = exports.get('excel_fname', f"{safe_fn}_results.xlsx")
     json_data = exports.get('json')
     bed_data = exports.get('bed')
+    gff3_data = exports.get('gff3')
     pdf_data = exports.get('pdf')
     excel_error = exports.get('excel_error')
     pdf_error = exports.get('pdf_error')
     export_times = exports.get('export_times', {})
 
     st.markdown("### Export Options"); st.markdown(f"<div style='background:{c['light']};padding:0.4rem;border-radius:10px;margin-bottom:0.8rem;border:2px solid {c['primary']};box-shadow:0 2px 10px {c['shadow']};border-left:4px solid {c['accent']};'><p style='color:{c['text']};margin:0;font-size:0.95rem;'><strong>Quick Export:</strong> Choose your preferred format for data and visualizations.</p></div>", unsafe_allow_html=True)
-    st.markdown("#### Data Formats"); c1, c2, c3, c4, c5 = st.columns(5)
+    st.markdown("#### Data Formats"); c1, c2, c3, c4, c5, c6 = st.columns(6)
     with c1:
         st.download_button("📄 CSV", data=csv_data or b"", file_name=f"{safe_fn}_all_motifs.csv", mime="text/csv", use_container_width=True, type="primary", help="CSV with all motifs", disabled=(csv_data is None), key="dl_csv")
     with c2:
@@ -234,6 +245,8 @@ def render():
     with c4:
         st.download_button("🧬 BED", data=bed_data or b"", file_name=f"{safe_fn}_results.bed", mime="text/plain", use_container_width=True, type="primary", disabled=(bed_data is None), key="dl_bed")
     with c5:
+        st.download_button("🧾 GFF3", data=gff3_data or b"", file_name=f"{safe_fn}_results.gff3", mime="text/plain", use_container_width=True, type="primary", disabled=(gff3_data is None), key="dl_gff3")
+    with c6:
         st.download_button("📑 PDF", data=pdf_data or b"", file_name=f"{safe_fn}_viz.pdf", mime="application/pdf", use_container_width=True, type="primary", disabled=(pdf_data is None), key="dl_pdf")
         if pdf_error: st.error(f"PDF error: {pdf_error}")
         elif all_motifs and not (lengths and lengths[0] > 0): st.warning("No sequence for PDF")
@@ -243,7 +256,7 @@ def render():
     # ═══════════════════════════════════════════════════════════════════════════════
     if export_times:
         with st.expander("⏱️ Export Preparation Times", expanded=False):
-            _fmt_labels = {'csv': '📄 CSV', 'excel': '📊 Excel', 'json': '🔗 JSON', 'bed': '🧬 BED', 'pdf': '📑 PDF'}
+            _fmt_labels = {'csv': '📄 CSV', 'excel': '📊 Excel', 'json': '🔗 JSON', 'bed': '🧬 BED', 'gff3': '🧾 GFF3', 'pdf': '📑 PDF'}
             _cols = st.columns(len(export_times))
             for _col, (_fmt, _elapsed) in zip(_cols, export_times.items()):
                 _ms = _elapsed * 1000

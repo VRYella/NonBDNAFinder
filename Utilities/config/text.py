@@ -4,8 +4,8 @@ UI_TEXT = {
     'author': 'Dr. Venkata Rajesh Yella',
     'author_email': 'yvrajesh_bt@kluniversity.in',
     'github_profile': 'VRYella',
-    'github_repo': 'NonBFinder',
-    'github_url': 'https://github.com/VRYella/NonBFinder',
+    'github_repo': 'NonBDNAFinder',
+    'github_url': 'https://github.com/VRYella/NonBDNAFinder',
     'version': '2026.1',
 
     # ===== Page Titles =====
@@ -60,7 +60,7 @@ UI_TEXT = {
     'upload_method_ncbi': 'NCBI Fetch',
 
     'upload_file_prompt': 'Upload FASTA or multi-FASTA file',
-    'upload_file_help': 'FASTA-formatted DNA sequences (single or multiple records)',
+    'upload_file_help': 'FASTA-formatted DNA sequences (single or multiple records); public web app limit: 25 sequences and 10 MB per upload',
     'upload_processing': 'Parsing input sequences',
     'upload_file_valid': 'Valid FASTA',
     'upload_preview_button': 'Preview parsed sequences',
@@ -68,7 +68,7 @@ UI_TEXT = {
 
     'upload_paste_prompt': 'Paste FASTA-formatted sequence(s):',
     'upload_paste_placeholder': 'Paste DNA sequences in FASTA format',
-    'upload_paste_help': 'Supports single-sequence or multi-FASTA input',
+    'upload_paste_help': 'Supports single-sequence or multi-FASTA input; public web app limit: 25 sequences and 10 MB of pasted input',
 
     'upload_example_type_prompt': 'Example dataset:',
     'upload_example_single': 'Single sequence example',
