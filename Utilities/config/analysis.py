@@ -60,9 +60,8 @@ ANALYSIS_CONFIG = {
     'include_hybrid_in_distribution': True,   # Include Hybrid motifs in plots
     'include_clusters_in_distribution': True, # Include Cluster motifs in plots
     
-    # Public web application limits
-    'max_sequences_per_upload': 25,
-    'max_file_size_mb': 10,        # Public web application upload limit (file/input size)
+    # File upload limits
+    'max_file_size_mb': 100,       # Maximum file size in MB (100 MB ceiling for optimal performance)
 }
 
 # ==================== TRIPLE ADAPTIVE CHUNKING CONFIG ====================
