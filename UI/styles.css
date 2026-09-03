@@ -1568,35 +1568,129 @@ header[data-testid="stHeader"] {
     border: 2px solid rgba(165, 180, 252, 0.7) !important;
     text-shadow: 0 0 8px rgba(165, 180, 252, 0.5) !important;
 }
+/* ============================================================================
+   FINAL NAVIGATION FIX — FULL-WIDTH TOP-LEVEL STREAMLIT TABS
+   Added as the final rule block so it overrides all earlier tab declarations.
+   This targets both Streamlit's .stTabs class and data-testid="stTabs".
+   ============================================================================ */
 
-/* ============================================================
-   FINAL FIX — FULL-WIDTH TOP NAVIGATION TABS
-   ============================================================ */
-
+/* Top-level tab component */
+[data-testid="stTabs"],
 .stTabs {
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.stTabs > div {
+/* Top-level tab list: occupy the complete available width */
+[data-testid="stTabs"] > div:first-child,
+.stTabs > div:first-child {
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.stTabs > div > div[data-baseweb="tab-list"] {
+/* BaseWeb tab list */
+[data-testid="stTabs"] [data-baseweb="tab-list"],
+.stTabs [data-baseweb="tab-list"] {
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     justify-content: stretch !important;
     align-items: stretch !important;
     gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
-/* Each top-level tab gets equal width */
-.stTabs > div > div[data-baseweb="tab-list"] > button[data-baseweb="tab"] {
+/* Every top-level tab gets an equal share of the full width.
+   flex-basis: 0 is important: it prevents long labels such as
+   "Upload & Analyze" from determining the tab width. */
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"],
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"] {
     flex: 1 1 0 !important;
-    width: 20% !important;
-    max-width: none !important;
+    width: 0 !important;
     min-width: 0 !important;
+    max-width: none !important;
     box-sizing: border-box !important;
-    text-align: center !important;
     justify-content: center !important;
+    text-align: center !important;
+    margin: 0 !important;
+}
+
+/* Five-tab navigation: explicitly equal widths when there are five tabs. */
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(1),
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(2),
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(3),
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(4),
+[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(5),
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(1),
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(2),
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(3),
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(4),
+.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(5) {
+    flex: 1 1 20% !important;
+    width: 20% !important;
+    max-width: 20% !important;
+}
+
+/* Prevent Streamlit's internal tab label wrapper from shrinking the button. */
+[data-testid="stTabs"] [data-baseweb="tab"] > div,
+.stTabs [data-baseweb="tab"] > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Tab text */
+[data-testid="stTabs"] [data-baseweb="tab"] p,
+.stTabs [data-baseweb="tab"] p {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove horizontal scrolling from the main navigation list. */
+[data-testid="stTabs"] [data-baseweb="tab-list"]::-webkit-scrollbar,
+.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Keep the navigation stable on desktop. */
+@media (min-width: 769px) {
+    [data-testid="stTabs"] [data-baseweb="tab-list"],
+    .stTabs [data-baseweb="tab-list"] {
+        overflow: hidden !important;
+    }
+}
+
+/* Mobile: retain equal-width tabs but allow readable wrapping. */
+@media (max-width: 768px) {
+    [data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"],
+    .stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"] {
+        flex: 1 1 20% !important;
+        width: 20% !important;
+        max-width: 20% !important;
+        min-height: 52px !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        white-space: normal !important;
+    }
+
+    [data-testid="stTabs"] [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] p {
+        font-size: 0.78rem !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+    }
 }
