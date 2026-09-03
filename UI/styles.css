@@ -92,186 +92,255 @@ section[data-testid="stSidebar"] {
    ═══════════════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════════════════════
-   MAIN NAVIGATION TABS — Per-Tab Recommended Color System
+   MAIN NAVIGATION TABS — Top-level only
+   Scoped to the root Streamlit tabset so nested documentation/results
+   tabs keep their existing styling.
    ═══════════════════════════════════════════════════════════════ */
 
-/* Main Tab Container — Light Neutral Scientific */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-list"] {
-    gap: 0 !important;
+/* Top-level tab component */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs) {
     width: 100% !important;
-    display: flex !important;
-    justify-content: stretch !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Top-level tab list */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"]) {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     align-items: stretch !important;
+    gap: 0.35rem !important;
     overflow: hidden !important;
-    padding: 0 !important;
+    padding: 0.35rem 0.35rem 0 !important;
+    margin: 0 !important;
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%) !important;
-    border-radius: 16px 16px 0 0 !important;
-    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.45), 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+    border-radius: 18px 18px 0 0 !important;
     border: 2px solid #1e1b4b !important;
     border-bottom: 0 !important;
+    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.45), 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+    box-sizing: border-box !important;
 }
 
-/* Main Tab Buttons — Base Styles */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] {
-    min-height: 56px !important;
-    padding: 10px 14px !important;
-    border-radius: 12px 12px 0 0 !important;
-    font-size: 1.1rem !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.01em !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    flex: 1 1 0 !important;
+/* Top-level tab buttons */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]) {
+    --nav-tab-bg: linear-gradient(135deg, #475569 0%, #64748b 100%);
+    --nav-tab-hover-bg: var(--nav-tab-bg);
+    --nav-tab-active-bg: var(--nav-tab-bg);
+    --nav-tab-shadow: rgba(15, 23, 42, 0.28);
+    color: #FFFFFF !important;
+    min-height: 58px !important;
+    width: 100% !important;
     min-width: 0 !important;
     margin: 0 !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-align: center !important;
-    justify-content: center !important;
+    padding: 0.9rem 0.8rem !important;
+    display: flex !important;
     align-items: center !important;
-    word-break: break-word !important;
-    text-shadow: none !important;
-    position: relative !important;
-}
-
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"] {
-    margin-bottom: -2px !important;
-    border-bottom-width: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    z-index: 2 !important;
-}
-
-/* ─── Tab 1: Home — Vibrant Maroon ─────────────────────── */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1) {
-    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 60%, #BE2A45 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #7A1525 !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(1):hover {
-    background: linear-gradient(135deg, #7A1525 0%, #9B1B30 60%, #C43856 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(155, 27, 48, 0.45) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(1) {
-    background: linear-gradient(135deg, #9B1B30 0%, #BE2A45 50%, #E87080 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 900 !important;
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 18px rgba(155, 27, 48, 0.55), 0 0 12px rgba(232, 112, 128, 0.3) !important;
-    border: 2px solid #F9C5CB !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
-}
-
-/* ─── Tab 2: Upload & Analyze — Deep Scientific Purple ────────────── */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2) {
-    background: linear-gradient(135deg, #581C87 0%, #6B21A8 60%, #9333EA 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #581C87 !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(2):hover {
-    background: linear-gradient(135deg, #581C87 0%, #6B21A8 60%, #7E22CE 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(107, 33, 168, 0.45) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(2) {
-    background: linear-gradient(135deg, #6B21A8 0%, #9333EA 50%, #C084FC 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 900 !important;
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 18px rgba(107, 33, 168, 0.55), 0 0 12px rgba(192, 132, 252, 0.3) !important;
-    border: 2px solid #E9D5FF !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
-}
-
-/* ─── Tab 3: Results — Forest Emerald Green ───────────────────────── */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3) {
-    background: linear-gradient(135deg, #14532D 0%, #15803D 60%, #22C55E 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #14532D !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(3):hover {
-    background: linear-gradient(135deg, #14532D 0%, #15803D 60%, #4ADE80 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(21, 128, 61, 0.45) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(3) {
-    background: linear-gradient(135deg, #15803D 0%, #22C55E 50%, #4ADE80 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 900 !important;
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 18px rgba(21, 128, 61, 0.55), 0 0 12px rgba(74, 222, 128, 0.3) !important;
-    border: 2px solid #BBF7D0 !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
-}
-
-/* ─── Tab 4: Download — Sandy Brown ──────────────────────── */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4) {
-    background: linear-gradient(135deg, #A0632A 0%, #C68642 60%, #D4935E 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #A0632A !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(4):hover {
-    background: linear-gradient(135deg, #A0632A 0%, #C68642 60%, #D4935E 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(198, 134, 66, 0.45) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(4) {
-    background: linear-gradient(135deg, #C68642 0%, #D4935E 50%, #F4A460 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 900 !important;
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 18px rgba(198, 134, 66, 0.55), 0 0 12px rgba(244, 164, 96, 0.3) !important;
-    border: 2px solid #F7D9B0 !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
-}
-
-/* ─── Tab 5: Documentation — Sky Blue (Blur) ─────────────── */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5) {
-    background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 60%, #38BDF8 100%) !important;
-    color: #FFFFFF !important;
-    border: 2px solid #0369A1 !important;
-    backdrop-filter: blur(8px) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"]:nth-child(5):hover {
-    background: linear-gradient(135deg, #0369A1 0%, #0EA5E9 60%, #38BDF8 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.45) !important;
-    backdrop-filter: blur(8px) !important;
-}
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"][aria-selected="true"]:nth-child(5) {
-    background: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 50%, #7DD3FC 100%) !important;
-    color: #FFFFFF !important;
-    font-weight: 900 !important;
-    transform: translateY(0) !important;
-    box-shadow: 0 4px 18px rgba(14, 165, 233, 0.55), 0 0 12px rgba(125, 211, 252, 0.3) !important;
-    border: 2px solid #BAE6FD !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
-    backdrop-filter: blur(8px) !important;
-}
-
-/* Main tab text — inherit per-tab color */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab"] p {
-    font-size: 1.08rem !important;
-    font-weight: 700 !important;
-    margin: 0 !important;
-    white-space: normal !important;
-    word-break: break-word !important;
+    justify-content: center !important;
     text-align: center !important;
-    color: inherit !important;
+    white-space: nowrap !important;
+    border-radius: 14px 14px 0 0 !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    background: var(--nav-tab-bg) !important;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.14) !important;
+    transition: background 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
+    box-sizing: border-box !important;
 }
 
-/* Tab Panel - Minimal Top Padding for Compactness */
-.stTabs:not(.stTabs .stTabs) [data-baseweb="tab-panel"] {
-    padding: 0.15rem 1rem 1rem 1rem !important;
+/* Top-level tab labels */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"])
+    :is([data-testid="stMarkdownContainer"], div, p) {
+    color: inherit !important;
+    font-size: 1.02rem !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    text-align: center !important;
+}
+
+/* Hover and active states */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):hover {
+    background: var(--nav-tab-hover-bg) !important;
+    filter: brightness(1.05) saturate(1.02) !important;
+}
+
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"])[aria-selected="true"] {
+    background: var(--nav-tab-active-bg) !important;
+    border-color: rgba(255,255,255,0.42) !important;
+    box-shadow: 0 10px 24px var(--nav-tab-shadow), inset 0 -3px 0 rgba(255,255,255,0.55) !important;
+    filter: brightness(1.08) saturate(1.06) !important;
+}
+
+/* Per-tab color themes */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):nth-child(1) {
+    --nav-tab-bg: linear-gradient(135deg, #6e1121 0%, #8f1730 58%, #b32342 100%);
+    --nav-tab-hover-bg: linear-gradient(135deg, #7d1627 0%, #a11f39 58%, #c83353 100%);
+    --nav-tab-active-bg: linear-gradient(135deg, #912038 0%, #bc2b49 58%, #e16f83 100%);
+    --nav-tab-shadow: rgba(143, 23, 48, 0.42);
+}
+
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):nth-child(2) {
+    --nav-tab-bg: linear-gradient(135deg, #531a83 0%, #6522a3 58%, #8533d1 100%);
+    --nav-tab-hover-bg: linear-gradient(135deg, #612091 0%, #762bbc 58%, #994de5 100%);
+    --nav-tab-active-bg: linear-gradient(135deg, #7229aa 0%, #9138de 58%, #bd86f5 100%);
+    --nav-tab-shadow: rgba(101, 34, 163, 0.42);
+}
+
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):nth-child(3) {
+    --nav-tab-bg: linear-gradient(135deg, #0f5b34 0%, #157944 58%, #1d9c57 100%);
+    --nav-tab-hover-bg: linear-gradient(135deg, #12683b 0%, #18874d 58%, #24af64 100%);
+    --nav-tab-active-bg: linear-gradient(135deg, #198349 0%, #21a85e 58%, #64d691 100%);
+    --nav-tab-shadow: rgba(21, 121, 68, 0.42);
+}
+
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):nth-child(4) {
+    --nav-tab-bg: linear-gradient(135deg, #825127 0%, #a96b2e 58%, #c98934 100%);
+    --nav-tab-hover-bg: linear-gradient(135deg, #925c2a 0%, #bb7831 58%, #dc9a44 100%);
+    --nav-tab-active-bg: linear-gradient(135deg, #a96b2e 0%, #d18a39 58%, #efba61 100%);
+    --nav-tab-shadow: rgba(169, 107, 46, 0.42);
+}
+
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]):nth-child(5) {
+    --nav-tab-bg: linear-gradient(135deg, #0a6798 0%, #0f88c1 58%, #1fb0ee 100%);
+    --nav-tab-hover-bg: linear-gradient(135deg, #0d74a7 0%, #1697d5 58%, #42c0f5 100%);
+    --nav-tab-active-bg: linear-gradient(135deg, #1787c0 0%, #26a6eb 58%, #74d2fb 100%);
+    --nav-tab-shadow: rgba(15, 136, 193, 0.42);
+}
+
+/* Top-level tab panel and active indicator cleanup */
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([data-testid="stTabPanel"], [role="tabpanel"], [data-baseweb="tab-panel"]) {
+    padding: 0.15rem 1rem 1rem !important;
     margin-top: 0 !important;
     border-radius: 0 0 16px 16px !important;
     border: 2px solid #1e1b4b !important;
     border-top: 0 !important;
 }
 
-/* Tab Underline - Remove Default */
-.stTabs [data-baseweb="tab-highlight"] {
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"])
+    .react-aria-SelectionIndicator,
+:is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+    > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+    > :is([data-testid="stTabs"], .stTabs)
+    > div
+    > :is([role="tablist"], [data-baseweb="tab-list"])
+    [data-baseweb="tab-highlight"] {
     display: none !important;
+}
+
+@media (max-width: 1100px) {
+    :is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+        > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+        > :is([data-testid="stTabs"], .stTabs)
+        > div
+        > :is([role="tablist"], [data-baseweb="tab-list"])
+        > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]) {
+        padding-left: 0.55rem !important;
+        padding-right: 0.55rem !important;
+    }
+
+    :is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+        > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+        > :is([data-testid="stTabs"], .stTabs)
+        > div
+        > :is([role="tablist"], [data-baseweb="tab-list"])
+        > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"])
+        :is([data-testid="stMarkdownContainer"], div, p) {
+        font-size: 0.94rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    :is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+        > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+        > :is([data-testid="stTabs"], .stTabs)
+        > div
+        > :is([role="tablist"], [data-baseweb="tab-list"]) {
+        gap: 0.25rem !important;
+    }
+
+    :is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+        > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+        > :is([data-testid="stTabs"], .stTabs)
+        > div
+        > :is([role="tablist"], [data-baseweb="tab-list"])
+        > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"]) {
+        min-height: 52px !important;
+        padding-left: 0.4rem !important;
+        padding-right: 0.4rem !important;
+        white-space: normal !important;
+    }
+
+    :is([data-testid="stMainBlockContainer"], .stMainBlockContainer)
+        > :is([data-testid="stVerticalBlock"], .stVerticalBlock)
+        > :is([data-testid="stTabs"], .stTabs)
+        > div
+        > :is([role="tablist"], [data-baseweb="tab-list"])
+        > :is([data-testid="stTab"], [role="tab"], [data-baseweb="tab"])
+        :is([data-testid="stMarkdownContainer"], div, p) {
+        font-size: 0.78rem !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1567,130 +1636,4 @@ header[data-testid="stHeader"] {
     box-shadow: 0 0 14px rgba(79, 70, 229, 0.55) !important;
     border: 2px solid rgba(165, 180, 252, 0.7) !important;
     text-shadow: 0 0 8px rgba(165, 180, 252, 0.5) !important;
-}
-/* ============================================================================
-   FINAL NAVIGATION FIX — FULL-WIDTH TOP-LEVEL STREAMLIT TABS
-   Added as the final rule block so it overrides all earlier tab declarations.
-   This targets both Streamlit's .stTabs class and data-testid="stTabs".
-   ============================================================================ */
-
-/* Top-level tab component */
-[data-testid="stTabs"],
-.stTabs {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Top-level tab list: occupy the complete available width */
-[data-testid="stTabs"] > div:first-child,
-.stTabs > div:first-child {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* BaseWeb tab list */
-[data-testid="stTabs"] [data-baseweb="tab-list"],
-.stTabs [data-baseweb="tab-list"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: stretch !important;
-    align-items: stretch !important;
-    gap: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* Every top-level tab gets an equal share of the full width.
-   flex-basis: 0 is important: it prevents long labels such as
-   "Upload & Analyze" from determining the tab width. */
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"],
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"] {
-    flex: 1 1 0 !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    box-sizing: border-box !important;
-    justify-content: center !important;
-    text-align: center !important;
-    margin: 0 !important;
-}
-
-/* Five-tab navigation: explicitly equal widths when there are five tabs. */
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(1),
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(2),
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(3),
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(4),
-[data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(5),
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(1),
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(2),
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(3),
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(4),
-.stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"]:nth-child(5) {
-    flex: 1 1 20% !important;
-    width: 20% !important;
-    max-width: 20% !important;
-}
-
-/* Prevent Streamlit's internal tab label wrapper from shrinking the button. */
-[data-testid="stTabs"] [data-baseweb="tab"] > div,
-.stTabs [data-baseweb="tab"] > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    box-sizing: border-box !important;
-}
-
-/* Tab text */
-[data-testid="stTabs"] [data-baseweb="tab"] p,
-.stTabs [data-baseweb="tab"] p {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    text-align: center !important;
-    box-sizing: border-box !important;
-}
-
-/* Remove horizontal scrolling from the main navigation list. */
-[data-testid="stTabs"] [data-baseweb="tab-list"]::-webkit-scrollbar,
-.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {
-    display: none !important;
-}
-
-/* Keep the navigation stable on desktop. */
-@media (min-width: 769px) {
-    [data-testid="stTabs"] [data-baseweb="tab-list"],
-    .stTabs [data-baseweb="tab-list"] {
-        overflow: hidden !important;
-    }
-}
-
-/* Mobile: retain equal-width tabs but allow readable wrapping. */
-@media (max-width: 768px) {
-    [data-testid="stTabs"] [data-baseweb="tab-list"] > [data-baseweb="tab"],
-    .stTabs [data-baseweb="tab-list"] > [data-baseweb="tab"] {
-        flex: 1 1 20% !important;
-        width: 20% !important;
-        max-width: 20% !important;
-        min-height: 52px !important;
-        padding-left: 4px !important;
-        padding-right: 4px !important;
-        white-space: normal !important;
-    }
-
-    [data-testid="stTabs"] [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] p {
-        font-size: 0.78rem !important;
-        line-height: 1.15 !important;
-        white-space: normal !important;
-    }
 }
