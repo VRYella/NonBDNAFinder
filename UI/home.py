@@ -30,7 +30,7 @@ def _build_motif_class_card(info):
 
 def render():
     load_css(TAB_THEMES.get('Home', 'red_home')); c = get_page_colors('Home')
-    render_section_heading("Non-B DNA Finder", page="Home")
+    render_section_heading("Non-B DNA Finder:A Unified Computational Tool for Non-B DNA Detection", page="Home")
     col_nbd, col_science = st.columns([1, 1], gap="large")
     with col_nbd:
         img_found = False
