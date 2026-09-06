@@ -60,7 +60,7 @@ UI_TEXT = {
     'upload_method_ncbi': 'NCBI Fetch',
 
     'upload_file_prompt': 'Upload FASTA or multi-FASTA file',
-    'upload_file_help': 'FASTA-formatted DNA sequences (single or multiple records)',
+    'upload_file_help': 'FASTA-formatted DNA sequences (single or multiple records), up to 5 MB per analysis run',
     'upload_processing': 'Parsing input sequences',
     'upload_file_valid': 'Valid FASTA',
     'upload_preview_button': 'Preview parsed sequences',

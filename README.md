@@ -205,6 +205,8 @@ NonBDNAFinder operates with linear time complexity with respect to sequence leng
 
 The Streamlit-based web interface provides interactive motif selection, real-time execution metrics, linear motif maps, class distribution plots, hybrid and cluster visualization, and downloadable result tables. Navigation tabs span the full application width for a modern scientific dashboard layout.
 
+For the hosted web application, input is limited to **5 MB maximum** per analysis. This limit applies to uploaded FASTA files, the total sequence content provided in a single run (single or multi-FASTA), and Genome Interval fetch length.
+
 To launch locally:
 
 ```bash
@@ -344,6 +346,8 @@ NBDFinder operates with linear time complexity with respect to sequence length. 
 ## Web Application
 
 The Streamlit-based web interface provides interactive motif selection, real-time execution metrics, linear motif maps, class distribution plots, hybrid and cluster visualization, and downloadable result tables.
+
+For the hosted web application, input is limited to **5 MB maximum** per analysis. This limit applies to uploaded FASTA files, the total sequence content provided in a single run (single or multi-FASTA), and Genome Interval fetch length.
 
 To launch locally:
 

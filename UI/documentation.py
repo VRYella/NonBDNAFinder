@@ -1212,9 +1212,8 @@ def _tab_user_guide():
         "<ul style='line-height:1.9;'>"
         "<li><strong>Upload FASTA File</strong> — Upload any FASTA or multi-FASTA file "
         "(<code>.fa</code>, <code>.fasta</code>, <code>.fna</code>, <code>.txt</code>). "
-        "Single-sequence and multi-sequence files are both supported. There is no hard "
-        "limit on file size; sequences larger than 50 Kbp are processed in overlapping "
-        "50 Kbp / 2 Kbp chunks to keep memory usage constant.</li>"
+        "Single-sequence and multi-sequence files are both supported. The web application "
+        "accepts up to <strong>5 MB</strong> input per analysis run.</li>"
         "<li><strong>Paste FASTA Sequence</strong> — Paste one or more FASTA-formatted "
         "records directly into the text area. The first character of each record must be "
         "&gt; (the FASTA header character).</li>"
@@ -1222,8 +1221,17 @@ def _tab_user_guide():
         "for demonstration and validation purposes.</li>"
         "<li><strong>NCBI Fetch</strong> — Retrieve sequences directly from NCBI Entrez "
         "(requires an internet connection). Three query modes are available: "
-        "<em>Accession</em>, <em>Gene</em>, and <em>Genome Interval</em>.</li>"
+        "<em>Accession</em>, <em>Gene</em>, and <em>Genome Interval</em>. "
+        "Genome Interval fetches are limited to <strong>5 MB</strong> sequence length per run.</li>"
         "</ul>"
+    )
+
+    st.markdown(
+        f"<p style='font-size:0.88rem;color:#475569;margin-top:0.3rem;'>"
+        "<strong>Web app limits:</strong> maximum 5 MB uploaded file size, maximum 5 MB "
+        "combined sequence input (single or multi-FASTA), and maximum 5 MB Genome Interval "
+        "length per analysis.</p>",
+        unsafe_allow_html=True,
     )
 
     st.markdown(
@@ -1396,7 +1404,8 @@ def _tab_user_guide():
         "roughly linearly with sequence length.</p>"
         "<p style='font-size:0.9rem;color:#475569;'>"
         "<strong>Tested limits:</strong> up to 200 Mbp single sequence (E. coli + human "
-        "chr22); up to 50 sequences per multi-FASTA run in continuous testing.</p>"
+        "chr22); up to 50 sequences per multi-FASTA run in continuous testing. "
+        "In the hosted web app, input per run is capped at 5 MB.</p>"
     )
 
     # ── 6. Troubleshooting ────────────────────────────────────────────────────
@@ -1455,9 +1464,9 @@ def _tab_user_guide():
     faqs = [
         (
             "Is there a maximum sequence length?",
-            "No hard limit is imposed. Sequences are processed in 50 Kbp chunks, so "
-            "arbitrarily long sequences can be analysed given sufficient time. "
-            "Whole human chromosomes have been analysed successfully.",
+            "Yes. In the web application, the maximum analysable input per run is 5 MB. "
+            "This includes uploaded FASTA content, total pasted multi-FASTA content, and "
+            "Genome Interval fetch length.",
         ),
         (
             "Does the tool support RNA sequences?",
