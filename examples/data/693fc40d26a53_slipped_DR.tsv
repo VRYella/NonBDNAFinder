@@ -1,9 +1,0 @@
-Sequence_name	Source	Type	Start	Stop	Length	Score	Strand	Repeat	Spacer	Repeated	Subset	Composition	Sequence
-seq1	ABCC	Direct_Repeat	3728	3766	39	NA	+	18	0	X1+3	1	9A/0C/3G/6T	atagatatagatatagatatagatatagatatagatata
-seq1	ABCC	Direct_Repeat	3796	3819	24	NA	+	12	0	X1+0	1	6A/0C/0G/6T	atatatatatatatatatatatat
-seq1	ABCC	Direct_Repeat	6055	6088	34	NA	+	17	0	X1+0	1	17A/0C/0G/0T	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-seq1	ABCC	Direct_Repeat	6088	6129	42	NA	+	20	0	X1+2	1	10A/0C/0G/10T	atatatatatatatatatatatatatatatatatatatatat
-seq1	ABCC	Direct_Repeat	7566	7619	54	NA	+	26	0	X1+2	1	13A/13C/0G/0T	acacacacacacacacacacacacacacacacacacacacacacacacacacac
-seq1	ABCC	Direct_Repeat	17410	17435	26	NA	+	13	0	X1+0	1	0A/7C/1G/5T	ctgttcctccctcctgttcctccctc
-seq1	ABCC	Direct_Repeat	25919	25940	22	NA	+	11	0	X1+0	1	11A/0C/0G/0T	aaaaaaaaaaaaaaaaaaaaaa
-seq1	ABCC	Direct_Repeat	33123	33144	22	NA	+	11	0	X1+0	1	0A/0C/0G/11T	tttttttttttttttttttttt
