@@ -141,23 +141,12 @@ def _prose(html):
 # ─── Tab renderers ────────────────────────────────────────────────────────────
 
 def _tab_overview():
-    dc = _get_doc_colors()
     st.markdown(
         "<p style='color:#334155;font-size:1.05rem;line-height:1.7;margin-bottom:1rem;'>"
-        "Comprehensive platform for <strong>genome-wide detection</strong> of Non-B DNA structures. "
-        "Implements <strong>11 motif classes</strong> with <strong>24 subclasses</strong>, "
-        "validated against G4Hunter, QmRLFS, and Z-Seeker.</p>",
-        unsafe_allow_html=True,
-    )
-    badge_bg = dc['light']
-    badge_color = dc['primary']
-    st.markdown(
-        f"<div style='display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;'>"
-        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>24,674 bp/s</span>"
-        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>200MB+ sequences</span>"
-        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>25+ visualizations</span>"
-        f"<span style='background:{badge_bg};color:{badge_color};padding:0.35rem 0.8rem;border-radius:16px;font-size:0.88rem;font-weight:600;border:1px solid {dc['border']};'>Structured output</span>"
-        f"</div>",
+        "NonBDNAFinder detects non-B DNA-forming motifs from DNA sequence input. "
+        "The workflow covers sequence submission, motif detection, scoring, overlap handling, "
+        "visualization, and export. Results include 9 primary motif classes plus hybrid and "
+        "cluster annotations.</p>",
         unsafe_allow_html=True,
     )
     _section_heading("Detected Non-B DNA Motif Classes")
@@ -183,31 +172,14 @@ def _tab_architecture():
         )
     _section_heading("2.1 System Architecture and Workflow")
     _prose(
-        "<p>NBDFinder is a two-layer computational framework designed for genome-scale detection and "
-        "integration of non-B DNA–forming sequence motifs. The backend consists of nine modular "
-        "Python-based detector classes — covering Curved DNA, Slipped DNA, Cruciform DNA, Triplex DNA, "
-        "R-loops, Z-DNA, G-Quadruplex, i-Motif, and A-philic DNA — each implementing biologically "
-        "informed regular expressions, compositional heuristics, and propensity-based scoring models. "
-        "The frontend is implemented using the Streamlit framework and supports sequence submission, "
-        "parameter selection, execution, visualization, and export. Two integrative post-processing "
-        "stages — hybrid-region annotation and density-based cluster identification — operate across "
-        "the outputs of all nine primary detectors.</p>"
-        "<p>Input sequences may be provided as FASTA files, direct nucleotide strings, or retrieved "
-        "programmatically from NCBI using Biopython (Entrez and SeqIO modules). Upon ingestion, "
-        "sequences are normalized to uppercase, header lines are removed, and non-ATGC characters are "
-        "filtered; all downstream composition calculations are performed exclusively on the resulting "
-        "canonical base set. GC percentage is accordingly computed as (G + C) / (A + T + G + C) × 100, "
-        "matching the NCBI and Ensembl standard by excluding ambiguous bases from both the numerator "
-        "and the denominator. All coordinates are reported using 1-based inclusive indexing.</p>"
-        "<p>The analytical workflow consists of: (i) sequence preprocessing and validation; "
-        "(ii) primary detection of canonical motifs; (iii) detection of relaxed or variant subclasses; "
-        "(iv) class-specific scoring and normalization; (v) intra-class overlap resolution; "
-        "(vi) inter-class hybrid detection; (vii) density-based hotspot identification; and "
-        "(viii) structured output generation. For sequences shorter than 100,000 bp, analysis proceeds "
-        "directly using all detectors in a single pass. Sequences between 100,000 bp and 5,000,000 bp "
-        "are processed using a two-worker ProcessPoolExecutor with 50 kb chunks and 2 kb overlaps. "
-        "Sequences exceeding 5,000,000 bp are handled by a disk-streaming strategy that maintains "
-        "approximately constant RAM usage (~70 MB) regardless of genome size.</p>"
+        "<p>NonBDNAFinder combines nine detector modules with shared post-processing and export logic. "
+        "The Streamlit interface is used for input, execution, results review, and downloads.</p>"
+        "<p>Accepted inputs include FASTA upload, pasted FASTA, bundled examples, NCBI accession lookup, "
+        "NCBI gene lookup, and Genome Interval retrieval. Input is normalized before analysis, and "
+        "coordinates are reported with 1-based inclusive indexing.</p>"
+        "<p>The analysis pipeline performs sequence validation, motif detection, class-specific scoring, "
+        "overlap resolution, hybrid annotation, cluster detection, and output generation. Large sequences "
+        "are processed with chunking and optional parallel execution.</p>"
     )
 
 
@@ -215,17 +187,9 @@ def _tab_motif_library():
     dc = _get_doc_colors()
     _section_heading("2.2 Motif Library and Structural Classification")
     _prose(
-        "<p>The motif library was curated through systematic literature review and organized into nine "
-        "principal structural detector classes, each with biologically supported subclasses: Curved DNA "
-        "(global and local curvature subtypes), Slipped DNA (short tandem repeats and direct repeats), "
-        "Cruciform DNA (palindromic inverted repeats), Triplex DNA (H-DNA mirror repeats and Sticky DNA), "
-        "R-loops (promoter-proximal RNA–DNA hybrid formation sites), Z-DNA (left-handed helix and "
-        "extruded-G Z-DNA motifs), G-Quadruplex (eight subclasses ranging from telomeric repeats to "
-        "G-triplexes), i-Motif (canonical cytosine-intercalated structures and AC-motifs), and A-philic "
-        "DNA (A-form propensity regions). Two integrative classes — hybrid motifs (overlapping multi-class "
-        "intervals) and non-B DNA clusters (high-density structural hotspots) — are derived from the "
-        "primary detector outputs. Disease-associated repeat expansions were incorporated where "
-        "experimentally validated structural consequences have been reported.</p>"
+        "<p>The motif library is organized into nine primary detector classes with subclass-level reporting. "
+        "Hybrid motifs and non-B DNA clusters are derived from overlaps and local motif density in the "
+        "combined detector output.</p>"
     )
     _section_heading("Detection Parameters & Algorithms")
     td = "padding:0.45rem 0.6rem;border-bottom:1px solid #e2e8f0;"
@@ -1208,21 +1172,13 @@ def _tab_user_guide():
     # ── 1. Supported Input Formats ────────────────────────────────────────────
     _section_heading("1. Supported Input Formats")
     _prose(
-        "<p>NonBDNAFinder accepts DNA sequences through four input modes:</p>"
+        "<p>NonBDNAFinder accepts input through the following modes:</p>"
         "<ul style='line-height:1.9;'>"
-        "<li><strong>Upload FASTA File</strong> — Upload any FASTA or multi-FASTA file "
-        "(<code>.fa</code>, <code>.fasta</code>, <code>.fna</code>, <code>.txt</code>). "
-        "Single-sequence and multi-sequence files are both supported. The web application "
-        "accepts up to <strong>5 MB</strong> input per analysis run.</li>"
-        "<li><strong>Paste FASTA Sequence</strong> — Paste one or more FASTA-formatted "
-        "records directly into the text area. The first character of each record must be "
-        "&gt; (the FASTA header character).</li>"
-        "<li><strong>Example Data</strong> — Load a built-in single or multi-FASTA example "
-        "for demonstration and validation purposes.</li>"
-        "<li><strong>NCBI Fetch</strong> — Retrieve sequences directly from NCBI Entrez "
-        "(requires an internet connection). Three query modes are available: "
-        "<em>Accession</em>, <em>Gene</em>, and <em>Genome Interval</em>. "
-        "Genome Interval fetches are limited to <strong>5 MB</strong> sequence length per run.</li>"
+        "<li><strong>Upload FASTA File</strong> — Upload FASTA or multi-FASTA files "
+        "(<code>.fa</code>, <code>.fasta</code>, <code>.fna</code>, <code>.txt</code>).</li>"
+        "<li><strong>Paste FASTA Sequence</strong> — Paste one or more FASTA records directly.</li>"
+        "<li><strong>Example Data</strong> — Load bundled example sequences.</li>"
+        "<li><strong>NCBI Fetch</strong> — Retrieve sequences by accession, gene, or Genome Interval.</li>"
         "</ul>"
     )
 
@@ -1243,7 +1199,7 @@ def _tab_user_guide():
         "<li>The sequence on subsequent lines must contain only IUPAC nucleotide characters "
         "(A, T, G, C, N, R, Y, S, W, K, M, B, D, H, V).</li>"
         "<li>RNA sequences are accepted; U is automatically replaced with T.</li>"
-        "<li>Sequence names are extracted from the header line up to the first whitespace.</li>"
+        "<li>Sequence names are taken from the header up to the first whitespace.</li>"
         "</ul>"
         "</div>",
         unsafe_allow_html=True,
@@ -1253,9 +1209,7 @@ def _tab_user_guide():
     _section_heading("2. Genome Interval Mode (NCBI Fetch)")
     _prose(
         "<p>The <strong>Genome Interval</strong> mode allows analysis of a specific "
-        "chromosomal or contig locus without retrieving the full reference sequence. "
-        "This is especially useful for large genomes (human, mouse, plant) where only "
-        "a region of interest needs to be scanned.</p>"
+        "chromosomal or contig locus without retrieving the full reference sequence.</p>"
     )
 
     # How to use
@@ -1267,9 +1221,7 @@ def _tab_user_guide():
         "<ol style='line-height:1.9;'>"
         "<li>Navigate to <strong>Upload &amp; Analyze → NCBI Fetch</strong>.</li>"
         "<li>Select <strong>Genome Interval</strong> as the query mode.</li>"
-        "<li>Either enter the interval in compact form "
-        "(<code>ACCESSION:START-END</code>) to auto-populate the fields, "
-        "or fill the accession, start, and end fields directly.</li>"
+        "<li>Enter the interval in compact form (<code>ACCESSION:START-END</code>) or fill the accession, start, and end fields directly.</li>"
         "<li>Click <strong>Fetch Genome Interval</strong>.</li>"
         "<li>Run the analysis as normal.</li>"
         "</ol>"
@@ -1313,14 +1265,10 @@ def _tab_user_guide():
     _section_heading("3. Coordinate Conventions")
     _prose(
         "<p>NonBDNAFinder uses a <strong>1-based, fully-closed</strong> coordinate "
-        "convention throughout — the same system used by NCBI GenBank, GFF3, and "
-        "the Ensembl browser:</p>"
+        "convention throughout:</p>"
         "<ul style='line-height:1.9;'>"
-        "<li><strong>Start ≥ 1</strong> — the first base of a chromosome or contig "
-        "is position 1 (not 0).</li>"
-        "<li><strong>Closed interval [start, end]</strong> — both endpoints are "
-        "included in the interval. An interval spanning bases 100 to 200 has length "
-        "101 bp.</li>"
+        "<li><strong>Start ≥ 1</strong> — the first base is position 1.</li>"
+        "<li><strong>Closed interval [start, end]</strong> — both endpoints are included.</li>"
         "</ul>"
     )
 
@@ -1359,24 +1307,17 @@ def _tab_user_guide():
     _section_heading("4. Output Formats")
     _prose(
         "<ul style='line-height:1.9;'>"
-        "<li><strong>CSV</strong> — Tab-separated values with all motif fields. "
-        "Compatible with Excel, R, and Python (pandas).</li>"
-        "<li><strong>Excel (XLSX)</strong> — Multi-sheet workbook with motifs, "
-        "class statistics, and subclass statistics.</li>"
-        "<li><strong>BED</strong> — 6-column BED format for genome browser "
-        "visualisation (IGV, UCSC). Chromosome name is taken from the sequence "
-        "header or accession.</li>"
-        "<li><strong>GFF3</strong> — Generic Feature Format version 3 suitable "
-        "for genome annotation pipelines.</li>"
-        "<li><strong>JSON</strong> — Machine-readable structured format "
-        "preserving all motif fields including scores.</li>"
-        "<li><strong>PDF Report</strong> — Summary report with motif tables "
-        "and distribution charts (single-sequence mode only).</li>"
+        "<li><strong>CSV</strong> — motif table with all exported fields.</li>"
+        "<li><strong>Excel (XLSX)</strong> — workbook with motif and summary sheets.</li>"
+        "<li><strong>BED</strong> — genome browser export.</li>"
+        "<li><strong>GFF3</strong> — annotation-friendly feature export.</li>"
+        "<li><strong>JSON</strong> — structured machine-readable output.</li>"
+        "<li><strong>PDF Report</strong> — summary report for single-sequence analysis.</li>"
         "</ul>"
     )
 
     # ── 5. Hardware Recommendations ───────────────────────────────────────────
-    _section_heading("5. Hardware Recommendations and Runtime Estimates")
+    _section_heading("5. Hardware and Runtime Guidance")
 
     st.markdown(
         f"<table style='width:100%;border-collapse:collapse;'>"
@@ -1398,14 +1339,9 @@ def _tab_user_guide():
     _prose(
         "<p style='margin-top:0.6rem;font-size:0.9rem;color:#475569;'>"
         "<strong>Notes:</strong> RAM figures are peak estimates for single-sequence analysis. "
-        "Multi-FASTA analysis with parallel processing uses additional RAM proportional to "
-        "the number of worker threads. Sequences are always processed in 50 Kbp chunks with "
-        "2 Kbp overlap, so peak RAM does not grow with sequence length. Runtime scales "
-        "roughly linearly with sequence length.</p>"
+        "Parallel multi-sequence runs use additional memory. Runtime scales roughly with sequence length.</p>"
         "<p style='font-size:0.9rem;color:#475569;'>"
-        "<strong>Tested limits:</strong> up to 200 Mbp single sequence (E. coli + human "
-        "chr22); up to 50 sequences per multi-FASTA run in continuous testing. "
-        "In the hosted web app, input per run is capped at 5 MB.</p>"
+        "<strong>Web app limit:</strong> input per run is capped at 5 MB.</p>"
     )
 
     # ── 6. Troubleshooting ────────────────────────────────────────────────────
@@ -1414,15 +1350,11 @@ def _tab_user_guide():
     troubles = [
         (
             "No motifs detected",
-            "Check that the input is valid DNA (not protein or RNA without U→T conversion). "
-            "Very short sequences (&lt; 50 bp) may not contain statistically significant "
-            "non-B motifs. Ensure GC content is within 20–80 %.",
+            "Check that the input is valid DNA. Very short sequences may not contain detectable motifs.",
         ),
         (
             "NCBI Fetch fails with 'HTTPError'",
-            "NCBI rate-limits unauthenticated requests to 3/second. Wait a few seconds and "
-            "retry. For high-volume usage, set an NCBI API key in <code>app.py</code> "
-            "(<code>ENTREZ_API_KEY</code>) to raise the limit to 10/second.",
+            "NCBI may rate-limit requests. Wait briefly and retry. For repeated use, configure an API key in <code>app.py</code>.",
         ),
         (
             "Genome Interval returns an empty sequence",
@@ -1433,9 +1365,7 @@ def _tab_user_guide():
         ),
         (
             "Analysis is very slow for large sequences",
-            "Enable the <em>Parallel</em> option in the Analysis Options panel. For very "
-            "large genomes, consider splitting the sequence into chromosomes or using the "
-            "Genome Interval feature to analyse targeted loci.",
+            "Enable parallel execution when appropriate. For very large genomes, analyse smaller regions or use Genome Interval input.",
         ),
         (
             "Export buttons do not respond",
@@ -1445,9 +1375,7 @@ def _tab_user_guide():
         ),
         (
             "Memory error / 'Killed' message",
-            "Reduce the interval size (e.g., use Genome Interval to fetch smaller regions), "
-            "or increase the server RAM. The 50 Kbp chunk size is chosen to keep peak memory "
-            "under 1 GB for most analyses.",
+            "Reduce the input size or increase available RAM. Smaller Genome Interval requests are often easier to process.",
         ),
     ]
 
@@ -1475,7 +1403,7 @@ def _tab_user_guide():
         (
             "Can I analyse multiple sequences at once?",
             "Yes. Upload a multi-FASTA file or paste multiple FASTA records. "
-            "Parallel processing is used automatically for two or more sequences.",
+            "Parallel processing may be used automatically for multiple sequences.",
         ),
         (
             "What are the supported accession formats for Genome Interval?",
@@ -1490,7 +1418,7 @@ def _tab_user_guide():
         ),
         (
             "How do I cite NonBDNAFinder?",
-            "See the <strong>References &amp; Citation</strong> tab for the full citation.",
+            "See the <strong>References</strong> tab for the citation text.",
         ),
         (
             "Can I add my own motif detector?",
@@ -1560,15 +1488,15 @@ def _tab_citation():
 
 def render():
     load_css(TAB_THEMES.get('Documentation', 'orchid_docs'))
-    render_section_heading("Scientific Documentation & References", page="Documentation")
+    render_section_heading("Documentation", page="Documentation")
 
     tabs = st.tabs([
-        "🔬 Overview & Architecture",
-        "🧬 Motif Library & Algorithms",
-        "📊 Scoring & Analysis",
-        "📈 Statistics Guide",
-        "📖 User Guide & FAQ",
-        "📚 References & Citation",
+        "Overview",
+        "Motif Library",
+        "Scoring",
+        "Statistics Guide",
+        "User Guide",
+        "References",
     ])
 
     with tabs[0]:
