@@ -196,39 +196,43 @@ def _build_motif_card(n, sub, col, desc):
 
 
 def _build_reference_card(r):
+    """Render a reference card.
+
+    DOI is optional. References without a DOI are displayed normally,
+    while references containing a DOI receive a clickable DOI link.
+    """
     dc = _get_doc_colors()
 
-    # DOI is optional. References without a DOI are displayed normally.
-    doi_html = ""
-    doi = r.get("doi", "")
+    doi = str(r.get("doi", "") or "").strip()
 
+    doi_html = ""
     if doi:
         doi_html = (
-            f"<a href=\"https://doi.org/{doi}\" "
-            f"target=\"_blank\" "
-            f"style=\"color:{dc['primary']};\">"
-            f"DOI: {doi}</a>"
+            f'<a href="https://doi.org/{doi}" '
+            f'target="_blank" '
+            f'rel="noopener noreferrer" '
+            f'style="color:{dc["primary"]};">'
+            f'DOI: {doi}</a>'
         )
+
+    journal_html = (
+        f"<strong>{r.get('journal', '')}</strong> "
+        f"{r.get('volume', '')}"
+    )
+
+    if doi_html:
+        journal_html += f" · {doi_html}"
 
     return (
         f"<div style='padding:0.65rem 0;border-bottom:1px solid {dc['border']};'>"
-
         f"<div style='font-weight:600;color:#1e293b;font-size:0.95rem;margin-bottom:0.1rem;'>"
-        f"{r.get('authors', '')} ({r.get('year', '')})"
-        f"</div>"
-
+        f"{r.get('authors', '')} ({r.get('year', '')})</div>"
         f"<div style='color:#334155;font-size:0.9rem;font-style:italic;margin-bottom:0.1rem;'>"
-        f"{r.get('title', '')}"
-        f"</div>"
-
+        f"{r.get('title', '')}</div>"
         f"<div style='color:#64748b;font-size:0.85rem;'>"
-        f"<strong>{r.get('journal', '')}</strong> {r.get('volume', '')}"
-        f"{' · ' + doi_html if doi_html else ''}"
-        f"</div>"
-
-        f"</div>"
+        f"{journal_html}"
+        f"</div></div>"
     )
-
 def _section_heading(text):
     st.markdown(
         f"<h3 style='{_h3_style()}'>{text}</h3>",
