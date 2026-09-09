@@ -21,7 +21,91 @@ from UI.headers import render_section_heading
 # TUNABLE PARAMETERS
 # ═══════════════════════════════════════════════════════════════════════════════
 MOTIF_PARAMETERS = {"Curved DNA": {"min_length": "8 bp (local) / ~31 bp (global)", "max_length": "50 bp (local) / 120 bp (global)", "algorithm": "A-tract phasing detection", "scoring": "Tract length × phasing score", "refs": ["Crothers et al., 1990", "Koo et al., 1986"]}, "G-Quadruplex": {"min_length": "15 bp", "max_length": "100 bp", "algorithm": "G4Hunter + Regex pattern matching", "scoring": "G4Hunter score (threshold ≥0.5)", "refs": ["Bedrat et al., 2016", "Huppert & Balasubramanian, 2005"]}, "Z-DNA": {"min_length": "8 bp", "max_length": "300 bp", "algorithm": "10-mer propensity table (Ho 1986) + eGZ regex", "scoring": "Cumulative 10-mer score (threshold ≥50.0); linear normalization", "refs": ["Ho et al., 1986", "Wang et al., 1979"]}, "Cruciform": {"min_length": "8 bp arm", "max_length": "50 bp arm", "algorithm": "Inverted repeat detection", "scoring": "Arm length × stem stability (ΔG ≤ −5.0 kcal/mol)", "refs": ["Lilley, 1980", "Panayotatos & Wells, 1981"]}, "R-Loop": {"min_length": "15 bp", "max_length": "2000 bp", "algorithm": "QmRLFS model", "scoring": "GC content + G-density (quality ≥0.4)", "refs": ["Jenjaroenpun et al., 2015", "Aguilera & García-Muse, 2012"]}, "Triplex": {"min_length": "10 bp", "max_length": "100 bp", "algorithm": "Mirror repeat detection", "scoring": "Purine/pyrimidine purity ≥90%", "refs": ["Mirkin et al., 1987", "Frank-Kamenetskii & Mirkin, 1995"]}, "i-Motif": {"min_length": "12 bp", "max_length": "60 bp", "algorithm": "C-tract pattern matching", "scoring": "C-density + C-tract count bonus", "refs": ["Zeraati et al., 2018", "Day et al., 2014"]}, "Slipped DNA": {"min_length": "1 bp unit", "max_length": "100 bp unit", "algorithm": "k-mer STR + direct repeat scan", "scoring": "Length × copy number × unit size × purity × GC", "refs": ["Pearson et al., 2005", "Wells, 2007"]}, "A-philic DNA": {"min_length": "10 bp", "max_length": "300 bp", "algorithm": "10-mer log₂ A-form propensity scoring", "scoring": "Cumulative log₂ sum (threshold ≥0.5)", "refs": ["Vinogradov, 2003", "Rohs et al., 2009"]}}
-REFERENCES = [{"authors": "Bedrat A, Lacroix L, Mergny JL", "year": 2016, "title": "Re-evaluation of G-quadruplex propensity with G4Hunter", "journal": "Nucleic Acids Res", "volume": "44(4):1746-59", "doi": "10.1093/nar/gkw006"}, {"authors": "Huppert JL, Balasubramanian S", "year": 2005, "title": "Prevalence of quadruplexes in the human genome", "journal": "Nucleic Acids Res", "volume": "33(9):2908-16", "doi": "10.1093/nar/gki609"}, {"authors": "Zeraati M, Langley DB, et al.", "year": 2018, "title": "I-motif DNA structures are formed in the nuclei of human cells", "journal": "Nat Chem", "volume": "10(6):631-637", "doi": "10.1038/s41557-018-0046-3"}, {"authors": "Ho PS, Frederick CA, Saal D, et al.", "year": 1986, "title": "The interactions of ruthenium hexaammine with Z-DNA", "journal": "J Biomol Struct Dyn", "volume": "4(3):521-34", "doi": "10.1080/07391102.1986.10506363"}, {"authors": "Jenjaroenpun P, Wongsurawat T, et al.", "year": 2015, "title": "QmRLFS-finder: a model, web server and stand-alone tool", "journal": "Nucleic Acids Res", "volume": "43(W1):W527-34", "doi": "10.1093/nar/gkv344"}, {"authors": "Aguilera A, García-Muse T", "year": 2012, "title": "R loops: from transcription byproducts to threats to genome stability", "journal": "Mol Cell", "volume": "46(2):115-24", "doi": "10.1016/j.molcel.2012.04.009"}, {"authors": "Frank-Kamenetskii MD, Mirkin SM", "year": 1995, "title": "Triplex DNA structures", "journal": "Annu Rev Biochem", "volume": "64:65-95", "doi": "10.1146/annurev.bi.64.070195.000433"}, {"authors": "Crothers DM, Drak J, et al.", "year": 1990, "title": "DNA bending, flexibility, and helical repeat", "journal": "Methods Enzymol", "volume": "212:3-29", "doi": "10.1016/0076-6879(92)12003-9"}, {"authors": "Vinogradov AE", "year": 2003, "title": "DNA helix: the importance of being GC-rich", "journal": "Nucleic Acids Res", "volume": "31(7):1838-44", "doi": "10.1093/nar/gkg296"}, {"authors": "Rohs R, West SM, et al.", "year": 2009, "title": "The role of DNA shape in protein-DNA recognition", "journal": "Nature", "volume": "461(7268):1248-53", "doi": "10.1038/nature08473"}, {"authors": "Pearson CE, Nichol Edamura K, Cleary JD", "year": 2005, "title": "Repeat instability: mechanisms of dynamic mutations", "journal": "Nat Rev Genet", "volume": "6(10):729-42", "doi": "10.1038/nrg1689"}, {"authors": "Bacolla A, Wells RD", "year": 2004, "title": "Non-B DNA conformations, genomic rearrangements, and human disease", "journal": "J Biol Chem", "volume": "279(46):47411-4", "doi": "10.1074/jbc.R400028200"}]
+REFERENCES = [
+    {"authors": "Du Y, Zhou X", "year": 2013, "title": "Targeting non-B-form DNA in living cells", "journal": "Chem Rec", "volume": "13(4):371-384"},
+
+    {"authors": "Wang G, Vasquez KM", "year": 2023, "title": "Dynamic alternative DNA structures in biology and disease", "journal": "Nat Rev Genet", "volume": "24(4):211-234"},
+
+    {"authors": "Matos-Rodrigues G, Hisey JA, Nussenzweig A, Mirkin SM", "year": 2023, "title": "Detection of alternative DNA structures and its implications for human disease", "journal": "Mol Cell", "volume": "83(20):3622-3641"},
+
+    {"authors": "Makova KD, Weissensteiner MH", "year": 2023, "title": "Noncanonical DNA structures are drivers of genome evolution", "journal": "Trends Genet", "volume": "39(2):109-124"},
+
+    {"authors": "Guiblet WM, Cremona MA, Harris RS, Chen D, Eckert KA, Chiaromonte F, Huang YF, Makova KD", "year": 2021, "title": "Non-B DNA: a major contributor to small- and large-scale variation in nucleotide substitution frequencies across the genome", "journal": "Nucleic Acids Res", "volume": "49(3):1497-1516"},
+
+    {"authors": "Wang AH, Quigley GJ, Kolpak FJ, Crawford JL, van Boom JH, van der Marel G, Rich A", "year": 1979, "title": "Molecular structure of a left-handed double helical DNA fragment at atomic resolution", "journal": "Nature", "volume": "282(5740):680-686"},
+
+    {"authors": "Lilley DM", "year": 1980, "title": "The inverted repeat as a recognizable structural feature in supercoiled DNA molecules", "journal": "Proc Natl Acad Sci U S A", "volume": "77(11):6468-6472"},
+
+    {"authors": "Koo HS, Wu HM, Crothers DM", "year": 1986, "title": "DNA bending at adenine-thymine tracts", "journal": "Nature", "volume": "320(6062):501-506"},
+
+    {"authors": "Htun H, Dahlberg JE", "year": 1988, "title": "Single strands, triple strands, and kinks in H-DNA", "journal": "Science", "volume": "241(4874):1791-1796"},
+
+    {"authors": "Sen D, Gilbert W", "year": 1988, "title": "Formation of parallel four-stranded complexes by guanine-rich motifs in DNA and its implications for meiosis", "journal": "Nature", "volume": "334(6180):364-366"},
+
+    {"authors": "Williamson JR, Raghuraman MK, Cech TR", "year": 1989, "title": "Monovalent cation-induced structure of telomeric DNA: the G-quartet model", "journal": "Cell", "volume": "59(5):871-880"},
+
+    {"authors": "Huppert JL, Balasubramanian S", "year": 2005, "title": "Prevalence of quadruplexes in the human genome", "journal": "Nucleic Acids Res", "volume": "33(9):2908-2916"},
+
+    {"authors": "Todd AK, Johnston M, Neidle S", "year": 2005, "title": "Highly prevalent putative quadruplex sequence motifs in human DNA", "journal": "Nucleic Acids Res", "volume": "33(9):2901-2907"},
+
+    {"authors": "Gehring K, Leroy JL, Guéron M", "year": 1993, "title": "A tetrameric DNA structure with protonated cytosine.cytosine base pairs", "journal": "Nature", "volume": "363(6429):561-565"},
+
+    {"authors": "Zeraati M, Langley DB, Schofield P, Moye AL, Rouet R, Hughes WE, Bryan TM, Dinger ME, Christ D", "year": 2018, "title": "I-motif DNA structures are formed in the nuclei of human cells", "journal": "Nat Chem", "volume": "10(6):631-637"},
+
+    {"authors": "Ginno PA, Lott PL, Christensen HC, Korf I, Chédin F", "year": 2012, "title": "R-loop formation is a distinctive characteristic of unmethylated human CpG island promoters", "journal": "Mol Cell", "volume": "45(6):814-825"},
+
+    {"authors": "Sakamoto N, Chastain PD, Parniewski P, Ohshima K, Pandolfo M, Griffith JD, Wells RD", "year": 1999, "title": "Sticky DNA: self-association properties of long GAA.TTC repeats in R.R.Y triplex structures from Friedreich's ataxia", "journal": "Mol Cell", "volume": "3(4):465-475"},
+
+    {"authors": "Hou XM, Fu YB, Wu WQ, Wang L, Teng FY, Xie P, Wang PY, Xi XG", "year": 2017, "title": "Involvement of G-triplex and G-hairpin in the multi-pathway folding of human telomeric G-quadruplex", "journal": "Nucleic Acids Res", "volume": "45(19):11401-11412"},
+
+    {"authors": "Jiang HX, Cui Y, Zhao T, Fu HW, Koirala D, Punnoose JA, Kong DM, Mao H", "year": 2015, "title": "Divalent cations and molecular crowding buffers stabilize G-triplex at physiologically relevant temperatures", "journal": "Sci Rep", "volume": "5:9255"},
+
+    {"authors": "Hur JH, Kang CY, Lee S, Parveen N, Yu J, Shamim A, Yoo W, Ghosh A, Bae S, Park CJ, et al.", "year": 2021, "title": "AC-motif: a DNA motif containing adenine and cytosine repeat plays a role in gene regulation", "journal": "Nucleic Acids Res", "volume": "49(17):10150-10165"},
+
+    {"authors": "Fakharzadeh A, Zhang J, Roland C, Sagui C", "year": 2022, "title": "Novel eGZ-motif formed by regularly extruded guanine bases in a left-handed Z-DNA helix as a major motif behind CGG trinucleotide repeats", "journal": "Nucleic Acids Res", "volume": "50(9):4860-4876"},
+
+    {"authors": "Haran TE, Mohanty U", "year": 2009, "title": "The unique structure of A-tracts and intrinsic DNA bending", "journal": "Q Rev Biophys", "volume": "42(1):41-81"},
+
+    {"authors": "Levinson G, Gutman GA", "year": 1987, "title": "Slipped-strand mispairing: a major mechanism for DNA sequence evolution", "journal": "Mol Biol Evol", "volume": "4(3):203-221"},
+
+    {"authors": "Viguera E, Canceill D, Ehrlich SD", "year": 2001, "title": "Replication slippage involves DNA polymerase pausing and dissociation", "journal": "EMBO J", "volume": "20(10):2587-2595"},
+
+    {"authors": "Miura O, Ogake T, Ohyama T", "year": 2018, "title": "Requirement or exclusion of inverted repeat sequences with cruciform-forming potential in Escherichia coli revealed by genome-wide analyses", "journal": "Curr Genet", "volume": "64(4):945-958"},
+
+    {"authors": "SantaLucia J Jr, Hicks D", "year": 2004, "title": "The thermodynamics of DNA structural motifs", "journal": "Annu Rev Biophys Biomol Struct", "volume": "33:415-440"},
+
+    {"authors": "Jenjaroenpun P, Wongsurawat T, Yenamandra SP, Kuznetsov VA", "year": 2015, "title": "QmRLFS-finder: a model, web server and stand-alone tool for prediction and analysis of R-loop forming sequences", "journal": "Nucleic Acids Res", "volume": "43(W1):W527-W534"},
+
+    {"authors": "Rich A, Nordheim A, Wang AH", "year": 1984, "title": "The chemistry and biology of left-handed Z-DNA", "journal": "Annu Rev Biochem", "volume": "53:791-846"},
+
+    {"authors": "Ho PS, Ellison MJ, Quigley GJ, Rich A", "year": 1986, "title": "A computer aided thermodynamic approach for predicting the formation of Z-DNA in naturally occurring sequences", "journal": "EMBO J", "volume": "5(10):2737-2744"},
+
+    {"authors": "Wang G, Mouratidis I, Provatas K, Chantzi N, Patsakis M, Georgakopoulos-Soares I, Vasquez KM", "year": 2025, "title": "ZSeeker: an optimized algorithm for Z-DNA detection in genomic sequences", "journal": "Brief Bioinform", "volume": "26(3)"},
+
+    {"authors": "Brázda V, Kolomazník J, Lýsek J, Bartas M, Fojta M, Šťastný J, Mergny JL", "year": 2019, "title": "G4Hunter web application: a web server for G-quadruplex prediction", "journal": "Bioinformatics", "volume": "35(18):3493-3495"},
+
+    {"authors": "Puig Lombardi E, Londoño-Vallejo A", "year": 2020, "title": "A guide to computational methods for G-quadruplex prediction", "journal": "Nucleic Acids Res", "volume": "48(1):1-15"},
+
+    {"authors": "Buske FA, Bauer DC, Mattick JS, Bailey TL", "year": 2012, "title": "Triplexator: detecting nucleic acid triple helices in genomic and transcriptomic data", "journal": "Genome Res", "volume": "22(7):1372-1381"},
+
+    {"authors": "Cer RZ, Bruce KH, Donohue DE, Temiz NA, Mudunuri US, Yi M, Volfovsky N, Bacolla A, Luke BT, Collins JR, et al.", "year": 2012, "title": "Searching for non-B DNA-forming motifs using nBMST (non-B DNA motif search tool)", "journal": "Curr Protoc Hum Genet", "volume": "Chapter 18:Unit 18.17.1-22"},
+
+    {"authors": "Cer RZ, Donohue DE, Mudunuri US, Temiz NA, Loss MA, Starner NJ, Halusa GN, Volfovsky N, Yi M, Luke BT, et al.", "year": 2013, "title": "Non-B DB v2.0: a database of predicted non-B DNA-forming motifs and its associated tools", "journal": "Nucleic Acids Res", "volume": "41(Database issue):D94-D100"},
+
+    {"authors": "Abou Assi H, Garavís M, González C, Damha MJ", "year": 2018, "title": "i-Motif DNA: structural features and significance to cell biology", "journal": "Nucleic Acids Res", "volume": "46(16):8038-8056"},
+
+    {"authors": "Rhodes D, Lipps HJ", "year": 2015, "title": "G-quadruplexes and their regulatory roles in biology", "journal": "Nucleic Acids Res", "volume": "43(18):8627-8637"},
+
+    {"authors": "Berselli M, Lavezzo E, Toppo S", "year": 2020, "title": "QPARSE: searching for long-looped or multimeric G-quadruplexes potentially distinctive and druggable", "journal": "Bioinformatics", "volume": "36(2):393-399"},
+
+    {"authors": "Smeds L, Kamali K, Kejnovská I, Kejnovský E, Chiaromonte F, Makova KD", "year": 2025, "title": "Non-canonical DNA in human and other ape telomere-to-telomere genomes", "journal": "Nucleic Acids Res", "volume": "53(7)"},
+
+    {"authors": "Yella VR, Vanaja A", "year": 2023, "title": "Computational analysis on the dissemination of non-B DNA structural motifs in promoter regions of 1180 cellular genomes", "journal": "Biochimie", "volume": "214(Pt A):101-111"},
+
+    {"authors": "Shi X, Teng H, Sun Z", "year": 2022, "title": "An updated overview of experimental and computational approaches to identify non-canonical DNA/RNA structures with emphasis on G-quadruplexes and R-loops", "journal": "Brief Bioinform", "volume": "23(6)"},
+
+    {"authors": "Zhao J, Bacolla A, Wang G, Vasquez KM", "year": 2010, "title": "Non-B DNA structure-induced genetic instability and evolution", "journal": "Cell Mol Life Sci", "volume": "67(1):43-62"}
+]
 MOTIF_DESCRIPTIONS = {'Curved_DNA': "Intrinsic DNA curvature from phased A-tracts", 'Slipped_DNA': "Slippage-mediated repeat expansions", 'Cruciform': "Hairpin structures from palindromic sequences", 'R-Loop': "Co-transcriptional R-loop formation sites", 'Triplex': "Triple-stranded DNA from mirror repeats", 'G-Quadruplex': "Four-stranded G-rich secondary structures", 'i-Motif': "Intercalated cytosine structures", 'Z-DNA': "Alternating purine-pyrimidine sequences", 'A-philic_DNA': "A-form DNA propensity regions", 'Hybrid': "Regions with multiple motif types", 'Non-B_DNA_Clusters': "High-density Non-B DNA regions"}
 # ═══════════════════════════════════════════════════════════════════════════════
 
