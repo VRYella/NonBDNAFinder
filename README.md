@@ -191,10 +191,11 @@ If you use NonBDNAFinder in your research, cite:
 
 ```bibtex
 @article{NBDFinder2026,
-  author  = {Yella, Venkata Rajesh and colleagues},
-  title   = {Non-B DNA Finder: A unified framework for detection of diverse non-canonical DNA structures},
-  journal = {Nucleic Acids Research},
-  year    = {2026}
+  author        = {Yella, Venkata Rajesh and Gummadi, Aruna Sesha Chandrika and Kumar, Aditya},
+  title         = {Non-B DNA Finder: A Unified Computational Framework for High-Throughput Detection and Contextual Analysis of Non-Canonical DNA Structures in Diverse Genomes},
+  journal       = {Journal of Chemical Information and Modeling},
+  year          = {2026},
+  note          = {Manuscript ID: ci-2026-019188.R1}
 }
 ```
 
