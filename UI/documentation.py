@@ -1466,10 +1466,11 @@ def _tab_citation():
         f"<div style='font-family:\"Courier New\",monospace;font-size:0.78rem;line-height:1.5;"
         f"color:{dc['text']};background:{dc['light']};padding:0.4rem 1rem;border-left:4px solid {dc['primary']};"
         f"border-radius:4px;margin-bottom:1rem;border:1px solid {dc['border']};'>"
-        "<strong>Yella VR</strong> (2025). NonBDNAFinder: Comprehensive Detection and Analysis of "
-        "Non-B DNA Forming Motifs.<br>"
-        f"GitHub: <a href='https://github.com/VRYella/NonBDNAFinder' style='color:{dc['primary']};'>"
-        "https://github.com/VRYella/NonBDNAFinder</a></div>",
+        "<strong>Journal:</strong> Journal of Chemical Information and Modeling<br>"
+        "<strong>Manuscript ID:</strong> ci-2026-019188.R1<br>"
+        "<strong>Title:</strong> Non-B DNA Finder: A Unified Computational Framework for High-Throughput "
+        "Detection and Contextual Analysis of Non-Canonical DNA Structures in Diverse Genomes<br>"
+        "<strong>Authors:</strong> Yella, Venkata Rajesh; Gummadi, Aruna Sesha Chandrika; Kumar, Aditya</div>",
         unsafe_allow_html=True,
     )
     _section_heading("Developed by")

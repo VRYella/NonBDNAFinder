@@ -9905,8 +9905,10 @@ USAGE NOTES
 CITATION
 ════════
 If you use {APP_NAME} in your research, please cite:
-- Dr. Venkata Rajesh Yella
-- GitHub: https://github.com/VRYella/{APP_NAME}
+- Journal: Journal of Chemical Information and Modeling
+- Manuscript ID: ci-2026-019188.R1
+- Title: Non-B DNA Finder: A Unified Computational Framework for High-Throughput Detection and Contextual Analysis of Non-Canonical DNA Structures in Diverse Genomes
+- Authors: Yella, Venkata Rajesh; Gummadi, Aruna Sesha Chandrika; Kumar, Aditya
 
 CONTACT
 ═══════
